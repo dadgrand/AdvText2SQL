@@ -13,7 +13,14 @@ AdvText2SQL is a text-to-SQL benchmarking framework for evaluating student-writt
 pip install uv
 cp .env.example .env  # Fill in DB_USER, DB_PASS, LLM_BASE_URL, LLM_API_KEY, LLM_MODEL_NAME
 # Start SSH tunnel to remote DB (required before running benchmarks):
-ssh -N -L 5444:10.11.1.6:5444 user_name@lnsigo.mipt.ru -p2278
+bash local/start_tunnel.sh   # persistent tunnel with auto-reconnect watchdog
+# or manually: ssh -N -L 5444:10.11.1.6:5444 user_name@lnsigo.mipt.ru -p2278
+```
+
+**`.env` format**: no spaces around `=`, no quotes around values. Both cause 401 auth errors:
+```
+LLM_API_KEY=your_key_here    # correct
+LLM_API_KEY = "your_key"     # WRONG — spaces + quotes break parsing
 ```
 
 ### Running Benchmarks
@@ -81,6 +88,10 @@ query(user_request)
 - Wraps `SELECT DISTINCT ... ORDER BY` in subquery (PostgreSQL requirement)
 - Forbids DROP, DELETE, UPDATE
 - Converts SQLite-style casts
+- Strips `TO_DATE()` on DATE columns (PostgreSQL rejects it — column already is DATE)
+- Adds `NULLS LAST` / `NULLS FIRST` to `ORDER BY` (PostgreSQL default is opposite to SQLite)
+- Injects `::NUMERIC` into `ROUND(expr, n)` (PostgreSQL rejects `double precision` first arg)
+- Lowercases simple quoted identifiers (`"cardKingdomId"` → `"cardkingdomid"`) — columns are created unquoted/lowercase
 
 ### Prompts
 
@@ -177,15 +188,43 @@ Code guarantees that all-false is a working state:
 - Benchmarks: always sleep 2s base; FEAT_19 adds configurable extra interval on top
 
 ```bash
-# One feature at a time (first flag names the output dir):
+# One feature at a time:
 bash local/run_single.sh "FEAT_2" bird
 bash local/run_single.sh "FEAT_2 FEAT_3" bird   # FEAT_3 depends on FEAT_2
+bash local/run_single.sh baseline both           # all-false baseline
 
-# Full ablation (BIRD + Ambrosia per feature, ~8 hours):
-bash local/ablation_full.sh
+# Large dataset ablation (33 features × 2 benchmarks = 66 runs, ~4 days):
+bash local/ablation_large_bird.sh
+bash local/ablation_large_ambrosia.sh
+
+# Baseline for large dataset (saves to ablation_results_large/feat_baseline/):
+bash local/run_baseline_large.sh both
 ```
 
-Results are saved to `ablation_results/<feat_name>/` (bird.log, ambrosia.log, summary.txt). Runs are skipped if `summary.txt` already exists — delete it to re-run.
+Small-dataset results → `ablation_results/<feat_name>/`. Large-dataset results → `ablation_results_large/<feat_name>_bird/` and `<feat_name>_ambrosia/`. Runs are skipped if `summary.txt` already exists.
+
+**Checkpoint/resume**: `bird.py` and `ambrosia.py` save predictions to `query_results.json` after every question. On restart, completed question IDs are skipped. The marker files `.ablation_current_feat` / `.ablation_current_feat_ambrosia` tell the ablation script whether to keep or clear the checkpoint when resuming. When running `both` benchmarks, `query_results.json` is cleared between Ambrosia and BIRD runs to prevent cross-contamination of question IDs.
+
+### Feature Attribution Dataset (Phase 0.2)
+
+```bash
+# Build per-question attribution matrices from ablation results:
+python scripts/build_feature_dataset.py \
+  --large --benchmark bird \
+  --ablation-dir ablation_results_large \
+  --data-file data/bird_large.json \
+  --out data/feature_labels_large.json
+
+python scripts/build_feature_dataset.py \
+  --large --benchmark ambrosia \
+  --ablation-dir ablation_results_large \
+  --data-file data/ambrosia_large.json \
+  --out data/feature_labels_ambrosia_large.json
+```
+
+Output: `data/feature_labels_large.json` (241×33 BIRD) and `data/feature_labels_ambrosia_large.json` (240×33 Ambrosia). Each entry records `feature_scores[FEAT_N] = 1` if that feature correctly answered the question. Used to train a multilabel classifier for dynamic feature selection (Phase 2 roadmap).
+
+The script looks for `ablation_results_large/feat_baseline/` as the all-false reference. For Ambrosia, scores are recomputed from `ambrosia_query_results.json` (no per-question dump in logs); for BIRD, parsed from the printed results list in `bird.log`.
 
 ### Additional env vars
 
@@ -220,10 +259,23 @@ FEAT_29 (complexity routing) is neutral — omitting saves 1 LLM call/question.
 FEAT_32+33 (taxonomy) requires `_taxonomy_stop_filter` to avoid FP over-triggering on large dataset.
 
 Large dataset results with same combination:
-- **BIRD large**: ~41-43% | **Ambrosia large**: ~71-80% (improving with stop_filter iterations)
+- **BIRD large**: 44.8% (108/241) | **Ambrosia large**: ~71-80%
 
 BIRD breakdown by difficulty (large): simple 58.2%, moderate 34.8%, challenging 26.2%.
 
 ## Baseline Accuracy (reference)
-- BIRD: ~20–35% with gpt-3.5-turbo; ~36% all-false baseline with current model
-- Ambrosia: ~54% all-false baseline with current model
+- **BIRD large** all-false baseline: **38.2%** (92/241)
+- **Ambrosia large** all-false baseline: **55.9%** (127/227, 3 DBs consistently fail due to server init race)
+- BIRD: ~20–35% with gpt-3.5-turbo
+
+### Top single-feature gains over baseline (large dataset)
+| Feature | BIRD +Δ | Ambrosia +Δ |
+|---------|---------|-------------|
+| FEAT_14 (strict SQL rules) | +25 q | +6 q |
+| FEAT_30 (CoT decomposition) | +19 q | +5 q |
+| FEAT_2 (column stats) | +15 q | +30 q |
+| FEAT_26 (learnt hints) | +15 q | +5 q |
+| FEAT_13 (few-shot) | +10 q | +40 q |
+| FEAT_35 (TSV format) | **−7 q** (below baseline in isolation) | +13 q |
+
+FEAT_35 hurts BIRD in isolation but helps in combination with FEAT_2 — nonlinear interaction.
