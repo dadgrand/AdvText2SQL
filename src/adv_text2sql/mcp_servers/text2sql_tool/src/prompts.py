@@ -1,119 +1,131 @@
-AMBIGUITY_PROMPT_TEMPLATE = """
-Ты — помощник, который проверяет запросы к базе данных на неоднозначность.
-Твоя задача — определить, можно ли однозначно преобразовать следующий запрос в SQL на основе предоставленной схемы.
-У тебя есть доступ к следующей схеме базы данных:
+"""Prompt templates for the Text2SQL tool. English only.
 
-### Схема базы данных:
-{db_schema}
+Why English: BIRD and Ambrosia questions are English. The baseline prompts were
+Russian, which forced the model to translate the question, reason in another
+language and answer "OK" in a third form; the ambiguity gate compares the answer
+with the exact token ``OK``, so every translation slip scored zero. Prompt
+language must match question language. ``tests/test_tool.py`` asserts that no
+Cyrillic character survives in this file.
 
-### Инструкции:
-1. Проанализируй запрос пользователя.
-2. Ответь "OK" ТОЛЬКО если запрос полностью однозначен и содержит все необходимые детали для генерации SQL.
-3. Ответь "Неоднозначность:" с кратким объяснением и предложением уточнить, если:
-    - Используются абстрактные понятия вроде "лучший", "худший", "самый проблемный" без указания КОНКРЕТНОЙ МЕТРИКИ.
-    - Запрос касается данных за период, но сам период не указан.
-    - Запрос требует агрегации (например, "время ожидания"), но не указано, какую именно агрегацию нужно использовать
-    (например, среднее, максимальное, минимальное, суммарное). , ЕСЛИ ЯВНО НАПИСАНО, ЧТО НУЖНО СРЕДНЕЕ, ТО ВСЁ ОК. ,
-    ЕСЛИ ЯВНО НАПИСАНО, ЧТО НУЖНО МАКСИМАЛЬНОЕ, ТО ВСЁ ОК. , ЕСЛИ ЯВНО НАПИСАНО, ЧТО НУЖНО МИНИМАЛЬНОЕ, ТО ВСЁ ОК.  ,
-    ЕСЛИ ЯВНО НАПИСАНО, ЧТО НУЖНА СУММА, ТО ВСЁ ОК. НЕ ЗЛОУПОТРЕБЛЯЙ ЭТОЙ РЕКОМЕНДАЦИЕЙ!!!!!!!
-    ВНИМАТЕЛЬНО! ТУТ ЛОЯЛЬНО!!!
-4. Твой ответ должен быть максимально кратким и не задавать лишних вопросов.
-5. Название месяца - это ВАЛИДНЫЙ временной период. Название года - это ВАЛИДНЫЙ временной период.
-Не уточняй временной период, если он ХОТЬ КАК-ТО обозначен!!!
-6. В запросе может содержаться "evidence", внутри которого могут быть вспомогательные данные,
-но это не означает автоматически, что у запроса предполагается верный ответ.
-
-### Примеры:
-- Запрос: "Покажи худшие точки за январь 2025"
-- Твой ответ: Уточните, пожалуйста, метрику, по которой следует определить "худшие" точки.
-
-- Запрос: "Покажи лучшие отделения по средней длительности ожидания"
-- Твой ответ: Уточните, пожалуйста, временной период.
-
-- Запрос: "Покажи точки по времени ожидания в очереди за январь"
-- Твой ответ: Уточните, пожалуйста, вы имеете в виду среднее, максимальное или минимальное время ожидания.
-
-- Запрос: "Покажи топ-3 самых проблемных отделений по средней длительности ожидания в январе 2025"
-- Твой ответ: OK
-
-- Запрос: "Покажи список всех отделений"
-- Твой ответ: OK
-
-### Запрос пользователя:
-{user_query}
+Formatting contract: the placeholders are ``db_schema``, ``sql_dialect``,
+``user_query``, ``sql_query`` and ``error``. Templates contain no other braces so
+``str.format`` stays safe.
 """
 
-SQL_PROMPT_TEMPLATE = """
-Преобразуй следующий запрос в SQL:
-Запрос: {user_query}
+SQL_DIALECT = "PostgreSQL"
+"""Dialect name shown to the model. Kept in sync with ``sql_utils.DIALECT``."""
 
-Требования:
-1. Только SQL, диалект {sql_dialect} - совместимый синтаксис
-2. Обязательные комментарии перед запросом
-3. Четкое соответствие запросу
-4. Используй LIKE, если запрос касается имён собственных, фамилий, названий подразделений.
-Всегда используй LIKE, если запрос касается значений из таблицы, которых нет явно
-в промпте. В таблице слова могут быть в разных падежах, с кавычками или без,
-ты должен УЧИТЫВАТЬ ЭТО!
-5. Всегда используй DISTINCT, если запрос касается одной колонки
-НЕ ОФОРМЛЯЙ НИКАК СВОЙ ОТВЕТ. ТВОЙ ОТВЕТ - ТОЛЬКО ЗАПРОС, НИЧЕГО БОЛЕЕ!
+SYSTEM_PROMPT_TEMPLATE = """You are an expert PostgreSQL analyst. You translate one \
+English question into one executable PostgreSQL query.
 
-SQL запрос:"""
+### Database schema
+{db_schema}
 
-VERIFICATION_PROMPT_TEMPLATE = """
-Ты — эксперт по SQL, который проверяет соответствие SQL-запросов пользовательским запросам.
-Тебе предоставлены оригинальный запрос пользователя и сгенерированный SQL-запрос.
-Твоя задача — определить, корректно ли SQL-запрос отражает суть пользовательского запроса.
+### Output contract
+Return exactly one SELECT statement and nothing else:
+- no markdown fences, no prose, no comments, no trailing semicolon;
+- no backticks: PostgreSQL uses double quotes for identifiers;
+- use only tables and columns that appear in the schema above.
 
-### Оригинальный запрос пользователя:
+### Query rules
+1. Spell identifiers exactly as the schema does. Double-quote an identifier only \
+when it contains spaces, punctuation or upper-case letters.
+2. Match the requested aggregate literally: average means AVG without rounding or \
+casting to integer, count means COUNT, total means SUM, "per" means GROUP BY.
+3. "top N" / "highest" / "lowest" means ORDER BY the metric and LIMIT N; tie-break \
+deterministically with an extra column.
+4. "more than" is >, "at least" is >=, "less than" is <, "at most" is <=, "between" \
+is inclusive.
+5. Guard every division: divide by NULLIF(denominator, 0). A zero denominator is \
+possible in real data and an unguarded division raises an error.
+6. Cast text columns explicitly before numeric or date comparison, for example \
+CAST(column AS numeric) or TO_DATE(column, 'YYYY-MM-DD').
+7. Use exact equality with the literal the question quotes. Use ILIKE with wildcards \
+only when the question itself is inexact ("contains", "starts with", "including"), \
+because results are compared exactly.
+8. Return the columns the question asks for, in that order, and nothing extra.
+9. If the question asks for a rate or a percentage, compute the ratio of the two \
+aggregates rather than averaging per-row ratios.
+10. Use LEFT JOIN when the question asks about entities that may have no matching \
+rows, and IS NULL / IS NOT NULL when it asks about missing or existing values.
+"""
+
+SQL_PROMPT_TEMPLATE = """Translate the following question into one PostgreSQL SELECT \
+statement.
+
+Question:
 {user_query}
 
-### Сгенерированный SQL-запрос:
-```sql
+Return only the SQL, dialect {sql_dialect}. No explanation, no markdown, no trailing \
+semicolon.
+"""
+
+AMBIGUITY_PROMPT_TEMPLATE = """You audit a natural-language question for a database \
+before SQL generation.
+
+### Database schema
+{db_schema}
+
+### Question
+{user_query}
+
+### Task
+Decide whether the question, together with this schema, determines ONE query.
+
+Answer with exactly one of these two forms and nothing else:
+- OK
+- AMBIGUOUS: <one short clause naming the single missing detail>
+
+Choose OK when the question names, or the schema plus a reasonable default \
+determines, the metric, the aggregation and the filter/time scope.
+Choose AMBIGUOUS only when a required choice is genuinely open:
+- a superlative with no metric ("the most expensive department" with several \
+price columns);
+- an aggregation with no stated aggregate ("time spent" without average, sum, \
+maximum or minimum);
+- a period-scoped question with no period at all ("trend", "over time", \
+"this year" without a year).
+
+Never ask for a clarification that a competent analyst would not need. A month \
+name, a year or a single date is a valid period. A named entity such as a city, a \
+country or a person is a valid filter. A plural or vague noun that maps to one \
+obvious table is not an ambiguity. Output must start with ``OK`` or ``AMBIGUOUS:``.
+"""
+
+REPAIR_SYNTAX_PROMPT_TEMPLATE = """The previous SQL did not parse as valid \
+{sql_dialect}, so it would be scored as zero.
+
+### Question
+{user_query}
+
+### Rejected SQL
 {sql_query}
-```
 
-### Правила проверки:
-0. НЕ ПРИДИРАЙСЯ СИЛЬНО!!!
-1. Обращай внимание ТОЛЬКО на ЯВНЫЕ ошибки!
-2. Если запросы соответствуют, ответь "OK".
-3. Если сгенерированный SQL-запрос ошибочен (например, галлюцинация, неправильные столбцы, неверная логика),
-объясни, в чём ошибка, и предложи, как её исправить.
-4. Твой ответ должен быть максимально кратким.
-5. Обращай внимание на то, как обрабатываются даты!!!
-6. Сигнализируй ТОЛЬКО о ГРУБЫХ ошибках. Если запрос неоднозначный, то это НЕ ОШИБКА.
+### Error
+{error}
 
-### Примеры:
-- Запрос: "Покажи средний возраст клиентов"
-- SQL: "SELECT AVG(age) FROM clients;"
-- Твой ответ: "OK"
-
-- Запрос: "Покажи топ-5 отделений по количеству транзакций"
-- SQL: "SELECT branch_id, SUM(transactions) FROM branches;"
-- Твой ответ: "Ошибка: В запросе отсутствует ORDER BY и LIMIT. Для вывода 'топ-5' необходимо отсортировать результат
-и ограничить его."
-
-Твой ответ:
+### Task
+Return a corrected single SELECT statement for the question. Fix the reported error, \
+keep every identifier that the schema supports, add NULLIF(denominator, 0) around \
+column denominators, and return only the SQL: no markdown, no comments, no trailing \
+semicolon.
 """
 
-SYSTEM_PROMPT_TEMPLATE = """
-Ты экспертный Text2SQL ассистент с глубоким пониманием банковской аналитики.
-Твоя задача - точно преобразовывать запросы на русском языке в оптимизированные SQL-запросы.
+REPAIR_EXECUTION_PROMPT_TEMPLATE = """The database rejected the previous SQL, so its \
+result is unavailable.
 
-### Схема базы данных:
-{db_schema}
+### Question
+{user_query}
 
-### Правила генерации SQL:
-1. Всегда используй алиасы для таблиц в JOIN
-2. Всегда экранируй названия через двойные кавычки
-3. Только SELECT запросы (никаких модификаций)
-5. Добавляй комментарии в формате /* Текст */
-6. Оптимизируй запросы для SQL, диалект - {sql_dialect}
-7. Учитывай особенности русской морфологии в запросах
-8. Если тебя просят посчитать среднее, не округляй и не делай cast в integer!
-9. Если тебя просят вывести топ-N значений, ОНИ ДОЛЖНЫ БЫТЬ УНИКАЛЬНЫМИ, ВСЕГДА ИСПОЛЬЗУЙ ГРУППИРОВКУ !!!
-10. Обрати внимание, что все поля имеют тип TEXT, так что перед тем как сравнивать их, должным образом предобработай!
-11. Обрати внимание, что ДАТЫ тоже имеют тип TEXT, ВСЕГДА ПРЕОБРАЗУЙ ИХ В НУЖНЫЙ ТИП!
-12. Перед тем как сравнивать даты с помощью операторов > < BETWEEN, рпеобразуй их в подходящий формат,
-УБЕДИСЬ, ЧТО ОНИ ПОДХОДЯТ ДЛЯ ТАКОГО СРАВНЕНИЯ!!!
+### Rejected SQL
+{sql_query}
+
+### Database error
+{error}
+
+### Task
+Return a corrected single SELECT statement for the question: replace identifiers the \
+database does not know with the closest existing schema identifier, fix the column \
+types, and keep the intended logic. Return only the SQL: no markdown, no comments, no \
+trailing semicolon.
 """
