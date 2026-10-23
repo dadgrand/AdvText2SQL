@@ -292,6 +292,21 @@ def test_harness_contract_is_unchanged() -> None:
     parameters = signature.parameters
     assert "db_uri" in parameters
     assert "llm_client" in parameters
+
+    # The exact call benchmarks/base.py makes must bind: `tool_cls(db_uri=..., llm_client=...)`.
+    bound = inspect.signature(Text2SQLGenerator).bind(
+        db_uri="postgresql+psycopg://user:pass@localhost:5444/fixture", llm_client=object()
+    )
+    assert set(bound.arguments) == {"db_uri", "llm_client"}
+    extra_required = [
+        name
+        for name, parameter in inspect.signature(Text2SQLGenerator).parameters.items()
+        if name not in {"db_uri", "llm_client"}
+        and parameter.default is inspect.Parameter.empty
+        and parameter.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+    ]
+    assert extra_required == [], f"the harness passes no extra argument, but {extra_required} are required"
+
     assert not inspect.iscoroutinefunction(Text2SQLGenerator.build)
     assert inspect.iscoroutinefunction(Text2SQLGenerator.query)
 
