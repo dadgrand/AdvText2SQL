@@ -21,3 +21,8 @@ runs/
 # regenerates on demand from the history, so it is an artifact, not a source file.
 lora-track.patch
 
+# Score reports and frozen baselines written by docs/RUNBOOK.md §3/§8 (`--out eval/...`,
+# `--baseline eval/...`). They are run artifacts keyed to one endpoint and one commit, so a
+# DB day must leave `git status` clean instead of committing them.
+eval/
+
