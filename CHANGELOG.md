@@ -15,7 +15,7 @@ on a fresh clone of `main`:
 
 ```bash
 git apply lora-track.patch            # applies the working tree; verified with --check on a fresh clone
-git am --keep-cr lora-track.patch     # replays the nine commits; --keep-cr is required
+git am --keep-cr lora-track.patch     # replays every commit in the bundle; --keep-cr is required
 ```
 
 `--keep-cr` is not cosmetic: the teacher's blob for `src/.../text2sql_implementation.py` stores CRLF, and
@@ -23,6 +23,12 @@ plain `git am` strips CRs from the patch before applying, so it fails on that on
 succeeds. After `git am --keep-cr` the tree is clean and `python -m pytest tests -q` gives
 `130 passed, 8 skipped` (the skips need the out-of-repo `data_cache/` SQLite copies); in this working
 repository, which has them, the same command gives `138 passed`.
+
+History note: the bundle contains one historical commit that is **not** in our conventional style —
+`wip(eval): offline evaluation layer (I1) - safety snapshot before shutdown` (`220991b`). It was taken
+before an unscheduled shutdown to avoid losing work, and it is preserved as-is in the history on purpose:
+rewriting published-by-us history buys nothing here, while a dishonest re-author would make the record
+harder to audit. Every commit added after it follows `feat:` / `fix:` / `test:` / `docs:` / `chore:`.
 
 ---
 
@@ -148,7 +154,8 @@ repository, which has them, the same command gives `138 passed`.
 
 - `.gitignore` — `runs/` (intentional extension beyond the upstream file, captain-approved: a LoRA run
   launched from the repo root with a relative `--out` writes adapters/checkpoints into `runs/`, which must
-  not enter the patch) and `lora-track.patch` (the generated patch bundle itself).
+  not enter the patch), `eval/` (score reports and frozen baselines written by `docs/RUNBOOK.md` §3/§8, so
+  a DB day leaves `git status` clean) and `lora-track.patch` (the generated patch bundle itself).
 
 ---
 
