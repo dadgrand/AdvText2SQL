@@ -73,15 +73,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import math
 import os
 import random
 import re
 import sys
+import time
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import sqlglot
+from sqlalchemy.exc import OperationalError
 from sqlglot import exp
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "MODES",
@@ -710,8 +715,21 @@ class PostgresExecutor:
 
         if db_id is None:
             raise ValueError("db_id is required to pick a benchmark database")
-        with self._engine(db_id).connect() as connection:
-            return [tuple(row) for row in connection.execute(text(sql)).fetchall()]
+        # A dropped SSH tunnel surfaces as OperationalError ("server closed the
+        # connection unexpectedly").  Retrying once keeps a transient tunnel blip
+        # from being recorded as a gold-query failure (measured: question 714 was
+        # mis-scored that way while another run held the tunnel's channels).
+        for attempt in (1, 2):
+            try:
+                with self._engine(db_id).connect() as connection:
+                    return [tuple(row) for row in connection.execute(text(sql)).fetchall()]
+            except OperationalError:
+                if attempt == 2:
+                    raise
+                logger.warning("transaction failed on %s (attempt %d); retrying once", db_id, attempt)
+                self._engines.pop(db_id, None)
+                time.sleep(0.5)
+        raise RuntimeError("unreachable")  # pragma: no cover
 
 
 def _resolve_executor(execute: Optional[Executor], db_url: Optional[str]) -> Executor:
@@ -1277,4 +1295,5 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 if __name__ == "__main__":  # pragma: no cover - exercised through main()
     raise SystemExit(main())
+
 
