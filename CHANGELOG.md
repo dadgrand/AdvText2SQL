@@ -32,7 +32,9 @@ repository, which has them, the same command gives `138 passed`.
   EX/241 + EX/211 with Wilson CIs, per-difficulty and per-database breakdowns, soft-F1, and a paired
   McNemar/bootstrap block. Reason: the shipped evaluator destroys gold before execution
   (30/241 unparseable) and reports one bare number, which makes any adapter comparison meaningless.
-  The password is percent-encoded for the DSN (it contains `/`), so the run does not depend on shell luck.
+  The password is percent-encoded for the DSN (it contains `/`), so the run does not depend on shell luck,
+  and a dropped tunnel (`OperationalError`) is retried once instead of being recorded as a gold-query
+  failure — measured: question 714 was mis-scored that way while another run held the tunnel's channels.
 - `dev_tools/score_runs.py` — the report's scoring pass: `score bird`, `score ambrosia` (`AMBROSIA floor =
   170/240`) and `compare` (exact McNemar + seeded paired bootstrap against the frozen baseline
   `artifacts/pred_scores.json`, 42.32 % = 102/241). Reason: the shipped evaluator creates one engine per
@@ -109,6 +111,7 @@ repository, which has them, the same command gives `138 passed`.
   `data_cache/runs/<run-id>/` (`query_results.json`, `db_schemas.json`, `run.json`) and refuses to
   overwrite a run. Reason: the harness writes its outputs into the CWD, so two runs silently overwrite
   each other (R1-D22); `--check` also makes the endpoint/plan reviewable before spending tokens.
+  `--benchmark {bird,ambrosia}` drives `BenchmarkAmbrosia` for S1/S4 and records the choice in the plan.
 - `dev_tools/serve_openai.py` — local OpenAI-compatible server (transformers + optional PEFT adapter,
   `--fake` for contract tests). Reason: vLLM is Linux-only and this workstation has no Docker, so the
   harness needs a reachable endpoint that speaks the same three env vars.
