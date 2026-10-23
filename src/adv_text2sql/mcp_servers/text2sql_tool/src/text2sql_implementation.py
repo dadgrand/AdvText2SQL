@@ -513,11 +513,22 @@ class Text2SQLGenerator:
     async def _generate_valid_sql(self, question: str, schema: str) -> str | None:
         """Produce SQL that passes the sqlglot gate, repairing at most once.
 
-        The repair budget is one because a second failure is far more likely to
-        be a model that does not know the schema than a fixable typo, and every
-        extra call costs benchmark time.
+        Call budget per question (``R = max_llm_retries``): one ambiguity call (if the
+        mode is not ``off``), one generation call, and one repair call - each worth at
+        most ``R + 1`` transport attempts. A repair only ever follows a generation that
+        returned SQL; a generation that produced nothing is a retry-level failure, so it
+        ends the question instead of spending a second budgeted call on an empty repair
+        prompt (verification finding F3: 9 calls where the configured budget was 6).
+
+        The repair budget is one because a second failure is far more likely to be a
+        model that does not know the schema than a fixable typo, and every extra call
+        costs benchmark time.
         """
         raw = await self._generate(question, schema)
+        if raw is None:
+            logger.warning("Generation produced no SQL; reporting an error without a repair")
+            return None
+
         validation = self._validate(raw)
         if validation.ok:
             return validation.sql
@@ -525,7 +536,7 @@ class Text2SQLGenerator:
         error = validation.error or "no SQL returned"
         logger.info("SQL rejected (%s); asking for one repair", error)
         repaired_raw = await self._generate(
-            question, schema, repair=RepairRequest(sql=raw or "", error=error)
+            question, schema, repair=RepairRequest(sql=raw, error=error)
         )
         repaired = self._validate(repaired_raw)
         if repaired.ok:
@@ -605,9 +616,14 @@ class Text2SQLGenerator:
     async def _complete(self, messages: Sequence[Any]) -> str | None:
         """One resilient completion: timeout, transport retries with jitter, usage.
 
-        Only transport failures are retried here. A malformed answer is not a
-        transport failure: it is handled by the SQL gate and its repair prompt,
-        which keeps the retry budgets independent and predictable.
+        Returns ``None`` once ``max_llm_retries + 1`` attempts yielded no usable text.
+        An empty or whitespace-only reply counts as a failed attempt (it is retried, not
+        returned): every caller needs text, and a blank answer must never reach the
+        repair path as an empty "Rejected SQL" block.
+
+        Only transport-level failures are retried here. A malformed answer is not a
+        transport failure: it is handled by the SQL gate and its repair prompt, which
+        keeps the retry budgets independent and predictable.
         """
         attempts = self.config.max_llm_retries + 1
         for attempt in range(attempts):
@@ -622,14 +638,17 @@ class Text2SQLGenerator:
                 logger.warning(
                     "LLM call failed (attempt %d/%d): %s", attempt + 1, attempts, error
                 )
-                if attempt + 1 >= attempts:
-                    return None
-                jitter = random.random() * self.config.retry_backoff_s
-                await asyncio.sleep(self.config.retry_backoff_s * (2**attempt) + jitter)
-                continue
+            else:
+                self._account_usage(getattr(result, "usage", None))
+                text = _message_text(getattr(result, "content", None))
+                if text is not None and text.strip():
+                    return text
+                logger.warning("LLM returned no usable text (attempt %d/%d)", attempt + 1, attempts)
 
-            self._account_usage(getattr(result, "usage", None))
-            return _message_text(getattr(result, "content", None))
+            if attempt + 1 >= attempts:
+                return None
+            jitter = random.random() * self.config.retry_backoff_s
+            await asyncio.sleep(self.config.retry_backoff_s * (2**attempt) + jitter)
         return None
 
     def _account_usage(self, usage: Any) -> None:

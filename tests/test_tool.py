@@ -67,6 +67,7 @@ from adv_text2sql.mcp_servers.text2sql_tool.src.sql_utils import (  # noqa: E402
     strip_code_fence,
     validate_sql,
 )
+from adv_text2sql.mcp_servers.text2sql_tool.src import text2sql_implementation  # noqa: E402
 from adv_text2sql.mcp_servers.text2sql_tool.src.text2sql_implementation import (  # noqa: E402
     AMBIGUITY_ENV_VAR,
     DEFAULT_AMBIGUITY_MODE,
@@ -151,14 +152,19 @@ def make_tool(
     engine: Any = None,
     build: bool = True,
 ) -> tuple[Text2SQLGenerator, StubLLM]:
-    """Construct the tool the way ``benchmarks/base.py`` does (plus test seams)."""
+    """Construct the tool the way ``benchmarks/base.py`` does (plus test seams).
+
+    Defaults to :func:`offline_config`, not the production defaults, so a tool built
+    for a shape/plumbing test can never open a database connection; pass
+    ``config=Text2SQLConfig()`` explicitly when the real defaults are under test.
+    """
     llm = StubLLM(responder or make_responder())
     tool = Text2SQLGenerator(
         db_uri="postgresql+psycopg://user:pass@localhost:5444/fixture",
         llm_client=llm,
         schema=schema,
         engine=engine,
-        config=config,
+        config=offline_config() if config is None else config,
     )
     if build:
         tool.build()
@@ -233,11 +239,55 @@ class _FakeEngine:
         return _FakeConnection(self._error)
 
 
+@pytest.fixture(autouse=True)
+def _forbid_database_engines(monkeypatch: Any) -> Any:
+    """No test in this file may create a real database engine.
+
+    Verification round 2 (finding of t18): once sqlalchemy and psycopg became
+    importable in the shared interpreter, a tool built with the *default* config
+    reached the execution-feedback path and created a real engine, so the
+    harness-contract test dialled a database it never needed. A failed engine
+    creation is swallowed by the tool as "database unreachable", so patching alone
+    would hide the attempt again - the teardown assertion is what makes it visible.
+    """
+    attempts: list[tuple[Any, ...]] = []
+
+    def recording_create_engine(*args: Any, **kwargs: Any) -> Any:
+        attempts.append(args)
+        raise AssertionError("unit tests must not create database engines")
+
+    monkeypatch.setattr(text2sql_implementation, "create_engine", recording_create_engine)
+    yield
+    assert not attempts, f"the tool tried to create a database engine: {attempts}"
+
+
 # ------------------------------------------------------------------ harness contract
 
 
+class _UnreachableEngine:
+    """Engine stand-in whose connections fail the way a down database fails.
+
+    An injected engine instead of a DSN on purpose: a refused/timed-out real connect
+    makes the suite depend on network behaviour (psycopg waits ~130 s on a filtered
+    port in this environment) while exercising the same ``build`` handler. It counts
+    connection attempts so a test can prove the engine was never even touched.
+    """
+
+    def __init__(self) -> None:
+        self.connections = 0
+
+    def connect(self) -> Any:
+        self.connections += 1
+        raise OperationalError("connection refused")
+
+
 def test_harness_contract_is_unchanged() -> None:
-    """``base.py`` calls ``tool_cls(db_uri=..., llm_client=...)`` then ``build()``."""
+    """``base.py`` calls ``tool_cls(db_uri=..., llm_client=...)`` then ``build()``.
+
+    The test only asserts the constructor/pipeline shape, so it must never dial: the
+    tool is built with ``offline_config()`` (no execution feedback) and an injected
+    unreachable engine, and the engine is asserted untouched.
+    """
     signature = inspect.signature(Text2SQLGenerator.__init__)
     parameters = signature.parameters
     assert "db_uri" in parameters
@@ -245,7 +295,8 @@ def test_harness_contract_is_unchanged() -> None:
     assert not inspect.iscoroutinefunction(Text2SQLGenerator.build)
     assert inspect.iscoroutinefunction(Text2SQLGenerator.query)
 
-    tool, _llm = make_tool(build=False)
+    engine = _UnreachableEngine()
+    tool, _llm = make_tool(build=False, config=offline_config(), engine=engine)
     tool.build()
 
     assert isinstance(tool.db_schema, str)
@@ -256,15 +307,44 @@ def test_harness_contract_is_unchanged() -> None:
     result = ask(tool)
     assert result["status"] == "success"
     assert result["query"]
+    assert engine.connections == 0, "the harness-contract test must not touch a database"
 
 
 def test_build_without_database_degrades_instead_of_raising() -> None:
     """A broken DB must not abort the benchmark run inside ``build``."""
-    tool = Text2SQLGenerator(db_uri="postgresql+psycopg://nobody@127.0.0.1:1/missing", llm_client=StubLLM(make_responder()), schema=None)
+    tool = Text2SQLGenerator(
+        db_uri="postgresql+psycopg://nobody@127.0.0.1:1/missing",
+        llm_client=StubLLM(make_responder()),
+        schema=None,
+        engine=_UnreachableEngine(),
+        config=offline_config(),
+    )
     tool.build()
-    assert isinstance(tool.db_schema, str)
-    assert tool.schema_source in {"unavailable", "database"}
-    assert isinstance(tool.system_prompt, str)
+    assert tool.db_schema == ""
+    assert tool.schema_source == "unavailable"
+    assert isinstance(tool.system_prompt, str) and tool.system_prompt
+
+    # A schema-less tool still answers (the model may guess from the question) and
+    # still never raises; only the prompt lost the schema block.
+    result = ask(tool)
+    assert result["status"] in {"success", "error"}
+    assert "TABLE" not in tool.system_prompt
+
+
+def test_build_with_empty_database_still_sets_a_schema() -> None:
+    """An empty database is a schema of zero tables, not a crash."""
+    sqlalchemy = pytest.importorskip("sqlalchemy")  # the DB layer is an optional extra
+    tool = Text2SQLGenerator(
+        db_uri="sqlite://",
+        llm_client=StubLLM(make_responder()),
+        schema=None,
+        engine=sqlalchemy.create_engine("sqlite://"),
+        config=offline_config(),
+    )
+    tool.build()
+    assert tool.db_schema == ""
+    assert tool.schema_source == "database"
+    assert isinstance(tool.system_prompt, str) and tool.system_prompt
 
 
 # ----------------------------------------------------------------- never raises
@@ -358,13 +438,18 @@ def test_ambiguity_parsing_is_tolerant_but_strict_about_no() -> None:
 
 
 def test_ambiguity_modes_and_default(monkeypatch: Any) -> None:
-    """The default protects BIRD; ``strict`` is opt-in; ``off`` drops the call."""
+    """The default protects BIRD; ``strict`` is opt-in; ``off`` drops the call.
+
+    ``make_tool`` defaults to ``offline_config()`` (mode ``off``), so the production
+    defaults are requested explicitly here: this test is exactly the place where the
+    real ``Text2SQLConfig()`` resolution must be observed.
+    """
     monkeypatch.delenv(AMBIGUITY_ENV_VAR, raising=False)
-    default_tool, _ = make_tool()
+    default_tool, _ = make_tool(config=Text2SQLConfig())
     assert default_tool.ambiguous_mode == DEFAULT_AMBIGUITY_MODE == "birdsafe"
 
     monkeypatch.setenv(AMBIGUITY_ENV_VAR, "strict")
-    env_tool, _ = make_tool()
+    env_tool, _ = make_tool(config=Text2SQLConfig())
     assert env_tool.ambiguous_mode == "strict"
 
     explicit_tool, _ = make_tool(config=Text2SQLConfig(ambiguous_mode="off"))
@@ -471,6 +556,112 @@ def test_repair_happens_exactly_once() -> None:
     assert fixed["status"] == "success"
     assert fixed["query"] == VALID_SQL
     assert len(fixed_llm.calls) == 2
+
+
+def _call_kinds(llm: StubLLM) -> list[str]:
+    """Classify each recorded call by the prompt it carried.
+
+    Counting calls is not enough to prove a budget: the kind of each call shows
+    whether a repair was spent or a generation attempt was retried.
+    """
+    kinds: list[str] = []
+    for messages in llm.calls:
+        prompt = "\n".join(str(getattr(message, "content", "")) for message in messages)
+        if AMBIGUITY_MARKER in prompt:
+            kinds.append("ambiguity")
+        elif SYNTAX_REPAIR_MARKER in prompt:
+            kinds.append("syntax-repair")
+        elif EXECUTION_REPAIR_MARKER in prompt:
+            kinds.append("execution-repair")
+        else:
+            kinds.append("generation")
+    return kinds
+
+
+def test_call_budget_of_one_question() -> None:
+    """F3 regression: one ambiguity call, one generation, at most one repair.
+
+    Before the fix an all-failing run made 9 calls where the configured budget was
+    6, because a repair was issued even when the generation had returned no SQL at
+    all: the repair consumed a fresh retry budget instead of ending the question.
+    """
+    retries = 2
+    budget = retries + 1
+
+    happy_tool, happy_llm = make_tool(
+        responder=make_responder(sql=VALID_SQL),
+        config=offline_config(ambiguous_mode="birdsafe", max_llm_retries=retries),
+    )
+    assert ask(happy_tool)["status"] == "success"
+    assert _call_kinds(happy_llm) == ["ambiguity", "generation"]
+
+    repair_tool, repair_llm = make_tool(
+        responder=make_responder(sql=INVALID_SQL, syntax_repair=VALID_SQL),
+        config=offline_config(ambiguous_mode="birdsafe", max_llm_retries=retries),
+    )
+    assert ask(repair_tool)["status"] == "success"
+    assert _call_kinds(repair_llm) == ["ambiguity", "generation", "syntax-repair"]
+
+    def always_failing(_prompt: str, _index: int) -> Any:
+        raise RuntimeError("transport exploded")
+
+    failed_tool, failed_llm = make_tool(
+        responder=always_failing,
+        config=offline_config(ambiguous_mode="birdsafe", max_llm_retries=retries),
+    )
+    assert ask(failed_tool)["status"] == "error"
+    # Gate plus generation, budget attempts each, and no repair after a failed
+    # generation: 2 * 3 = 6 calls (the pre-fix behaviour was 9).
+    assert len(failed_llm.calls) == 2 * budget
+    assert _call_kinds(failed_llm) == ["ambiguity"] * budget + ["generation"] * budget
+
+
+def test_no_repair_after_a_generation_that_returned_nothing() -> None:
+    """A repair prompt must never carry an empty SQL block (F3, second half)."""
+    retries = 1
+
+    empty_tool, empty_llm = make_tool(
+        responder=make_responder(ambiguity="OK", sql="   "),
+        config=offline_config(ambiguous_mode="birdsafe", max_llm_retries=retries),
+    )
+    assert ask(empty_tool)["status"] == "error"
+    kinds = _call_kinds(empty_llm)
+    assert "syntax-repair" not in kinds
+    assert "execution-repair" not in kinds
+    # The blank reply counts as a failed generation attempt and is retried instead.
+    assert kinds == ["ambiguity"] + ["generation"] * (retries + 1)
+    for messages in empty_llm.calls:
+        assert "### Rejected SQL" not in str(messages[1].content)
+
+    def always_failing(_prompt: str, _index: int) -> Any:
+        raise RuntimeError("transport exploded")
+
+    failed_tool, failed_llm = make_tool(
+        responder=always_failing,
+        config=offline_config(ambiguous_mode="birdsafe", max_llm_retries=0),
+    )
+    assert ask(failed_tool)["status"] == "error"
+    assert _call_kinds(failed_llm) == ["ambiguity", "generation"]
+
+
+def test_a_blank_reply_is_retried_instead_of_being_repaired() -> None:
+    """A blank generation consumes a retry, so a transient blank is not fatal."""
+    attempts = {"generation": 0}
+
+    def blank_then_valid(prompt: str, _index: int) -> Any:
+        if AMBIGUITY_MARKER in prompt:
+            return "OK"
+        attempts["generation"] += 1
+        return "" if attempts["generation"] == 1 else VALID_SQL
+
+    tool, llm = make_tool(
+        responder=blank_then_valid,
+        config=offline_config(ambiguous_mode="birdsafe", max_llm_retries=1),
+    )
+    result = ask(tool)
+    assert result["status"] == "success"
+    assert result["query"] == VALID_SQL
+    assert _call_kinds(llm) == ["ambiguity", "generation", "generation"]
 
 
 # ------------------------------------------------------------ execution feedback
