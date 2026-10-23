@@ -540,6 +540,16 @@ Headline, so a reader of this runbook knows what the procedure produced before r
 * **Training:** `runs/e3-r16/adapter`, best validation loss 0.1757 at step 50, 29 m 18 s, 11.0 GiB peak of
   15.99 GiB (r=16, alpha=32, all-linear, 684 rows).
 
-An evidence-enabled E1 addendum (base model re-run with the stock `use_evidence=True`) is being measured;
-its result is appended to `docs/REPORT.md` and this summary in a follow-up commit.
+An evidence-enabled baseline (E1-fair) settles most of the gap to the frozen 42.32 % file: the same base
+model with the stock entrypoint's `use_evidence=True` — the flag our own wrapper omitted — scores
+**84/241 = 34.85 %** (EX/209 40.19 %), **+13.69 pp** over E1 (b = 39, c = 6, exact McNemar p = 5.4e-07,
+10k bootstrap CI [+8.71, +19.09]), i.e. evidence explains **65 %** of the 21.16 pp gap. The rest does not
+close: E1-fair is still **−7.47 pp** behind the frozen file (b = 21, c = 39, p = 0.0273, CI
+[−13.69, −1.24]) and cannot be attributed from the artifacts (the frozen file has no SQL or config).
+Decoding is ruled out (no prediction hits the 512-token cap). The clean adapter comparison is unchanged
+(+4.15 pp, p = 0.164, inconclusive); the missing cell is **E3-fair** (adapter **with** evidence, ~15 min),
+so no adapter claim should quote the frozen baseline until it exists (`docs/REPORT.md` §7.4). Practical
+consequence for a re-run: set `use_evidence` explicitly and record `max_tokens`, `use_evidence`, the tool
+commit and `torch.cuda.max_memory_allocated` in `run.json` — the wrapper records none of them today, and a
+1 Hz `nvidia-smi` sample is how the ~8.2 GiB 4-bit serving footprint was measured.
 

@@ -11,6 +11,7 @@ command that produced it and to the artifact that stores it.
 | run | model | data | artifact |
 |---|---|---|---|
 | `e1-bird-large` | base `Qwen2.5-Coder-7B-Instruct` (4-bit) | `data/bird_large.json` (241) | `runs/t2/e1-bird-large/query_results.json` |
+| `e1fair-bird-large` | same base, **`use_evidence=True`** (stock entrypoint setting; §7) | same 241 | `runs/t2/e1fair-bird-large/query_results.json` |
 | `e3-bird-large` | same base + `runs/e3-r16/adapter` (QLoRA r=16) | same 241 | `runs/t2/e3-bird-large/query_results.json` |
 | `e1-ambrosia-large` | base | `data/ambrosia_large.json` (240) | `runs/t2/e1-ambrosia-large/query_results.json` (merged from 4 shards) |
 | `e3-ambrosia-large` | adapter | same 240 | `runs/t2/e3-ambrosia-large/query_results.json` (merged from 4 shards) |
@@ -129,6 +130,7 @@ never wasted on the gate).
 |---|---|---|---|---|---|---|
 | **E1** base `Qwen2.5-Coder-7B-Instruct` (4-bit) | **51/241 = 21.16 %** <br>95 % CI 16.5–26.8 | **51/209 = 24.40 %** <br>CI 19.1–30.7 | 32 | 40 | 34/91 = 37.4 % · 13/89 = 14.6 % · 4/61 = 6.6 % | 0.2974 |
 | **E3** base + `runs/e3-r16/adapter` | **61/241 = 25.31 %** <br>CI 20.2–31.2 | **61/209 = 29.19 %** <br>CI 23.4–35.7 | 32 | 36 | 37/91 = 40.7 % · 11/89 = 12.4 % · 13/61 = 21.3 % | 0.3351 |
+| **E1-fair** base, `use_evidence=True` (§7) | **84/241 = 34.85 %** <br>CI 29.1–41.1 | **84/209 = 40.19 %** | 32 | 39 | 47/91 = 51.6 % · 24/89 = 27.0 % · 13/61 = 21.3 % | 0.4677 |
 | team's frozen baseline (id-level only) | 102/241 = 42.32 % | — | — | — | n/a | — |
 
 The 32 unexecutable gold items are **exactly** the known set — the 30 regex-syntax kills
@@ -142,8 +144,18 @@ Wall clock and cost per run (from `runs/t2/<run-id>/run.json`, same 4-bit server
 |---|---|---|---|
 | E1 `bird_large` | 912 s (15.2 min) | 473 301 | 22 209 |
 | E3 `bird_large` | 1 250 s (20.8 min) | 453 007 | 21 509 |
+| E1-fair `bird_large` (`use_evidence=True`) | 833 s (13.9 min) | 484 408 | 20 682 |
 | E1 Ambrosia (4 shards) | 686 s (11.4 min) | 224 446 | 11 257 |
 | E3 Ambrosia (4 shards) | **434 s (7.2 min)** | **103 484** | **3 785** |
+
+**Serving VRAM (measured, all BIRD runs share one configuration).** `nvidia-smi` sampled at
+1 Hz while replaying six real 860-prompt-token harness requests against the E1-fair server:
+idle after load **8,211 MiB**, peak **8,218 MiB** of 16,376 MiB (`runs/t2/vram_samples.json`).
+Spot samples taken during the E1 and E3 runs stayed in 7,684–8,009 MiB. So the 4-bit server
+uses ~8.2 GiB regardless of the run; the bf16 contrast (16,016 MiB, paged, 184.7 s per
+request) is in §2, item 1. Caveat: `run.json` does not carry `torch.cuda.max_memory_allocated`
+(the server owns the process), so the per-run peak is a sampled figure, not a per-process
+counter — recording it per run is a follow-up for `serve_openai.py` (§7.4).
 
 The E3 Ambrosia row is itself evidence of the collapse (§5.2): once the gate answers
 "ambiguous", the pipeline stops before SQL generation, so the adapter spent less than half
@@ -173,6 +185,9 @@ Ambrosia constants. E1 is also *below* the never-ambiguous floor. Neither number
 | E3 adapter vs frozen (BIRD) | 241 | 20 | 61 | 5.7e-06 | −17.01 pp | [−23.65, −9.96] pp | significantly worse than the frozen file |
 | E1 base vs frozen (context) | 241 | 10 | 61 | 4.6e-10 | −21.16 pp | [−27.39, −14.94] pp | same, slightly worse |
 | E3 adapter vs E1 base (Ambrosia) | 240 | 53 | 126 | 4.9e-08 | −30.42 pp | [−40.4, −20.0] pp | significantly worse |
+| **E1-fair vs E1** (evidence only, §7) | 241 | 39 | 6 | 5.4e-07 | **+13.69 pp** | [**+8.71, +19.09**] pp | **evidence is decisive** |
+| **E1-fair vs frozen** (§7) | 241 | 21 | 39 | 0.0273 | **−7.47 pp** | [−13.69, −1.24] pp | gap narrows, still open |
+| **E3 adapter vs E1-fair** (§7) | 241 | 15 | 38 | 0.0022 | −9.54 pp | [−15.35, −3.73] pp | mixes adapter and evidence — not an adapter measurement |
 
 Applying the pre-registered rule (claim "better" only if `b − c ≥ 6` **and** `p < 0.05`
 **and** the CI excludes 0): `b − c = 10` and the CI's lower bound is −0.83 pp, but
@@ -200,6 +215,9 @@ helps most where the base model produced invalid SQL and least where the schema 
 * Every number above is reachable from the artifacts without re-running the model:
   `python -m dev_tools.score_runs compare ...` recomputes the paired tables; the ledgers
   carry per-question scores.
+* The two `E1-fair` rows answer the "fair comparison" question; §7 is the analysis.
+
+---
 
 ## 6. Harness wiring proof (unchanged entrypoint)
 
@@ -215,7 +233,87 @@ report (13.64 %, 3/22, per-difficulty simple 22.22 / moderate 0.00 / challenging
 the tunnel outage (`psycopg OperationalError`/`ConnectionTimeout`), so it is recorded only
 as proof that the harness runs unchanged against our server.
 
-## 7. Honest limitations
+## 7. Is the gap to the frozen baseline configuration or model?
+
+**Short answer: it was mostly configuration, and `use_evidence` is the part we can name.**
+Turning on the stock entrypoint's evidence flag moves the same base model on the same 241
+questions from 21.16 % to **34.85 %** — that is **13.69 pp of the 21.16 pp gap (65 %)**.
+The remaining **−7.47 pp does not close**, and it cannot be attributed with the artifacts we
+have.
+
+### 7.1 What was held fixed, what changed
+
+| | E1 | E1-fair |
+|---|---|---|
+| model, dtype | Qwen2.5-Coder-7B-Instruct, 4-bit NF4 | identical |
+| serving | `serve_openai.py`, greedy, `max_new_tokens=512` | identical |
+| tool | v2, `birdsafe` ambiguity gate, pruning, one repair | identical |
+| database | live PostgreSQL through the tunnel, 8 BIRD databases | identical |
+| questions | `data/bird_large.json`, 241 | identical |
+| **prompt** | `question: <q>` | **`question: <q>, evidence (may be empty): <e>`** (`benchmarks/bird.py:32-33`; evidence non-empty on **221/241**) |
+| predictions / ledger | `runs/t2/e1-bird-large`, `runs/t2/scores/e1-bird-large.json` | `runs/t2/e1fair-bird-large`, `runs/t2/scores/e1fair-bird-large.json` |
+
+### 7.2 The `use_evidence` question on its own
+
+| comparison | EX | b | c | exact McNemar p | ΔEX | 10k bootstrap 95 % CI |
+|---|---|---|---|---|---|---|
+| **E1-fair vs E1** | 84/241 = 34.85 % vs 51/241 = 21.16 % | **39** | **6** | **5.4e-07** | **+13.69 pp** | **[+8.71, +19.09] pp** |
+
+Enabling evidence fixes **39** questions and breaks **6**. That is not noise and it is not a
+couple of questions: it is the single largest effect measured in this whole branch so far,
+larger than the adapter's entire contribution. Per difficulty it helps everywhere
+(simple 34→47, moderate 13→24, challenging 4→13 of 61) and it lifts soft-F1 from 0.297 to
+0.468.
+
+**So the T2 comparison to the frozen baseline was not apples-to-apples.** Whoever produced
+the frozen 42.32 % ran the stock entrypoint, which sets `use_evidence=True`; our E1/E3 ran
+`run_benchmark.py`, which did not. That is a defect in our own harness wrapper, not in the
+frozen file.
+
+### 7.3 The rest of the gap: not explained, and it stands
+
+| comparison | E1-fair | frozen | b | c | exact p | ΔEX | 95 % CI |
+|---|---|---|---|---|---|---|---|
+| **E1-fair vs frozen 42.32 %** | 84/241 = 34.85 % | 102/241 = 42.32 % | 21 | 39 | **0.0273** | **−7.47 pp** | **[−13.69, −1.24] pp** |
+
+The frozen file is still significantly better. So **the gap stands at 7–14 pp** and the
+honest sentence is: "the base model with the correct prompt is 7.5 pp below the team's
+frozen run, and we cannot say why."
+
+What is ruled out, and what is not:
+
+* **Decoding length is ruled out.** No prediction reaches the 512-token cap: E1-fair
+  completions are 10–194 tokens (median 49, p95 89), E1 is 10–203 (median 51, p95 103), and
+  all 241 predictions in both files parse as PostgreSQL (`runs/t2/inspect_predictions.py`).
+  A larger `max_new_tokens` cannot buy anything.
+* **Tool revision is not testable from here.** The frozen artifact is per-question scores
+  only — no SQL, no prompt, no commit, no config. A different `src/` revision (different
+  system prompt, different ambiguity gate, different repair policy), a different
+  `max_tokens`, or a different model id would all produce exactly this signature and we
+  cannot separate them.
+* **The adapter does not explain it either way.** E3 was measured without evidence:
+  E3 vs E1 is +4.15 pp (b=26, c=16, p=0.164, inconclusive) and E3 vs E1-fair is −9.54 pp
+  (b=15, c=38, p=0.0022). The second number is *not* an adapter measurement — it mixes
+  adapter-on/evidence-off against adapter-off/evidence-on, so it says only that the
+  evidence effect (~+13.7 pp) dominates the adapter effect (~+4 pp). The clean adapter
+  comparison remains E3 vs E1.
+
+### 7.4 What would settle it definitively
+
+Re-run the frozen configuration end-to-end and compare like with like: the team's tool
+revision (a commit hash), its exact prompt, its decoding parameters and its `max_tokens`,
+then run base **and** adapter with evidence on. That needs the team's tool revision and the
+configuration of the May run — neither is in the artifacts we have. Two concrete follow-ups
+that are cheap on our side:
+
+1. **E3-fair** (adapter + `use_evidence=True`, one ~15-minute run, `runs/t2/` already has the
+   script pattern): the missing member of the 2×2 design `{base, adapter} × {no evidence,
+   evidence}`. Until it exists, no adapter claim should quote the frozen baseline.
+2. Record `torch.cuda.max_memory_allocated`, `max_tokens`, `use_evidence` and the tool commit
+   in every `run.json` (today only the wrapper's argv-equivalent is recorded) so a future
+   comparison cannot repeat the E1/E1-fair mismatch by accident.
+
+## 8. Honest limitations
 
 * **Sharding does not change predictions.** Each Ambrosia question is answered by the tool
   built for its own `db_id`, so the shard boundary cannot alter a prompt; the merged file
@@ -248,5 +346,9 @@ as proof that the harness runs unchanged against our server.
   behaviour under bf16 serving may differ slightly.
 * **The tool is v2** with pruning/ambiguity-gate; the frozen baseline may have used a
   different tool revision, so part of any delta is tool-side, not adapter-side.
+
+
+
+
 
 

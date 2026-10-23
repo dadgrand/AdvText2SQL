@@ -225,6 +225,23 @@ or a decision threshold, not more epochs.
 Adapter provenance: `runs/e3-r16/adapter`, best validation loss **0.1757** at step 50, **29 m 18 s**,
 **11.0 GiB** peak allocated of 15.99 GiB (LoRA r=16, alpha=32, all-linear, 684 rows).
 
-An evidence-enabled E1 addendum (the base model re-run with the stock `use_evidence=True`) is being
-measured; its result is appended in a follow-up commit.
+**Was the gap to the frozen 42.32 % configuration or weights? Mostly configuration — and the remainder
+stands.** Re-running the same base model with the stock entrypoint's `use_evidence=True` (the flag our own
+wrapper omitted) gives **84/241 = 34.85 %** (EX/209 40.19 %, soft-F1 0.4677, 833 s), a paired
+**+13.69 pp** over E1 (b = 39, c = 6, exact McNemar p = 5.4e-07, 10k bootstrap CI [+8.71, +19.09]) —
+i.e. evidence explains **65 % of the 21.16 pp gap**, the largest single effect measured on this branch.
+It does **not** close it: against the frozen file the evidence-enabled base model is still
+**−7.47 pp** (b = 21, c = 39, p = 0.0273, CI [−13.69, −1.24]), and that residual cannot be attributed
+with the artifacts we have (the frozen file is per-question scores only — no SQL, no prompt, no commit).
+Decoding length is ruled out (no prediction reaches the 512-token cap, all 241 parse as PostgreSQL). The
+clean adapter comparison is unchanged (E3 vs E1, +4.15 pp, p = 0.164, inconclusive); E3 vs E1-fair
+(−9.54 pp, p = 0.0022) is not an adapter measurement because it flips the evidence flag as well. The
+missing cell of the 2×2 design is E3-fair (adapter **with** evidence, one ~15-minute run) and no adapter
+claim should quote the frozen baseline until it exists (`docs/REPORT.md` §7.4).
+
+Serving VRAM on this card: sampled at 1 Hz, the 4-bit server runs at ~**8.2 GiB** (peak 8,218 MiB of
+16,376 MiB, `runs/t2/vram_samples.json`; spot samples during E1/E3 stayed in 7,684–8,009 MiB), versus
+16,016 MiB for the bf16 load that Windows paged. `run.json` does not carry a per-run
+`torch.cuda.max_memory_allocated` (the server owns the process), so the per-run peak is a sampled figure —
+recording it in `run.json` is a follow-up (§7.4).
 
