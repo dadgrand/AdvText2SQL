@@ -1,0 +1,49 @@
+{
+  "64": {
+    "gold": [
+      [
+        1
+      ]
+    ],
+    "teacher": [
+      [
+        1
+      ]
+    ]
+  },
+  "456": {
+    "gold": [
+      [
+        3,
+        4
+      ]
+    ],
+    "teacher": {
+      "error": "division by zero"
+    }
+  },
+  "460": {
+    "gold": [
+      [
+        "Aleksi Briclot"
+      ]
+    ],
+    "teacher": [
+      [
+        "Daren Bader"
+      ]
+    ]
+  },
+  "400": {
+    "gold": [
+      [
+        "THS"
+      ]
+    ],
+    "teacher": [
+      [
+        "THS"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "64": "SELECT COUNT(*) AS n FROM schools WHERE MailCity = 'Hickman' AND CharterNum = '00D4'",
+  "437": "SELECT * FROM cards WHERE )",
+  "456": "SELECT subtypes, supertypes FROM cards WHERE name = 'Molimo, Maro-Sorcerer'",
+  "460": "SELECT DISTINCT artist FROM cards WHERE flavorName = 'Battra, Dark Destroyer'",
+  "400": "SELECT DISTINCT setCode FROM set_translations WHERE language = 'Spanish'"
+}

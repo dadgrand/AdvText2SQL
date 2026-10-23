@@ -1,0 +1,8 @@
+# Temporary resolution constraints for the training venv (frozen into requirements-train.txt later).
+# The 2026-era PyPI defaults resolve transformers 5.x, which hard-requires torch>=2.6 and breaks the
+# cu121 build this Windows box uses; trl 0.18 is the newest <0.21 release with completion_only_loss.
+transformers>=4.46,<5
+tokenizers<1
+huggingface-hub<1
+torch==2.5.1
+numpy<3

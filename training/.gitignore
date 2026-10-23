@@ -1,0 +1,10 @@
+# Build outputs, adapters and run directories are artifacts, not sources.
+out/
+self_test_out/
+runs/
+tmp*/
+__pycache__/
+.venv*/
+*.log
+out-real/
+
