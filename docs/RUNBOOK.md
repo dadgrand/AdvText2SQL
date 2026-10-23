@@ -49,20 +49,20 @@ open the forward by hand:
 ssh -N -L 5444:10.11.1.6:5444 "$SSH_USER@lnsigo.mipt.ru" -p 2278
 ```
 
-…or use the team's keepalive wrapper (paramiko, auto-reconnect):
+…or use the team's keepalive wrapper (paramiko, auto-reconnect), from `$REPO`:
 
 ```bash
-python research/advtext2sql/ssh_tunnel.py
+python ../ssh_tunnel.py          # scripts live one level above the repo, next to data_cache/
 ```
 
-Verify the forward, then the server:
+Verify the forward, then the server (same working directory, `$REPO`):
 
 ```bash
 python - <<'PY'
 import socket
 s = socket.create_connection(("127.0.0.1", 5444), timeout=5); s.close(); print("forward: open")
 PY
-python research/advtext2sql/db_probe.py        # inventories databases
+python ../db_probe.py            # inventories databases
 ```
 
 Expected: `forward: open`, then a list containing the 8 BIRD dev databases (`california_schools`,
@@ -110,7 +110,7 @@ python -m dev_tools.dump_schemas --sqlite-dir ../data_cache/dev_databases \
 Cross-check against the tool the harness will actually use:
 
 ```bash
-python -m dev_tools.dump_schemas --sqlite-dir ../data_cache/dev_databases --out /tmp/x.json \
+python -m dev_tools.dump_schemas --sqlite-dir ../data_cache/dev_databases --bird-only --out /tmp/x.json \
     --compare-with ../artifacts/db_schemas_bird.json       # expected: 218 casing + 59 type differences
 ```
 
@@ -119,38 +119,76 @@ python -m dev_tools.dump_schemas --sqlite-dir ../data_cache/dev_databases --out 
 ## 3. Frozen baseline on `bird_large` / `ambrosia_large` (E0, ~1 h, first time only)
 
 E0 is the *floor*: base 7B with the repository's own (Russian) prompts. Our branch replaces
-`prompts.py`, so run E0 from a throw-away worktree of `main` — the branch is never modified:
+`prompts.py`, so run E0 from a throw-away worktree of `main` — the branch is never modified.
+
+Two things must be true inside that worktree, and only the first is free: the **harness** comes from `main`
+(that is what the worktree is for), and the **recorder** is ours (`dev_tools/` exists only on this branch).
+So copy our measurement code in; it derives its own `REPO_ROOT` from its location, which makes it drive the
+worktree's `benchmarks/` and the worktree's `src/` tool — i.e. main's baseline, not ours:
 
 ```bash
 git worktree add ../advtext2sql-main main
-cp .env ../advtext2sql-main/.env
+cp -r dev_tools ../advtext2sql-main/       # our recorder, not the harness
+cp .env ../advtext2sql-main/.env          # gitignored secrets; the worktree does not carry them
 cd ../advtext2sql-main
-python -m pip install -e . >/dev/null        # once; or use the existing interpreter with PYTHONPATH=src
 ```
 
-Serve the **base** model (no adapter) — see §6 for the two servers; then run the harness twice:
+Serve the **base** model (no adapter) — see §6 for the two servers; then check both plans before spending
+tokens (the recorder exports `DB_USER`/`DB_PASS` and `BENCHMARK_DB_URL` from the environment or `.env`):
+
+```bash
+python -m dev_tools.run_benchmark --check \
+    --run-id e0-bird-large --query-file data/bird_large.json --answer-file data/bird_large.json \
+    --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"
+
+python -m dev_tools.run_benchmark --check --benchmark ambrosia \
+    --run-id e0-ambrosia-large --query-file data/ambrosia_large.json --answer-file data/ambrosia_large.json \
+    --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"
+```
+
+Expected: the `run plan:` block, with `git_commit: e812451…` (proof the worktree is main, not the branch)
+and `--check: nothing was started, nothing was written`. Note that `--check` does not echo the benchmark
+name — the plan does carry it, so verify the Ambrosia wiring explicitly with:
+
+```bash
+python -c "from pathlib import Path; from dev_tools.run_benchmark import plan_run; \
+p = plan_run(run_id='check', query_file=Path('data/ambrosia_large.json'), \
+answer_file=Path('data/ambrosia_large.json'), db_url='localhost:5444', \
+tool_class='adv_text2sql.mcp_servers.text2sql_tool.src.text2sql_implementation.Text2SQLGenerator', \
+llm_base_url='http://127.0.0.1:8000/v1', llm_model='m', runs_dir=Path('../data_cache/runs'), \
+benchmark='ambrosia'); print('benchmark:', p['benchmark'])"
+# expected: benchmark: ambrosia   (it is also stored as run.json's "benchmark" key by a real run)
+```
+
+Then the two real runs (both spend tokens — the endpoint must be approved first):
 
 ```bash
 python -m dev_tools.run_benchmark --allow-llm-spend \
     --run-id e0-bird-large --query-file data/bird_large.json --answer-file data/bird_large.json \
     --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"
-python -m dev_tools.run_benchmark --allow-llm-spend \
+
+python -m dev_tools.run_benchmark --allow-llm-spend --benchmark ambrosia \
     --run-id e0-ambrosia-large --query-file data/ambrosia_large.json --answer-file data/ambrosia_large.json \
     --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"
 ```
 
-Freeze the predictions so the paired test never moves again:
+Freeze the predictions so the paired test never moves again. From inside the worktree, `../data_cache` and
+`../repo` are the right relative paths (`data_cache` is shared by both trees, `repo` is the branch):
 
 ```bash
-mkdir -p ../advtext2sql/repo/eval
-cp ../data_cache/runs/e0-bird-large/query_results.json ../advtext2sql/repo/eval/baseline_bird_large.json
-cp ../data_cache/runs/e0-ambrosia-large/query_results.json ../advtext2sql/repo/eval/baseline_ambrosia_large.json
-cd ../advtext2sql/repo && git worktree remove ../advtext2sql-main
+mkdir -p ../repo/eval
+cp ../data_cache/runs/e0-bird-large/query_results.json      ../repo/eval/baseline_bird_large.json
+cp ../data_cache/runs/e0-ambrosia-large/query_results.json  ../repo/eval/baseline_ambrosia_large.json
+cd ../repo && git worktree remove --force ../advtext2sql-main
 ```
 
-**Expected:** two `query_results.json` files; the captain's live measurement of the shipped baseline tool
-on `bird_large` is **42.32 % EX/241** (`docs/VERIFICATION.md` §7) — within a couple of points of that is
-normal, because generation is not deterministic across endpoints.
+`--force` is required: the copied `dev_tools/` is untracked in the worktree, and a plain
+`git worktree remove` refuses to delete a tree with untracked files. `eval/` is gitignored (see
+CHANGELOG "Repo hygiene"), so the frozen baselines never dirty the branch.
+
+**Expected:** two `query_results.json` files plus the two frozen copies; the captain's live measurement of
+the shipped baseline tool on `bird_large` is **42.32 % EX/241** (`docs/VERIFICATION.md` §7) — within a
+couple of points of that is normal, because generation is not deterministic across endpoints.
 
 **Fallback:** if E0 cannot be run today, use the frozen team artifact, score it once (§8, `--mode local`),
 and treat it as the baseline — but label it as *frozen artifact*, not a re-run. At n = 22 a paired test
@@ -163,25 +201,41 @@ needs ≥ 6 discordant wins to be believable; at n = 241 a 2-point difference is
 ```bash
 python training/build_data.py \
     --train data/train_queries.json --ambrosia data/ambrosia_train.json \
-    --schemas ../data_cache/db_schemas_pg.json \
+    --schemas ../artifacts/db_schemas_bird.json \
     --out training/out-real
 ```
 
-Expected `COUNT TABLE` (verbatim from the last verified build):
+(`--schemas ../data_cache/db_schemas_pg.json` is the freshly dumped file from §2; the captain's validated
+`artifacts/db_schemas_bird.json` is the same content and is what the measured build used. Use
+`--no-tokenizer` when no tokenizer is reachable — the header line then says so and the percentiles are a
+characters/3.6 estimate.)
+
+Expected `COUNT TABLE`, printed verbatim by the build (byte-identical in the T1 dataset, which recorded
+`schema_basis=file`, `token_basis=chars/3.6 estimate (tokenizer disabled)` in `stats.json`):
 
 ```
 =================== COUNT TABLE ===================
-schema_basis=file  seed=42  valid_frac=0.15  ...
+schema_basis=file  seed=42  valid_frac=0.15  token_basis=chars/3.6 estimate (tokenizer disabled)
 dropped=14  mutated=1  usable=342  train/valid=290/52
 ambrosia built=438 (394/44)  combined=684
 ---------------------- detail ---------------------
+sqlglot                      30.23.0
 BIRD raw                     357
+  with backticks             16
+  with sqlite-only fns       25
   unparseable after rewrite  14
   mutated (semantics changed)   1   -> parseable 343, usable 342
+  usable                     342
+  duplicate questions        0
+  duplicate normalized SQL   0
   train/valid                290/52
 Ambrosia rows                480 (ambiguous 146, ok 334)
+  negatives kept             292
+  built                      438 (skipped 0)
   train/valid                394/44
 combined training rows       684
+sequence length chars/3.6 estimate (tokenizer disabled)
+  p50/p95/p99/max            275/956/993/1014
 leakage                      clean (bird qids 342 vs dev 241, ambrosia dbs 103 vs dev, overlaps 0)
 ===================================================
 ```
@@ -259,7 +313,21 @@ The harness only needs an OpenAI-compatible endpoint selected by three variables
 export LLM_BASE_URL=http://127.0.0.1:8000/v1
 export LLM_API_KEY=EMPTY
 export LLM_MODEL_NAME=sql-lora            # E1: the base model's served name
+
+# Ambrosia runs (S1, S4) must opt into the strict ambiguity gate, otherwise the tool never answers
+# "ambiguous" (birdsafe default) and the run measures the 70.83 % floor instead of the gate (ADR-003).
+export TEXT2SQL_AMBIGUITY_MODE=strict     # BIRD runs (S2, S3) leave it unset (birdsafe default)
 ```
+
+PowerShell equivalents:
+
+```powershell
+$env:LLM_BASE_URL="http://127.0.0.1:8000/v1"; $env:LLM_API_KEY="EMPTY"; $env:LLM_MODEL_NAME="sql-lora"
+$env:TEXT2SQL_AMBIGUITY_MODE="strict"     # S1/S4 only; Remove-Item Env:TEXT2SQL_AMBIGUITY_MODE for BIRD
+```
+
+The tool reads the variable in `Text2SQLGenerator.__init__` (a `Text2SQLConfig(ambiguous_mode=...)`
+argument, if ever passed, wins over it), so it must be set in the shell that launches the recorder.
 
 **Preferred — vLLM (Linux/WSL2 only):**
 
@@ -325,14 +393,18 @@ Expected: `run e3-bird-small finished: overall_accuracy=<x> total=22`, then
 `artifacts in …/data_cache/runs/e3-bird-small: query_results.json, db_schemas.json, run.json`.
 `db_schemas.json` is what the tool actually saw — diff it against §2's dump to catch a schema regression.
 
-Order of runs, cheapest first (**S1–S4**):
+Order of runs, cheapest first (**S1–S4**). Every row is copy-pasteable; the Ambrosia rows differ in two
+ways — `--benchmark ambrosia` (the harness class) and `TEXT2SQL_AMBIGUITY_MODE=strict` (ADR-003):
 
-| id | query/answer file | n | what it measures |
+| id | command | n | what it measures |
 |---|---|---|---|
-| S1 | `data/ambrosia_small.json` | 24 | ambiguity contract (no SQL executed) |
-| S2 | `data/bird_small.json` | 22 | fast BIRD signal, `EX/22` (`EX/20` scoreable) |
-| S3 | `data/bird_large.json` | 241 | headline `EX/241` (`EX/211`, live `EX/209`) |
-| S4 | `data/ambrosia_large.json` | 240 | Ambrosia accuracy vs the **70.83 %** floor |
+| S1 | `TEXT2SQL_AMBIGUITY_MODE=strict python -m dev_tools.run_benchmark --allow-llm-spend --benchmark ambrosia --run-id s1-ambrosia-small --query-file data/ambrosia_small.json --answer-file data/ambrosia_small.json --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"` | 24 | the ambiguity contract, scored as detection (no SQL executed) |
+| S2 | `python -m dev_tools.run_benchmark --allow-llm-spend --run-id s2-bird-small --query-file data/bird_small.json --answer-file data/bird_small.json --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"` | 22 | fast BIRD signal, `EX/22` (`EX/20` scoreable) |
+| S3 | `python -m dev_tools.run_benchmark --allow-llm-spend --run-id s3-bird-large --query-file data/bird_large.json --answer-file data/bird_large.json --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"` | 241 | headline `EX/241` (`EX/211` offline-parse basis, live `EX/209`) |
+| S4 | `TEXT2SQL_AMBIGUITY_MODE=strict python -m dev_tools.run_benchmark --allow-llm-spend --benchmark ambrosia --run-id s4-ambrosia-large --query-file data/ambrosia_large.json --answer-file data/ambrosia_large.json --db-url "$BENCHMARK_DB_URL" --llm-base-url "$LLM_BASE_URL" --llm-model "$LLM_MODEL_NAME"` | 240 | Ambrosia detection accuracy vs the **70.83 %** floor |
+
+PowerShell: prefix the same commands with `$env:TEXT2SQL_AMBIGUITY_MODE="strict";` and write the long
+flags on one line. Each run must use its own `--run-id`, or `run_benchmark` refuses to overwrite it.
 
 **Fallback:** if `run_benchmark` refuses (`DB_USER/DB_PASS not set`, non-empty run dir, missing
 `$LLM_API_KEY`), fix the cause — do not run the entrypoint directly from `$REPO`: it writes
@@ -353,10 +425,16 @@ python -m dev_tools.fixed_eval \
   --baseline eval/baseline_bird_large.json
 ```
 
-Expected keys in the JSON: `ex_all` (EX/241 + Wilson 95 % CI), `ex_gold_executable` (EX/211),
-`n_gold_unexecutable` = 30 with ids and reasons, `n_pred_unexecutable`, `n_missing_predictions`,
+Expected keys in the JSON: `ex_all` (EX/241 + Wilson 95 % CI), `ex_gold_executable`, `n_gold_unexecutable`,
+`gold_unexecutable_ids` / `gold_unexecutable_reasons`, `n_pred_unexecutable`, `n_missing_predictions`,
 `per_difficulty`, `per_database`, `soft_f1_mean`, `soft_f1_mean_all`, and
 `paired {n_paired, b, c, discordant, mcnemar_exact_p, delta_ex, bootstrap95, n_boot, seed}`.
+
+Two denominators, do not mix them up: `n_gold_unexecutable` counts gold that fails **to parse or to
+execute**. On a live server it is **32** (30 unparseable + ids 4 and 35, which parse but die with
+`UndefinedColumn` because the shipped rewrite renamed the identifier), so `ex_gold_executable` divides by
+**209**, not 211. `EX/211` is the offline parse-only basis (`241 − 30`); `EX/209` is the live-executable
+basis; the honest maximum is 208/241 because id 572 executes against a mutated literal (ADR-005).
 
 The report to quote (fill in the T2 numbers when they exist):
 
