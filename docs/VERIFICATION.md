@@ -474,3 +474,74 @@ Findings status: **F6 resolved; F4 resolved by record; F5 resolved; F1 resolved*
 30 unparseable + 2 `UndefinedColumn` + 1 mutated-but-executing). **F2 remains open outside the repo**
 (`captain-verified-numbers.md:141`, 685 vs 684) and is a documentation-only item for the memory-compaction pass.
 No new blocking findings; no new non-blocking findings.
+
+---
+
+## V3 — final delivered state
+
+Date: **2026-10-23** · Verifier: `qa-review` · Reason: final audit stamp before handover, after I4c
+(`b051560`, `f280ca0`) landed the last measurement and changed bytes that the V2.7 verdict had hashed.
+
+**Verdict: the delivered branch is covered by this verdict.** Final commit
+**`f280ca0947b26bc085763596edec45cc4687b9f4`** (`docs(results): evidence-enabled baseline and per-run VRAM`),
+19 commits above `main`; patch bundle **761,305 bytes / 19 patches**; suite **138 passed in 37.18 s** on this tree.
+
+### V3.1 Config invariants
+
+| check | result |
+|---|---|
+| branch / HEAD | `feat/lora-track` @ `f280ca0` |
+| `git status --porcelain` | **empty when this check ran on `f280ca0`**; after this section was appended, the only modified path is `docs/VERIFICATION.md` itself — integration must commit that one doc, nothing else is dirty |
+| harness diff (`git diff main -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py`) | **empty** |
+| teacher repo (`origin`, deeppavlov) | `origin/main` = local `main` = `e812451`; **no `origin/feat/lora-track`** — nothing pushed to the teacher's repository |
+| owner's fork (`fork` = `github.com/dadgrand/AdvText2SQL`) | delivery fact, not a byte risk: `fork/feat/lora-track` = `f280ca0`, remote reflog **`update by push` 2026-10-23 18:29:43 +0300** (dadgrand). This post-dates D-001's "nothing pushed" wording (which meant the teacher repo / no credentials); D-001 and the INDEX should record the owner's fork as the delivery channel. |
+
+### V3.2 Patch proof on a fresh clone of `main`
+
+```
+clone repo; checkout main (e812451); tag base-main
+git apply --check lora-track.patch    -> exit 0
+git am --keep-cr lora-track.patch     -> exit 0 (all patches applied)
+git rev-list --count base-main..HEAD  -> 19   (= git log --oneline main..HEAD = 19)
+```
+
+### V3.3 Hash reconciliation with the V2.7 verified-bytes block
+
+Pre-V3 SHA-256 of this file: `E5834F27D632CF28EB3BA5E303DDEC11E8F183D47B21861152C50A152A700B03`.
+
+| file | V2.7 → final | reason | judgement |
+|---|---|---|---|
+| `src/.../text2sql_implementation.py` | `9C2072BC…` unchanged | — | no change |
+| `tests/conftest.py` | `59FB9D53…` unchanged | — | no change |
+| `training/train_qlora.py` | `2DF9A6C6…` unchanged | — | no change |
+| `docs/EVAL.md` | `FC1C57AF…` unchanged | — | no change |
+| `tests/test_tool.py` | `1BBA1DFC…` → `14D8B699…` | +15 lines in `test_harness_contract_is_unchanged` (exact-bind + no-extra-required assertions), commit `36a1c4d` | **test-only**, no product behaviour |
+| `.gitignore` | `2CF2AD20…` → `38AE7CC7…` | +5 lines adding `eval/` and its comment, commit `5bb4f97` | **config-only**; `git check-ignore eval/…` passes |
+| `training/.gitignore` | `27DE50FF…` → `97E94AD4…` | ignore-rule content only; the file was **untracked at V2.7**, so the exact pre-commit bytes are not recoverable from history | **config-only**; current rules verified with `git check-ignore` (`out/`, `self_test_out/`, `runs/`, `out-real/`, `.venv*`, `*.log` all match) |
+| `training/build_data.py` | `915CE601…` → `3471CBA7…` | 4-line module-**docstring** change: stale `usable=343, 291/52, 685` corrected to `342, 290/52, 684`, commit `b051560` | **cosmetic**; no behaviour change (the executable self-test still asserts 14/1/342 and 290/52) |
+| `docs/VERIFICATION.md` | `8A8B63EA…` → `E5834F27…` | V2.7 addendum appended (this section changes it again) | **docs-only** |
+
+Four of the nine hashed files changed; every change is comment/docstring/ignore/test/doc-only. No product
+behaviour changed under a V2.7 hash, so no re-verification gap exists.
+
+### V3.4 Drift outside the V2.7 block (for completeness)
+
+`dev_tools/fixed_eval.py` (+21 lines: retry once when a dropped tunnel raises `OperationalError`, `c25e20b`)
+and `dev_tools/run_benchmark.py` (+17 lines: `--benchmark {bird,ambrosia}`, `4db5d23`) changed behaviourally
+after the V2.7 document. Both are covered by the t24 review verdict (suite + claims audit at `e4256ed`) and by
+this V3 run; the suite is green. Low observation: the retry-once path has no dedicated regression test (it is
+defensive error handling around a transport failure); not a blocker.
+
+### V3.5 CHANGELOG final-state claims
+
+* **Suite count** — `CHANGELOG.md:25` says the working repository gives `138 passed`; measured **138 passed**
+  (37.18 s) on the final tree. ✓
+* **"Inconclusive at n = 241"** — the table row at `CHANGELOG.md:208` reports **+4.15 pp, CI [−0.83, +9.54],
+  inconclusive at n = 241**, and the pre-registered rule (`b − c ≥ 6`, `p < 0.05`, CI excludes 0) is stated
+  immediately below at `CHANGELOG.md:212` — visible next to the number, not paraphrased away. ✓ The
+  E3-vs-E1-fair comparison is explicitly labelled "not an adapter measurement" (`CHANGELOG.md:237`). ✓
+
+**V3 verdict: every byte that matters is unchanged or cosmetically changed since V2.7; the delivered branch at
+`f280ca0` is covered by this verdict.** No blocker. One delivery note (owner's fork push) and one low
+observation (no dedicated retry test) are recorded above. This section is uncommitted by design (no commits were
+allowed in this task); integration must commit `docs/VERIFICATION.md` so the delivered tip carries the verdict.
