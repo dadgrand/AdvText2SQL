@@ -5,6 +5,16 @@ __pycache__/
 
 # Env и секреты
 .env
+.env.openrouter
+.env.*
+!.env.example
+
+# Локальные файлы с обнаруженными секретами
+/data/launch_db/migrate.sh
+/local/old/test.py
+
+# Материалы для защиты
+/защита/
 
 # Временные файлы ablation-запусков
 .run_single_tmp.*

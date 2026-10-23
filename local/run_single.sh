@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run one or more feature flags on a benchmark, saving to ablation_results/.
+# Run one or more feature flags on a benchmark, saving to research_results/ablation_results/.
 #
 # Usage: bash local/run_single.sh FEAT_1 ambrosia
 #        bash local/run_single.sh FEAT_5 bird
@@ -136,7 +136,7 @@ grep "^FEAT_" "$TMP_ENV"
 echo "========================================"
 
 # ── Output dir ───────────────────────────────────────────────────────────────
-OUT_DIR="ablation_results/${FEAT_FLAG,,}_${BENCHMARK}"
+OUT_DIR="research_results/ablation_results/${FEAT_FLAG,,}_${BENCHMARK}"
 mkdir -p "$OUT_DIR"
 echo "Logs → $OUT_DIR/"
 

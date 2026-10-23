@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run all 33 features in isolation on Ambrosia large dataset (240 questions).
-# Output: ablation_results_large/feat_N_ambrosia/ for each feature.
-# Skips a feature if ablation_results_large/feat_N_ambrosia/summary.txt already exists.
+# Output: research_results/ablation_results_large/feat_N_ambrosia/ for each feature.
+# Skips a feature if research_results/ablation_results_large/feat_N_ambrosia/summary.txt already exists.
 #
 # Usage:
 #   bash local/ablation_large_ambrosia.sh
@@ -18,7 +18,7 @@ FEATURES=(
     FEAT_28 FEAT_29 FEAT_30 FEAT_32 FEAT_33 FEAT_34 FEAT_35 FEAT_36
 )
 
-OUT_ROOT="ablation_results_large"
+OUT_ROOT="research_results/ablation_results_large"
 mkdir -p "$OUT_ROOT"
 
 # ── One SSH tunnel for all runs ───────────────────────────────────────────────
@@ -101,10 +101,10 @@ for FEAT in "${FEATURES[@]}"; do
     fi
     echo "$FEAT" > "$MARKER"
 
-    # run_single.sh writes to ablation_results/ by default — move result after
+    # run_single.sh writes to research_results/ablation_results/ by default — move result after
     DATASET_SIZE=large bash local/run_single.sh "$FEAT" ambrosia
 
-    SRC="ablation_results/${FEAT,,}_ambrosia"
+    SRC="research_results/ablation_results/${FEAT,,}_ambrosia"
     if [[ -d "$SRC" ]]; then
         rm -rf "$OUT_DIR"
         mv "$SRC" "$OUT_DIR"

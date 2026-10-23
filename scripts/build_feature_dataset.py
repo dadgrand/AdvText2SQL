@@ -5,7 +5,7 @@ For each question in the BIRD dataset, records which features helped it pass.
 Output: data/feature_labels.json
 
 Usage:
-    python scripts/build_feature_dataset.py [--ablation-dir ablation_results/] [--out data/feature_labels.json]
+    python scripts/build_feature_dataset.py [--ablation-dir research_results/ablation_results_small/] [--out data/feature_labels.json]
 
 Dataset schema (one entry per question):
 {
@@ -27,10 +27,10 @@ Dataset schema (one entry per question):
 import argparse
 import ast
 import json
-import os
 import re
 import sys
 from pathlib import Path
+from research_paths import resolve_artifact_path
 
 
 # Small dataset dirs (ablation v2, 22 questions)
@@ -144,7 +144,7 @@ def parse_scores_from_query_results(
 
 def main():
     parser = argparse.ArgumentParser(description="Build feature attribution dataset from ablation results")
-    parser.add_argument("--ablation-dir", default=None, help="Root ablation directory (default: ablation_results for small, ablation_results_large for large)")
+    parser.add_argument("--ablation-dir", default=None, help="Ablation directory under research_results/ (small or large by --large)")
     parser.add_argument("--data-file", default="data/bird_small.json", help="Dataset file (BIRD or Ambrosia, small or large)")
     parser.add_argument("--out", default="data/feature_labels.json", help="Output file")
     parser.add_argument("--large", action="store_true", help="Use large dataset dirs instead of small")
@@ -155,7 +155,8 @@ def main():
     if args.large:
         FEAT_DIR_MAP = FEAT_DIR_MAP_LARGE_AMBROSIA if args.benchmark == "ambrosia" else FEAT_DIR_MAP_LARGE_BIRD
 
-    ablation_root = Path(args.ablation_dir or ("ablation_results_large" if args.large else "ablation_results"))
+    ablation_root = resolve_artifact_path(Path(__file__).resolve().parents[1], args.ablation_dir or (
+        "research_results/ablation_results_large" if args.large else "research_results/ablation_results_small"))
     data_file = Path(args.data_file)
     out_file = Path(args.out)
     log_name = "ambrosia.log" if args.benchmark == "ambrosia" else "bird.log"

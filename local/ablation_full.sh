@@ -87,7 +87,7 @@ unset FEAT_10 FEAT_11 FEAT_12 FEAT_13 FEAT_14 FEAT_15 FEAT_16 FEAT_17 FEAT_18 FE
 unset FEAT_20 FEAT_21 FEAT_22 FEAT_23 FEAT_25 FEAT_26 FEAT_27 FEAT_28 FEAT_29 FEAT_30 FEAT_32 FEAT_33 FEAT_34 FEAT_35 FEAT_36
 unset OPTIMISTIC_AMBIGUITY_FALLBACK
 
-RESULTS_DIR="ablation_results"
+RESULTS_DIR="research_results/ablation_results_small"
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 # ── run_feature LABEL DIR_NAME [FEAT_N=true ...] ─────────────────────────────

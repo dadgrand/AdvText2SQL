@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run all 34 features in isolation on BIRD large dataset (241 questions).
-# Output: ablation_results/feat_N_bird/ for each feature.
-# Skips a feature if ablation_results/feat_N_bird/summary.txt already exists.
+# Output: research_results/ablation_results/feat_N_bird/ for each feature.
+# Skips a feature if research_results/ablation_results/feat_N_bird/summary.txt already exists.
 #
 # Usage:
 #   bash local/ablation_large_bird.sh
@@ -18,7 +18,7 @@ FEATURES=(
     FEAT_28 FEAT_29 FEAT_30 FEAT_32 FEAT_33 FEAT_34 FEAT_35 FEAT_36
 )
 
-OUT_ROOT="ablation_results_large"
+OUT_ROOT="research_results/ablation_results_large"
 mkdir -p "$OUT_ROOT"
 
 # ── One SSH tunnel for all runs ───────────────────────────────────────────────
@@ -101,10 +101,10 @@ for FEAT in "${FEATURES[@]}"; do
     fi
     echo "$FEAT" > "$MARKER"
 
-    # run_single.sh writes to ablation_results/ by default — move result after
+    # run_single.sh writes to research_results/ablation_results/ by default — move result after
     DATASET_SIZE=large bash local/run_single.sh "$FEAT" bird
 
-    SRC="ablation_results/${FEAT,,}_bird"
+    SRC="research_results/ablation_results/${FEAT,,}_bird"
     if [[ -d "$SRC" ]]; then
         mv "$SRC" "$OUT_DIR"
         echo "[OK] $FEAT → $OUT_DIR — $(grep 'BIRD:' "$OUT_DIR/summary.txt" 2>/dev/null || echo 'see log')"

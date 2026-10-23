@@ -1,3 +1,5 @@
+> Current experiment summaries and supported paths: [docs/README.md](docs/README.md) and [docs/project_structure.md](docs/project_structure.md). Research artifacts live under `research_results/`; the older workflow notes below are retained for context.
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -197,11 +199,11 @@ bash local/run_single.sh baseline both           # all-false baseline
 bash local/ablation_large_bird.sh
 bash local/ablation_large_ambrosia.sh
 
-# Baseline for large dataset (saves to ablation_results_large/feat_baseline/):
+# Baseline for large dataset (saves to research_results/ablation_results_large/feat_baseline/):
 bash local/run_baseline_large.sh both
 ```
 
-Small-dataset results → `ablation_results/<feat_name>/`. Large-dataset results → `ablation_results_large/<feat_name>_bird/` and `<feat_name>_ambrosia/`. Runs are skipped if `summary.txt` already exists.
+Small-dataset results → `ablation_results/<feat_name>/`. Large-dataset results → `research_results/ablation_results_large/<feat_name>_bird/` and `<feat_name>_ambrosia/`. Runs are skipped if `summary.txt` already exists.
 
 **Checkpoint/resume**: `bird.py` and `ambrosia.py` save predictions to `query_results.json` after every question. On restart, completed question IDs are skipped. The marker files `.ablation_current_feat` / `.ablation_current_feat_ambrosia` tell the ablation script whether to keep or clear the checkpoint when resuming. When running `both` benchmarks, `query_results.json` is cleared between Ambrosia and BIRD runs to prevent cross-contamination of question IDs.
 
@@ -211,20 +213,20 @@ Small-dataset results → `ablation_results/<feat_name>/`. Large-dataset results
 # Build per-question attribution matrices from ablation results:
 python scripts/build_feature_dataset.py \
   --large --benchmark bird \
-  --ablation-dir ablation_results_large \
+  --ablation-dir research_results/ablation_results_large \
   --data-file data/bird_large.json \
   --out data/feature_labels_large.json
 
 python scripts/build_feature_dataset.py \
   --large --benchmark ambrosia \
-  --ablation-dir ablation_results_large \
+  --ablation-dir research_results/ablation_results_large \
   --data-file data/ambrosia_large.json \
   --out data/feature_labels_ambrosia_large.json
 ```
 
 Output: `data/feature_labels_large.json` (241×33 BIRD) and `data/feature_labels_ambrosia_large.json` (240×33 Ambrosia). Each entry records `feature_scores[FEAT_N] = 1` if that feature correctly answered the question. Used to train a multilabel classifier for dynamic feature selection (Phase 2 roadmap).
 
-The script looks for `ablation_results_large/feat_baseline/` as the all-false reference. For Ambrosia, scores are recomputed from `ambrosia_query_results.json` (no per-question dump in logs); for BIRD, parsed from the printed results list in `bird.log`.
+The script looks for `research_results/ablation_results_large/feat_baseline/` as the all-false reference. For Ambrosia, scores are recomputed from `ambrosia_query_results.json` (no per-question dump in logs); for BIRD, parsed from the printed results list in `bird.log`.
 
 ### Additional env vars
 

@@ -1,0 +1,717 @@
+{
+  "historical_baseline": {
+    "bird": {
+      "reported_questions": 241,
+      "reported_correct": 92,
+      "common_questions": 241,
+      "common_correct": 92,
+      "improved": 0,
+      "regressed": 0
+    },
+    "ambrosia": {
+      "reported_questions": 227,
+      "reported_correct": 127,
+      "common_questions": 227,
+      "common_correct": 127,
+      "improved": 0,
+      "regressed": 0
+    }
+  },
+  "features": {
+    "FEAT_1": {
+      "description": "FK / PK relationships в системном промпте (**E3**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 93,
+        "common_questions": 241,
+        "common_correct": 93,
+        "improved": 9,
+        "regressed": 8
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 136,
+        "common_questions": 227,
+        "common_correct": 136,
+        "improved": 16,
+        "regressed": 7
+      }
+    },
+    "FEAT_2": {
+      "description": "Column statistics (min/max/top-K/диапазон дат) в обоих промптах (**E4**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 15,
+        "regressed": 13
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 146,
+        "common_questions": 227,
+        "common_correct": 146,
+        "improved": 30,
+        "regressed": 11
+      }
+    },
+    "FEAT_3": {
+      "description": "Regex-детекция реального типа TEXT-колонок (**E5**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 5,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 129,
+        "common_questions": 227,
+        "common_correct": 129,
+        "improved": 7,
+        "regressed": 5
+      }
+    },
+    "FEAT_4": {
+      "description": "`pg_stat_user_tables.n_live_tup` + fallback на `COUNT(*)` для row-count",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 97,
+        "common_questions": 241,
+        "common_correct": 97,
+        "improved": 7,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 125,
+        "common_questions": 227,
+        "common_correct": 125,
+        "improved": 3,
+        "regressed": 5
+      }
+    },
+    "FEAT_5": {
+      "description": "Light-режим извлечения схемы — имена + типы (**E1**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 5,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 6,
+        "regressed": 7
+      }
+    },
+    "FEAT_6": {
+      "description": "Heavy-режим — sample rows + low-cardinality enums (**E2**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 89,
+        "common_questions": 241,
+        "common_correct": 89,
+        "improved": 11,
+        "regressed": 14
+      },
+      "ambrosia": {
+        "reported_questions": 240,
+        "reported_correct": 154,
+        "common_questions": 227,
+        "common_correct": 145,
+        "improved": 29,
+        "regressed": 11
+      }
+    },
+    "FEAT_7": {
+      "description": "Компактное форматирование статистик (ID → `unique (id)`, top-K только для high-cardinality)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 3,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 127,
+        "common_questions": 227,
+        "common_correct": 127,
+        "improved": 4,
+        "regressed": 4
+      }
+    },
+    "FEAT_8": {
+      "description": "Rollback abort-нутых PostgreSQL-транзакций внутри exploration",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 4,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 5,
+        "regressed": 6
+      }
+    },
+    "FEAT_9": {
+      "description": "Дамп расширенной схемы (schema + relationships + stats) в `db_schemas.json`",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 5,
+        "regressed": 3
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 5,
+        "regressed": 6
+      }
+    },
+    "FEAT_10": {
+      "description": "Замер времени `build()` + лог числа таблиц / символов промпта",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 2,
+        "regressed": 0
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 125,
+        "common_questions": 227,
+        "common_correct": 125,
+        "improved": 2,
+        "regressed": 4
+      }
+    },
+    "FEAT_11": {
+      "description": "JSON-структурное логирование пайплайна",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 93,
+        "common_questions": 241,
+        "common_correct": 93,
+        "improved": 2,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 128,
+        "common_questions": 227,
+        "common_correct": 128,
+        "improved": 7,
+        "regressed": 6
+      }
+    },
+    "FEAT_12": {
+      "description": "Optimistic ambiguity fallback — env `OPTIMISTIC_AMBIGUITY_FALLBACK` (**X1**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 97,
+        "common_questions": 241,
+        "common_correct": 97,
+        "improved": 7,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 162,
+        "common_questions": 227,
+        "common_correct": 162,
+        "improved": 58,
+        "regressed": 23
+      }
+    },
+    "FEAT_13": {
+      "description": "Few-shot ambiguity-промпт «3 условия одновременно» (**X2**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 97,
+        "common_questions": 241,
+        "common_correct": 97,
+        "improved": 10,
+        "regressed": 5
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 141,
+        "common_questions": 227,
+        "common_correct": 141,
+        "improved": 40,
+        "regressed": 26
+      }
+    },
+    "FEAT_14": {
+      "description": "Жёсткие правила в SQL-промпте (DISTINCT после SELECT, CAST дат, не транслитерировать имена)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 103,
+        "common_questions": 241,
+        "common_correct": 103,
+        "improved": 25,
+        "regressed": 14
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 128,
+        "common_questions": 227,
+        "common_correct": 128,
+        "improved": 6,
+        "regressed": 5
+      }
+    },
+    "FEAT_15": {
+      "description": "`sanitize_sql` — markdown / DISTINCT / CAST / NULLIF чистка (**X3** часть 1)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 5,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 127,
+        "common_questions": 227,
+        "common_correct": 127,
+        "improved": 6,
+        "regressed": 6
+      }
+    },
+    "FEAT_16": {
+      "description": "Валидация через `sqlglot` + запрет DROP/DELETE/UPDATE (**X3** часть 2)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 3,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 127,
+        "common_questions": 227,
+        "common_correct": 127,
+        "improved": 4,
+        "regressed": 4
+      }
+    },
+    "FEAT_17": {
+      "description": "Retry-цикл до `MAX_RETRIES=7` при провале validate",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 97,
+        "common_questions": 241,
+        "common_correct": 97,
+        "improved": 6,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 5,
+        "regressed": 6
+      }
+    },
+    "FEAT_18": {
+      "description": "LLM-вызовы с exponential backoff на 429 / rate-limit (**X4**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 4,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 125,
+        "common_questions": 227,
+        "common_correct": 125,
+        "improved": 4,
+        "regressed": 6
+      }
+    },
+    "FEAT_19": {
+      "description": "Throttle `asyncio.sleep(1.0)` между вопросами",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 96,
+        "common_questions": 241,
+        "common_correct": 96,
+        "improved": 5,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 127,
+        "common_questions": 227,
+        "common_correct": 127,
+        "improved": 5,
+        "regressed": 5
+      }
+    },
+    "FEAT_20": {
+      "description": "`_verify_sql_against_query` — LLM-as-judge на сгенерированный SQL (**X5**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 90,
+        "common_questions": 241,
+        "common_correct": 90,
+        "improved": 5,
+        "regressed": 7
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 125,
+        "common_questions": 227,
+        "common_correct": 125,
+        "improved": 6,
+        "regressed": 8
+      }
+    },
+    "FEAT_21": {
+      "description": "MinHash-скетчи колонок (**E6**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 92,
+        "common_questions": 241,
+        "common_correct": 92,
+        "improved": 6,
+        "regressed": 6
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 4,
+        "regressed": 5
+      }
+    },
+    "FEAT_23": {
+      "description": "SQL-to-text NL-описания таблиц / колонок (**E8**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 9,
+        "regressed": 6
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 122,
+        "common_questions": 227,
+        "common_correct": 122,
+        "improved": 4,
+        "regressed": 9
+      }
+    },
+    "FEAT_25": {
+      "description": "Per-question schema pruning — Selector-агент (**E9**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 97,
+        "common_questions": 241,
+        "common_correct": 97,
+        "improved": 14,
+        "regressed": 9
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 5,
+        "regressed": 6
+      }
+    },
+    "FEAT_26": {
+      "description": "`learnt_hints` — накопление подсказок между прогонами одной БД (**E10 = F3**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 102,
+        "common_questions": 241,
+        "common_correct": 102,
+        "improved": 15,
+        "regressed": 5
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 124,
+        "common_questions": 227,
+        "common_correct": 124,
+        "improved": 5,
+        "regressed": 8
+      }
+    },
+    "FEAT_27": {
+      "description": "True self-correction — передача текста ошибки в next prompt (**X6 = F2**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 6,
+        "regressed": 3
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 123,
+        "common_questions": 227,
+        "common_correct": 123,
+        "improved": 4,
+        "regressed": 8
+      }
+    },
+    "FEAT_28": {
+      "description": "Self-consistency — 3 семпла + majority voting (**X7**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 93,
+        "common_questions": 241,
+        "common_correct": 93,
+        "improved": 5,
+        "regressed": 4
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 124,
+        "common_questions": 227,
+        "common_correct": 124,
+        "improved": 4,
+        "regressed": 7
+      }
+    },
+    "FEAT_29": {
+      "description": "Декомпозиция по сложности (easy / non-nested / nested) с разными промптами (**X8**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 12,
+        "regressed": 9
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 121,
+        "common_questions": 227,
+        "common_correct": 121,
+        "improved": 3,
+        "regressed": 9
+      }
+    },
+    "FEAT_30": {
+      "description": "Sub-question decomposition — Decomposer-агент, CoT (**X9**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 91,
+        "common_questions": 241,
+        "common_correct": 91,
+        "improved": 19,
+        "regressed": 20
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 124,
+        "common_questions": 227,
+        "common_correct": 124,
+        "improved": 5,
+        "regressed": 8
+      }
+    },
+    "FEAT_32": {
+      "description": "Обнаружение неоднозначностей по таксономии A₁–A₆ — Stage 1 (**X10**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 95,
+        "common_questions": 241,
+        "common_correct": 95,
+        "improved": 7,
+        "regressed": 4
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 127,
+        "common_questions": 227,
+        "common_correct": 127,
+        "improved": 7,
+        "regressed": 7
+      }
+    },
+    "FEAT_33": {
+      "description": "Генерация multiple-choice вопросов для уточнения намерения — Stage 2a (**X11**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 93,
+        "common_questions": 241,
+        "common_correct": 93,
+        "improved": 3,
+        "regressed": 2
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 126,
+        "common_questions": 227,
+        "common_correct": 126,
+        "improved": 6,
+        "regressed": 7
+      }
+    },
+    "FEAT_34": {
+      "description": "Переписывание запроса q → q′ на основе пользовательского выбора — Stage 2b (**X12**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 97,
+        "common_questions": 241,
+        "common_correct": 97,
+        "improved": 5,
+        "regressed": 0
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 125,
+        "common_questions": 227,
+        "common_correct": 125,
+        "improved": 5,
+        "regressed": 7
+      }
+    },
+    "FEAT_35": {
+      "description": "TSV вместо JSON для результатов выборки (**E11**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 85,
+        "common_questions": 241,
+        "common_correct": 85,
+        "improved": 4,
+        "regressed": 11
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 128,
+        "common_questions": 227,
+        "common_correct": 128,
+        "improved": 13,
+        "regressed": 12
+      }
+    },
+    "FEAT_36": {
+      "description": "Принудительный LIMIT (10–100) + N+1-проверка для пагинации (**E12**)",
+      "bird": {
+        "reported_questions": 241,
+        "reported_correct": 94,
+        "common_questions": 241,
+        "common_correct": 94,
+        "improved": 3,
+        "regressed": 1
+      },
+      "ambrosia": {
+        "reported_questions": 227,
+        "reported_correct": 122,
+        "common_questions": 227,
+        "common_correct": 122,
+        "improved": 3,
+        "regressed": 8
+      }
+    }
+  },
+  "label_files": {
+    "feature_labels.json": {
+      "rows": 22,
+      "feature_mask_sizes": {
+        "33": 22
+      },
+      "baseline_correct": 8,
+      "best_combo_correct": 12
+    },
+    "feature_labels_large.json": {
+      "rows": 241,
+      "feature_mask_sizes": {
+        "33": 241
+      },
+      "baseline_correct": 92,
+      "best_combo_correct": 0
+    },
+    "feature_labels_ambrosia_large.json": {
+      "rows": 240,
+      "feature_mask_sizes": {
+        "33": 227,
+        "1": 13
+      },
+      "baseline_correct": 127,
+      "best_combo_correct": 0
+    }
+  },
+  "gpt_call_profiles": {
+    "bird_no32_33": {
+      "classic_ambiguity": {
+        "calls": 241,
+        "prompt_tokens": 819821,
+        "completion_tokens": 1241
+      },
+      "decomposition": {
+        "calls": 152,
+        "prompt_tokens": 82198,
+        "completion_tokens": 25475
+      },
+      "sql_generation": {
+        "calls": 241,
+        "prompt_tokens": 931641,
+        "completion_tokens": 27577
+      }
+    },
+    "ambrosia_hybrid": {
+      "sql_generation": {
+        "calls": 149,
+        "prompt_tokens": 235213,
+        "completion_tokens": 14304
+      },
+      "taxonomy": {
+        "calls": 139,
+        "prompt_tokens": 232592,
+        "completion_tokens": 8119
+      },
+      "clarification": {
+        "calls": 78,
+        "prompt_tokens": 26833,
+        "completion_tokens": 8332
+      },
+      "decomposition": {
+        "calls": 26,
+        "prompt_tokens": 6612,
+        "completion_tokens": 3492
+      }
+    }
+  }
+}

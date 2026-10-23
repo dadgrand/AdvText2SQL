@@ -1,0 +1,402 @@
+[
+  {
+    "question_id": 84,
+    "db_id": "california_schools",
+    "question": "What are the two most common first names among the school administrators? Indicate the district to which they administer.",
+    "evidence": "",
+    "SQL": "SELECT DISTINCT T1.AdmFName1, T1.District FROM schools AS T1 INNER JOIN ( SELECT admfname1 FROM schools GROUP BY admfname1 ORDER BY COUNT(admfname1) DESC LIMIT 2 ) AS T2 ON T1.AdmFName1 = T2.admfname1",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 73,
+    "db_id": "california_schools",
+    "question": "What is the free or reduced price meal count for ages 5 to 17 in the Youth Authority School with a mailing street address of PO Box 1040?",
+    "evidence": "",
+    "SQL": "SELECT T1.`FRPM Count (Ages 5-17)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.MailStreet = 'PO Box 1040' AND T2.SOCType = 'Youth Authority Facilities'",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 50,
+    "db_id": "california_schools",
+    "question": "What is the postal street address for the school with the 7th highest Math average? Indicate the school's name.",
+    "evidence": "Postal street and mailing street are synonyms.",
+    "SQL": "SELECT T2.MailStreet, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrMath DESC LIMIT 6, 1",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 43,
+    "db_id": "california_schools",
+    "question": "What is the average math score of the school with the lowest average score for all subjects, and in which county is it located?",
+    "evidence": "Average score for all subjects can be computed by AvgScrMath + AvgScrRead + AvgScrWrite",
+    "SQL": "SELECT T1.AvgScrMath, T2.County FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath IS NOT NULL ORDER BY T1.AvgScrMath + T1.AvgScrRead + T1.AvgScrWrite ASC LIMIT 1",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 37,
+    "db_id": "california_schools",
+    "question": "What is the complete address of the school with the lowest excellence rate? Indicate the Street, City, Zip and State.",
+    "evidence": "Execellence Rate = NumGE1500 / NumTstTakr; complete address has Street, City, State, Zip code",
+    "SQL": "SELECT T2.Street, T2.City, T2.State, T2.Zip FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr ASC LIMIT 1",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 34,
+    "db_id": "california_schools",
+    "question": "What is the free rate for students between the ages of 5 and 17 at the school run by Kacey Gibson?",
+    "evidence": "Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+    "SQL": "SELECT CAST(T2.`Free Meal Count (Ages 5-17)` AS REAL) / T2.`Enrollment (Ages 5-17)` FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 4,
+    "db_id": "california_schools",
+    "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+    "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the frpm",
+    "SQL": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 85,
+    "db_id": "california_schools",
+    "question": "What is the Percent (%) Eligible Free (K-12) in the school administered by an administrator whose first name is Alusine. List the district code of the school.",
+    "evidence": "Percent (%) Eligible Free (K-12) = `Free Meal Count (K-12)` / `Enrollment (K-12)` * 100%",
+    "SQL": "SELECT T1.`Free Meal Count (K-12)` * 100 / T1.`Enrollment (K-12)`, T1.`District Code` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.AdmFName1 = 'Alusine'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 35,
+    "db_id": "california_schools",
+    "question": "What is the administrator's email address of the chartered school with the fewest students enrolled in grades 1 through 12?",
+    "evidence": "Charted school means `Charter School (Y/N)` = 1 in the table frpm; Students enrolled in grades 1 through 12 refers to `Enrollment (K-12)`",
+    "SQL": "SELECT T2.AdmEmail1 FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter School (Y/N)` = 1 ORDER BY T1.`Enrollment (K-12)` ASC LIMIT 1",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 28,
+    "db_id": "california_schools",
+    "question": "Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.",
+    "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+    "SQL": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 36,
+    "db_id": "california_schools",
+    "question": "Under whose administration is the school with the highest number of students scoring 1500 or more on the SAT? Indicate their full names.",
+    "evidence": "full name means first name, last name; There are at most 3 administrators for each school; SAT Scores are greater or equal to 1500 refers to NumGE1500",
+    "SQL": "SELECT T2.AdmFName1, T2.AdmLName1, T2.AdmFName2, T2.AdmLName2, T2.AdmFName3, T2.AdmLName3 FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.NumGE1500 DESC LIMIT 1",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 62,
+    "db_id": "california_schools",
+    "question": "What is the total number of non-chartered schools in the county of Los Angeles with a percent (%) of eligible free meals for grades 1 through 12 that is less than 0.18%?",
+    "evidence": "non-chartered schools refer to schools whose Charter = 0; K-12 means grades 1 through 12; percent of eligible free rate for K-12 = `Free Meal Count (K-12)` * 100 / `Enrollment (K-12)`",
+    "SQL": "SELECT COUNT(T2.School) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Los Angeles' AND T2.Charter = 0 AND CAST(T1.`Free Meal Count (K-12)` AS REAL) * 100 / T1.`Enrollment (K-12)` < 0.18",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 83,
+    "db_id": "california_schools",
+    "question": "Of the schools that offers a magnet program serving a grade span of Kindergarten to 8th grade, how many offers Multiple Provision Types? List the number of cities that offers a Kindergarten to 8th grade span and indicate how many schools are there serving such grade span for each city.",
+    "evidence": "Kindergarten to 8th grade refers to K-8; 'Offers a magnet program' means Magnet = 1; Multiple Provision Types refers to `NSLP Provision Status` = 'Multiple Provision Types'",
+    "SQL": "SELECT T2.City, COUNT(T2.CDSCode) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Magnet = 1 AND T2.GSoffered = 'K-8' AND T1.`NSLP Provision Status` = 'Multiple Provision Types' GROUP BY T2.City",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 95,
+    "db_id": "financial",
+    "question": "List out the account numbers of clients who are youngest and have highest average salary?",
+    "evidence": "If the person A's birthdate < B's birthdate, it means that person B is younger than person A; A11 refers to average salary",
+    "SQL": "SELECT T1.account_id  FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 on T4.district_id = T1.district_id WHERE T2.client_id = ( SELECT client_id FROM client ORDER BY birth_date DESC LIMIT 1) GROUP BY T4.A11, T1.account_id",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 150,
+    "db_id": "financial",
+    "question": "How many accounts in North Bohemia has made a transaction with the partner's bank being AB?",
+    "evidence": "A3 contains the region names; North Bohemia is a region.",
+    "SQL": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE T3.bank = 'AB' AND T1.A3 = 'north Bohemia'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 145,
+    "db_id": "financial",
+    "question": "Who are the account holder identification numbers whose who have transactions on the credit card with the amount is less than the average, in 1998?",
+    "evidence": "Operation = 'VYBER KARTOU' refers to credit card withdrawal",
+    "SQL": "SELECT T1.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T1.date) = '1998' AND T1.operation = 'VYBER KARTOU' AND T1.amount < (SELECT AVG(amount) FROM trans WHERE STRFTIME('%Y', date) = '1998')",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 122,
+    "db_id": "financial",
+    "question": "State the district and region for loan ID '4990'.",
+    "evidence": "A2, A3 contains the information about district and region respectively.",
+    "SQL": "SELECT T2.A2, T2.A3 FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN loan AS T3 ON T1.account_id = T3.account_id WHERE T3.loan_id = 4990",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 102,
+    "db_id": "financial",
+    "question": "State different accounts who have account opening date before 1997 and own an amount of money greater than 3000USD",
+    "evidence": "",
+    "SQL": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T2.date) < '1997' AND T1.amount > 3000",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 181,
+    "db_id": "financial",
+    "question": "Please provide the IDs of the 3 female clients with the largest loans.",
+    "evidence": "Female refers to gender = 'F'",
+    "SQL": "SELECT T1.client_id FROM client AS T1 INNER JOIN disp AS T4 on T1.client_id= T4.client_id INNER JOIN account AS T2 ON T4.account_id = T2.account_id  INNER JOIN loan AS T3 ON T2.account_id = T3.account_id and T4.account_id = T3.account_id WHERE T1.gender = 'F' ORDER BY T3.amount DESC LIMIT 3",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 91,
+    "db_id": "financial",
+    "question": "The average unemployment ratio of 1995 and 1996, which one has higher percentage?",
+    "evidence": "A12 refers to unemploymant rate 1995; A13 refers to unemploymant rate 1996",
+    "SQL": "SELECT DISTINCT IIF(AVG(A13) > AVG(A12), '1996', '1995') FROM district",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 94,
+    "db_id": "financial",
+    "question": "List out the account numbers of female clients who are oldest and has lowest average salary, calculate the gap between this lowest average salary with the highest average salary?",
+    "evidence": "Female means gender = 'F'; A11 refers to average salary; Gap = highest average salary - lowest average salary; If the person A's birthdate > B's birthdate, it means that person B is order than person A.",
+    "SQL": "SELECT T1.account_id , ( SELECT MAX(A11) - MIN(A11) FROM district ) FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T1.account_id = T3.account_id INNER JOIN client AS T4 ON T3.client_id = T4.client_id WHERE T2.district_id = ( SELECT district_id FROM client WHERE gender = 'F' ORDER BY birth_date ASC LIMIT 1 ) ORDER BY T2.A11 DESC LIMIT 1",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 125,
+    "db_id": "financial",
+    "question": "For loans contracts which are still running where client are in debt, list the district of the and the state the percentage unemployment rate increment from year 1995 to 1996.",
+    "evidence": "Unemployment increment rate in percentage = [(unemployment rate 2016 - unemployment rate 2015) / unemployment rate 2015] * 100; unemployment rate 2015 appears in the A12; unemployment rate 2016 appears in the A13; Loan contracts which are still running where client are in debt can be presented as status = 'D'",
+    "SQL": "SELECT CAST((T3.A13 - T3.A12) AS REAL) * 100 / T3.A12 FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.status = 'D'",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 149,
+    "db_id": "financial",
+    "question": "Please list the account types that are not eligible for loans, and the average income of residents in the district where the account is located exceeds $8000 but is no more than $9000.",
+    "evidence": "A11 represents the average salary; Salary and income share the similar meanings; when the account type = 'OWNER', it's eligible for loans",
+    "SQL": "SELECT T3.type FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T2.account_id = T3.account_id WHERE T3.type != 'OWNER' AND T1.A11 BETWEEN 8000 AND 9000",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 260,
+    "db_id": "toxicology",
+    "question": "Calculate the total atoms with triple-bond molecules containing the element phosphorus or bromine.",
+    "evidence": "triple bond refers to bond_type = '#'; phosphorus refers to element = 'p'; bromine refers to element = 'br'",
+    "SQL": "SELECT COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#' AND T1.element IN ('p', 'br')",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 232,
+    "db_id": "toxicology",
+    "question": "Please list top three molecules that have single bonds between two atoms and are not carcinogenic in alphabetical order.",
+    "evidence": "label = '-' means molecules are not carcinogenic; single type bond refers to bond_type = '-'; list top three molecules refers to return molecule_id and order by molecule_id;",
+    "SQL": "SELECT DISTINCT T2.molecule_id FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_type = '-' AND T2.label = '-' ORDER BY T2.molecule_id LIMIT 3",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 249,
+    "db_id": "toxicology",
+    "question": "What are the elements of the atoms of TR144_8_19?",
+    "evidence": "TR144_8_19 is the bond id; ",
+    "SQL": "SELECT T2.element FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id WHERE T1.bond_id = 'TR144_8_19'",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 421,
+    "db_id": "card_games",
+    "question": "Please list top three unknown power cards that have promotional types for arena league in alphabetical order.",
+    "evidence": "unknown power cards refers to power is null or power = '*'; promotional types for arena league refers to promoTypes = 'arenaleague'",
+    "SQL": "SELECT name FROM cards WHERE (power IS NULL OR power LIKE '%*%') AND promoTypes = 'arenaleague' ORDER BY name LIMIT 3",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 445,
+    "db_id": "card_games",
+    "question": "What is the language and flavor text of the card that has colorpie watermark? List out the type of this card.",
+    "evidence": "",
+    "SQL": "SELECT DISTINCT T2.language, T2.flavorText FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T2.uuid = T1.uuid WHERE T1.watermark = 'colorpie'",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 509,
+    "db_id": "card_games",
+    "question": "What is the unique id of the set that has the highest number of cards?",
+    "evidence": "the highest number of cards refers to MAX(baseSetSize); unique id refers to id",
+    "SQL": "SELECT id FROM sets ORDER BY baseSetSize DESC LIMIT 1",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 450,
+    "db_id": "card_games",
+    "question": "Of all the cards that are designed by Aaron Miller, how many of them are incredibly powerful?",
+    "evidence": "designed by Aaron Miller refers to artist = 'Aaron Miller'; are icredibily powerful refers to cardKingdomFoilId is not null AND cardKingdomId is not null",
+    "SQL": "SELECT SUM(CASE WHEN artist = 'Aaron Miller' AND cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL THEN 1 ELSE 0 END) FROM cards",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 513,
+    "db_id": "card_games",
+    "question": "Among the sets whose expansion type is Commander, which set has the highest total number of cards including promotional and related supplemental products but excluding Alchemy modifications? Indicate the id of the set.",
+    "evidence": "expansion type refers to type where type = 'commander'; totalSetSize: The total number of cards in the set, including promotional and related supplemental products but excluding Alchemy modifications; highest total number of cards refers to MAX(totalSetSize)",
+    "SQL": "SELECT id FROM sets WHERE type = 'commander' ORDER BY totalSetSize DESC LIMIT 1",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 528,
+    "db_id": "card_games",
+    "question": "List the names of all the cards in the set Hour of Devastation and find the formats in which these cards are legal.",
+    "evidence": "the set Hour of Devastation refers to set.name = 'Hour of Devastation'; names of all the cards in the set refers to cards.name; legal cards refers to status = 'Legal'; the formats refers to format",
+    "SQL": "SELECT DISTINCT T2.name , CASE WHEN T1.status = 'Legal' THEN T1.format ELSE NULL END FROM legalities AS T1 INNER JOIN cards AS T2 ON T2.uuid = T1.uuid WHERE T2.setCode IN ( SELECT code FROM sets WHERE name = 'Hour of Devastation' )",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 431,
+    "db_id": "card_games",
+    "question": "Which set is not available outside of the United States and has foil cards with Japanese writing on them? Please include the set ID in your response.",
+    "evidence": "available outside of the United States refers to isForeignOnly = 1; has foil cards refers to isFoilOnly = 1; with Japanese writing on them refers to language = 'Japanese'",
+    "SQL": "SELECT T1.name, T1.id FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode WHERE T2.language = 'Japanese' AND T1.isFoilOnly = 1 AND T1.isForeignOnly = 0",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 477,
+    "db_id": "card_games",
+    "question": "Which of these artists have designed a card in the set Coldsnap, Jeremy Jarvis, Aaron Miller or Chippy?",
+    "evidence": "card set Coldsnap refers to name = 'Coldsnap'; Jeremy Jarvis, Aaron Miller or Chippy are the name of artists which refers to artist IN ('Jeremy Jarvis', 'Aaron Miller','Chippy');",
+    "SQL": "SELECT T1.artist FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE (T2.name = 'Coldsnap' AND T1.artist = 'Chippy') OR (T2.name = 'Coldsnap' AND T1.artist = 'Aaron Miller') OR (T2.name = 'Coldsnap' AND T1.artist = 'Jeremy Jarvis') GROUP BY T1.artist",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 699,
+    "db_id": "codebase_community",
+    "question": "When did the user known as 'IrishStat' create his or her account?",
+    "evidence": "DisplayName = 'IrishStat'; when create his or her account refers to CreationDate;",
+    "SQL": "SELECT CreationDate FROM users WHERE DisplayName = 'IrishStat'",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 549,
+    "db_id": "codebase_community",
+    "question": "From which post is the tag \"bayesian\" excerpted from? Please give the body of the post.",
+    "evidence": "\"bayesian\" is the TagName; excerpt from refers to ExcerptPostId",
+    "SQL": "SELECT T2.Body FROM tags AS T1 INNER JOIN posts AS T2 ON T2.Id = T1.ExcerptPostId WHERE T1.TagName = 'bayesian'",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 571,
+    "db_id": "codebase_community",
+    "question": "For the user No.24, how many times is the number of his/her posts compared to his/her votes?",
+    "evidence": "user no. 24 refers to UserId = OwnerUserId = '24'; times of his/her post than votes = Divide (Count(post.Id), Count(votes.Id))",
+    "SQL": "SELECT CAST(COUNT(T2.Id) AS REAL) / COUNT(DISTINCT T1.Id) FROM votes AS T1 INNER JOIN posts AS T2 ON T1.UserId = T2.OwnerUserId WHERE T1.UserId = 24",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 652,
+    "db_id": "codebase_community",
+    "question": "List the post IDs and badge names of the user Samuel in 2013.",
+    "evidence": "Samuel refers to UserDisplayName; YEAR(CreationDate) = 2013 relates to PostId; YEAR(Date) = 2013 relates to the badge;",
+    "SQL": "SELECT T1.PostId, T2.Name FROM postHistory AS T1 INNER JOIN badges AS T2 ON T1.UserId = T2.UserId WHERE T1.UserDisplayName = 'Samuel' AND STRFTIME('%Y', T1.CreationDate) = '2013' AND STRFTIME('%Y', T2.Date) = '2013'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 716,
+    "db_id": "codebase_community",
+    "question": "Among the comments with scores between 5 to 10, what is the percentage of the users with 0 up votes?",
+    "evidence": "percentage = DIVIDE(COUNT(UserId where UpVotes = 0 and Score BETWEEN 5 and 10))*100, (COUNT(UserId where Score BETWEEN 5 and 10));",
+    "SQL": "SELECT CAST(SUM(IIF(T1.UpVotes = 0, 1, 0)) AS REAL) * 100/ COUNT(T1.Id) AS per FROM users AS T1 INNER JOIN comments AS T2 ON T1.Id = T2.UserId WHERE T2.Score BETWEEN 5 AND 10",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 828,
+    "db_id": "superhero",
+    "question": "Count the fastest superheroes.",
+    "evidence": "fastest refers to attribute_value = 100 WHERE attribute_name = 'Speed';",
+    "SQL": "SELECT COUNT(T3.superhero_name) FROM hero_attribute AS T1 INNER JOIN attribute AS T2 ON T1.attribute_id = T2.id INNER JOIN superhero AS T3 ON T1.hero_id = T3.id WHERE T2.attribute_name = 'Speed' AND T1.attribute_value = 100",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 797,
+    "db_id": "superhero",
+    "question": "Which superheroes have blue eyes with brown hair?",
+    "evidence": "which superheroes refers to superhero_name; blue eyes refers to color = 'Blue' and color.id = eye_colour_id; brown hair refers to color = 'Brown' and color.id = hair_colour_id;",
+    "SQL": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Brown'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 798,
+    "db_id": "superhero",
+    "question": "What is the publisher for Hawkman, Karate Kid and Speedy?",
+    "evidence": "publisher refers to publisher_name; Hawkman refers to superhero_name = 'Hawkman'; Karate Kid refers to superhero_name = 'Karate Kid'; Speedy refers to superhero_name = 'Speedy';",
+    "SQL": "SELECT T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 743,
+    "db_id": "superhero",
+    "question": "What is the percentage of superheroes who act in their own self-interest or make decisions based on their own moral code? Indicate how many of the said superheroes were published by Marvel Comics.",
+    "evidence": "published by Marvel Comics refers to publisher_name = 'Marvel Comics'; superheroes who act in their own self-interest or make decisions based on their own moral code refers to alignment = 'Bad'; calculation = MULTIPLY(DIVIDE(SUM(alignment = 'Bad); count(id)), 100)",
+    "SQL": "SELECT (CAST(COUNT(*) AS REAL) * 100 / (SELECT COUNT(*) FROM superhero)), CAST(SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) AS REAL) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN alignment AS T3 ON T3.id = T1.alignment_id WHERE T3.alignment = 'Bad'",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 724,
+    "db_id": "superhero",
+    "question": "Please list the superhero names of all the superheroes that have blue eyes and blond hair.",
+    "evidence": "blue eyes refers to colour = 'Blue' and eye_colour_id = colour.id; blond hair refers to colour = 'Blond' and hair_colour_id = colour.id; super power of \"Agility\" refers to power_name = 'Agility'",
+    "SQL": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Blond'",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1456,
+    "db_id": "student_club",
+    "question": "List the full name of the top five members who spend the most money in the descending order of spending.",
+    "evidence": "full name refers to first_name, last_name; spend the most money refers to MAX(expense.cost)",
+    "SQL": "SELECT T3.first_name, T3.last_name FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T1.link_to_member = T3.member_id ORDER BY T2.spent DESC LIMIT 5",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1323,
+    "db_id": "student_club",
+    "question": "List all the names of events that had an attendance of over 20 students but were not fundraisers.",
+    "evidence": "name of events refers to event_name; attendance of over 20 students COUNT(event_id) > 20.",
+    "SQL": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1  WHERE T1.type = 'Fundraiser'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1449,
+    "db_id": "student_club",
+    "question": "What is the name and major of members who had to spend more than a hundred dollars on an expense?",
+    "evidence": "full name refers to first_name, last_name; major of members refers to major_name; spend more than a hundred dollars on an expense refers to cost > 100",
+    "SQL": "SELECT DISTINCT T1.first_name, T1.last_name, T2.major_name FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major INNER JOIN expense AS T3 ON T1.member_id = T3.link_to_member WHERE T3.cost > 100",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1448,
+    "db_id": "student_club",
+    "question": "Find the name and date of events with expenses for pizza that were more than fifty dollars but less than a hundred dollars.",
+    "evidence": "name of event refers to event_name; date of event refers to event_date; expenses for pizza refers to expense_description = 'Pizza' where cost > 50 and cost < 100",
+    "SQL": "SELECT T1.event_name, T1.event_date FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T3.expense_description = 'Pizza' AND T3.cost > 50 AND T3.cost < 100",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1451,
+    "db_id": "student_club",
+    "question": "Among the members who incurred expenses in more than one event, who paid the most amount?",
+    "evidence": "paid the most amount refers to for expense incurred in more than one event refers to MAX(cost where COUNT(event_id) > 1)",
+    "SQL": "SELECT T2.member_id FROM expense AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN budget AS T3 ON T1.link_to_budget = T3.budget_id INNER JOIN event AS T4 ON T3.link_to_event = T4.event_id GROUP BY T2.member_id HAVING COUNT(DISTINCT T4.event_id) > 1 ORDER BY SUM(T1.cost) DESC LIMIT 1",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1457,
+    "db_id": "student_club",
+    "question": "Give the full name and contact number of members who had to spend more than average on each expense.",
+    "evidence": "full name refers to first_name, last_name; contact number refers to phone; had spent more than average on each expense refers to cost > AVG(cost)",
+    "SQL": "SELECT DISTINCT T3.first_name, T3.last_name, T3.phone FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member WHERE T1.cost > ( SELECT AVG(T1.cost) FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member )",
+    "difficulty": "challenging"
+  }
+]

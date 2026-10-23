@@ -1,0 +1,170 @@
+{
+  "overall_accuracy": 40.90909090909091,
+  "accuracy_by_difficulty": {
+    "simple": 55.55555555555556,
+    "challenging": 66.66666666666667,
+    "moderate": 20.0
+  },
+  "false_ambiguous": 0,
+  "false_ambiguous_rate": 0.0,
+  "total": 22,
+  "results": [
+    {
+      "question_id": "9",
+      "gold_sql": "SELECT COUNT(T2.\"School Code\") FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath > 560 AND T2.\"Charter Funding Type\" = 'Directly funded'",
+      "predicted_sql": "SELECT COUNT(DISTINCT s.cdscode) AS \"Количество школ\"\nFROM schools s\nINNER JOIN satscores sat ON s.cdscode = sat.cds\nWHERE sat.avgscrmath > 560\n  AND s.fundingtype = 'Directly Funded'\n  AND s.charter = 1\n  AND sat.rtype = 'S'\n  AND sat.avgscrmath IS NOT NULL;",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.ConnectionTimeout) connection timeout expired\nMultiple connection attempts failed. All failures were:\n- host: 'localhost', port: 5444, hostaddr: '::1': connection failed: connection to server at \"::1\", port 5444 failed: Permission denied (0x0000271D/10013)\n\tIs the server running on that host and accepting TCP/IP connections?\n- host: 'localhost', port: 5444, hostaddr: '127.0.0.1': connection timeout expired\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+    },
+    {
+      "question_id": "13",
+      "gold_sql": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY CAST(T2.NumGE1500 AS REAL) / NULLIF(T2.NumTstTakr, 0) DESC NULLS LAST LIMIT 3",
+      "predicted_sql": "SELECT\n  \"sc\".\"phone\"\nFROM \"schools\" AS \"sc\"\nJOIN \"satscores\" AS \"s\"\n  ON \"sc\".\"cdscode\" = \"s\".\"cds\"\nWHERE\n  \"sc\".\"phone\" IS NOT NULL\nGROUP BY\n  \"sc\".\"phone\"\nORDER BY\n  MAX(\"s\".\"numge1500\"::numeric / NULLIF(\"s\".\"numtsttakr\"::numeric, 0)) DESC NULLS LAST\nLIMIT 3;",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.ConnectionTimeout) connection timeout expired\nMultiple connection attempts failed. All failures were:\n- host: 'localhost', port: 5444, hostaddr: '::1': connection failed: connection to server at \"::1\", port 5444 failed: Permission denied (0x0000271D/10013)\n\tIs the server running on that host and accepting TCP/IP connections?\n- host: 'localhost', port: 5444, hostaddr: '127.0.0.1': connection timeout expired\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+    },
+    {
+      "question_id": "17",
+      "gold_sql": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC NULLS LAST) AS WritingScoreRank FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite > 499 AND NOT CharterNum IS NULL",
+      "predicted_sql": "SELECT \n    s.\"charnum\" AS charter_number,\n    s.\"school\" AS school_name,\n    AVG(sat.\"avgscrwrite\") AS average_writing_score\nFROM \n    \"satscores\" sat\nJOIN \n    \"schools\" s ON sat.\"cds\" = s.\"cdscode\"\nWHERE \n    sat.\"avgscrwrite\" > 499\n    AND s.\"charnum\" IS NOT NULL\n    AND TRIM(s.\"charnum\") != ''\nGROUP BY \n    s.\"charnum\", s.\"school\"\nORDER BY \n    average_writing_score DESC NULLS LAST;",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.UndefinedColumn) column s.charnum does not exist\nLINE 2:     s.\"charnum\" AS charter_number,\n            ^\nHINT:  Perhaps you meant to reference the column \"s.charter\" or the column \"s.charternum\".\n[SQL: SELECT \n    s.\"charnum\" AS charter_number,\n    s.\"school\" AS school_name,\n    AVG(sat.\"avgscrwrite\") AS average_writing_score\nFROM \n    \"satscores\" sat\nJOIN \n    \"schools\" s ON sat.\"cds\" = s.\"cdscode\"\nWHERE \n    sat.\"avgscrwrite\" > 499\n    AND s.\"charnum\" IS NOT NULL\n    AND TRIM(s.\"charnum\") != ''\nGROUP BY \n    s.\"charnum\", s.\"school\"\nORDER BY \n    average_writing_score DESC NULLS LAST;]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "325",
+      "gold_sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'n' AND T1.label = '+'",
+      "predicted_sql": "SELECT COUNT(DISTINCT \"m\".\"molecule_id\") AS \"count\"\nFROM \"molecule\" AS \"m\"\nJOIN \"atom\" AS \"a\"\n  ON \"m\".\"molecule_id\" = \"a\".\"molecule_id\"\nWHERE \"m\".\"label\" = '+'\n  AND \"a\".\"element\" = 'n';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "279",
+      "gold_sql": "SELECT T2.label FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_id = 'TR001_10_11'",
+      "predicted_sql": "SELECT m.\"label\"\nFROM \"molecule\" m\nJOIN \"bond\" b ON m.\"molecule_id\" = b.\"molecule_id\"\nWHERE b.\"bond_id\" = 'TR001_10_11'\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "276",
+      "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_type = '#'",
+      "predicted_sql": "SELECT \"c\".\"atom_id\", \"c\".\"atom_id2\"\nFROM \"connected\" AS \"c\"\nJOIN \"bond\" AS \"b\"\n  ON \"c\".\"bond_id\" = \"b\".\"bond_id\"\nWHERE \"b\".\"bond_type\" = '#';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "498",
+      "gold_sql": "SELECT T2.translation FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T1.name = 'Tendo Ice Bridge' AND T2.language = 'French' AND NOT T2.translation IS NULL",
+      "predicted_sql": "SELECT DISTINCT\n    st.\"translation\" AS french_set_name\nFROM \"cards\" c\nINNER JOIN \"set_translations\" st \n    ON c.\"setcode\" = st.\"setcode\"\nWHERE \n    c.\"name\" = 'Tendo Ice Bridge'\n    AND st.\"language\" = 'French';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "417",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'Japanese' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode WHERE T1.type = 'expansion'",
+      "predicted_sql": "SELECT \n    (COUNT(CASE WHEN st.\"language\" = 'Japanese' THEN 1 END) * 100.0) / \n    NULLIF(COUNT(*), 0) AS percentage_japanese_expansion\nFROM \"set_translations\" st\nINNER JOIN \"sets\" s ON st.\"setcode\" = s.\"code\"\nWHERE s.\"type\" = 'expansion';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "345",
+      "gold_sql": "SELECT DISTINCT T2.status FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T1.type = 'Artifact' AND T2.format = 'vintage' AND T1.side IS NULL",
+      "predicted_sql": "SELECT DISTINCT\n    c.\"name\" AS card_name,\n    c.\"types\" AS card_types,\n    l.\"status\" AS vintage_legality_status\nFROM \"cards\" c\nLEFT JOIN \"legalities\" l \n    ON c.\"uuid\" = l.\"uuid\" \n    AND TRIM(LOWER(l.\"format\")) = 'vintage'\nWHERE \n    \n    c.\"types\" ILIKE '%Artifact%'\n    \n    AND c.\"side\" IS NULL\n    \n    AND c.\"layout\" NOT IN ('transform', 'modal_dfc', 'double_faced_token', 'reversible_card')\nORDER BY c.\"name\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1533",
+      "gold_sql": "SELECT T2.Consumption FROM transactions_1k AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Price / NULLIF(T1.Amount, 0) > 29.00 AND T1.ProductID = 5 AND T2.Date = '201208'",
+      "predicted_sql": "SELECT DISTINCT\n  T1.\"customerid\",\n  T1.\"consumption\"\nFROM \"yearmonth\" AS T1\nJOIN \"transactions_1k\" AS T2\n  ON T1.\"customerid\" = T2.\"customerid\"\nWHERE T2.\"productid\" = 5\n  AND T2.\"price\" / NULLIF(T2.\"amount\", 0) > 29.00\n  AND T1.\"date\" = '201208';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1480",
+      "gold_sql": "SELECT SUBSTRING(T2.Date FROM 5 FOR 2) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME' GROUP BY SUBSTRING(T2.Date FROM 5 FOR 2) ORDER BY SUM(T2.Consumption) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "WITH sme_consumption AS (\n    SELECT \n        LEFT(ym.\"date\", 4) AS year,\n        SUBSTRING(ym.\"date\", 5, 2) AS month,\n        SUM(ym.\"consumption\") AS total_consumption\n    FROM \"yearmonth\" ym\n    INNER JOIN \"customers\" c ON ym.\"customerid\" = c.\"customerid\"\n    WHERE LEFT(ym.\"date\", 4) = '2013'\n        AND LOWER(c.\"segment\") = 'sme'\n    GROUP BY LEFT(ym.\"date\", 4), SUBSTRING(ym.\"date\", 5, 2)\n)\nSELECT \n    year,\n    month,\n    total_consumption\nFROM sme_consumption\nORDER BY total_consumption DESC NULLS LAST\nLIMIT 1;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1529",
+      "gold_sql": "SELECT SUM(T1.Price), SUM(CASE WHEN T3.Date = '201201' THEN T1.Price ELSE 0 END) FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T1.CustomerID = '38508'",
+      "predicted_sql": "SELECT SUM(\"y\".\"consumption\") AS \"amount_spent\"\nFROM \"yearmonth\" AS \"y\"\nWHERE \"y\".\"customerid\"::text = '38508'\n  AND \"y\".\"date\" = '201201';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1472",
+      "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT\n    y.\"customerid\",\n    SUM(y.\"consumption\") AS total_consumption\nFROM\n    \"yearmonth\" y\nWHERE\n    LEFT(y.\"date\", 4) = '2012'\nGROUP BY\n    y.\"customerid\"\nORDER BY\n    total_consumption ASC NULLS FIRST\nLIMIT 1;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "180",
+      "gold_sql": "SELECT T1.client_id, T3.account_id FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T4 ON T1.client_id = T4.client_id INNER JOIN account AS T3 ON T2.district_id = T3.district_id AND T4.account_id = T3.account_id WHERE T2.A3 = 'east Bohemia' AND TO_CHAR(CAST(T1.birth_date AS TIMESTAMP), 'YYYY') BETWEEN '1983' AND '1987'",
+      "predicted_sql": "SELECT DISTINCT\n    c.\"client_id\"\nFROM \"client\" AS c\nJOIN \"disp\" AS d\n    ON c.\"client_id\" = d.\"client_id\"\nJOIN \"account\" AS a\n    ON d.\"account_id\" = a.\"account_id\"\nJOIN \"district\" AS dist\n    ON a.\"district_id\" = dist.\"district_id\"\nWHERE EXTRACT(YEAR FROM c.\"birth_date\"::date) BETWEEN 1983 AND 1987\n    AND dist.\"a3\" = 'East Bohemia';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "113",
+      "gold_sql": "SELECT T4.birth_date FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN disp AS T3 ON T2.account_id = T3.account_id INNER JOIN client AS T4 ON T3.client_id = T4.client_id WHERE T1.date = '1996-01-03' AND T1.amount = 98832",
+      "predicted_sql": "SELECT \n    c.\"birth_date\" AS client_birthday\nFROM \n    \"loan\" l\n    INNER JOIN \"account\" a ON l.\"account_id\" = a.\"account_id\"\n    INNER JOIN \"disp\" d ON a.\"account_id\" = d.\"account_id\"\n    INNER JOIN \"client\" c ON d.\"client_id\" = c.\"client_id\"\nWHERE \n    l.\"amount\" = 98832 \n    AND l.\"date\" = '1996-01-03'::DATE\n    AND d.\"type\" = 'OWNER'\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "589",
+      "gold_sql": "SELECT Id FROM users WHERE Reputation = (SELECT MAX(Reputation) FROM users)",
+      "predicted_sql": "SELECT \"id\"\nFROM \"users\"\nWHERE \"reputation\"::BIGINT = (\n    SELECT MAX(\"reputation\"::BIGINT)\n    FROM \"users\"\n)\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "685",
+      "gold_sql": "SELECT T2.ViewCount, T3.DisplayName FROM postHistory AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id INNER JOIN users AS T3 ON T2.LastEditorUserId = T3.Id WHERE T1.Text = 'Computer Game Datasets'",
+      "predicted_sql": "SELECT \n    p.\"viewcount\" AS \"total_views\",\n    u.\"displayname\" AS \"last_editor\"\nFROM \n    \"posts\" p\nLEFT JOIN \n    \"users\" u ON p.\"lasteditoruserid\" = u.\"id\"\nWHERE \n    p.\"title\" = 'Computer Game Datasets'\n    AND p.\"posttypeid\" = 1 \nLIMIT 1;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1365",
+      "gold_sql": "SELECT T2.expense_description FROM budget AS T1 INNER JOIN expense AS T2 ON T1.budget_id = T2.link_to_budget ORDER BY T1.remaining NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT \n    e.\"expense_description\" AS expense_description,\n    e.\"cost\" AS cost,\n    e.\"expense_date\" AS expense_date,\n    e.\"approved\" AS approved\nFROM \"expense\" e\nINNER JOIN \"budget\" b ON e.\"link_to_budget\" = b.\"budget_id\"\nWHERE b.\"remaining\" = (\n    SELECT MIN(\"remaining\") \n    FROM \"budget\"\n)\n;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1388",
+      "gold_sql": "SELECT T1.first_name, T1.last_name, T2.source FROM member AS T1 INNER JOIN income AS T2 ON T1.member_id = T2.link_to_member GROUP BY T1.first_name, T1.last_name, T2.source ORDER BY SUM(T2.amount) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT DISTINCT \"m\".\"first_name\", \"m\".\"last_name\", \"i\".\"source\"\nFROM \"income\" AS \"i\"\nJOIN \"member\" AS \"m\" ON \"i\".\"link_to_member\" = \"m\".\"member_id\"\nWHERE CAST(\"i\".\"amount\" AS NUMERIC) = (\n    SELECT MAX(CAST(\"amount\" AS NUMERIC))\n    FROM \"income\"\n);",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1339",
+      "gold_sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.last_name = 'Allen' AND T1.first_name = 'Elijah' AND (SUBSTRING(T2.expense_date FROM 6 FOR 2) = '09' OR SUBSTRING(T2.expense_date FROM 6 FOR 2) = '10')",
+      "predicted_sql": "SELECT \n    AVG(e.\"cost\") AS \"average_cost\"\nFROM \n    \"expense\" e\nINNER JOIN \n    \"member\" m ON e.\"link_to_member\" = m.\"member_id\"\nWHERE \n    m.\"first_name\" = 'Elijah' \n    AND m.\"last_name\" = 'Allen'\n    AND (\n        SUBSTRING(e.\"expense_date\" FROM 6 FOR 2) IN ('09', '10')\n        OR \n        (LENGTH(e.\"expense_date\") >= 7 AND SUBSTRING(e.\"expense_date\" FROM 1 FOR 7) LIKE '%-09-%')\n        OR \n        (LENGTH(e.\"expense_date\") >= 7 AND SUBSTRING(e.\"expense_date\" FROM 1 FOR 7) LIKE '%-10-%')\n    )\n    ;",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1359",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END), 0) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement' AND T2.type = 'Meeting'",
+      "predicted_sql": "WITH budget_amounts AS (\n    SELECT \n        e.\"event_name\",\n        b.\"amount\"\n    FROM \"budget\" b\n    JOIN \"event\" e ON b.\"link_to_event\" = e.\"event_id\"\n    WHERE b.\"category\" = 'Advertisement'\n        AND e.\"event_name\" IN ('Yearly Kickoff', 'October Meeting')\n)\nSELECT \n    \n    SUM(CASE WHEN \"event_name\" = 'Yearly Kickoff' THEN \"amount\" ELSE 0 END)::REAL \n    / \n    \n    NULLIF(SUM(CASE WHEN \"event_name\" = 'October Meeting' THEN \"amount\" ELSE 0 END), 0)::REAL \n    AS \"budget_ratio\"\nFROM budget_amounts;",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1429",
+      "gold_sql": "SELECT T2.event_name FROM attendance AS T1 INNER JOIN event AS T2 ON T2.event_id = T1.link_to_event INNER JOIN member AS T3 ON T1.link_to_member = T3.member_id WHERE T3.position = 'Vice President' AND T2.location = '900 E. Washington St.' AND T2.type = 'Social'",
+      "predicted_sql": "SELECT DISTINCT \"e\".\"event_name\"\nFROM \"attendance\" AS \"a\"\nJOIN \"event\" AS \"e\"\n  ON \"a\".\"link_to_event\" = \"e\".\"event_id\"\nJOIN \"member\" AS \"m\"\n  ON \"a\".\"link_to_member\" = \"m\".\"member_id\"\nWHERE \"e\".\"type\" = 'Social'\n  AND \"m\".\"position\" = 'Vice President'\n  AND \"e\".\"location\" = '900 E. Washington St.';",
+      "score": true,
+      "difficulty": "challenging"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+﻿[
+    {
+        "value":  [
+                      "local/run_check.sh",
+                      "research_results/legacy_notes/test.py",
+                      ".DS_Store",
+                      ".ruff_cache",
+                      "scripts/__pycache__",
+                      "tests/__pycache__",
+                      "benchmarks/__pycache__",
+                      "src/adv_text2sql/__pycache__",
+                      "src/adv_text2sql/mcp_servers/__pycache__",
+                      "src/adv_text2sql/mcp_servers/text2sql_tool/src/__pycache__"
+                  ],
+        "Count":  10
+    },
+    "scripts/probe_ambiguity.py",
+    "scripts/probe_main_ambiguity.py"
+]

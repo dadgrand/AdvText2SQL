@@ -1,0 +1,10 @@
+﻿{
+    "status":  "finished",
+    "reason":  "Process exited; benchmark status=completed",
+    "benchmark_pid":  8356,
+    "monitor_pid":  23684,
+    "checked_at":  "2026-10-16T22:05:07.6099933+03:00",
+    "questions_saved":  0,
+    "stall_seconds_limit":  600,
+    "consecutive_error_limit":  8
+}

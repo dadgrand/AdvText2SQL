@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run all-false baseline on large dataset, save to ablation_results_large/feat_baseline/
+# Run all-false baseline on large dataset, save to research_results/ablation_results_large/feat_baseline/
 # Runs BIRD and Ambrosia separately to avoid checkpoint contamination.
 #
 # Usage:
@@ -8,7 +8,7 @@
 set -euo pipefail
 
 BENCHMARK="${1:-both}"
-OUT_DIR="ablation_results_large/feat_baseline"
+OUT_DIR="research_results/ablation_results_large/feat_baseline"
 mkdir -p "$OUT_DIR"
 
 run_bird() {
@@ -19,7 +19,7 @@ run_bird() {
     echo "[BASELINE] Running BIRD large..."
     rm -f query_results.json
     DATASET_SIZE=large bash local/run_single.sh baseline bird
-    SRC="ablation_results/feat_00_baseline_bird"
+    SRC="research_results/ablation_results/feat_00_baseline_bird"
     [[ -f "$SRC/bird.log" ]]               && cp "$SRC/bird.log"               "$OUT_DIR/"
     [[ -f "$SRC/bird_query_results.json" ]] && cp "$SRC/bird_query_results.json" "$OUT_DIR/"
     rm -rf "$SRC"
@@ -34,7 +34,7 @@ run_ambrosia() {
     echo "[BASELINE] Running Ambrosia large..."
     rm -f query_results.json
     DATASET_SIZE=large bash local/run_single.sh baseline ambrosia
-    SRC="ablation_results/feat_00_baseline_ambrosia"
+    SRC="research_results/ablation_results/feat_00_baseline_ambrosia"
     [[ -f "$SRC/ambrosia.log" ]]               && cp "$SRC/ambrosia.log"               "$OUT_DIR/"
     [[ -f "$SRC/ambrosia_query_results.json" ]] && cp "$SRC/ambrosia_query_results.json" "$OUT_DIR/"
     rm -rf "$SRC"

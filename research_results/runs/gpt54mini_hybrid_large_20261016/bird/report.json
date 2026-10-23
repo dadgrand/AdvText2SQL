@@ -1,0 +1,1717 @@
+{
+  "overall_accuracy": 38.58921161825726,
+  "accuracy_by_difficulty": {
+    "challenging": 19.672131147540984,
+    "simple": 56.043956043956044,
+    "moderate": 33.70786516853933
+  },
+  "false_ambiguous": 50,
+  "false_ambiguous_rate": 20.74688796680498,
+  "total": 241,
+  "results": [
+    {
+      "question_id": "9",
+      "gold_sql": "SELECT COUNT(T2.\"School Code\") FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath > 560 AND T2.\"Charter Funding Type\" = 'Directly funded'",
+      "predicted_sql": "SELECT COUNT(DISTINCT s.\"cdscode\") AS \"school_count\"\nFROM \"satscores\" AS sat\nJOIN \"schools\" AS s\n  ON sat.\"cds\"::TEXT = s.\"cdscode\"::TEXT\nWHERE sat.\"avgscrmath\" > 560\n  AND s.\"charter\" = 1\n  AND s.\"fundingtype\" = 'Directly funded';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "13",
+      "gold_sql": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY CAST(T2.NumGE1500 AS REAL) / NULLIF(T2.NumTstTakr, 0) DESC NULLS LAST LIMIT 3",
+      "predicted_sql": "SELECT\n  \"sch\".\"phone\"\nFROM (\n  SELECT\n    \"ss\".\"cds\",\n    \"ss\".\"numge1500\"::numeric / NULLIF(\"ss\".\"numtsttakr\", 0) AS \"excellence_rate\"\n  FROM \"satscores\" AS \"ss\"\n  WHERE \"ss\".\"numtsttakr\" IS NOT NULL\n) AS \"top_schools\"\nJOIN \"schools\" AS \"sch\"\n  ON \"sch\".\"cdscode\"::text = \"top_schools\".\"cds\"::text\nORDER BY \"top_schools\".\"excellence_rate\" DESC NULLS LAST\nLIMIT 3;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "17",
+      "gold_sql": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC NULLS LAST) AS WritingScoreRank FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite > 499 AND NOT CharterNum IS NULL",
+      "predicted_sql": "SELECT\n  \"s\".\"sname\" AS \"school_name\",\n  \"c\".\"charternum\" AS \"charter_number\",\n  AVG(\"s\".\"avgscrwrite\") AS \"avg_writing_score\"\nFROM \"satscores\" AS \"s\"\nJOIN \"schools\" AS \"c\"\n  ON \"s\".\"cds\"::text = \"c\".\"cdscode\"::text\nWHERE \"s\".\"avgscrwrite\" > 499\n  AND \"c\".\"charternum\" IS NOT NULL\nGROUP BY\n  \"s\".\"sname\",\n  \"c\".\"charternum\"\nORDER BY\n  \"avg_writing_score\" DESC NULLS LAST;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "10",
+      "gold_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrRead DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT\n    f.\"FRPM Count (Ages 5-17)\" AS \"frpm_count_ages_5_17\"\nFROM \"satscores\" AS s\nJOIN \"frpm\" AS f\n    ON f.\"cdscode\"::TEXT = s.\"cds\"::TEXT\nWHERE s.\"rtype\" = 'S'\n  AND f.\"Academic Year\" = '2014-2015'\nORDER BY s.\"avgscrread\" DESC NULLS LAST\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "84",
+      "gold_sql": "SELECT DISTINCT T1.AdmFName1, T1.District FROM schools AS T1 INNER JOIN ( SELECT admfname1 FROM schools GROUP BY admfname1 ORDER BY COUNT(admfname1) DESC LIMIT 2 ) AS T2 ON T1.AdmFName1 = T2.admfname1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "73",
+      "gold_sql": "SELECT T1.`FRPM Count (Ages 5-17)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.MailStreet = 'PO Box 1040' AND T2.SOCType = 'Youth Authority Facilities'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "14",
+      "gold_sql": "SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.\"Enrollment (Ages 5-17)\" DESC NULLS LAST LIMIT 5",
+      "predicted_sql": "SELECT \n       f.\"School Code\" AS \"NCES school identification number\"\nFROM \"frpm\" f\nORDER BY CAST(f.\"Enrollment (Ages 5-17)\" AS NUMERIC) DESC NULLS LAST\nLIMIT 5;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "39",
+      "gold_sql": "SELECT AVG(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE TO_CHAR(CAST(T2.OpenDate AS TIMESTAMP), 'YYYY') = '1980' AND T2.County = 'Fresno'",
+      "predicted_sql": "SELECT AVG(ss.\"numtsttakr\") AS \"average_numtsttakr\"\nFROM \"schools\" AS sch\nJOIN \"satscores\" AS ss\n  ON sch.\"cdscode\" = ss.\"cds\"\nWHERE (\n    sch.\"city\" ILIKE 'Fresno'\n    OR sch.\"county\" ILIKE 'Fresno'\n    OR sch.\"district\" ILIKE 'Fresno'\n)\n  AND TO_DATE(sch.\"opendate\"::TEXT, 'YYYY-MM-DD') >= DATE '1980-01-01'\n  AND TO_DATE(sch.\"opendate\"::TEXT, 'YYYY-MM-DD') <= DATE '1980-12-31';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "82",
+      "gold_sql": "SELECT GSoffered FROM schools ORDER BY ABS(longitude) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT DISTINCT\n    s.\"gsoffered\"\nFROM \"schools\" AS s\nWHERE ABS(s.\"longitude\") = (\n    SELECT MAX(ABS(s2.\"longitude\"))\n    FROM \"schools\" AS s2\n);",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "50",
+      "gold_sql": "SELECT T2.MailStreet, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrMath DESC LIMIT 6, 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "57",
+      "gold_sql": "SELECT T2.Phone, T2.Ext FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrWrite DESC NULLS LAST LIMIT 1 OFFSET 332",
+      "predicted_sql": "SELECT\n    s.\"phone\",\n    s.\"ext\"\nFROM \"satscores\" AS ss\nJOIN \"schools\" AS s\n    ON ss.\"cds\" = s.\"cdscode\"\nORDER BY ss.\"avgscrwrite\" DESC NULLS LAST, ss.\"cds\" ASC NULLS FIRST\nOFFSET 332\nLIMIT 1;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "43",
+      "gold_sql": "SELECT T1.AvgScrMath, T2.County FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath IS NOT NULL ORDER BY T1.AvgScrMath + T1.AvgScrRead + T1.AvgScrWrite ASC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "37",
+      "gold_sql": "SELECT T2.Street, T2.City, T2.State, T2.Zip FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr ASC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "27",
+      "gold_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE TO_CHAR(CAST(T2.OpenDate AS TIMESTAMP), 'YYYY') > '1991' OR TO_CHAR(CAST(T2.ClosedDate AS TIMESTAMP), 'YYYY') < '2000'",
+      "predicted_sql": "SELECT\n    \n    s.\"school\" AS \"school\",\n    \n    AVG(sc.\"avgscrwrite\") AS \"avg_writing_score\",\n    \n    s.\"phone\" AS \"communication_number\"\nFROM \"schools\" AS s\nJOIN \"satscores\" AS sc\n    ON s.\"cdscode\"::TEXT = sc.\"cds\"::TEXT\nWHERE\n    (\n        s.\"opendate\"::DATE > DATE '1991-12-31'\n        OR s.\"closeddate\"::DATE < DATE '2000-01-01'\n    )\nGROUP BY\n    s.\"school\",\n    s.\"phone\"\nORDER BY\n    s.\"school\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "34",
+      "gold_sql": "SELECT CAST(T2.`Free Meal Count (Ages 5-17)` AS REAL) / T2.`Enrollment (Ages 5-17)` FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "49",
+      "gold_sql": "SELECT DISTINCT County, School, ClosedDate FROM schools WHERE County = (SELECT County FROM schools WHERE StatusType = 'Closed' GROUP BY County ORDER BY COUNT(School) DESC NULLS LAST LIMIT 1) AND StatusType = 'Closed' AND NOT school IS NULL",
+      "predicted_sql": "SELECT\n    \"s\".\"school\",\n    \"s\".\"county\",\n    \"s\".\"closeddate\"\nFROM \"schools\" AS \"s\"\nWHERE \"s\".\"statustype\" = 'Closed'\n  AND \"s\".\"county\" = (\n      SELECT \"s2\".\"county\"\n      FROM \"schools\" AS \"s2\"\n      WHERE \"s2\".\"statustype\" = 'Closed'\n      GROUP BY \"s2\".\"county\"\n      ORDER BY COUNT(*) DESC NULLS LAST, \"s2\".\"county\"\n      LIMIT 1\n  )\nORDER BY \"s\".\"school\", \"s\".\"closeddate\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "4",
+      "gold_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "85",
+      "gold_sql": "SELECT T1.`Free Meal Count (K-12)` * 100 / T1.`Enrollment (K-12)`, T1.`District Code` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.AdmFName1 = 'Alusine'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "81",
+      "gold_sql": "SELECT T2.City, T1.\"Low Grade\", T1.\"School Name\" FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.State = 'CA' ORDER BY T2.Latitude ASC NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT\n    \n    s.\"school\",\n    s.\"city\",\n    f.\"Low Grade\"\nFROM \"schools\" AS s\nLEFT JOIN \"frpm\" AS f\n    ON s.\"cdscode\"::TEXT = f.\"cdscode\"::TEXT\nWHERE s.\"state\" = 'CA'\n  AND s.\"latitude\" = (\n      SELECT MIN(s2.\"latitude\")\n      FROM \"schools\" AS s2\n      WHERE s2.\"state\" = 'CA'\n  )\nORDER BY s.\"school\"\nLIMIT 1;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "35",
+      "gold_sql": "SELECT T2.AdmEmail1 FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter School (Y/N)` = 1 ORDER BY T1.`Enrollment (K-12)` ASC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "28",
+      "gold_sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "36",
+      "gold_sql": "SELECT T2.AdmFName1, T2.AdmLName1, T2.AdmFName2, T2.AdmLName2, T2.AdmFName3, T2.AdmLName3 FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.NumGE1500 DESC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "62",
+      "gold_sql": "SELECT COUNT(T2.School) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Los Angeles' AND T2.Charter = 0 AND CAST(T1.`Free Meal Count (K-12)` AS REAL) * 100 / T1.`Enrollment (K-12)` < 0.18",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "83",
+      "gold_sql": "SELECT T2.City, COUNT(T2.CDSCode) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Magnet = 1 AND T2.GSoffered = 'K-8' AND T1.`NSLP Provision Status` = 'Multiple Provision Types' GROUP BY T2.City",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "119",
+      "gold_sql": "SELECT T1.account_id, T2.A2, T2.A3 FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.frequency = 'POPLATEK PO OBRATU' AND TO_CHAR(CAST(T1.date AS TIMESTAMP), 'YYYY') = '1993'",
+      "predicted_sql": "SELECT\n    \n    \"a\".\"account_id\",\n    \"d\".\"a2\" AS \"district_name\",\n    \"d\".\"a3\" AS \"district_region\"\nFROM \"account\" AS \"a\"\nJOIN \"district\" AS \"d\"\n    ON \"a\".\"district_id\" = \"d\".\"district_id\"\nWHERE EXTRACT(YEAR FROM \"a\".\"date\") = 1993\n  AND \"a\".\"frequency\" = 'POPLATEK PO OBRATU';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "135",
+      "gold_sql": "SELECT COUNT(T1.account_id) FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE T1.balance < 0 AND T1.operation = 'VYBER KARTOU' AND T2.frequency = 'POPLATEK MESICNE'",
+      "predicted_sql": "SELECT\n    COUNT(DISTINCT \"a\".\"account_id\") AS \"account_count\"\nFROM \"account\" AS \"a\"\nJOIN \"trans\" AS \"t\"\n    ON \"t\".\"account_id\" = \"a\".\"account_id\"\nWHERE \"a\".\"frequency\" = 'POPLATEK MESICNE'\n  AND \"t\".\"operation\" = 'VYBER KARTOU'\n  AND \"t\".\"balance\" < 0;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "95",
+      "gold_sql": "SELECT T1.account_id  FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 on T4.district_id = T1.district_id WHERE T2.client_id = ( SELECT client_id FROM client ORDER BY birth_date DESC LIMIT 1) GROUP BY T4.A11, T1.account_id",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "89",
+      "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'east Bohemia' AND T2.frequency = 'POPLATEK PO OBRATU'",
+      "predicted_sql": "SELECT COUNT(DISTINCT \"a\".\"account_id\") AS \"account_count\"\nFROM \"account\" AS \"a\"\nJOIN \"district\" AS \"d\"\n  ON \"a\".\"district_id\" = \"d\".\"district_id\"\nJOIN \"disp\" AS \"di\"\n  ON \"a\".\"account_id\" = \"di\".\"account_id\"\nWHERE \"d\".\"a3\" = 'east bohemia'\n  AND \"di\".\"type\" = 'POPLATEK PO OBRATU';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "163",
+      "gold_sql": "SELECT T1.A2 FROM District AS T1 INNER JOIN Account AS T2 ON T1.District_id = T2.District_id INNER JOIN Loan AS T3 ON T2.Account_id = T3.Account_id WHERE T3.status = 'A' GROUP BY T1.District_id ORDER BY COUNT(T2.Account_id) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "WITH \"good_loans\" AS (\n    SELECT DISTINCT\n        \"l\".\"account_id\"\n    FROM \"loan\" AS \"l\"\n    WHERE \"l\".\"status\" = 'A'\n),\n\"district_counts\" AS (\n    SELECT\n        \"a\".\"district_id\",\n        COUNT(DISTINCT \"gl\".\"account_id\") AS \"accounts_cnt\"\n    FROM \"good_loans\" AS \"gl\"\n    JOIN \"account\" AS \"a\"\n        ON \"a\".\"account_id\" = \"gl\".\"account_id\"\n    GROUP BY\n        \"a\".\"district_id\"\n)\nSELECT\n    \"d\".\"a2\" AS \"district\"\nFROM \"district_counts\" AS \"dc\"\nJOIN \"district\" AS \"d\"\n    ON \"d\".\"district_id\" = \"dc\".\"district_id\"\nORDER BY\n    \"dc\".\"accounts_cnt\" DESC NULLS LAST,\n    \"d\".\"a2\"\nLIMIT 1;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "136",
+      "gold_sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN loan AS T2 ON T1.account_id = T2.account_id WHERE T2.date BETWEEN '1995-01-01' AND '1997-12-31' AND T1.frequency = 'POPLATEK MESICNE' AND T2.amount >= 250000",
+      "predicted_sql": "SELECT COUNT(*) AS \"loan_count\"\nFROM \"loan\" AS l\nJOIN \"account\" AS a\n  ON l.\"account_id\" = a.\"account_id\"\nWHERE CAST(l.\"date\" AS DATE) BETWEEN DATE '1995-01-01' AND DATE '1997-12-31'\n  AND l.\"amount\" >= 250000\n  AND a.\"frequency\" = 'POPLATEK MESICNE';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "150",
+      "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE T3.bank = 'AB' AND T1.A3 = 'north Bohemia'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "145",
+      "gold_sql": "SELECT T1.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T1.date) = '1998' AND T1.operation = 'VYBER KARTOU' AND T1.amount < (SELECT AVG(amount) FROM trans WHERE STRFTIME('%Y', date) = '1998')",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "137",
+      "gold_sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN loan AS T3 ON T1.account_id = T3.account_id WHERE T1.district_id = 1 AND (T3.status = 'C' OR T3.status = 'D')",
+      "predicted_sql": "SELECT COUNT(DISTINCT \"a\".\"account_id\") AS \"accounts_count\"\nFROM \"account\" AS \"a\"\nJOIN \"district\" AS \"d\"\n  ON \"a\".\"district_id\" = \"d\".\"district_id\"\nJOIN \"loan\" AS \"l\"\n  ON \"a\".\"account_id\" = \"l\".\"account_id\"\nWHERE (\"l\".\"status\" = 'C' OR \"l\".\"status\" = 'D')\n  AND \"d\".\"a2\" = 'Branch location 1';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "175",
+      "gold_sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id WHERE T2.type = 'OWNER' AND T1.frequency = 'POPLATEK PO OBRATU'",
+      "predicted_sql": "SELECT COUNT(DISTINCT a.\"account_id\") AS \"account_count\"\nFROM \"account\" AS a\nJOIN \"disp\" AS d\n  ON a.\"account_id\" = d.\"account_id\"\nWHERE a.\"frequency\" = 'POPLATEK PO OBRATU'\n  AND d.\"type\" = 'OWNER';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "180",
+      "gold_sql": "SELECT T1.client_id, T3.account_id FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T4 ON T1.client_id = T4.client_id INNER JOIN account AS T3 ON T2.district_id = T3.district_id AND T4.account_id = T3.account_id WHERE T2.A3 = 'east Bohemia' AND TO_CHAR(CAST(T1.birth_date AS TIMESTAMP), 'YYYY') BETWEEN '1983' AND '1987'",
+      "predicted_sql": "SELECT DISTINCT\n    \"c\".\"client_id\"\nFROM \"client\" AS \"c\"\nJOIN \"disp\" AS \"d\"\n    ON \"c\".\"client_id\" = \"d\".\"client_id\"\nJOIN \"account\" AS \"a\"\n    ON \"d\".\"account_id\" = \"a\".\"account_id\"\nJOIN \"district\" AS \"di\"\n    ON \"a\".\"district_id\" = \"di\".\"district_id\"\nWHERE CAST(\"c\".\"birth_date\" AS DATE) >= DATE '1983-01-01'\n  AND CAST(\"c\".\"birth_date\" AS DATE) < DATE '1988-01-01'\n  AND \"di\".\"a3\" = 'east Bohemia';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "113",
+      "gold_sql": "SELECT T4.birth_date FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN disp AS T3 ON T2.account_id = T3.account_id INNER JOIN client AS T4 ON T3.client_id = T4.client_id WHERE T1.date = '1996-01-03' AND T1.amount = 98832",
+      "predicted_sql": "SELECT DISTINCT\n  \"cl\".\"birth_date\"\nFROM \"loan\" AS \"l\"\nJOIN \"account\" AS \"a\"\n  ON \"l\".\"account_id\" = \"a\".\"account_id\"\nJOIN \"disp\" AS \"d\"\n  ON \"a\".\"account_id\" = \"d\".\"account_id\"\nJOIN \"client\" AS \"cl\"\n  ON \"d\".\"client_id\" = \"cl\".\"client_id\"\nWHERE \"l\".\"amount\" = 98832\n  AND CAST(\"l\".\"date\" AS DATE) = DATE '1996-01-03';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "176",
+      "gold_sql": "SELECT T4.amount, T4.status FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T3 ON T2.account_id = T3.account_id INNER JOIN loan AS T4 ON T3.account_id = T4.account_id WHERE T1.client_id = 992",
+      "predicted_sql": "SELECT\n    \"l\".\"amount\" AS \"debt_amount\",\n    \"l\".\"payments\" AS \"monthly_payment\",\n    \"l\".\"status\" AS \"loan_status\"\nFROM \"client\" AS \"c\"\nJOIN \"disp\" AS \"d\"\n    ON \"c\".\"client_id\" = \"d\".\"client_id\"\nJOIN \"loan\" AS \"l\"\n    ON \"d\".\"account_id\" = \"l\".\"account_id\"\nWHERE \"c\".\"client_id\" = 992;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "122",
+      "gold_sql": "SELECT T2.A2, T2.A3 FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN loan AS T3 ON T1.account_id = T3.account_id WHERE T3.loan_id = 4990",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "103",
+      "gold_sql": "SELECT T2.client_id FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN card AS T3 ON T2.disp_id = T3.disp_id WHERE T3.issued = '1994-03-03'",
+      "predicted_sql": "SELECT DISTINCT c.\"client_id\"\nFROM \"client\" AS c\nJOIN \"disp\" AS d\n  ON c.\"client_id\" = d.\"client_id\"\nJOIN \"card\" AS ca\n  ON d.\"disp_id\" = ca.\"disp_id\"\nWHERE ca.\"issued\"::date = DATE '1994-03-03';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "102",
+      "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T2.date) < '1997' AND T1.amount > 3000",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "153",
+      "gold_sql": "SELECT COUNT(T1.card_id) FROM card AS T1 INNER JOIN disp AS T2 ON T1.disp_id = T2.disp_id WHERE T1.type = 'classic' AND T2.type = 'OWNER'",
+      "predicted_sql": "SELECT\n    \n    COUNT(*) AS \"count\"\nFROM \"card\" AS c\nJOIN \"disp\" AS d\n    ON c.\"disp_id\" = d.\"disp_id\"\nWHERE c.\"type\" = 'classic'\n  AND d.\"type\" = 'OWNER\";",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'OWNER\";\"\nLINE 8:   AND d.\"type\" = 'OWNER\";\n                         ^\n[SQL: SELECT\n    \n    COUNT(*) AS \"count\"\nFROM \"card\" AS c\nJOIN \"disp\" AS d\n    ON c.\"disp_id\" = d.\"disp_id\"\nWHERE c.\"type\" = 'classic'\n  AND d.\"type\" = 'OWNER\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "158",
+      "gold_sql": "SELECT T3.district_id FROM \"order\" AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.order_id = 33333",
+      "predicted_sql": "SELECT a.\"district_id\"\nFROM \"order\" o\nJOIN \"account\" a\n  ON a.\"account_id\" = o.\"account_id\"\nWHERE o.\"order_id\" = 33333;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "179",
+      "gold_sql": "SELECT SUM(T3.amount) FROM client AS T1 INNER JOIN disp AS T4 ON T1.client_id = T4.client_id INNER JOIN account AS T2 ON T4.account_id = T2.account_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE TO_CHAR(CAST(T3.date AS TIMESTAMP), 'YYYY') = '1998' AND T1.client_id = 617",
+      "predicted_sql": "SELECT\n  SUM(t.\"amount\") AS \"total_paid\"\nFROM \"trans\" AS t\nWHERE t.\"account_id\" IN (\n  SELECT d.\"account_id\"\n  FROM \"disp\" AS d\n  WHERE CAST(d.\"client_id\" AS TEXT) LIKE '617'\n)\nAND t.\"date\"::date >= DATE '1998-01-01'\nAND t.\"date\"::date < DATE '1999-01-01\";",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'1999-01-01\";\"\nLINE 10: AND t.\"date\"::date < DATE '1999-01-01\";\n                                   ^\n[SQL: SELECT\n  SUM(t.\"amount\") AS \"total_paid\"\nFROM \"trans\" AS t\nWHERE t.\"account_id\" IN (\n  SELECT d.\"account_id\"\n  FROM \"disp\" AS d\n  WHERE CAST(d.\"client_id\" AS TEXT) LIKE '617'\n)\nAND t.\"date\"::date >= DATE '1998-01-01'\nAND t.\"date\"::date < DATE '1999-01-01\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "181",
+      "gold_sql": "SELECT T1.client_id FROM client AS T1 INNER JOIN disp AS T4 on T1.client_id= T4.client_id INNER JOIN account AS T2 ON T4.account_id = T2.account_id  INNER JOIN loan AS T3 ON T2.account_id = T3.account_id and T4.account_id = T3.account_id WHERE T1.gender = 'F' ORDER BY T3.amount DESC LIMIT 3",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "91",
+      "gold_sql": "SELECT DISTINCT IIF(AVG(A13) > AVG(A12), '1996', '1995') FROM district",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "157",
+      "gold_sql": "SELECT T1.A15 FROM district AS T1 INNER JOIN \"account\" AS T2 ON T1.district_id = T2.district_id WHERE T2.account_id = 532",
+      "predicted_sql": "SELECT\n    d.\"a15\" AS \"committed_crimes_1995\"\nFROM \"account\" AS a\nJOIN \"district\" AS d\n    ON d.\"district_id\" = a.\"district_id\"\nWHERE a.\"account_id\" = 532;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "178",
+      "gold_sql": "SELECT T3.type FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN card AS T3 ON T2.disp_id = T3.disp_id WHERE T1.client_id = 9",
+      "predicted_sql": "SELECT DISTINCT c.\"type\"\nFROM \"client\" cl\nJOIN \"disp\" d ON cl.\"client_id\" = d.\"client_id\"\nJOIN \"card\" c ON d.\"disp_id\" = c.\"disp_id\"\nWHERE cl.\"client_id\" = 9;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "94",
+      "gold_sql": "SELECT T1.account_id , ( SELECT MAX(A11) - MIN(A11) FROM district ) FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T1.account_id = T3.account_id INNER JOIN client AS T4 ON T3.client_id = T4.client_id WHERE T2.district_id = ( SELECT district_id FROM client WHERE gender = 'F' ORDER BY birth_date ASC LIMIT 1 ) ORDER BY T2.A11 DESC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "116",
+      "gold_sql": "SELECT CAST((SUM(CASE WHEN T3.date = '1998-12-27' THEN T3.balance ELSE 0 END) - SUM(CASE WHEN T3.date = '1993-03-22' THEN T3.balance ELSE 0 END)) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T3.date = '1993-03-22' THEN T3.balance ELSE 0 END), 0) FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN trans AS T3 ON T3.account_id = T2.account_id WHERE T1.date = '1993-07-05'",
+      "predicted_sql": "WITH \"first_loan\" AS (\n    SELECT\n        \"l\".\"account_id\",\n        \"l\".\"loan_id\",\n        ROW_NUMBER() OVER (ORDER BY \"l\".\"loan_id\") AS \"rn\"\n    FROM \"loan\" AS \"l\"\n    WHERE TO_DATE(\"l\".\"date\"::text, 'YYYY-MM-DD') = DATE '1993-07-05'\n),\n\"main_client\" AS (\n    SELECT\n        \"d\".\"account_id\",\n        \"d\".\"client_id\"\n    FROM \"disp\" AS \"d\"\n    WHERE \"d\".\"type\" = 'OWNER'\n),\n\"balances\" AS (\n    SELECT\n        \"t\".\"account_id\",\n        MAX(CASE WHEN TO_DATE(\"t\".\"date\"::text, 'YYYY-MM-DD') = DATE '1993-03-22' THEN \"t\".\"balance\" END) AS \"balance_1993_03_22\",\n        MAX(CASE WHEN TO_DATE(\"t\".\"date\"::text, 'YYYY-MM-DD') = DATE '1998-12-27' THEN \"t\".\"balance\" END) AS \"balance_1998_12_27\"\n    FROM \"trans\" AS \"t\"\n    GROUP BY \"t\".\"account_id\"\n)\nSELECT\n    \n    (( \"b\".\"balance_1998_12_27\" - \"b\".\"balance_1993_03_22\" )::numeric / NULLIF(\"b\".\"balance_1993_03_22\", 0)) * 100 AS \"increase_rate\"\nFROM \"first_loan\" AS \"fl\"\nJOIN \"main_client\" AS \"mc\"\n    ON \"mc\".\"account_id\" = \"fl\".\"account_id\"\nJOIN \"balances\" AS \"b\"\n    ON \"b\".\"account_id\" = \"fl\".\"account_id\"\nWHERE \"fl\".\"rn\" = 1;",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "125",
+      "gold_sql": "SELECT CAST((T3.A13 - T3.A12) AS REAL) * 100 / T3.A12 FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.status = 'D'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "149",
+      "gold_sql": "SELECT T3.type FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T2.account_id = T3.account_id WHERE T3.type != 'OWNER' AND T1.A11 BETWEEN 8000 AND 9000",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "169",
+      "gold_sql": "SELECT CAST((SUM(CASE WHEN TO_CHAR(CAST(T1.date AS TIMESTAMP), 'YYYY') = '1997' THEN T1.amount ELSE 0 END) - SUM(CASE WHEN TO_CHAR(CAST(T1.date AS TIMESTAMP), 'YYYY') = '1996' THEN T1.amount ELSE 0 END)) AS REAL) * 100 / NULLIF(SUM(CASE WHEN TO_CHAR(CAST(T1.date AS TIMESTAMP), 'YYYY') = '1996' THEN T1.amount ELSE 0 END), 0) FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN disp AS T3 ON T3.account_id = T2.account_id INNER JOIN client AS T4 ON T4.client_id = T3.client_id WHERE T4.gender = 'M' AND T3.type = 'OWNER'",
+      "predicted_sql": "WITH \"male_accounts\" AS (\n    SELECT DISTINCT\n        d.\"account_id\"\n    FROM \"client\" c\n    JOIN \"disp\" d\n        ON c.\"client_id\" = d.\"client_id\"\n    WHERE c.\"gender\" = 'M'\n),\n\"loan_sums\" AS (\n    SELECT\n        EXTRACT(YEAR FROM l.\"date\"::date) AS \"loan_year\",\n        SUM(l.\"amount\") AS \"total_amount\"\n    FROM \"loan\" l\n    JOIN \"male_accounts\" ma\n        ON l.\"account_id\" = ma.\"account_id\"\n    WHERE EXTRACT(YEAR FROM l.\"date\"::date) IN (1996, 1997)\n    GROUP BY EXTRACT(YEAR FROM l.\"date\"::date)\n)\nSELECT\n    (MAX(CASE WHEN \"loan_year\" = 1997 THEN \"total_amount\" END)\n     - MAX(CASE WHEN \"loan_year\" = 1996 THEN \"total_amount\" END))\n    / NULLIF(MAX(CASE WHEN \"loan_year\" = 1996 THEN \"total_amount\" END), 0) * 100 AS \"growth_rate\"\nFROM \"loan_sums\";",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "173",
+      "gold_sql": "SELECT T1.frequency, T2.k_symbol FROM account AS T1 INNER JOIN (SELECT account_id, k_symbol, SUM(amount) AS total_amount FROM \"order\" GROUP BY account_id, k_symbol) AS T2 ON T1.account_id = T2.account_id WHERE T1.account_id = 3 AND T2.total_amount = 3539",
+      "predicted_sql": "SELECT\n  a.\"frequency\" AS \"statement_frequency\",\n  t.\"k_symbol\" AS \"debit_purpose\"\nFROM \"account\" AS a\nJOIN \"trans\" AS t\n  ON t.\"account_id\" = a.\"account_id\"\nWHERE a.\"account_id\" = 3\n  AND t.\"amount\" = 3539\nGROUP BY a.\"frequency\", t.\"k_symbol\"\nORDER BY a.\"frequency\", t.\"k_symbol\";",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "309",
+      "gold_sql": "SELECT T1.atom_id, COUNT(DISTINCT T2.bond_type), T1.molecule_id FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR000' GROUP BY T1.atom_id, T2.bond_type",
+      "predicted_sql": "SELECT DISTINCT\n  \"a\".\"atom_id\",\n  COUNT(DISTINCT \"b\".\"bond_type\") OVER () AS \"bond_type_count\"\nFROM \"atom\" AS \"a\"\nJOIN \"bond\" AS \"b\"\n  ON \"a\".\"molecule_id\" LIKE \"b\".\"molecule_id\"\nWHERE \"a\".\"molecule_id\" LIKE 'TR346';",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.FeatureNotSupported) DISTINCT is not implemented for window functions\nLINE 3:   COUNT(DISTINCT \"b\".\"bond_type\") OVER () AS \"bond_type_coun...\n          ^\n[SQL: SELECT DISTINCT\n  \"a\".\"atom_id\",\n  COUNT(DISTINCT \"b\".\"bond_type\") OVER () AS \"bond_type_count\"\nFROM \"atom\" AS \"a\"\nJOIN \"bond\" AS \"b\"\n  ON \"a\".\"molecule_id\" LIKE \"b\".\"molecule_id\"\nWHERE \"a\".\"molecule_id\" LIKE 'TR346';]\n(Background on this error at: https://sqlalche.me/e/20/tw8g)"
+    },
+    {
+      "question_id": "223",
+      "gold_sql": "SELECT T.atom_id FROM connected AS T WHERE T.bond_id = 'TR000_2_5'",
+      "predicted_sql": "SELECT DISTINCT  \n       \"c\".\"atom_id\", \"c\".\"atom_id2\"\nFROM \"connected\" AS \"c\"\nWHERE \"c\".\"bond_id\" LIKE 'TR000_2_5';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "326",
+      "gold_sql": "SELECT DISTINCT T1.molecule_id FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 's' AND T2.bond_type = '='",
+      "predicted_sql": "SELECT DISTINCT\n  \"m\".\"label\"\nFROM \"atom\" AS \"a\"\nJOIN \"connected\" AS \"c\"\n  ON \"a\".\"atom_id\" = \"c\".\"atom_id\"\nJOIN \"bond\" AS \"b\"\n  ON \"c\".\"bond_id\" = \"b\".\"bond_id\"\n AND \"a\".\"molecule_id\" = \"b\".\"molecule_id\"\nJOIN \"molecule\" AS \"m\"\n  ON \"a\".\"molecule_id\" = \"m\".\"molecule_id\"\nWHERE LOWER(\"a\".\"element\") = 's'\n  AND TRIM(\"b\".\"bond_type\") = '=';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "292",
+      "gold_sql": "SELECT T.atom_id FROM atom AS T WHERE T.molecule_id BETWEEN 'TR010' AND 'TR050' AND T.element = 'c'",
+      "predicted_sql": "SELECT DISTINCT\n    \"a\".\"atom_id\"\nFROM \"atom\" AS \"a\"\nJOIN \"molecule\" AS \"m\"\n    ON \"a\".\"molecule_id\" = \"m\".\"molecule_id\"\nWHERE CAST(SUBSTRING(\"m\".\"molecule_id\" FROM 3 FOR 3) AS INTEGER) BETWEEN 10 AND 50\n  AND \"a\".\"element\" = 'c';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "199",
+      "gold_sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+      "predicted_sql": "SELECT \n       COUNT(DISTINCT \"m\".\"molecule_id\") AS \"count\"\nFROM \"molecule\" AS \"m\"\nJOIN \"atom\" AS \"a\"\n  ON \"m\".\"molecule_id\" = \"a\".\"molecule_id\"\nWHERE \"m\".\"label\" LIKE '-'\n  AND LOWER(\"a\".\"element\") LIKE 'na';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "295",
+      "gold_sql": "SELECT COUNT(T1.atom_id) AS atomnums_h FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' AND T1.element = 'h'",
+      "predicted_sql": "SELECT\n    COUNT(*) AS \"atom_count\"\nFROM (\n    SELECT DISTINCT\n        \"m\".\"molecule_id\"\n    FROM \"molecule\" AS \"m\"\n    INNER JOIN \"atom\" AS \"a\"\n        ON \"a\".\"molecule_id\" = \"m\".\"molecule_id\"\n    WHERE \"m\".\"label\" = '+'\n      AND \"a\".\"element\" = 'h'\n) AS \"t\"\nINNER JOIN \"atom\" AS \"a2\"\n    ON \"a2\".\"molecule_id\" = \"t\".\"molecule_id\";",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "336",
+      "gold_sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '#' AND T1.label = '-'",
+      "predicted_sql": "SELECT\n  \n  COUNT(DISTINCT \"m\".\"molecule_id\") AS \"count\"\nFROM \"molecule\" AS \"m\"\nJOIN \"bond\" AS \"b\"\n  ON \"b\".\"molecule_id\" = \"m\".\"molecule_id\"\nWHERE \"b\".\"bond_type\" = '#'\n  AND \"m\".\"label\" = '-';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "323",
+      "gold_sql": "SELECT label FROM molecule AS T WHERE T.molecule_id = 'TR000'",
+      "predicted_sql": "SELECT \n       \"m\".\"label\"\nFROM \"molecule\" AS \"m\"\nWHERE \"m\".\"molecule_id\" LIKE 'TR000';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "325",
+      "gold_sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'n' AND T1.label = '+'",
+      "predicted_sql": "SELECT COUNT(DISTINCT \"m\".\"molecule_id\") AS \"count\"\nFROM \"molecule\" AS \"m\"\nJOIN \"atom\" AS \"a\"\n  ON \"m\".\"molecule_id\" = \"a\".\"molecule_id\"\nWHERE \"m\".\"label\" LIKE '+'\n  AND \"a\".\"element\" LIKE 'n';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "279",
+      "gold_sql": "SELECT T2.label FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_id = 'TR001_10_11'",
+      "predicted_sql": "SELECT \n  m.\"label\"\nFROM \"bond\" AS b\nJOIN \"molecule\" AS m\n  ON m.\"molecule_id\" LIKE b.\"molecule_id\"\nWHERE b.\"bond_id\" LIKE 'TR001_10_11';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "276",
+      "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_type = '#'",
+      "predicted_sql": "SELECT DISTINCT\n  \"c\".\"atom_id\",\n  \"c\".\"atom_id2\"\nFROM \"connected\" AS \"c\"\nJOIN \"bond\" AS \"b\"\n  ON \"c\".\"bond_id\" = \"b\".\"bond_id\"\nWHERE \"b\".\"bond_type\" LIKE '#';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "239",
+      "gold_sql": "SELECT COUNT(T.bond_id) FROM connected AS T WHERE SUBSTRING(T.atom_id FROM -2) = '19'",
+      "predicted_sql": "SELECT \n       COUNT(DISTINCT c.\"bond_id\") AS \"connections\"\nFROM \"atom\" AS a\nJOIN \"connected\" AS c\n  ON a.\"atom_id\" = c.\"atom_id\" OR a.\"atom_id\" = c.\"atom_id2\"\nWHERE a.\"atom_id\" LIKE 'TR%_19';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "260",
+      "gold_sql": "SELECT COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#' AND T1.element IN ('p', 'br')",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "246",
+      "gold_sql": "SELECT T1.bond_type, T1.bond_id FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE SUBSTRING(T2.atom_id FROM 7 FOR 2) = '45'",
+      "predicted_sql": "SELECT\n  \n  \"b\".\"bond_type\",\n  \"b\".\"bond_id\"\nFROM \"bond\" AS \"b\"\nWHERE EXISTS (\n  SELECT 1\n  FROM \"connected\" AS \"c\"\n  WHERE \"c\".\"bond_id\" = \"b\".\"bond_id\"\n    AND (\n      SUBSTR(\"c\".\"atom_id\", 7, 2)::int = 45\n      OR SUBSTR(\"c\".\"atom_id2\", 7, 2)::int = 45\n    )\n);",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "232",
+      "gold_sql": "SELECT DISTINCT T2.molecule_id FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_type = '-' AND T2.label = '-' ORDER BY T2.molecule_id LIMIT 3",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "283",
+      "gold_sql": "SELECT T2.label AS flag_carcinogenic FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca'",
+      "predicted_sql": "SELECT DISTINCT\n  \"m\".\"label\"\nFROM \"molecule\" AS \"m\"\nJOIN \"atom\" AS \"a\"\n  ON \"m\".\"molecule_id\" LIKE \"a\".\"molecule_id\"\nWHERE \"a\".\"element\" LIKE 'ca';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "317",
+      "gold_sql": "SELECT COUNT(CASE WHEN T2.label = '+' AND T1.element = 'cl' THEN T2.molecule_id ELSE NULL END) * 100 / NULLIF(COUNT(T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id",
+      "predicted_sql": "SELECT\n    \n    100.0 * COUNT(DISTINCT CASE\n        WHEN LOWER(m.\"label\") = '+' AND LOWER(a.\"element\") = 'cl' THEN m.\"molecule_id\"\n    END) / COUNT(DISTINCT m.\"molecule_id\") AS \"percentage\"\nFROM \"molecule\" AS m\nLEFT JOIN \"atom\" AS a\n    ON m.\"molecule_id\" = a.\"molecule_id\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "213",
+      "gold_sql": "SELECT T1.bond_type FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR004_8' AND T2.atom_id2 = 'TR004_20' OR T2.atom_id2 = 'TR004_8' AND T2.atom_id = 'TR004_20'",
+      "predicted_sql": "SELECT DISTINCT \n  b.\"bond_type\"\nFROM \"bond\" AS b\nJOIN \"connected\" AS c\n  ON b.\"bond_id\" = c.\"bond_id\"\nWHERE (\n    (c.\"atom_id\" LIKE 'TR004_8' AND c.\"atom_id2\" LIKE 'TR004_20')\n    OR\n    (c.\"atom_id\" LIKE 'TR004_20' AND c.\"atom_id2\" LIKE 'TR004_8')\n);",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "320",
+      "gold_sql": "SELECT T1.bond_type FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR000_1' AND T2.atom_id2 = 'TR000_2'",
+      "predicted_sql": "SELECT b.\"bond_type\"   \nFROM \"bond\" AS b\nJOIN \"connected\" AS c ON b.\"bond_id\" = c.\"bond_id\"\nJOIN \"atom\" AS a1 ON c.\"atom_id\" = a1.\"atom_id\"\nJOIN \"atom\" AS a2 ON c.\"atom_id2\" = a2.\"atom_id\"\nWHERE a1.\"atom_id\" LIKE 'TR000_1'\n  AND a2.\"atom_id\" LIKE 'TR000_2\";",
+      "score": 0,
+      "difficulty": "moderate",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'TR000_2\";\"\nLINE 7:   AND a2.\"atom_id\" LIKE 'TR000_2\";\n                                ^\n[SQL: SELECT b.\"bond_type\"   \nFROM \"bond\" AS b\nJOIN \"connected\" AS c ON b.\"bond_id\" = c.\"bond_id\"\nJOIN \"atom\" AS a1 ON c.\"atom_id\" = a1.\"atom_id\"\nJOIN \"atom\" AS a2 ON c.\"atom_id2\" = a2.\"atom_id\"\nWHERE a1.\"atom_id\" LIKE 'TR000_1'\n  AND a2.\"atom_id\" LIKE 'TR000_2\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "338",
+      "gold_sql": "SELECT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T2.molecule_id = 'TR012' AND T3.bond_type = '=' AND T1.element = 'c'",
+      "predicted_sql": "SELECT DISTINCT \"a\".\"atom_id\"\nFROM \"atom\" AS \"a\"\nJOIN \"connected\" AS \"c\" ON \"a\".\"atom_id\" = \"c\".\"atom_id\" OR \"a\".\"atom_id\" = \"c\".\"atom_id2\"\nJOIN \"bond\" AS \"b\" ON \"c\".\"bond_id\" = \"b\".\"bond_id\"\nWHERE \"a\".\"molecule_id\" LIKE 'TR012'\n  AND LOWER(\"a\".\"element\") LIKE 'c'\n  AND \"b\".\"bond_type\" LIKE '=';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "327",
+      "gold_sql": "SELECT T.molecule_id FROM (SELECT T1.molecule_id, COUNT(T2.atom_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '-' GROUP BY T1.molecule_id HAVING COUNT(T2.atom_id) > 5) AS t",
+      "predicted_sql": "SELECT\n  \"a\".\"molecule_id\"\nFROM \"atom\" AS \"a\"\nJOIN \"molecule\" AS \"m\"\n  ON \"a\".\"molecule_id\" = \"m\".\"molecule_id\"\nWHERE \"m\".\"label\" = '-'\nGROUP BY\n  \"a\".\"molecule_id\"\nHAVING COUNT(\"a\".\"molecule_id\") > 5;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "267",
+      "gold_sql": "SELECT T2.molecule_id, T2.bond_type FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id BETWEEN 'TR000' AND 'TR050'",
+      "predicted_sql": "SELECT DISTINCT\n  \"b\".\"bond_type\"\nFROM \"bond\" AS \"b\"\nWHERE \"b\".\"molecule_id\" LIKE 'TR0%'\n  AND CAST(SUBSTRING(\"b\".\"molecule_id\" FROM 3) AS INTEGER) BETWEEN 0 AND 50;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "298",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T1.element = 'h' AND T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id",
+      "predicted_sql": "SELECT\n    \n    (COUNT(DISTINCT CASE\n        WHEN mo.\"label\" = '+' AND a.\"element\" = 'h' THEN mo.\"molecule_id\"\n    END) * 100.0) / COUNT(DISTINCT mo.\"molecule_id\") AS \"percentage\"\nFROM \"molecule\" AS mo\nLEFT JOIN \"atom\" AS a\n    ON mo.\"molecule_id\" = a.\"molecule_id\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "282",
+      "gold_sql": "WITH SubQuery AS (SELECT DISTINCT T1.atom_id, T1.element, T1.molecule_id, T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.molecule_id = 'TR006') SELECT CAST(COUNT(CASE WHEN element = 'h' THEN atom_id ELSE NULL END) AS REAL) / NULLIF((CASE WHEN COUNT(atom_id) = 0 THEN NULL ELSE COUNT(atom_id) END), 0) AS ratio, label FROM SubQuery GROUP BY label",
+      "predicted_sql": "SELECT\n    CASE\n        WHEN COUNT(a.\"atom_id\") = 0 THEN NULL\n        ELSE SUM(CASE WHEN LOWER(a.\"element\") = 'h' THEN 1 ELSE 0 END)::numeric / COUNT(a.\"atom_id\")\n    END AS \"ratio\",\n    m.\"label\"\nFROM \"atom\" AS a\nJOIN \"molecule\" AS m\n    ON a.\"molecule_id\" = m.\"molecule_id\"\nWHERE a.\"molecule_id\" = 'TR006'\nGROUP BY m.\"label\";",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "249",
+      "gold_sql": "SELECT T2.element FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id WHERE T1.bond_id = 'TR144_8_19'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "319",
+      "gold_sql": "SELECT COUNT(DISTINCT T1.element) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR001_3_4'",
+      "predicted_sql": "SELECT COUNT(*) AS \"element_count\"\nFROM \"atom\" AS a\nJOIN \"bond\" AS b\n  ON a.\"molecule_id\" = b.\"molecule_id\"\nWHERE b.\"bond_id\" = 'TR001_3_4';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "212",
+      "gold_sql": "SELECT T.element FROM (SELECT T1.element, COUNT(DISTINCT T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '-' GROUP BY T1.element ORDER BY COUNT(DISTINCT T1.molecule_id) ASC NULLS FIRST LIMIT 1) AS t",
+      "predicted_sql": "SELECT\n  t.\"element\"\nFROM (\n  SELECT\n    a.\"element\",\n    COUNT(*) AS \"cnt\",\n    ROW_NUMBER() OVER (ORDER BY COUNT(*) ASC NULLS FIRST, a.\"element\" ASC NULLS FIRST) AS \"rn\"\n  FROM \"molecule\" AS m\n  JOIN \"atom\" AS a\n    ON m.\"molecule_id\" = a.\"molecule_id\"\n  WHERE m.\"label\" = '-'\n  GROUP BY a.\"element\"\n) AS t\nWHERE t.\"rn\" = 1;",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "219",
+      "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(DISTINCT T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#'",
+      "predicted_sql": "SELECT\n    SUM(CASE WHEN b.\"bond_type\" = '#' THEN 1 ELSE 0 END) * 100.0 / COUNT(b.\"bond_id\") AS \"percent\"\nFROM \"molecule\" AS m\nJOIN \"bond\" AS b\n    ON m.\"molecule_id\" = b.\"molecule_id\"\nWHERE m.\"label\" = '+';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "328",
+      "gold_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR024' AND T2.bond_type = '='",
+      "predicted_sql": "SELECT DISTINCT\n    \"a\".\"element\"\nFROM \"molecule\" AS \"m\"\nJOIN \"bond\" AS \"b\"\n    ON \"b\".\"molecule_id\" = \"m\".\"molecule_id\"\nJOIN \"connected\" AS \"c\"\n    ON \"c\".\"bond_id\" = \"b\".\"bond_id\"\nJOIN \"atom\" AS \"a\"\n    ON \"a\".\"atom_id\" = \"c\".\"atom_id\"\nWHERE \"m\".\"molecule_id\" = 'TR024'\n  AND \"b\".\"bond_type\" = '=';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "290",
+      "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.molecule_id = 'TR151'",
+      "predicted_sql": "SELECT DISTINCT\n    a.\"element\"\nFROM \"molecule\" AS m\nJOIN \"atom\" AS a\n    ON a.\"molecule_id\" = m.\"molecule_id\"\nWHERE m.\"label\" = 'TR151'\n  AND LOWER(a.\"element\") IN ('pb', 'sn', 'te', 'br', 'cl', 'f', 'i');",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "302",
+      "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR001_2_4'",
+      "predicted_sql": "SELECT DISTINCT\n    \n    CASE LOWER(\"a\".\"element\")\n        WHEN 'cl' THEN 'Chlorine'\n        WHEN 'c' THEN 'Carbon'\n        WHEN 'h' THEN 'Hydrogen'\n        WHEN 'o' THEN 'Oxygen'\n        WHEN 's' THEN 'Sulfur'\n        WHEN 'n' THEN 'Nitrogen'\n        WHEN 'p' THEN 'Phosphorus'\n        WHEN 'na' THEN 'Sodium'\n        WHEN 'br' THEN 'Bromine'\n        WHEN 'f' THEN 'Fluorine'\n        WHEN 'i' THEN 'Iodine'\n        WHEN 'sn' THEN 'Tin'\n        WHEN 'pb' THEN 'Lead'\n        WHEN 'te' THEN 'Tellurium'\n        WHEN 'ca' THEN 'Calcium'\n        ELSE \"a\".\"element\"\n    END AS \"element_name\"\nFROM \"bond\" AS \"b\"\nJOIN \"connected\" AS \"c\"\n    ON \"c\".\"bond_id\" = \"b\".\"bond_id\"\nJOIN \"atom\" AS \"a\"\n    ON \"a\".\"atom_id\" = \"c\".\"atom_id\"\n    OR \"a\".\"atom_id\" = \"c\".\"atom_id2\"\nWHERE \"b\".\"bond_id\" = 'TR001_2_4';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "306",
+      "gold_sql": "SELECT DISTINCT T1.molecule_id, T2.element FROM bond AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_type = '#'",
+      "predicted_sql": "SELECT\n    \"m\".\"molecule_id\",\n    \"m\".\"label\",\n    STRING_AGG(DISTINCT \"a\".\"element\", ', ' ORDER BY \"a\".\"element\") AS \"elements\"\nFROM \"molecule\" AS \"m\"\nJOIN \"bond\" AS \"b\"\n    ON \"b\".\"molecule_id\" = \"m\".\"molecule_id\"\nJOIN \"atom\" AS \"a\"\n    ON \"a\".\"molecule_id\" = \"m\".\"molecule_id\"\nWHERE \"b\".\"bond_type\" = '#'\nGROUP BY\n    \"m\".\"molecule_id\",\n    \"m\".\"label\"\nORDER BY\n    \"m\".\"molecule_id\";",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "334",
+      "gold_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.atom_id = 'TR004_7' AND T2.label = '-'",
+      "predicted_sql": "SELECT DISTINCT a.\"element\"\nFROM \"atom\" AS a\nJOIN \"molecule\" AS m\n  ON a.\"molecule_id\" = m.\"molecule_id\"\nWHERE a.\"atom_id\" = 'TR004_7'\n  AND m.\"label\" = '-';",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "230",
+      "gold_sql": "SELECT DISTINCT T1.element, T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.molecule_id = 'TR060'",
+      "predicted_sql": "SELECT DISTINCT\n  \"a\".\"element\",\n  \"m\".\"label\"\nFROM \"atom\" AS \"a\"\nJOIN \"molecule\" AS \"m\"\n  ON \"a\".\"molecule_id\" = \"m\".\"molecule_id\"\nWHERE \"m\".\"molecule_id\" LIKE 'TR060';",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "207",
+      "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN connected AS T3 ON T1.atom_id = T3.atom_id WHERE T2.bond_type = '='",
+      "predicted_sql": "SELECT DISTINCT\n  \"a\".\"element\"\nFROM \"bond\" AS \"b\"\nJOIN \"connected\" AS \"c\"\n  ON \"b\".\"bond_id\" = \"c\".\"bond_id\"\nJOIN \"atom\" AS \"a\"\n  ON \"a\".\"atom_id\" = \"c\".\"atom_id\"\nWHERE \"b\".\"bond_type\" LIKE '=';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "510",
+      "gold_sql": "SELECT artist FROM cards WHERE side IS NULL ORDER BY convertedManaCost DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT c.\"artist\"\nFROM \"cards\" c\nWHERE c.\"side\" IS NULL\nORDER BY c.\"convertedmanacost\"::numeric DESC NULLS LAST\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "393",
+      "gold_sql": "SELECT COUNT(id) FROM cards WHERE (cardKingdomId IS NULL OR cardKingdomFoilId IS NULL) AND artist = 'John Avon'",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"cards\" AS c\nWHERE c.\"artist\" LIKE '%John Avon%'\n  AND c.\"cardkingdomfoilid\" IS NULL;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "351",
+      "gold_sql": "SELECT T1.name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.language = 'Japanese'",
+      "predicted_sql": "SELECT DISTINCT\n  \n  \"c\".\"name\"\nFROM \"cards\" AS \"c\"\nWHERE \"c\".\"language\" LIKE '%Japanese%' OR \"c\".\"availability\" LIKE '%Japanese%';",
+      "score": 0,
+      "difficulty": "simple",
+      "error": "(psycopg.errors.UndefinedColumn) column c.language does not exist\nLINE 5: WHERE \"c\".\"language\" LIKE '%Japanese%' OR \"c\".\"availability\"...\n              ^\n[SQL: SELECT DISTINCT\n  \n  \"c\".\"name\"\nFROM \"cards\" AS \"c\"\nWHERE \"c\".\"language\" LIKE '%%Japanese%%' OR \"c\".\"availability\" LIKE '%%Japanese%%';]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "377",
+      "gold_sql": "SELECT COUNT(id) FROM cards WHERE originalType = 'Summon - Angel' AND subtypes <> 'Angel'",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"cards\" AS c\nWHERE c.\"originaltype\" = 'Summon - Angel'\n  AND c.\"subtypes\" IS DISTINCT FROM 'Angel';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "435",
+      "gold_sql": "SELECT id FROM cards WHERE borderColor = 'black' GROUP BY id",
+      "predicted_sql": "SELECT\n    \"c\".\"id\",\n    COUNT(*) OVER () AS \"total_count\"\nFROM \"cards\" AS \"c\"\nWHERE LOWER(\"c\".\"bordercolor\") = 'black';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "421",
+      "gold_sql": "SELECT name FROM cards WHERE (power IS NULL OR power LIKE '%*%') AND promoTypes = 'arenaleague' ORDER BY name LIMIT 3",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "445",
+      "gold_sql": "SELECT DISTINCT T2.language, T2.flavorText FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T2.uuid = T1.uuid WHERE T1.watermark = 'colorpie'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "355",
+      "gold_sql": "SELECT DISTINCT keywords FROM cards WHERE name = 'Angel of Mercy'",
+      "predicted_sql": "SELECT DISTINCT \n  \"cards\".\"keywords\"\nFROM \"cards\"\nWHERE \"cards\".\"name\" LIKE '%Angel of Mercy%';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "453",
+      "gold_sql": "SELECT DISTINCT manaCost FROM cards WHERE name = 'Ancestor''s Chosen'",
+      "predicted_sql": "SELECT\n  \"c\".\"convertedmanacost\"\nFROM \"cards\" AS \"c\"\nWHERE \"c\".\"name\" LIKE 'Ancestor''s Chosen';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "509",
+      "gold_sql": "SELECT id FROM sets ORDER BY baseSetSize DESC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "450",
+      "gold_sql": "SELECT SUM(CASE WHEN artist = 'Aaron Miller' AND cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL THEN 1 ELSE 0 END) FROM cards",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "515",
+      "gold_sql": "SELECT T1.originalReleaseDate, T2.format FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T1.rarity = 'mythic' AND NOT T1.originalReleaseDate IS NULL AND T2.status = 'Legal' ORDER BY T1.originalReleaseDate NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT DISTINCT\n    c.\"originalreleasedate\" AS \"oldest_release_date\",\n    l.\"format\" AS \"legal_format\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n    ON l.\"uuid\" = c.\"uuid\"\nWHERE c.\"rarity\" = 'mythic'\n  AND l.\"status\" = 'legal'\n  AND c.\"originalreleasedate\" = (\n      SELECT MIN(c2.\"originalreleasedate\")\n      FROM \"cards\" AS c2\n      WHERE c2.\"rarity\" = 'mythic'\n        AND c2.\"originalreleasedate\" IS NOT NULL\n  )\nORDER BY l.\"format\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "498",
+      "gold_sql": "SELECT T2.translation FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T1.name = 'Tendo Ice Bridge' AND T2.language = 'French' AND NOT T2.translation IS NULL",
+      "predicted_sql": "SELECT DISTINCT\n    \"st\".\"translation\" AS \"french_set_name\"\nFROM \"cards\" AS \"c\"\nJOIN \"foreign_data\" AS \"fd\"\n    ON \"fd\".\"uuid\" = \"c\".\"uuid\"\n   AND \"fd\".\"language\" = 'French'\nJOIN \"sets\" AS \"s\"\n    ON \"s\".\"code\" = \"c\".\"setcode\"\nJOIN \"set_translations\" AS \"st\"\n    ON \"st\".\"setcode\" = \"s\".\"code\"\n   AND \"st\".\"language\" = 'French'\nWHERE \"c\".\"name\" = 'Tendo Ice Bridge';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "417",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'Japanese' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode WHERE T1.type = 'expansion'",
+      "predicted_sql": "SELECT\n  100.0 * COUNT(*) FILTER (WHERE \"language\" = 'Japanese' AND \"type\" = 'expansion')\n  / NULLIF(COUNT(*) FILTER (WHERE \"language\" = 'Japanese'), 0) AS \"percentage\"\nFROM \"foreign_data\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "345",
+      "gold_sql": "SELECT DISTINCT T2.status FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T1.type = 'Artifact' AND T2.format = 'vintage' AND T1.side IS NULL",
+      "predicted_sql": "SELECT DISTINCT  l.\"status\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n  ON c.\"uuid\" LIKE l.\"uuid\"\nWHERE c.\"types\" LIKE 'Artifact'\n  AND c.\"side\" IS NULL\n  AND l.\"format\" LIKE 'vintage\";",
+      "score": 0,
+      "difficulty": "moderate",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'vintage\";\"\nLINE 7:   AND l.\"format\" LIKE 'vintage\";\n                              ^\n[SQL: SELECT DISTINCT  l.\"status\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n  ON c.\"uuid\" LIKE l.\"uuid\"\nWHERE c.\"types\" LIKE 'Artifact'\n  AND c.\"side\" IS NULL\n  AND l.\"format\" LIKE 'vintage\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "409",
+      "gold_sql": "SELECT COUNT(T1.id) FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid INNER JOIN rulings AS T3 ON T1.uuid = T3.uuid WHERE T2.format = 'premodern' AND T3.text = 'This is a triggered mana ability.' AND T1.Side IS NULL",
+      "predicted_sql": "SELECT\n    COUNT(DISTINCT c.\"uuid\") AS \"card_count\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n    ON c.\"uuid\" = l.\"uuid\"\nWHERE l.\"format\" = 'premodern'\n  AND c.\"side\" IS NULL\n  AND EXISTS (\n      SELECT 1\n      FROM \"rulings\" AS r\n      WHERE r.\"uuid\" = c.\"uuid\"\n        AND r.\"text\" = 'This is a triggered mana ability.'\n  );",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "402",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN isTextless = 0 THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(id), 0) FROM cards WHERE isStorySpotlight = 1",
+      "predicted_sql": "WITH \"story_spotlight\" AS (\n    SELECT\n        \"c\".\"id\",\n        \"c\".\"isstoryspotlight\",\n        \"c\".\"istextless\"\n    FROM \"cards\" AS \"c\"\n    WHERE \"c\".\"isstoryspotlight\" = 1\n),\n\"filtered\" AS (\n    SELECT\n        \"id\"\n    FROM \"story_spotlight\"\n    WHERE \"istextless\" = 0\n),\n\"totals\" AS (\n    SELECT\n        (SELECT COUNT(*) FROM \"filtered\") AS \"without_textbox_count\",\n        (SELECT COUNT(*) FROM \"story_spotlight\") AS \"total_story_spotlight_count\"\n)\nSELECT\n    \"f\".\"id\",\n    100.0 * \"t\".\"without_textbox_count\" / NULLIF(\"t\".\"total_story_spotlight_count\", 0) AS \"percentage\"\nFROM \"filtered\" AS \"f\"\nCROSS JOIN \"totals\" AS \"t\"\nORDER BY \"f\".\"id\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "434",
+      "gold_sql": "SELECT COUNT(T1.id) FROM sets AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.code WHERE T2.language = 'Japanese' AND (T1.mtgoCode IS NULL OR T1.mtgoCode = '')",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"sets\" AS s\nWHERE EXISTS (\n    SELECT 1\n    FROM \"set_translations\" AS st\n    WHERE st.\"setcode\" = s.\"code\"\n      AND st.\"language\" LIKE 'Japanese'\n)\nAND (s.\"mtgocode\" IS NULL OR s.\"mtgocode\" = '')",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "517",
+      "gold_sql": "SELECT COUNT(T1.id) FROM cards AS T1 INNER JOIN legalities AS T2 ON T2.uuid = T1.uuid WHERE T1.rarity = 'rare' AND T1.types = 'Enchantment' AND T1.name = 'Abundance' AND T2.status = 'Legal'",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n  ON c.\"uuid\" = l.\"uuid\"\nWHERE c.\"rarity\" LIKE 'rare'\n  AND c.\"types\" LIKE 'Enchantment'\n  AND c.\"name\" LIKE 'Abundance'\n  AND l.\"status\" LIKE 'Legal\";",
+      "score": 0,
+      "difficulty": "moderate",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'Legal\";\"\nLINE 8:   AND l.\"status\" LIKE 'Legal\";\n                              ^\n[SQL: SELECT COUNT(*) AS \"count\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n  ON c.\"uuid\" = l.\"uuid\"\nWHERE c.\"rarity\" LIKE 'rare'\n  AND c.\"types\" LIKE 'Enchantment'\n  AND c.\"name\" LIKE 'Abundance'\n  AND l.\"status\" LIKE 'Legal\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "347",
+      "gold_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniele'",
+      "predicted_sql": "SELECT DISTINCT\n    \"c\".\"id\",\n    \"r\".\"text\",\n    \"c\".\"hascontentwarning\"\nFROM \"cards\" AS \"c\"\nJOIN \"rulings\" AS \"r\"\n    ON \"r\".\"uuid\" = \"c\".\"uuid\"\nWHERE \"c\".\"artist\" LIKE '%Stephen Daniel%'\n  AND \"c\".\"artist\" LIKE '%Stephen Daniele%'\nORDER BY \"c\".\"id\" ASC NULLS FIRST;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "469",
+      "gold_sql": "SELECT CASE WHEN NOT T2.mtgoCode IS NULL THEN 'YES' ELSE 'NO' END FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE T1.name = 'Angel of Mercy'",
+      "predicted_sql": "SELECT\n  CASE\n    WHEN EXISTS (\n      SELECT 1\n      FROM \"cards\" AS c\n      WHERE c.\"name\" = 'Angel of Mercy'\n        AND (c.\"mtgoid\" IS NOT NULL OR c.\"mtgofoilid\" IS NOT NULL)\n    )\n    THEN TRUE\n    ELSE FALSE\n  END AS \"appeared_on_mtgo\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "513",
+      "gold_sql": "SELECT id FROM sets WHERE type = 'commander' ORDER BY totalSetSize DESC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "494",
+      "gold_sql": "SELECT T2.text, CASE WHEN T1.hasContentWarning = 1 THEN 'YES' ELSE 'NO' END FROM cards AS T1 INNER JOIN rulings AS T2 ON T2.uuid = T1.uuid WHERE T1.artist = 'Jim Pavelec'",
+      "predicted_sql": "SELECT DISTINCT\n    \n    c.\"name\",\n    r.\"text\",\n    c.\"hascontentwarning\"\nFROM \"cards\" AS c\nLEFT JOIN \"rulings\" AS r\n    ON c.\"uuid\" = r.\"uuid\"\nWHERE c.\"artist\" LIKE '%Jim Pavelec%';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "528",
+      "gold_sql": "SELECT DISTINCT T2.name , CASE WHEN T1.status = 'Legal' THEN T1.format ELSE NULL END FROM legalities AS T1 INNER JOIN cards AS T2 ON T2.uuid = T1.uuid WHERE T2.setCode IN ( SELECT code FROM sets WHERE name = 'Hour of Devastation' )",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "415",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T1.hasContentWarning = 0 THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T2.format = 'commander' AND T2.status = 'Legal'",
+      "predicted_sql": "SELECT\n    100.0 * COUNT(CASE WHEN c.\"hascontentwarning\" = 0 THEN 1 END) / COUNT(c.\"id\") AS \"percentage\"\nFROM \"cards\" AS c\nJOIN \"legalities\" AS l\n    ON c.\"uuid\" = l.\"uuid\"\nWHERE LOWER(l.\"format\") = 'commander'\n  AND LOWER(l.\"status\") = 'legal';",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "506",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN isNonFoilOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(id), 0) FROM sets WHERE code IN (SELECT setCode FROM set_translations WHERE language = 'Japanese')",
+      "predicted_sql": "SELECT\n    \n    100.0 * SUM(CASE WHEN c.\"isnonfoilonly\" = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN c.\"language\" = 'Japanese' THEN 1 ELSE 0 END), 0) AS \"percentage_non_foil_in_japanese_cards\"\nFROM \"cards\" AS c\nWHERE c.\"language\" = 'Japanese\";",
+      "score": 0,
+      "difficulty": "challenging",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'Japanese\";\"\nLINE 5: WHERE c.\"language\" = 'Japanese\";\n                             ^\n[SQL: SELECT\n    \n    100.0 * SUM(CASE WHEN c.\"isnonfoilonly\" = 1 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN c.\"language\" = 'Japanese' THEN 1 ELSE 0 END), 0) AS \"percentage_non_foil_in_japanese_cards\"\nFROM \"cards\" AS c\nWHERE c.\"language\" = 'Japanese\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "416",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.power IS NULL OR T1.power = '*'",
+      "predicted_sql": "SELECT\n    \n    100.0 * COUNT(CASE WHEN \"c\".\"language\" = 'French' THEN 1 END) / NULLIF(COUNT(*), 0) AS \"percentage\"\nFROM \"cards\" AS \"c\"\nWHERE \"c\".\"power\" IS NULL\n   OR \"c\".\"power\" = '*';",
+      "score": 0,
+      "difficulty": "challenging",
+      "error": "(psycopg.errors.UndefinedColumn) column c.language does not exist\nLINE 3:     100.0 * COUNT(CASE WHEN \"c\".\"language\" = 'French' THEN 1...\n                                    ^\n[SQL: SELECT\n    \n    100.0 * COUNT(CASE WHEN \"c\".\"language\" = 'French' THEN 1 END) / NULLIF(COUNT(*), 0) AS \"percentage\"\nFROM \"cards\" AS \"c\"\nWHERE \"c\".\"power\" IS NULL\n   OR \"c\".\"power\" = '*';]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "431",
+      "gold_sql": "SELECT T1.name, T1.id FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode WHERE T2.language = 'Japanese' AND T1.isFoilOnly = 1 AND T1.isForeignOnly = 0",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "371",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.isStorySpotlight = 1",
+      "predicted_sql": "SELECT\n    CASE\n        WHEN COUNT(CASE WHEN c.\"isstoryspotlight\" = 1 THEN c.\"id\" END) = 0 THEN NULL\n        ELSE COUNT(CASE WHEN c.\"isstoryspotlight\" = 1 AND fd.\"language\" = 'French' THEN c.\"id\" END)::NUMERIC\n             / COUNT(CASE WHEN c.\"isstoryspotlight\" = 1 THEN c.\"id\" END) * 100\n    END AS \"percentage\"\nFROM \"cards\" AS c\nLEFT JOIN \"foreign_data\" AS fd\n    ON c.\"multiverseid\"::TEXT = fd.\"multiverseid\"::TEXT;",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "487",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN NOT T1.cardKingdomFoilId IS NULL AND NOT T1.cardKingdomId IS NULL THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE T2.name = 'Coldsnap'",
+      "predicted_sql": "SELECT\n    100.0 * SUM(\n        CASE\n            WHEN c.\"cardkingdomfoilid\" IS NOT NULL\n             AND c.\"cardkingdomid\" IS NOT NULL THEN 1\n            ELSE 0\n        END\n    ) / NULLIF(COUNT(*), 0) AS \"percentage\"\nFROM \"cards\" AS c\nJOIN \"sets\" AS s\n    ON c.\"setcode\" = s.\"code\"\nWHERE s.\"name\" = 'Coldsnap';",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "477",
+      "gold_sql": "SELECT T1.artist FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE (T2.name = 'Coldsnap' AND T1.artist = 'Chippy') OR (T2.name = 'Coldsnap' AND T1.artist = 'Aaron Miller') OR (T2.name = 'Coldsnap' AND T1.artist = 'Jeremy Jarvis') GROUP BY T1.artist",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "699",
+      "gold_sql": "SELECT CreationDate FROM users WHERE DisplayName = 'IrishStat'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "714",
+      "gold_sql": "SELECT T1.Text FROM comments AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T2.DisplayName = 'Harvey Motulsky'",
+      "predicted_sql": "SELECT\n    \n    \"c\".\"text\"\nFROM \"comments\" AS \"c\"\nJOIN \"users\" AS \"u\"\n    ON \"u\".\"id\" = \"c\".\"userid\"\nWHERE \"u\".\"displayname\" = 'Harvey Motulsky';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "549",
+      "gold_sql": "SELECT T2.Body FROM tags AS T1 INNER JOIN posts AS T2 ON T2.Id = T1.ExcerptPostId WHERE T1.TagName = 'bayesian'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "661",
+      "gold_sql": "SELECT Age FROM users WHERE Reputation = (SELECT MAX(Reputation) FROM users)",
+      "predicted_sql": "SELECT u.\"age\"\nFROM \"users\" AS u\nWHERE u.\"reputation\" = (\n    SELECT MAX(u2.\"reputation\")\n    FROM \"users\" AS u2\n)\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "558",
+      "gold_sql": "SELECT COUNT(Id) FROM votes WHERE UserId = 58 AND CreationDate = '2010-07-19'",
+      "predicted_sql": "SELECT\n  COUNT(*) AS \"vote_count\"\nFROM \"votes\" AS v\nWHERE v.\"userid\" = 58\n  AND v.\"creationdate\" = DATE '2010-07-19'",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "611",
+      "gold_sql": "SELECT T1.Reputation FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId WHERE T2.Date = '2010-07-19 19:39:08.0'",
+      "predicted_sql": "SELECT DISTINCT \n  u.\"reputation\"\nFROM \"badges\" AS b\nJOIN \"users\" AS u\n  ON u.\"id\" = b.\"userid\"\nWHERE b.\"date\" = TIMESTAMP '2010-07-19 19:39:08.0';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "621",
+      "gold_sql": "SELECT T2.Name FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId WHERE T1.Reputation = (SELECT MIN(Reputation) FROM users)",
+      "predicted_sql": "SELECT DISTINCT\n  \"b\".\"name\"\nFROM \"users\" AS \"u\"\nJOIN \"badges\" AS \"b\"\n  ON \"u\".\"id\" = \"b\".\"userid\"\nWHERE \"u\".\"reputation\" = (\n  SELECT MIN(\"u2\".\"reputation\")\n  FROM \"users\" AS \"u2\"\n);",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "588",
+      "gold_sql": "SELECT COUNT(Id) FROM comments WHERE UserId = 13",
+      "predicted_sql": "SELECT\n  COUNT(*) AS \"total_number_of_comments\"\nFROM \"comments\" AS c\nWHERE c.\"userid\" = 13;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "592",
+      "gold_sql": "SELECT COUNT(UserId) FROM (SELECT UserId, COUNT(Name) AS num FROM badges GROUP BY UserId) AS T WHERE T.num > 5",
+      "predicted_sql": "SELECT COUNT(*) AS \"user_count\"\nFROM (\n    SELECT b.\"userid\"\n    FROM \"badges\" AS b\n    GROUP BY b.\"userid\"\n    HAVING COUNT(b.\"name\") > 5\n) AS t;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "631",
+      "gold_sql": "SELECT COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId WHERE T1.DisplayName = 'Daniel Vassallo'",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"posts\" AS \"p\"\nJOIN \"users\" AS \"u\"\n  ON \"p\".\"owneruserid\" = \"u\".\"id\"\nWHERE \"u\".\"displayname\" LIKE '%Daniel Vassallo%';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "589",
+      "gold_sql": "SELECT Id FROM users WHERE Reputation = (SELECT MAX(Reputation) FROM users)",
+      "predicted_sql": "SELECT\n    u.\"id\"\nFROM \"users\" AS u\nWHERE u.\"reputation\" = (\n    SELECT MAX(u2.\"reputation\")\n    FROM \"users\" AS u2\n);",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "685",
+      "gold_sql": "SELECT T2.ViewCount, T3.DisplayName FROM postHistory AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id INNER JOIN users AS T3 ON T2.LastEditorUserId = T3.Id WHERE T1.Text = 'Computer Game Datasets'",
+      "predicted_sql": "SELECT\n  p.\"viewcount\" AS \"total views\",\n  u.\"displayname\" AS \"Name the user\"\nFROM \"posts\" AS p\nJOIN \"users\" AS u\n  ON u.\"id\" = p.\"owneruserid\"\nWHERE p.\"title\" = 'Computer Game Datasets'\n   OR p.\"body\" = 'Computer Game Datasets\"\nORDER BY p.\"creaiondate\" DESC NULLS LAST\nLIMIT 1;",
+      "score": 0,
+      "difficulty": "moderate",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'Computer Game Datasets\"\nORDER BY p.\"creaiondate\" DESC NULLS LAST\nLIMIT 1;\"\nLINE 8:    OR p.\"body\" = 'Computer Game Datasets\"\n                         ^\n[SQL: SELECT\n  p.\"viewcount\" AS \"total views\",\n  u.\"displayname\" AS \"Name the user\"\nFROM \"posts\" AS p\nJOIN \"users\" AS u\n  ON u.\"id\" = p.\"owneruserid\"\nWHERE p.\"title\" = 'Computer Game Datasets'\n   OR p.\"body\" = 'Computer Game Datasets\"\nORDER BY p.\"creaiondate\" DESC NULLS LAST\nLIMIT 1;]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "571",
+      "gold_sql": "SELECT CAST(COUNT(T2.Id) AS REAL) / COUNT(DISTINCT T1.Id) FROM votes AS T1 INNER JOIN posts AS T2 ON T1.UserId = T2.OwnerUserId WHERE T1.UserId = 24",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "708",
+      "gold_sql": "SELECT T2.CreationDate, T2.Age FROM comments AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T1.text LIKE '%http://%'",
+      "predicted_sql": "SELECT DISTINCT\n    u.\"creationdate\",\n    u.\"age\"\nFROM \"comments\" AS c\nJOIN \"users\" AS u\n    ON c.\"userid\" = u.\"id\"\nWHERE c.\"text\" LIKE '%http://%';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "633",
+      "gold_sql": "SELECT T2.PostId FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T2.PostId = T3.Id WHERE T1.DisplayName = 'slashnick' ORDER BY T3.AnswerCount DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT\n    \"p\".\"id\"\nFROM \"posts\" AS \"p\"\nJOIN \"users\" AS \"u\"\n    ON \"p\".\"owneruserid\" = \"u\".\"id\"\nWHERE \"u\".\"displayname\" = 'slashnick'\nORDER BY \"p\".\"answercount\" DESC NULLS LAST, \"p\".\"id\"\nLIMIT 1;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "694",
+      "gold_sql": "SELECT T3.Text, T1.DisplayName FROM users AS T1 INNER JOIN posts AS T2 ON T1.Id = T2.OwnerUserId INNER JOIN comments AS T3 ON T2.Id = T3.PostId WHERE T2.Title = 'Analysing wind data with R' ORDER BY T1.CreationDate DESC NULLS LAST LIMIT 10",
+      "predicted_sql": "SELECT\n    c.\"text\",\n    COALESCE(c.\"userdisplayname\", u.\"displayname\") AS \"displayname\"\nFROM \"posts\" AS p\nJOIN \"comments\" AS c\n    ON c.\"postid\" = p.\"id\"\nLEFT JOIN \"users\" AS u\n    ON u.\"id\" = c.\"userid\"\nWHERE p.\"title\" = 'Analysing wind data with R'\nORDER BY c.\"creationdate\" DESC NULLS LAST\nLIMIT 10;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "652",
+      "gold_sql": "SELECT T1.PostId, T2.Name FROM postHistory AS T1 INNER JOIN badges AS T2 ON T1.UserId = T2.UserId WHERE T1.UserDisplayName = 'Samuel' AND STRFTIME('%Y', T1.CreationDate) = '2013' AND STRFTIME('%Y', T2.Date) = '2013'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "716",
+      "gold_sql": "SELECT CAST(SUM(IIF(T1.UpVotes = 0, 1, 0)) AS REAL) * 100/ COUNT(T1.Id) AS per FROM users AS T1 INNER JOIN comments AS T2 ON T1.Id = T2.UserId WHERE T2.Score BETWEEN 5 AND 10",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "563",
+      "gold_sql": "SELECT T1.FavoriteCount FROM posts AS T1 INNER JOIN comments AS T2 ON T1.Id = T2.PostId WHERE T2.CreationDate = '2014-04-23 20:29:39.0' AND T2.UserId = 3025",
+      "predicted_sql": "SELECT p.\"favoritecount\"\nFROM \"comments\" AS c\nJOIN \"posts\" AS p\n  ON p.\"id\" = c.\"postid\"\nWHERE c.\"userid\" = 3025\n  AND c.\"creationdate\" = TO_TIMESTAMP('2014/4/23 20:29:39.0', 'YYYY/MM/DD HH24:MI:SS.MS')\nLIMIT 1;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "635",
+      "gold_sql": "SELECT COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T2.PostId = T3.Id INNER JOIN votes AS T4 ON T4.PostId = T3.Id WHERE T1.DisplayName = 'Matt Parker' GROUP BY T2.PostId, T4.Id HAVING COUNT(T4.Id) > 4",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"posts\" AS p\nJOIN \"users\" AS u\n  ON p.\"owneruserid\" = u.\"id\"\nWHERE u.\"displayname\" LIKE '%Matt Parker%'\n  AND p.\"id\" > 4;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "572",
+      "gold_sql": "SELECT ViewCount FROM posts WHERE Title = 'Integration of Weka and/or RapidMiner into Informatica PowerCenter/Developer'",
+      "predicted_sql": "SELECT\n  p.\"viewcount\"\nFROM \"posts\" AS p\nWHERE p.\"title\" = 'Integration of Weka and/or RapidMiner into Informatica PowerCenter/Developer'\n  AND p.\"posttypeid\" = 1;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "637",
+      "gold_sql": "SELECT T3.Tags FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId WHERE T1.DisplayName = 'Mark Meckes' AND T3.CommentCount = 0",
+      "predicted_sql": "SELECT DISTINCT\n    TRIM(BOTH '<>' FROM tag_value) AS \"tag\"\nFROM \"users\" AS u\nJOIN \"posts\" AS p\n    ON p.\"owneruserid\" = u.\"id\"\nCROSS JOIN LATERAL regexp_split_to_table(COALESCE(p.\"tags\", ''), '>?<') AS tag_value\nWHERE u.\"displayname\" = 'Mark Meckes'\n  AND p.\"commentcount\" = 0\n  AND p.\"tags\" IS NOT NULL\n  AND p.\"tags\" <> ''\n  AND TRIM(BOTH '<>' FROM tag_value) <> ''\nORDER BY \"tag\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "586",
+      "gold_sql": "SELECT T3.DisplayName, T1.Title FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId INNER JOIN users AS T3 ON T3.Id = T2.UserId WHERE T2.BountyAmount = 50 AND T1.Title LIKE '%variance%'",
+      "predicted_sql": "SELECT DISTINCT\n  \"u\".\"displayname\"\nFROM \"posts\" AS \"p\"\nJOIN \"votes\" AS \"v\"\n  ON \"v\".\"postid\" = \"p\".\"id\"\nJOIN \"users\" AS \"u\"\n  ON \"u\".\"id\" = \"v\".\"userid\"\nWHERE CAST(\"v\".\"bountyamount\" AS NUMERIC) = 50\n  AND LOWER(\"p\".\"title\") LIKE '%variance%';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "598",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN TO_CHAR(CAST(Date AS TIMESTAMP), 'YYYY') = '2010' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(Id), 0) - CAST(SUM(CASE WHEN TO_CHAR(CAST(Date AS TIMESTAMP), 'YYYY') = '2011' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(Id), 0) FROM badges WHERE Name = 'Student'",
+      "predicted_sql": "SELECT\n    ((COUNT(CASE WHEN EXTRACT(YEAR FROM \"b\".\"date\") = 2010 THEN 1 END)::NUMERIC / NULLIF(COUNT(*), 0)) * 100\n   - (COUNT(CASE WHEN EXTRACT(YEAR FROM \"b\".\"date\") = 2011 THEN 1 END)::NUMERIC / NULLIF(COUNT(*), 0)) * 100) AS \"percentage_difference\"\nFROM \"badges\" AS \"b\"\nWHERE \"b\".\"name\" = 'Student';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "634",
+      "gold_sql": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T2.PostId = T3.Id WHERE T1.DisplayName = 'Harvey Motulsky' OR T1.DisplayName = 'Noah Snyder' GROUP BY T1.DisplayName ORDER BY SUM(T3.ViewCount) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "WITH \"target_users\" AS (\n    SELECT\n        \"u\".\"id\",\n        \"u\".\"displayname\"\n    FROM \"users\" AS \"u\"\n    WHERE \"u\".\"displayname\" IN ('Harvey Motulsky', 'Noah Snyder')\n),\n\"popularity\" AS (\n    SELECT\n        \"tu\".\"displayname\",\n        SUM(\"p\".\"viewcount\") AS \"total_viewcount\"\n    FROM \"target_users\" AS \"tu\"\n    JOIN \"posts\" AS \"p\"\n        ON \"p\".\"owneruserid\" = \"tu\".\"id\"\n    GROUP BY\n        \"tu\".\"displayname\"\n)\nSELECT\n    \"displayname\"\nFROM \"popularity\"\nORDER BY\n    \"total_viewcount\" DESC NULLS LAST,\n    \"displayname\" ASC NULLS FIRST\nLIMIT 1;",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "639",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T3.TagName = 'r' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.Id), 0) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN tags AS T3 ON T3.ExcerptPostId = T2.PostId WHERE T1.DisplayName = 'Community'",
+      "predicted_sql": "SELECT\n    100.0 * COUNT(DISTINCT CASE\n        WHEN LOWER(COALESCE(TRIM(\"p\".\"tags\"), '')) LIKE '%<r>%'\n        THEN \"p\".\"id\"\n    END) / NULLIF(COUNT(DISTINCT \"p\".\"id\"), 0) AS \"percentage\"\nFROM \"posts\" AS \"p\"\nJOIN \"users\" AS \"u\"\n    ON \"p\".\"owneruserid\" = \"u\".\"id\"\nWHERE \"u\".\"displayname\" = 'Community';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "701",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.Score > 50 THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.Id), 0) FROM users AS T1 INNER JOIN posts AS T2 ON T1.Id = T2.OwnerUserId INNER JOIN (SELECT MAX(Reputation) AS max_reputation FROM users) AS T3 ON T1.Reputation = T3.max_reputation",
+      "predicted_sql": "SELECT\n    100.0 * COUNT(*) FILTER (WHERE p.\"score\" > 50) / NULLIF(COUNT(*), 0) AS \"percentage\"\nFROM \"users\" AS u\nJOIN \"posts\" AS p\n    ON p.\"owneruserid\" = u.\"id\"\nWHERE u.\"reputation\" = (\n    SELECT MAX(u2.\"reputation\")\n    FROM \"users\" AS u2\n);",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "816",
+      "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id WHERE T2.attribute_value BETWEEN 75 AND 80",
+      "predicted_sql": "SELECT DISTINCT\n  \"s\".\"superhero_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"hero_attribute\" AS \"ha\"\n  ON \"ha\".\"hero_id\" = \"s\".\"id\"\nWHERE \"ha\".\"attribute_value\" BETWEEN 75 AND 80;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "745",
+      "gold_sql": "SELECT id FROM publisher WHERE publisher_name = 'Star Trek'",
+      "predicted_sql": "SELECT DISTINCT \"p\".\"id\"\nFROM \"publisher\" AS \"p\"\nWHERE \"p\".\"publisher_name\" LIKE 'Star Trek';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "720",
+      "gold_sql": "SELECT DISTINCT T1.full_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id GROUP BY T1.full_name HAVING COUNT(T2.power_id) > 15",
+      "predicted_sql": "SELECT\n    \"s\".\"full_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"hero_power\" AS \"hp\"\n    ON \"hp\".\"hero_id\" = \"s\".\"id\"\nGROUP BY\n    \"s\".\"id\",\n    \"s\".\"full_name\"\nHAVING COUNT(\"hp\".\"power_id\") > 15;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "785",
+      "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id WHERE T2.alignment = 'Neutral'",
+      "predicted_sql": "SELECT DISTINCT \n  \"s\".\"superhero_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"alignment\" AS \"a\"\n  ON \"s\".\"alignment_id\" = \"a\".\"id\"\nWHERE \"a\".\"alignment\" LIKE 'Neutral';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "803",
+      "gold_sql": "SELECT id FROM superpower WHERE power_name = 'Cryokinesis'",
+      "predicted_sql": "SELECT \"sp\".\"id\"\nFROM \"superpower\" AS \"sp\"\nWHERE \"sp\".\"power_name\" ILIKE 'cryokinesis';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "722",
+      "gold_sql": "SELECT T2.colour FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.skin_colour_id = T2.id WHERE T1.superhero_name = 'Apocalypse'",
+      "predicted_sql": "SELECT\n  \n  \"c\".\"colour\"\nFROM \"superhero\" AS \"s\"\nLEFT JOIN \"colour\" AS \"c\"\n  ON \"s\".\"skin_colour_id\" = \"c\".\"id\"\nWHERE \"s\".\"superhero_name\" LIKE 'Apocalypse';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "780",
+      "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.full_name = 'Hunter Zolomon'",
+      "predicted_sql": "SELECT DISTINCT \"sp\".\"power_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"hero_power\" AS \"hp\" ON \"s\".\"id\" = \"hp\".\"hero_id\"\nJOIN \"superpower\" AS \"sp\" ON \"hp\".\"power_id\" = \"sp\".\"id\"\nWHERE \"s\".\"full_name\" LIKE '%Hunter Zolomon%';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "792",
+      "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.superhero_name = 'Abomination'",
+      "predicted_sql": "SELECT DISTINCT\n    \"sp\".\"power_name\"\nFROM \"superhero\" AS \"sh\"\nJOIN \"hero_power\" AS \"hp\"\n    ON \"hp\".\"hero_id\" = \"sh\".\"id\"\nJOIN \"superpower\" AS \"sp\"\n    ON \"sp\".\"id\" = \"hp\".\"power_id\"\nWHERE \"sh\".\"superhero_name\" = 'Abomination';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "828",
+      "gold_sql": "SELECT COUNT(T3.superhero_name) FROM hero_attribute AS T1 INNER JOIN attribute AS T2 ON T1.attribute_id = T2.id INNER JOIN superhero AS T3 ON T1.hero_id = T3.id WHERE T2.attribute_name = 'Speed' AND T1.attribute_value = 100",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "737",
+      "gold_sql": "SELECT T2.race FROM superhero AS T1 INNER JOIN race AS T2 ON T1.race_id = T2.id WHERE T1.superhero_name = 'Copycat'",
+      "predicted_sql": "SELECT\n  \"r\".\"race\"\nFROM \"superhero\" AS \"s\"\nLEFT JOIN \"race\" AS \"r\"\n  ON \"s\".\"race_id\" = \"r\".\"id\"\nWHERE \"s\".\"superhero_name\" LIKE 'Copycat';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "781",
+      "gold_sql": "SELECT T1.height_cm FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id WHERE T2.colour = 'Amber'",
+      "predicted_sql": "SELECT DISTINCT \"s\".\"height_cm\"\nFROM \"superhero\" AS \"s\"\nJOIN \"colour\" AS \"c\"\n  ON \"s\".\"eye_colour_id\" = \"c\".\"id\"\nWHERE \"c\".\"colour\" LIKE 'Amber';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "747",
+      "gold_sql": "SELECT COUNT(id) FROM superhero WHERE full_name IS NULL",
+      "predicted_sql": "SELECT COUNT(*) AS \"total_number_of_superheroes_without_full_name\"\nFROM \"superhero\" AS \"s\"\nWHERE \"s\".\"full_name\" IS NULL;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "794",
+      "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Speed' ORDER BY T2.attribute_value DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT\n    \"s\".\"superhero_name\"\nFROM \"hero_attribute\" AS \"ha\"\nJOIN \"attribute\" AS \"a\"\n    ON \"a\".\"id\" = \"ha\".\"attribute_id\"\nJOIN \"superhero\" AS \"s\"\n    ON \"s\".\"id\" = \"ha\".\"hero_id\"\nWHERE \"a\".\"attribute_name\" = 'Speed'\n  AND \"ha\".\"attribute_value\" = (\n      SELECT MAX(\"ha2\".\"attribute_value\")\n      FROM \"hero_attribute\" AS \"ha2\"\n      JOIN \"attribute\" AS \"a2\"\n          ON \"a2\".\"id\" = \"ha2\".\"attribute_id\"\n      WHERE \"a2\".\"attribute_name\" = 'Speed'\n  )",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "814",
+      "gold_sql": "SELECT DISTINCT T2.colour FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.skin_colour_id = T2.id INNER JOIN hero_attribute AS T3 ON T1.id = T3.hero_id WHERE T3.attribute_value = 100",
+      "predicted_sql": "SELECT DISTINCT\n    \"c\".\"colour\" AS \"skin_colour\"\nFROM \"hero_attribute\" AS \"ha\"\nJOIN \"superhero\" AS \"s\"\n    ON \"ha\".\"hero_id\" = \"s\".\"id\"\nJOIN \"colour\" AS \"c\"\n    ON \"s\".\"skin_colour_id\" = \"c\".\"id\"\nWHERE \"ha\".\"attribute_value\" = 100;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "723",
+      "gold_sql": "SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id INNER JOIN colour AS T4 ON T1.eye_colour_id = T4.id WHERE T3.power_name = 'Agility' AND T4.colour = 'Blue'",
+      "predicted_sql": "SELECT COUNT(DISTINCT \"s\".\"id\") AS \"hero_count\"\nFROM \"superhero\" AS \"s\"\nJOIN \"colour\" AS \"c\"\n  ON \"s\".\"eye_colour_id\" = \"c\".\"id\"\nJOIN \"hero_power\" AS \"hp\"\n  ON \"s\".\"id\" = \"hp\".\"hero_id\"\nJOIN \"superpower\" AS \"sp\"\n  ON \"hp\".\"power_id\" = \"sp\".\"id\"\nWHERE \"c\".\"colour\" = 'Blue'\n  AND \"sp\".\"power_name\" = 'Agility';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "801",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T2.gender = 'Male' THEN T1.id ELSE NULL END) AS REAL) / NULLIF(COUNT(CASE WHEN T2.gender = 'Female' THEN T1.id ELSE NULL END), 0) FROM superhero AS T1 INNER JOIN gender AS T2 ON T1.gender_id = T2.id",
+      "predicted_sql": "SELECT\n    COALESCE(\n        COUNT(*) FILTER (WHERE \"g\".\"gender\" = 'Male')::numeric\n        / NULLIF(COUNT(*) FILTER (WHERE \"g\".\"gender\" = 'Female'), 0),\n        0\n    ) AS \"ratio\"\nFROM \"superhero\" AS \"s\"\nLEFT JOIN \"gender\" AS \"g\"\n    ON \"s\".\"gender_id\" = \"g\".\"id\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "797",
+      "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Brown'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "726",
+      "gold_sql": "SELECT superhero_name, height_cm, RANK() OVER (ORDER BY height_cm DESC NULLS LAST) AS HeightRank FROM superhero INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics'",
+      "predicted_sql": "SELECT\n    \"s\".\"superhero_name\",\n    \"s\".\"height_cm\"\nFROM \"superhero\" AS \"s\"\nJOIN \"publisher\" AS \"p\"\n    ON \"s\".\"publisher_id\" = \"p\".\"id\"\nWHERE \"p\".\"publisher_name\" = 'Marvel Comics'\nORDER BY\n    \"s\".\"height_cm\" DESC NULLS LAST;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "736",
+      "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Intelligence' ORDER BY T2.attribute_value NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT\n    \"s\".\"superhero_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"hero_attribute\" AS \"ha\"\n    ON \"s\".\"id\" = \"ha\".\"hero_id\"\nJOIN \"attribute\" AS \"a\"\n    ON \"ha\".\"attribute_id\" = \"a\".\"id\"\nWHERE LOWER(\"a\".\"attribute_name\") = 'intelligence'\n  AND \"ha\".\"attribute_value\" = (\n      SELECT MIN(\"ha2\".\"attribute_value\")\n      FROM \"hero_attribute\" AS \"ha2\"\n      JOIN \"attribute\" AS \"a2\"\n          ON \"ha2\".\"attribute_id\" = \"a2\".\"id\"\n      WHERE LOWER(\"a2\".\"attribute_name\") = 'intelligence'\n  );",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "825",
+      "gold_sql": "SELECT T4.gender FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id INNER JOIN gender AS T4 ON T1.gender_id = T4.id WHERE T3.power_name = 'Phoenix Force'",
+      "predicted_sql": "SELECT DISTINCT\n    \n    \"g\".\"gender\"\nFROM \"superhero\" AS \"s\"\nJOIN \"hero_power\" AS \"hp\"\n    ON \"s\".\"id\" = \"hp\".\"hero_id\"\nJOIN \"superpower\" AS \"sp\"\n    ON \"hp\".\"power_id\" = \"sp\".\"id\"\nJOIN \"gender\" AS \"g\"\n    ON \"s\".\"gender_id\" = \"g\".\"id\"\nWHERE \"sp\".\"power_name\" LIKE 'Phoenix Force';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "845",
+      "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.height_cm * 100 > (SELECT AVG(height_cm) FROM superhero) * 80",
+      "predicted_sql": "SELECT DISTINCT\n    \"sp\".\"power_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"hero_power\" AS \"hp\"\n    ON \"s\".\"id\" = \"hp\".\"hero_id\"\nJOIN \"superpower\" AS \"sp\"\n    ON \"hp\".\"power_id\" = \"sp\".\"id\"\nWHERE \"s\".\"height_cm\" > (\n    SELECT AVG(\"s2\".\"height_cm\") * 0.8\n    FROM \"superhero\" AS \"s2\"\n);",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "790",
+      "gold_sql": "SELECT (SELECT weight_kg FROM superhero WHERE full_name LIKE 'Emil Blonsky') - (SELECT weight_kg FROM superhero WHERE full_name LIKE 'Charles Chandler') AS CALCULATE",
+      "predicted_sql": "SELECT\n    COALESCE(SUM(CASE WHEN \"s\".\"full_name\" = 'Emil Blonsky' THEN \"s\".\"weight_kg\" END), 0)\n    - COALESCE(SUM(CASE WHEN \"s\".\"full_name\" = 'Charles Chandler' THEN \"s\".\"weight_kg\" END), 0) AS \"difference\"\nFROM \"superhero\" AS \"s\";",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "798",
+      "gold_sql": "SELECT T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "827",
+      "gold_sql": "SELECT AVG(T1.height_cm) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN race AS T3 ON T1.race_id = T3.id WHERE T2.publisher_name = 'Dark Horse Comics' AND T3.race <> 'Human'",
+      "predicted_sql": "SELECT AVG(\"s\".\"height_cm\") AS \"average_height\"\nFROM \"superhero\" AS \"s\"\nJOIN \"publisher\" AS \"p\"\n  ON \"s\".\"publisher_id\" = \"p\".\"id\"\nJOIN \"race\" AS \"r\"\n  ON \"s\".\"race_id\" = \"r\".\"id\"\nWHERE \"p\".\"publisher_name\" = 'Dark Horse Comics'\n  AND \"r\".\"race\" <> 'Human';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "818",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T3.gender = 'Female' THEN T1.id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.alignment = 'Bad'",
+      "predicted_sql": "SELECT\n    100.0 * SUM(CASE WHEN \"s\".\"gender_id\" = 2 THEN 1 ELSE 0 END)::numeric\n    / NULLIF(COUNT(*), 0) AS \"percentage_female_among_bad_superheroes\"\nFROM \"superhero\" AS \"s\"\nWHERE \"s\".\"alignment_id\" = 2;",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "835",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T3.alignment = 'Good' THEN T1.id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN alignment AS T3 ON T1.alignment_id = T3.id WHERE T2.publisher_name = 'Marvel Comics'",
+      "predicted_sql": "SELECT\n    (COUNT(*) FILTER (WHERE \"a\".\"alignment\" = 'Good') * 100.0) / NULLIF(COUNT(*), 0) AS \"percentage_of_good_superheroes\"\nFROM \"superhero\" AS \"s\"\nJOIN \"publisher\" AS \"p\"\n    ON \"s\".\"publisher_id\" = \"p\".\"id\"\nLEFT JOIN \"alignment\" AS \"a\"\n    ON \"s\".\"alignment_id\" = \"a\".\"id\"\nWHERE \"p\".\"publisher_name\" = 'Marvel Comics';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "760",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.height_cm BETWEEN 150 AND 180",
+      "predicted_sql": "SELECT\n    \n    100.0 * COUNT(CASE WHEN p.\"publisher_name\" = 'Marvel Comics' THEN 1 END) / COUNT(*) AS \"percentage\"\nFROM \"superhero\" AS s\nLEFT JOIN \"publisher\" AS p\n    ON s.\"publisher_id\" = p.\"id\"\nWHERE s.\"height_cm\" BETWEEN 150 AND 180;",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "775",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T3.colour = 'Blue' THEN T1.id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM superhero AS T1 INNER JOIN gender AS T2 ON T1.gender_id = T2.id INNER JOIN colour AS T3 ON T1.skin_colour_id = T3.id WHERE T2.gender = 'Female'",
+      "predicted_sql": "SELECT\n    \n    (COUNT(CASE WHEN \"c\".\"colour\" = 'Blue' THEN 1 END)::NUMERIC / NULLIF(COUNT(*), 0)) * 100 AS \"percentage_blue_female_superheroes\"\nFROM \"superhero\" AS \"s\"\nJOIN \"gender\" AS \"g\"\n    ON \"s\".\"gender_id\" = \"g\".\"id\"\nLEFT JOIN \"colour\" AS \"c\"\n    ON \"s\".\"skin_colour_id\" = \"c\".\"id\"\nWHERE \"g\".\"gender\" = 'Female';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "743",
+      "gold_sql": "SELECT (CAST(COUNT(*) AS REAL) * 100 / (SELECT COUNT(*) FROM superhero)), CAST(SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) AS REAL) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN alignment AS T3 ON T3.id = T1.alignment_id WHERE T3.alignment = 'Bad'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "724",
+      "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Blond'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "829",
+      "gold_sql": "SELECT SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id",
+      "predicted_sql": "SELECT\n    COUNT(CASE WHEN p.\"publisher_name\" = 'DC Comics' THEN 1 END)\n    - COUNT(CASE WHEN p.\"publisher_name\" = 'Marvel Comics' THEN 1 END) AS \"difference\"\nFROM \"superhero\" AS s\nJOIN \"publisher\" AS p\n    ON s.\"publisher_id\" = p.\"id\";",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "744",
+      "gold_sql": "SELECT SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.publisher_name = 'DC Comics' THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id",
+      "predicted_sql": "SELECT\n    COUNT(CASE WHEN \"p\".\"publisher_name\" = 'Marvel Comics' THEN 1 END)\n    - COUNT(CASE WHEN \"p\".\"publisher_name\" = 'DC Comics' THEN 1 END) AS \"difference\"\nFROM \"superhero\" AS \"s\"\nJOIN \"publisher\" AS \"p\"\n    ON \"s\".\"publisher_id\" = \"p\".\"id\";",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "772",
+      "gold_sql": "SELECT T1.eye_colour_id, T1.hair_colour_id, T1.skin_colour_id FROM superhero AS T1 INNER JOIN publisher AS T2 ON T2.id = T1.publisher_id INNER JOIN gender AS T3 ON T3.id = T1.gender_id WHERE T2.publisher_name = 'Dark Horse Comics' AND T3.gender = 'Female'",
+      "predicted_sql": "SELECT DISTINCT\n     \"ec\".\"colour\" AS \"eyes\",\n     \"hc\".\"colour\" AS \"hair\",\n     \"sc\".\"colour\" AS \"skin colour\"\nFROM \"superhero\" AS \"s\"\nJOIN \"gender\" AS \"g\"\n    ON \"s\".\"gender_id\" = \"g\".\"id\"\nJOIN \"publisher\" AS \"p\"\n    ON \"s\".\"publisher_id\" = \"p\".\"id\"\nLEFT JOIN \"colour\" AS \"ec\"\n    ON \"s\".\"eye_colour_id\" = \"ec\".\"id\"\nLEFT JOIN \"colour\" AS \"hc\"\n    ON \"s\".\"hair_colour_id\" = \"hc\".\"id\"\nLEFT JOIN \"colour\" AS \"sc\"\n    ON \"s\".\"skin_colour_id\" = \"sc\".\"id\"\nWHERE \"g\".\"gender\" LIKE 'Female'\n  AND \"p\".\"publisher_name\" LIKE 'Dark Horse Comics'",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "834",
+      "gold_sql": "SELECT CAST(COUNT(CASE WHEN T3.gender = 'Female' THEN 1 ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T2.publisher_name = 'George Lucas'",
+      "predicted_sql": "SELECT\n    100.0 * SUM(CASE WHEN \"g\".\"gender\" = 'Female' THEN 1 ELSE 0 END)::NUMERIC / COUNT(*) AS \"female_percentage\"\nFROM \"superhero\" AS \"s\"\nJOIN \"publisher\" AS \"p\"\n    ON \"s\".\"publisher_id\" = \"p\".\"id\"\nJOIN \"gender\" AS \"g\"\n    ON \"s\".\"gender_id\" = \"g\".\"id\"\nWHERE \"p\".\"publisher_name\" = 'George Lucas';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "819",
+      "gold_sql": "SELECT SUM(CASE WHEN T2.id = 7 THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.id = 1 THEN 1 ELSE 0 END) FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id WHERE T1.weight_kg = 0 OR T1.weight_kg IS NULL",
+      "predicted_sql": "SELECT\n    COUNT(*) FILTER (WHERE c_eye.\"id\" = 7) - COUNT(*) FILTER (WHERE c_eye.\"id\" = 1) AS \"difference\"\nFROM \"superhero\" AS s\nLEFT JOIN \"colour\" AS c_eye\n    ON s.\"eye_colour_id\" = c_eye.\"id\"\nWHERE s.\"weight_kg\" = 0\n   OR s.\"weight_kg\" IS NULL;",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "773",
+      "gold_sql": "SELECT T1.superhero_name, T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.eye_colour_id = T1.hair_colour_id AND T1.eye_colour_id = T1.skin_colour_id",
+      "predicted_sql": "SELECT DISTINCT\n    \"s\".\"superhero_name\",\n    \"p\".\"publisher_name\"\nFROM \"superhero\" AS \"s\"\nJOIN \"publisher\" AS \"p\"\n    ON \"s\".\"publisher_id\" = \"p\".\"id\"\nWHERE \"s\".\"hair_colour_id\" = \"s\".\"eye_colour_id\"\n  AND \"s\".\"hair_colour_id\" = \"s\".\"skin_colour_id\";",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1377",
+      "gold_sql": "SELECT COUNT(member_id) FROM member WHERE position = 'President'",
+      "predicted_sql": "SELECT COUNT(*) AS \"count\"\nFROM \"member\" AS m\nWHERE m.\"position\" ILIKE '%President%';",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1342",
+      "gold_sql": "SELECT cost FROM expense WHERE expense_description = 'Posters' AND expense_date = '2019-09-04'",
+      "predicted_sql": "SELECT\n  \"e\".\"cost\"\nFROM \"expense\" AS \"e\"\nWHERE \"e\".\"expense_description\" LIKE '%Posters%'\n  AND TO_DATE(\"e\".\"expense_date\", 'YYYY-MM-DD') = TO_DATE('2019-09-04', 'YYYY-MM-DD');",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1349",
+      "gold_sql": "SELECT SUM(T1.amount) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T2.event_name = 'September Speaker'",
+      "predicted_sql": "SELECT\n  \n  SUM(\"b\".\"amount\") AS \"total_budget_amount\"\nFROM \"event\" AS \"e\"\nJOIN \"budget\" AS \"b\"\n  ON \"b\".\"link_to_event\" = \"e\".\"event_id\"\nWHERE \"e\".\"event_name\" = 'September Speaker';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1447",
+      "gold_sql": "SELECT DISTINCT T1.event_name, T1.location FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T2.remaining > 0",
+      "predicted_sql": "SELECT DISTINCT\n  \"e\".\"event_name\",\n  \"e\".\"location\"\nFROM \"event\" AS \"e\"\nJOIN \"budget\" AS \"b\"\n  ON \"b\".\"link_to_event\" = \"e\".\"event_id\"\nWHERE CAST(\"b\".\"remaining\" AS NUMERIC) > 0;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1462",
+      "gold_sql": "SELECT T2.category, T2.amount FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'January Speaker'",
+      "predicted_sql": "SELECT\n  b.\"category\",\n  b.\"amount\"\nFROM \"budget\" AS b\nJOIN \"event\" AS e\n  ON b.\"link_to_event\" = e.\"event_id\"\nWHERE e.\"event_name\" LIKE '%January Speaker%';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1394",
+      "gold_sql": "SELECT COUNT(T2.member_id) FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major WHERE T1.major_name = 'Physics Teaching'",
+      "predicted_sql": "SELECT \n       COUNT(*) AS \"count\"\nFROM \"member\" AS m\nJOIN \"major\" AS ma\n  ON m.\"link_to_major\" = ma.\"major_id\"\nWHERE ma.\"major_name\" LIKE '%Physics Teaching%';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1385",
+      "gold_sql": "SELECT T1.first_name, T1.last_name FROM member AS T1 INNER JOIN income AS T2 ON T1.member_id = T2.link_to_member WHERE T2.amount > 40",
+      "predicted_sql": "SELECT DISTINCT \n       m.first_name,\n       m.last_name\nFROM \"member\" AS m\nJOIN \"income\" AS i\n  ON m.member_id = i.link_to_member\nWHERE CAST(i.amount AS NUMERIC) > 40;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1436",
+      "gold_sql": "SELECT DISTINCT T3.link_to_event FROM expense AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN attendance AS T3 ON T2.member_id = T3.link_to_member WHERE T1.cost > 50",
+      "predicted_sql": "SELECT DISTINCT\n  \"e\".\"event_id\"\nFROM \"expense\" AS \"ex\"\nJOIN \"member\" AS \"m\"\n  ON \"ex\".\"link_to_member\" = \"m\".\"member_id\"\nJOIN \"attendance\" AS \"a\"\n  ON \"a\".\"link_to_member\" = \"m\".\"member_id\"\nJOIN \"event\" AS \"e\"\n  ON \"a\".\"link_to_event\" = \"e\".\"event_id\"\nWHERE CAST(\"ex\".\"cost\" AS NUMERIC) > 50",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1420",
+      "gold_sql": "SELECT T1.major_name FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major WHERE T2.position = 'Vice President'",
+      "predicted_sql": "SELECT DISTINCT \"mjr\".\"major_name\"\nFROM \"member\" AS \"m\"\nJOIN \"major\" AS \"mjr\"\n  ON \"m\".\"link_to_major\" = \"mjr\".\"major_id\"\nWHERE \"m\".\"position\" = 'Vice President';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1468",
+      "gold_sql": "SELECT T2.city FROM member AS T1 INNER JOIN zip_code AS T2 ON T2.zip_code = T1.zip WHERE T1.first_name = 'Garrett' AND T1.last_name = 'Gerke'",
+      "predicted_sql": "SELECT DISTINCT\n  \n  \"z\".\"city\"\nFROM \"member\" AS \"m\"\nJOIN \"zip_code\" AS \"z\"\n  ON \"m\".\"zip\"::text LIKE CONCAT('%', \"z\".\"zip_code\"::text, '%')\nWHERE \"m\".\"first_name\" LIKE '%Garrett%'\n  AND \"m\".\"last_name\" LIKE '%Gerke%'",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1328",
+      "gold_sql": "SELECT T1.last_name FROM member AS T1 INNER JOIN major AS T2 ON T1.link_to_major = T2.major_id WHERE T2.major_name = 'Law and Constitutional Studies'",
+      "predicted_sql": "SELECT DISTINCT m.\"last_name\"\nFROM \"member\" AS m\nJOIN \"major\" AS maj\n  ON m.\"link_to_major\" = maj.\"major_id\"\nWHERE maj.\"major_name\" LIKE '%Law and Constitutional Studies%';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1365",
+      "gold_sql": "SELECT T2.expense_description FROM budget AS T1 INNER JOIN expense AS T2 ON T1.budget_id = T2.link_to_budget ORDER BY T1.remaining NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT\n  e.\"expense_description\"\nFROM \"expense\" AS e\nJOIN \"budget\" AS b\n  ON e.\"link_to_budget\" = b.\"budget_id\"\nWHERE b.\"remaining\" = (\n  SELECT MIN(b2.\"remaining\")\n  FROM \"budget\" AS b2\n);",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1388",
+      "gold_sql": "SELECT T1.first_name, T1.last_name, T2.source FROM member AS T1 INNER JOIN income AS T2 ON T1.member_id = T2.link_to_member GROUP BY T1.first_name, T1.last_name, T2.source ORDER BY SUM(T2.amount) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT DISTINCT\n    \"m\".\"first_name\",\n    \"m\".\"last_name\",\n    \"i\".\"source\"\nFROM \"income\" AS \"i\"\nJOIN \"member\" AS \"m\"\n    ON \"i\".\"link_to_member\" = \"m\".\"member_id\"\nWHERE CAST(\"i\".\"amount\" AS INTEGER) = (\n    SELECT MAX(CAST(\"i2\".\"amount\" AS INTEGER))\n    FROM \"income\" AS \"i2\"\n);",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1426",
+      "gold_sql": "SELECT T2.last_name, T1.department, T1.college FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major WHERE T2.position = 'Member' AND T1.major_name = 'Environmental Engineering'",
+      "predicted_sql": "SELECT\n  m.\"last_name\",\n  mj.\"department\",\n  mj.\"college\"\nFROM \"member\" AS m\nJOIN \"major\" AS mj\n  ON m.\"link_to_major\" = mj.\"major_id\"\nWHERE LOWER(mj.\"major_name\") = LOWER('Environmental Engineering');",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1456",
+      "gold_sql": "SELECT T3.first_name, T3.last_name FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T1.link_to_member = T3.member_id ORDER BY T2.spent DESC LIMIT 5",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1453",
+      "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T2.category = 'Parking' AND T3.cost < (SELECT AVG(cost) FROM expense)",
+      "predicted_sql": "SELECT\n  DISTINCT \"e\".\"event_name\"\nFROM \"event\" AS \"e\"\nJOIN \"budget\" AS \"b\"\n  ON \"e\".\"event_id\" = \"b\".\"link_to_event\"\nWHERE \"b\".\"category\" = 'Parking'\n  AND CAST(\"b\".\"spent\" AS NUMERIC) < (\n    SELECT SUM(CAST(\"b2\".\"spent\" AS NUMERIC)) / COUNT(\"b2\".\"budget_id\")\n    FROM \"budget\" AS \"b2\"\n    WHERE \"b2\".\"category\" = 'Parking'\n  );",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1439",
+      "gold_sql": "SELECT T1.phone FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major WHERE T2.major_name = 'Business' AND T2.college = 'College of Agriculture and Applied Sciences'",
+      "predicted_sql": "SELECT DISTINCT m.\"phone\"\nFROM \"member\" AS m\nJOIN \"major\" AS maj\n  ON m.\"link_to_major\" = maj.\"major_id\"\nWHERE maj.\"major_name\" LIKE '%Business%'\n  AND maj.\"college\" LIKE '%College of Agriculture and Applied Sciences%'",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1428",
+      "gold_sql": "SELECT city, state FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major INNER JOIN zip_code AS T3 ON T3.zip_code = T1.zip WHERE department = 'Electrical and Computer Engineering Department' AND position = 'Member'",
+      "predicted_sql": "SELECT DISTINCT\n  \"zc\".\"city\",\n  \"zc\".\"state\"\nFROM \"member\" AS \"m\"\nLEFT JOIN \"major\" AS \"maj\"\n  ON \"m\".\"link_to_major\" = \"maj\".\"major_id\"\nLEFT JOIN \"zip_code\" AS \"zc\"\n  ON \"m\".\"zip\"::BIGINT = \"zc\".\"zip_code\"\nWHERE \"m\".\"position\" LIKE 'Member'\n  AND \"maj\".\"department\" LIKE '%Electrical and Computer Engineering Department%'",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1323",
+      "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1  WHERE T1.type = 'Fundraiser'",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1449",
+      "gold_sql": "SELECT DISTINCT T1.first_name, T1.last_name, T2.major_name FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major INNER JOIN expense AS T3 ON T1.member_id = T3.link_to_member WHERE T3.cost > 100",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1340",
+      "gold_sql": "SELECT SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+      "predicted_sql": "SELECT\n  COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM e.\"event_date\") = 2019 THEN b.\"spent\" ELSE 0 END), 0)\n  -\n  COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM e.\"event_date\") = 2020 THEN b.\"spent\" ELSE 0 END), 0) AS \"difference_of_total_amount_spent\"\nFROM \"budget\" b\nJOIN \"event\" e\n  ON b.\"link_to_event\" = e.\"event_id\"\nWHERE e.\"event_name\" LIKE '%Student_Club%';",
+      "score": 0,
+      "difficulty": "moderate",
+      "error": "(psycopg.errors.UndefinedFunction) function pg_catalog.extract(unknown, text) does not exist\nLINE 2:   COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM e.\"event_date\") =...\n                                 ^\nHINT:  No function matches the given name and argument types. You might need to add explicit type casts.\n[SQL: SELECT\n  COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM e.\"event_date\") = 2019 THEN b.\"spent\" ELSE 0 END), 0)\n  -\n  COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM e.\"event_date\") = 2020 THEN b.\"spent\" ELSE 0 END), 0) AS \"difference_of_total_amount_spent\"\nFROM \"budget\" b\nJOIN \"event\" e\n  ON b.\"link_to_event\" = e.\"event_id\"\nWHERE e.\"event_name\" LIKE '%%Student_Club%%';]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "1399",
+      "gold_sql": "SELECT CASE WHEN T3.event_name = 'Women''s Soccer' THEN 'YES' END AS result FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Maya' AND T1.last_name = 'Mclean'",
+      "predicted_sql": "SELECT\n  \n  CASE\n    WHEN EXISTS (\n      SELECT 1\n      FROM \"member\" AS m\n      JOIN \"attendance\" AS a\n        ON a.\"link_to_member\" = m.\"member_id\"\n      JOIN \"event\" AS e\n        ON e.\"event_id\" = a.\"link_to_event\"\n      WHERE m.\"first_name\" LIKE '%Maya%'\n        AND m.\"last_name\" LIKE '%Mclean%'\n        AND e.\"event_name\" LIKE '%Women's Soccer%'\n    )\n    THEN 'yes'\n    ELSE 'no'\n  END AS \"did_attend\";",
+      "score": 0,
+      "difficulty": "moderate",
+      "error": "(psycopg.errors.SyntaxError) syntax error at or near \"s\"\nLINE 13:         AND e.\"event_name\" LIKE '%Women's Soccer%'\n                                                 ^\n[SQL: SELECT\n  \n  CASE\n    WHEN EXISTS (\n      SELECT 1\n      FROM \"member\" AS m\n      JOIN \"attendance\" AS a\n        ON a.\"link_to_member\" = m.\"member_id\"\n      JOIN \"event\" AS e\n        ON e.\"event_id\" = a.\"link_to_event\"\n      WHERE m.\"first_name\" LIKE '%%Maya%%'\n        AND m.\"last_name\" LIKE '%%Mclean%%'\n        AND e.\"event_name\" LIKE '%%Women's Soccer%%'\n    )\n    THEN 'yes'\n    ELSE 'no'\n  END AS \"did_attend\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "1401",
+      "gold_sql": "SELECT T3.cost FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'September Speaker' AND T3.expense_description = 'Posters'",
+      "predicted_sql": "SELECT e.\"cost\"\nFROM \"expense\" AS e\nJOIN \"budget\" AS b\n  ON e.\"link_to_budget\" = b.\"budget_id\"\nJOIN \"event\" AS ev\n  ON b.\"link_to_event\" = ev.\"event_id\"\nWHERE e.\"expense_description\" LIKE '%Posters%'\n  AND ev.\"event_name\" LIKE '%September Speaker%';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1431",
+      "gold_sql": "SELECT T3.last_name FROM attendance AS T1 INNER JOIN event AS T2 ON T2.event_id = T1.link_to_event INNER JOIN member AS T3 ON T1.link_to_member = T3.member_id WHERE T2.event_name = 'Women''s Soccer' AND T3.position = 'Member'",
+      "predicted_sql": "SELECT DISTINCT \n       \"m\".\"last_name\"\nFROM \"member\" AS \"m\"\nJOIN \"attendance\" AS \"a\"\n  ON \"m\".\"member_id\" = \"a\".\"link_to_member\"\nJOIN \"event\" AS \"e\"\n  ON \"a\".\"link_to_event\" = \"e\".\"event_id\"\nWHERE \"m\".\"position\" LIKE 'Member'\n  AND \"e\".\"event_name\" LIKE '%Women''s Soccer%'",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1339",
+      "gold_sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.last_name = 'Allen' AND T1.first_name = 'Elijah' AND (SUBSTRING(T2.expense_date FROM 6 FOR 2) = '09' OR SUBSTRING(T2.expense_date FROM 6 FOR 2) = '10')",
+      "predicted_sql": "SELECT AVG(e.\"cost\") AS \"total_average_cost\"\nFROM \"expense\" AS e\nJOIN \"member\" AS m\n  ON e.\"link_to_member\" = m.\"member_id\"\nWHERE m.\"first_name\" = 'Elijah'\n  AND m.\"last_name\" = 'Allen'\n  AND EXTRACT(MONTH FROM e.\"expense_date\") IN (9, 10);",
+      "score": 0,
+      "difficulty": "challenging",
+      "error": "(psycopg.errors.UndefinedFunction) function pg_catalog.extract(unknown, text) does not exist\nLINE 7:   AND EXTRACT(MONTH FROM e.\"expense_date\") IN (9, 10);\n              ^\nHINT:  No function matches the given name and argument types. You might need to add explicit type casts.\n[SQL: SELECT AVG(e.\"cost\") AS \"total_average_cost\"\nFROM \"expense\" AS e\nJOIN \"member\" AS m\n  ON e.\"link_to_member\" = m.\"member_id\"\nWHERE m.\"first_name\" = 'Elijah'\n  AND m.\"last_name\" = 'Allen'\n  AND EXTRACT(MONTH FROM e.\"expense_date\") IN (9, 10);]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "1359",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.event_name = 'Yearly Kickoff' THEN T1.amount ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN T2.event_name = 'October Meeting' THEN T1.amount ELSE 0 END), 0) FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T1.category = 'Advertisement' AND T2.type = 'Meeting'",
+      "predicted_sql": "SELECT\n    SUM(CASE WHEN e.\"event_name\" = 'Yearly Kickoff' THEN b.\"amount\" ELSE 0 END) /\n    NULLIF(SUM(CASE WHEN e.\"event_name\" = 'October Meeting' THEN b.\"amount\" ELSE 0 END), 0) AS \"times_more\"\nFROM \"budget\" AS b\nJOIN \"event\" AS e\n    ON b.\"link_to_event\" = e.\"event_id\"\nWHERE b.\"category\" = 'Advertisement';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1429",
+      "gold_sql": "SELECT T2.event_name FROM attendance AS T1 INNER JOIN event AS T2 ON T2.event_id = T1.link_to_event INNER JOIN member AS T3 ON T1.link_to_member = T3.member_id WHERE T3.position = 'Vice President' AND T2.location = '900 E. Washington St.' AND T2.type = 'Social'",
+      "predicted_sql": "SELECT DISTINCT \"e\".\"event_name\"\nFROM \"event\" \"e\"\nJOIN \"attendance\" \"a\" ON \"a\".\"link_to_event\" = \"e\".\"event_id\"\nJOIN \"member\" \"m\" ON \"m\".\"member_id\" = \"a\".\"link_to_member\"\nWHERE \"e\".\"type\" LIKE 'Social'\n  AND \"e\".\"location\" LIKE '900 E. Washington St.'\n  AND \"m\".\"position\" LIKE 'Vice President';",
+      "score": true,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1437",
+      "gold_sql": "SELECT DISTINCT T1.link_to_member, T3.link_to_event FROM expense AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN attendance AS T3 ON T2.member_id = T3.link_to_member WHERE DATE(SUBSTRING(T1.expense_date FROM 1 FOR 10)) BETWEEN '2019-01-10' AND '2019-11-19' AND T1.approved = 'true'",
+      "predicted_sql": "SELECT DISTINCT \n       m.\"first_name\",\n       m.\"last_name\",\n       a.\"link_to_event\"\nFROM \"expense\" AS e\nJOIN \"member\" AS m\n  ON e.\"link_to_member\" = m.\"member_id\"\nJOIN \"attendance\" AS a\n  ON a.\"link_to_member\" = m.\"member_id\"\nWHERE e.\"approved\" LIKE 'true'\n  AND e.\"expense_date\" BETWEEN DATE '2019-01-10' AND DATE '2019-11-19\";",
+      "score": 0,
+      "difficulty": "challenging",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'2019-11-19\";\"\nLINE 11: ...\"expense_date\" BETWEEN DATE '2019-01-10' AND DATE '2019-11-1...\n                                                              ^\n[SQL: SELECT DISTINCT \n       m.\"first_name\",\n       m.\"last_name\",\n       a.\"link_to_event\"\nFROM \"expense\" AS e\nJOIN \"member\" AS m\n  ON e.\"link_to_member\" = m.\"member_id\"\nJOIN \"attendance\" AS a\n  ON a.\"link_to_member\" = m.\"member_id\"\nWHERE e.\"approved\" LIKE 'true'\n  AND e.\"expense_date\" BETWEEN DATE '2019-01-10' AND DATE '2019-11-19\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "1448",
+      "gold_sql": "SELECT T1.event_name, T1.event_date FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T3.expense_description = 'Pizza' AND T3.cost > 50 AND T3.cost < 100",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1451",
+      "gold_sql": "SELECT T2.member_id FROM expense AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN budget AS T3 ON T1.link_to_budget = T3.budget_id INNER JOIN event AS T4 ON T3.link_to_event = T4.event_id GROUP BY T2.member_id HAVING COUNT(DISTINCT T4.event_id) > 1 ORDER BY SUM(T1.cost) DESC LIMIT 1",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1457",
+      "gold_sql": "SELECT DISTINCT T3.first_name, T3.last_name, T3.phone FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member WHERE T1.cost > ( SELECT AVG(T1.cost) FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member )",
+      "predicted_sql": "ambiguous",
+      "score": 0,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1460",
+      "gold_sql": "SELECT T2.first_name, T2.last_name, T1.cost FROM expense AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id WHERE T1.expense_description = 'Water, Veggie tray, supplies'",
+      "predicted_sql": "SELECT DISTINCT\n  \n  CONCAT(m.\"first_name\", ' ', m.\"last_name\") AS \"full_name\",\n  \n  e.\"cost\"\nFROM \"expense\" AS e\nJOIN \"member\" AS m\n  ON e.\"link_to_member\" = m.\"member_id\"\nWHERE e.\"expense_description\" LIKE '%Water, Veggie tray, supplies%\";",
+      "score": 0,
+      "difficulty": "challenging",
+      "error": "(psycopg.errors.SyntaxError) unterminated quoted string at or near \"'%Water, Veggie tray, supplies%\";\"\nLINE 9: WHERE e.\"expense_description\" LIKE '%Water, Veggie tray, sup...\n                                           ^\n[SQL: SELECT DISTINCT\n  \n  CONCAT(m.\"first_name\", ' ', m.\"last_name\") AS \"full_name\",\n  \n  e.\"cost\"\nFROM \"expense\" AS e\nJOIN \"member\" AS m\n  ON e.\"link_to_member\" = m.\"member_id\"\nWHERE e.\"expense_description\" LIKE '%%Water, Veggie tray, supplies%%\";]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "1464",
+      "gold_sql": "SELECT DISTINCT T3.first_name, T3.last_name, T4.amount FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event INNER JOIN member AS T3 ON T3.member_id = T2.link_to_member INNER JOIN income AS T4 ON T4.link_to_member = T3.member_id WHERE T4.date_received = '2019-09-09'",
+      "predicted_sql": "SELECT DISTINCT\n  CONCAT(m.\"first_name\", ' ', m.\"last_name\") AS \"full_name\",\n  i.\"amount\"\nFROM \"income\" AS i\nJOIN \"member\" AS m\n  ON i.\"link_to_member\" = m.\"member_id\"\nWHERE i.\"date_received\" = TO_DATE('2019-09-09', 'YYYY-MM-DD')\nORDER BY \"full_name\" ASC NULLS FIRST;",
+      "score": 0,
+      "difficulty": "challenging",
+      "error": "(psycopg.errors.UndefinedFunction) operator does not exist: text = date\nLINE 7: WHERE i.\"date_received\" = TO_DATE('2019-09-09', 'YYYY-MM-DD'...\n                                ^\nHINT:  No operator matches the given name and argument types. You might need to add explicit type casts.\n[SQL: SELECT DISTINCT\n  CONCAT(m.\"first_name\", ' ', m.\"last_name\") AS \"full_name\",\n  i.\"amount\"\nFROM \"income\" AS i\nJOIN \"member\" AS m\n  ON i.\"link_to_member\" = m.\"member_id\"\nWHERE i.\"date_received\" = TO_DATE('2019-09-09', 'YYYY-MM-DD')\nORDER BY \"full_name\" ASC NULLS FIRST;]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+    },
+    {
+      "question_id": "1471",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN Currency = 'CZK' THEN 1 ELSE 0 END), 0) AS ratio FROM customers",
+      "predicted_sql": "SELECT\n    \n    COUNT(DISTINCT CASE WHEN \"c\".\"currency\" = 'EUR' THEN \"c\".\"customerid\" END)::NUMERIC\n    / NULLIF(COUNT(DISTINCT CASE WHEN \"c\".\"currency\" = 'CZK' THEN \"c\".\"customerid\" END), 0) AS \"ratio\"\nFROM \"customers\" AS \"c\";",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1484",
+      "gold_sql": "SELECT SUM(CASE WHEN Country = 'CZE' THEN 1 ELSE 0 END) - SUM(CASE WHEN Country = 'SVK' THEN 1 ELSE 0 END) FROM gasstations WHERE Segment = 'Discount'",
+      "predicted_sql": "SELECT\n    (\n        COUNT(DISTINCT CASE\n            WHEN \"gs\".\"country\" = 'CZE'\n             AND LOWER(\"gs\".\"segment\") = 'discount'\n            THEN \"gs\".\"gasstationid\"\n        END)\n        -\n        COUNT(DISTINCT CASE\n            WHEN \"gs\".\"country\" = 'SVK'\n             AND LOWER(\"gs\".\"segment\") = 'discount'\n            THEN \"gs\".\"gasstationid\"\n        END)\n    ) AS \"more_discount_gas_stations\"\nFROM \"gasstations\" AS \"gs\";",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1530",
+      "gold_sql": "SELECT T2.Description FROM transactions_1k AS T1 INNER JOIN products AS T2 ON T1.ProductID = T2.ProductID ORDER BY T1.Amount DESC NULLS LAST LIMIT 5",
+      "predicted_sql": "SELECT \n       \"p\".\"description\"\nFROM \"transactions_1k\" AS \"t\"\nJOIN \"products\" AS \"p\"\n  ON \"t\".\"productid\" = \"p\".\"productid\"\nGROUP BY \"p\".\"description\"\nORDER BY SUM(\"t\".\"amount\") DESC NULLS LAST\nLIMIT 5;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1524",
+      "gold_sql": "SELECT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-24' AND T1.Price = 548.4",
+      "predicted_sql": "SELECT DISTINCT c.\"segment\"\nFROM \"transactions_1k\" t\nJOIN \"customers\" c ON t.\"customerid\" = c.\"customerid\"\nWHERE t.\"date\" = DATE '2012-08-24'\n  AND t.\"price\" = 548.4;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1515",
+      "gold_sql": "SELECT T2.Segment FROM transactions_1k AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.date = '2012-08-23' AND T1.time = '21:20:00'",
+      "predicted_sql": "SELECT DISTINCT c.\"segment\"\nFROM \"transactions_1k\" t\nJOIN \"customers\" c\n  ON t.\"customerid\" = c.\"customerid\"\nWHERE t.\"date\" = DATE '2012-08-23'\n  AND t.\"time\" LIKE '21:20:00'\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1527",
+      "gold_sql": "SELECT GasStationID FROM transactions_1k GROUP BY GasStationID ORDER BY SUM(Price) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT\n  \"t\".\"gasstationid\"\nFROM \"transactions_1k\" AS \"t\"\nGROUP BY \"t\".\"gasstationid\"\nORDER BY SUM(\"t\".\"amount\" * \"t\".\"price\") DESC NULLS LAST\nLIMIT 1;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1523",
+      "gold_sql": "SELECT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.CardID = '667467'",
+      "predicted_sql": "SELECT DISTINCT\n    \"gs\".\"country\"\nFROM \"transactions_1k\" AS \"t\"\nJOIN \"gasstations\" AS \"gs\"\n    ON \"gs\".\"gasstationid\" = \"t\".\"gasstationid\"\nWHERE \"t\".\"cardid\" = 667467;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1496",
+      "gold_sql": "SELECT T1.Segment FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date = '201309' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT \n       seg.\"segment\"\nFROM (\n    SELECT c.\"segment\",\n           SUM(ym.\"consumption\") AS total_consumption\n    FROM \"yearmonth\" AS ym\n    JOIN \"customers\" AS c\n      ON c.\"customerid\" = ym.\"customerid\"\n    WHERE ym.\"date\" = '201309'\n    GROUP BY c.\"segment\"\n) AS seg\nORDER BY total_consumption ASC NULLS FIRST\nLIMIT 1;",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1511",
+      "gold_sql": "SELECT AVG(T1.Price) FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN customers AS T3 ON T1.CustomerID = T3.CustomerID WHERE T3.Currency = 'EUR'",
+      "predicted_sql": "SELECT AVG(t.\"price\") AS \"average_total_price\"\nFROM \"transactions_1k\" AS t\nJOIN \"customers\" AS c\n  ON t.\"customerid\" = c.\"customerid\"\nWHERE c.\"currency\" = 'EUR';",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1525",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.CustomerID), 0) FROM transactions_1k AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Date = '2012-08-25'",
+      "predicted_sql": "SELECT\n  100.0 * COUNT(DISTINCT CASE WHEN c.\"currency\" LIKE 'EUR' THEN t.\"customerid\" END) / COUNT(DISTINCT t.\"customerid\") AS \"percentage\"\nFROM \"transactions_1k\" AS t\nJOIN \"customers\" AS c\n  ON t.\"customerid\" = c.\"customerid\"\nWHERE t.\"date\" = DATE '2012-08-25'",
+      "score": false,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1512",
+      "gold_sql": "SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' GROUP BY CustomerID ORDER BY SUM(Price) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT\n    t.\"customerid\"\nFROM \"transactions_1k\" AS t\nWHERE t.\"date\" = DATE '2012-08-25'\nGROUP BY t.\"customerid\"\nORDER BY SUM(t.\"price\") DESC NULLS LAST\nLIMIT 1;",
+      "score": true,
+      "difficulty": "simple"
+    },
+    {
+      "question_id": "1509",
+      "gold_sql": "SELECT COUNT(T1.TransactionID) FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T2.Country = 'CZE' AND TO_CHAR(CAST(T1.Date AS TIMESTAMP), 'YYYY') >= '2012'",
+      "predicted_sql": "SELECT\n  COUNT(*) AS \"count\"\nFROM \"transactions_1k\" AS t\nJOIN \"gasstations\" AS g\n  ON t.\"gasstationid\" = g.\"gasstationid\"\nWHERE g.\"country\" = 'CZE'\n  AND t.\"date\" > DATE '2012-01-01';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1501",
+      "gold_sql": "SELECT DISTINCT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T3.Date = '201306'",
+      "predicted_sql": "SELECT DISTINCT\n    \"gs\".\"country\"\nFROM \"transactions_1k\" AS \"t\"\nJOIN \"gasstations\" AS \"gs\"\n    ON \"t\".\"gasstationid\" = \"gs\".\"gasstationid\"\nWHERE TO_CHAR(\"t\".\"date\", 'YYYYMM') = '201306';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1531",
+      "gold_sql": "SELECT T2.CustomerID, SUM(T2.Price / NULLIF(T2.Amount, 0)), T1.Currency FROM customers AS T1 INNER JOIN transactions_1k AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.CustomerID = (SELECT CustomerID FROM yearmonth ORDER BY Consumption DESC NULLS LAST LIMIT 1) GROUP BY T2.CustomerID, T1.Currency",
+      "predicted_sql": "WITH \"customer_spend\" AS (\n    SELECT\n        \"t\".\"customerid\",\n        SUM(\"t\".\"price\") AS \"total_spend\",\n        SUM(\"t\".\"amount\") AS \"total_amount\"\n    FROM \"transactions_1k\" AS \"t\"\n    GROUP BY \"t\".\"customerid\"\n),\n\"top_customer\" AS (\n    SELECT\n        \"cs\".\"customerid\",\n        \"cs\".\"total_spend\",\n        \"cs\".\"total_amount\"\n    FROM \"customer_spend\" AS \"cs\"\n    ORDER BY \"cs\".\"total_spend\" DESC NULLS LAST\n    LIMIT 1\n)\nSELECT\n    \"tc\".\"customerid\",\n    \"tc\".\"total_spend\",\n    \"tc\".\"total_spend\" / NULLIF(\"tc\".\"total_amount\", 0) AS \"average_price_per_single_item\",\n    \"c\".\"currency\"\nFROM \"top_customer\" AS \"tc\"\nJOIN \"customers\" AS \"c\"\n    ON \"tc\".\"customerid\" = \"c\".\"customerid\";",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1533",
+      "gold_sql": "SELECT T2.Consumption FROM transactions_1k AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Price / NULLIF(T1.Amount, 0) > 29.00 AND T1.ProductID = 5 AND T2.Date = '201208'",
+      "predicted_sql": "SELECT DISTINCT\n    \"ym\".\"customerid\",\n    \"ym\".\"consumption\"\nFROM \"transactions_1k\" AS \"t\"\nJOIN \"yearmonth\" AS \"ym\"\n    ON \"t\".\"customerid\" = \"ym\".\"customerid\"\n   AND \"ym\".\"date\" = '201208'\nWHERE \"t\".\"productid\" = 5\n  AND \"t\".\"date\" >= DATE '2012-08-01'\n  AND \"t\".\"date\" < DATE '2012-09-01'\n  AND (\"t\".\"price\" / NULLIF(\"t\".\"amount\", 0)) > 29.00;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1480",
+      "gold_sql": "SELECT SUBSTRING(T2.Date FROM 5 FOR 2) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME' GROUP BY SUBSTRING(T2.Date FROM 5 FOR 2) ORDER BY SUM(T2.Consumption) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "WITH \"monthly_consumption\" AS (\n    SELECT\n        SUBSTRING(\"ym\".\"date\" FROM 5 FOR 2) AS \"month\",\n        SUM(\"ym\".\"consumption\") AS \"total_consumption\"\n    FROM \"yearmonth\" AS \"ym\"\n    INNER JOIN \"customers\" AS \"c\"\n        ON \"ym\".\"customerid\" = \"c\".\"customerid\"\n    WHERE \"c\".\"segment\" = 'SME'\n      AND LEFT(\"ym\".\"date\", 4) = '2013'\n    GROUP BY SUBSTRING(\"ym\".\"date\" FROM 5 FOR 2)\n)\nSELECT\n    \"month\",\n    \"total_consumption\"\nFROM \"monthly_consumption\"\nORDER BY \"total_consumption\" DESC NULLS LAST, \"month\"\nLIMIT 1;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1529",
+      "gold_sql": "SELECT SUM(T1.Price), SUM(CASE WHEN T3.Date = '201201' THEN T1.Price ELSE 0 END) FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T1.CustomerID = '38508'",
+      "predicted_sql": "SELECT \n       SUM(\"t\".\"amount\") AS \"amount_spent\"\nFROM \"transactions_1k\" AS \"t\"\nWHERE CAST(\"t\".\"customerid\" AS TEXT) LIKE '38508'\n  AND TO_CHAR(\"t\".\"date\", 'YYYYMM') LIKE '201201';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1472",
+      "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+      "predicted_sql": "SELECT\n    ym.\"customerid\"\nFROM \"yearmonth\" AS ym\nJOIN \"customers\" AS c\n    ON ym.\"customerid\" = c.\"customerid\"\nWHERE LEFT(CAST(ym.\"date\" AS TEXT), 4) = '2012'\n  AND c.\"segment\" = 'LAM'\nORDER BY ym.\"consumption\" ASC NULLS FIRST, ym.\"customerid\" ASC NULLS FIRST\nLIMIT 1;",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1521",
+      "gold_sql": "SELECT COUNT(T1.TransactionID) FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-26' AND T1.Time BETWEEN '08:00:00' AND '09:00:00' AND T2.Country = 'CZE'",
+      "predicted_sql": "SELECT\n    COUNT(*) AS \"count\"\nFROM \"transactions_1k\" AS t\nJOIN \"gasstations\" AS g\n    ON t.\"gasstationid\" = g.\"gasstationid\"\nWHERE t.\"date\" = DATE '2012-08-26'\n  AND t.\"time\" BETWEEN '08:00:00' AND '09:00:00'\n  AND g.\"country\" = 'CZE';",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1479",
+      "gold_sql": "SELECT SUBSTRING(T2.Date FROM 1 FOR 4) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' GROUP BY SUBSTRING(T2.Date FROM 1 FOR 4) ORDER BY SUM(T2.Consumption) DESC NULLS LAST LIMIT 1",
+      "predicted_sql": "SELECT\n    SUBSTRING(\"ym\".\"date\" FROM 1 FOR 4) AS \"year\"\nFROM \"yearmonth\" AS \"ym\"\nINNER JOIN \"customers\" AS \"c\"\n    ON \"ym\".\"customerid\" = \"c\".\"customerid\"\nWHERE \"c\".\"currency\" = 'CZK'\nGROUP BY\n    SUBSTRING(\"ym\".\"date\" FROM 1 FOR 4)\nORDER BY\n    SUM(\"ym\".\"consumption\") DESC NULLS LAST\nLIMIT 1;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1475",
+      "gold_sql": "SELECT COUNT(*) FROM (SELECT T2.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'KAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T2.CustomerID HAVING SUM(T2.Consumption) < 30000) AS t1",
+      "predicted_sql": "SELECT COUNT(*) AS \"customer_count\"\nFROM (\n    SELECT ym.\"customerid\"\n    FROM \"yearmonth\" AS ym\n    INNER JOIN \"customers\" AS c\n        ON ym.\"customerid\" = c.\"customerid\"\n    WHERE c.\"segment\" = 'KAM'\n      AND CAST(ym.\"date\" AS INTEGER) BETWEEN 201201 AND 201212\n    GROUP BY ym.\"customerid\"\n    HAVING SUM(ym.\"consumption\") < 30000\n) AS t;",
+      "score": true,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1473",
+      "gold_sql": "SELECT AVG(T2.Consumption) / NULLIF(12, 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME'",
+      "predicted_sql": "SELECT\n    AVG(\"ym\".\"consumption\") / 12 AS \"average_monthly_consumption\"\nFROM \"yearmonth\" AS \"ym\"\nJOIN \"customers\" AS \"c\"\n    ON \"ym\".\"customerid\" = \"c\".\"customerid\"\nWHERE \"c\".\"segment\" = 'SME'\n  AND SUBSTRING(CAST(\"ym\".\"date\" AS TEXT) FROM 1 FOR 4) = '2013';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1490",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.Consumption > 46.73 THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.CustomerID), 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM'",
+      "predicted_sql": "SELECT\n    \n    COUNT(DISTINCT CASE\n        WHEN ym.\"consumption\" > 46.73 THEN c.\"customerid\"\n    END) * 100.0 / COUNT(DISTINCT c.\"customerid\") AS \"percentage_lam_customers\"\nFROM \"customers\" AS c\nLEFT JOIN \"yearmonth\" AS ym\n    ON c.\"customerid\" = ym.\"customerid\"\nWHERE c.\"segment\" = 'LAM';",
+      "score": false,
+      "difficulty": "moderate"
+    },
+    {
+      "question_id": "1476",
+      "gold_sql": "SELECT SUM(CASE WHEN T1.Currency = 'CZK' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Currency = 'EUR' THEN T2.Consumption ELSE 0 END) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2012'",
+      "predicted_sql": "SELECT\n    \n    COALESCE(SUM(CASE WHEN \"c\".\"currency\" = 'CZK' THEN \"ym\".\"consumption\" ELSE 0 END), 0)\n    - COALESCE(SUM(CASE WHEN \"c\".\"currency\" = 'EUR' THEN \"ym\".\"consumption\" ELSE 0 END), 0) AS \"difference_in_consumption\"\nFROM \"yearmonth\" AS \"ym\"\nJOIN \"customers\" AS \"c\"\n    ON \"ym\".\"customerid\" = \"c\".\"customerid\"\nWHERE LEFT(CAST(\"ym\".\"date\" AS TEXT), 4) = '2012';",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1482",
+      "gold_sql": "SELECT CAST((SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END)) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0), CAST(SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0), CAST(SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
+      "predicted_sql": "WITH \"seg_consumption\" AS (\n    SELECT\n        \"c\".\"segment\",\n        SUM(CASE WHEN LEFT(\"ym\".\"date\"::TEXT, 4) = '2012' THEN \"ym\".\"consumption\" ELSE 0 END) AS \"consumption_2012\",\n        SUM(CASE WHEN LEFT(\"ym\".\"date\"::TEXT, 4) = '2013' THEN \"ym\".\"consumption\" ELSE 0 END) AS \"consumption_2013\"\n    FROM \"customers\" AS \"c\"\n    JOIN \"yearmonth\" AS \"ym\"\n        ON \"c\".\"customerid\" = \"ym\".\"customerid\"\n    WHERE \"c\".\"segment\" IN ('SME', 'LAM', 'KAM')\n      AND \"c\".\"currency\" = 'EUR'\n      AND LEFT(\"ym\".\"date\"::TEXT, 4) IN ('2012', '2013')\n    GROUP BY \"c\".\"segment\"\n),\n\"growth\" AS (\n    SELECT\n        \"segment\",\n        \"consumption_2012\",\n        \"consumption_2013\",\n        (\"consumption_2013\" - \"consumption_2012\") AS \"increase_or_decrease\",\n        ((\"consumption_2013\" - \"consumption_2012\") / NULLIF(\"consumption_2013\", 0)) * 100.0 AS \"percentage_increase\"\n    FROM \"seg_consumption\"\n),\n\"ranked\" AS (\n    SELECT\n        *,\n        ROW_NUMBER() OVER (ORDER BY \"percentage_increase\" DESC NULLS LAST) AS \"rn_max\",\n        ROW_NUMBER() OVER (ORDER BY \"percentage_increase\" ASC NULLS LAST) AS \"rn_min\"\n    FROM \"growth\"\n)\nSELECT\n    \"segment\",\n    \"consumption_2012\",\n    \"consumption_2013\",\n    \"increase_or_decrease\",\n    \"percentage_increase\",\n    CASE\n        WHEN \"rn_max\" = 1 THEN 'biggest'\n        WHEN \"rn_min\" = 1 THEN 'lowest'\n    END AS \"extreme_type\"\nFROM \"ranked\"\nWHERE \"rn_max\" = 1\n   OR \"rn_min\" = 1\nORDER BY \"percentage_increase\" DESC NULLS LAST;",
+      "score": false,
+      "difficulty": "challenging"
+    },
+    {
+      "question_id": "1526",
+      "gold_sql": "SELECT CAST(SUM(CASE WHEN SUBSTRING(Date FROM 1 FOR 4) = '2012' THEN Consumption ELSE 0 END) - SUM(CASE WHEN SUBSTRING(Date FROM 1 FOR 4) = '2013' THEN Consumption ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN SUBSTRING(Date FROM 1 FOR 4) = '2012' THEN Consumption ELSE 0 END), 0) FROM yearmonth WHERE CustomerID = (SELECT T1.CustomerID FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-25' AND T1.Price = 634.8)",
+      "predicted_sql": "WITH \"target_customer\" AS (\n    SELECT DISTINCT \"t\".\"customerid\"\n    FROM \"transactions_1k\" AS \"t\"\n    WHERE \"t\".\"amount\" = 634.8\n      AND \"t\".\"date\" = DATE '2012-08-25'\n),\n\"consumption_by_year\" AS (\n    SELECT\n        \"y\".\"customerid\",\n        MAX(CASE WHEN CAST(LEFT(CAST(\"y\".\"date\" AS TEXT), 4) AS INTEGER) = 2012 THEN \"y\".\"consumption\" END) AS \"consumption_2012\",\n        MAX(CASE WHEN CAST(LEFT(CAST(\"y\".\"date\" AS TEXT), 4) AS INTEGER) = 2013 THEN \"y\".\"consumption\" END) AS \"consumption_2013\"\n    FROM \"yearmonth\" AS \"y\"\n    INNER JOIN \"target_customer\" AS \"tc\"\n        ON \"y\".\"customerid\" = \"tc\".\"customerid\"\n    WHERE CAST(LEFT(CAST(\"y\".\"date\" AS TEXT), 4) AS INTEGER) IN (2012, 2013)\n    GROUP BY \"y\".\"customerid\"\n)\nSELECT\n    (\"cby\".\"consumption_2012\" - \"cby\".\"consumption_2013\") / \"cby\".\"consumption_2012\" AS \"consumption_decrease_rate\"\nFROM \"consumption_by_year\" AS \"cby\";",
+      "score": false,
+      "difficulty": "challenging"
+    }
+  ],
+  "generation_errors": 0
+}

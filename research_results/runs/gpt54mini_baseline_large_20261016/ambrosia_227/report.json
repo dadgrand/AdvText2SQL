@@ -1,0 +1,14 @@
+{
+  "accuracy": 70.48458149779735,
+  "total": 227,
+  "gold_ambiguous": 67,
+  "pred_ambiguous": 0,
+  "true_positive": 0,
+  "generation_errors": 0,
+  "dataset_coverage": {
+    "source_questions": 240,
+    "evaluated_questions": 227,
+    "excluded_questions": 13,
+    "dataset_sha256": "506b82add40b7e64d1f508191c57450c1466be0759f4ffb1959e32c124cc4231"
+  }
+}

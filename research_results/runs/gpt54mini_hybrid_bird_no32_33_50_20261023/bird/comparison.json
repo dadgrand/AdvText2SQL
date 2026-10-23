@@ -1,0 +1,12 @@
+{
+  "selected_questions": 50,
+  "subset_correct": 22,
+  "subset_accuracy": 44.0,
+  "source_subset_correct": 0,
+  "source_full_correct": 93,
+  "source_full_questions": 241,
+  "composite_full_correct": 115,
+  "composite_full_accuracy": 47.71784232365145,
+  "note": "Composite reuses the original predictions on all other questions; not a full ablation rerun.",
+  "baseline_subset_correct": 21
+}
