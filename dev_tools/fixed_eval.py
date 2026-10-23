@@ -694,7 +694,14 @@ class PostgresExecutor:
         if db_id not in self._engines:
             from sqlalchemy import create_engine  # noqa: PLC0415 (lazy on purpose)
 
-            dsn = f"postgresql+psycopg://{self.user}:{self.password}@{self.db_url}/{db_id}"
+            # The benchmark password contains "/" (and may contain @:#?), so it must be
+            # percent-encoded or the DSN is malformed.  Same rule as
+            # dev_tools/dump_schemas.postgres_dsn.
+            from urllib.parse import quote  # noqa: PLC0415
+
+            user = quote(str(self.user), safe="")
+            password = quote(str(self.password), safe="")
+            dsn = f"postgresql+psycopg://{user}:{password}@{self.db_url}/{db_id}"
             self._engines[db_id] = create_engine(dsn)
         return self._engines[db_id]
 
@@ -1270,3 +1277,4 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 if __name__ == "__main__":  # pragma: no cover - exercised through main()
     raise SystemExit(main())
+

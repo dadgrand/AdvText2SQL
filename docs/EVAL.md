@@ -33,7 +33,9 @@ The shipped `benchmarks/evaluate_bird.py` destroys **30 of the 241**
 `bird_small`). Those questions score 0 for **every** submission, so:
 
 * a *perfect* PostgreSQL submission scores **208/241 = 86.3 %**, not 100 %
-  (30 unexecutable + 3 silently mutated, see §2);
+  (30 unparseable after the rewrite + 2 that parse but fail at execution with
+  `UndefinedColumn`, ids 4 and 35 + 1 that parses, executes and answers a
+  different question, id 572; see §2);
 * therefore any EX measured over 241 under-reports: for a submission that does
   not accidentally emit the corrupted text, `EX/211 = EX/241 × 241/211`, i.e.
   a model at 70.0 % on 241 is at 80.0 % on the 211 questions that can actually
@@ -70,10 +72,14 @@ Report both, always, e.g.:
    same damage.
 2. The same regex also fires **inside string literals and quoted identifiers**
    that contain a slash: ids 4 and 35 (`"Charter School (Y/N)"`) and id 572
-   (`'… Weka and/or RapidMiner …'`). Those still parse — so the query executes —
-   but it no longer means the same thing, and every submission is compared
-   against the mutated version. **3/241**; reproduced by
-   `gold_silent_corruption_report`.
+   (`'… Weka and/or RapidMiner …'`). All three still **parse**, but only id 572
+   still **executes** — against a mutated literal, so it answers a different
+   question. Ids 4 and 35 fail at execution: the rewrite renames the identifier to
+   `"Charter School (Y / NULLIF(N,0))"`, which does not exist in the database
+   (confirmed live: `UndefinedColumn`). Honest split: 30 unparseable + 2
+   unexecutable + 1 mutated-and-executing = **33/241 lost**, honest ceiling
+   **208/241 = 86.3 %**; `EX/209` is the live-executable denominator. Reproduced
+   by `gold_silent_corruption_report` and measured on the server.
 3. **Line 78** (prediction transpilation) is commented out, so a model that
    imitates BIRD's SQLite-style gold (backticked identifiers, `IIF`,
    `STRFTIME`, `IFNULL`) is punished for being stylistically correct: 15/241 gold
@@ -82,8 +88,10 @@ Report both, always, e.g.:
    metric, no paired test. At n = 241 a 2-point difference is noise.
 
 Net effect for an honest, perfect PostgreSQL submission in `mode=local`:
-**208/241 = 86.3 %** — 30 questions cannot execute, 3 more are mutated. The
-`fixed` mode removes all of it: the same submission scores 241/241.
+**208/241 = 86.3 %** — 30 questions cannot execute, 2 more parse but fail at
+execution with `UndefinedColumn` (ids 4 and 35), and 1 (id 572) executes against
+a mutated literal, so it answers a different question. The `fixed` mode removes
+all of it: the same submission scores 241/241.
 
 ---
 
@@ -253,3 +261,20 @@ deterministic stub LLM (`dev_tools/stub_llm.py`).
   `benchmarks/evaluate_bird.py:15-30`; if the shipped evaluator is ever fixed,
   `repo_rewrite` must be updated in the same commit (the test
   `test_repo_rewrite_is_the_shipped_defect` pins the current behaviour).
+
+---
+
+## Denominators on the LIVE server (measured 2026-10-23)
+
+The offline parse basis and the live execution basis give three different denominators; they must not be
+confused:
+
+| basis | value | how it is obtained |
+|---|---|---|
+| offline parse basis (`EX/211`) | 211 = 241 − 30 unparseable | pure parsing, no database |
+| **live executable** | **209** = 241 − 32 failed queries | execute all gold on the course PostgreSQL (30 unparseable + ids 4, 35 fail because the rewritten `"Charter School (Y / NULLIF(N,0))"` names a non-existent column) |
+| **honest maximum** | **208** = 209 − 1 | id 572 parses and executes but its string literal was mutated (`'… and/or …'` → `'… and / NULLIF(or,0) …'`), so it answers a different question |
+
+So: quote `EX/241` and `EX/211` for comparability with the offline work, use `EX/209` when reporting what a
+run could actually have achieved on the live server, and remember the honest ceiling is `208/241 = 86.3 %`.
+Evidence: `research/advtext2sql/artifacts/gold_smoke_bird_large.json`, `…/captain-verified-numbers.md` §B2, §E.
