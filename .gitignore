@@ -9,3 +9,15 @@ db_schemas.json
 all_gold_results.json
 all_predicted_results.json
 query_results.json
+
+# Intentional extension beyond the upstream file (team decision D-001, feat/lora-track):
+# a LoRA run launched from the repo root with a relative --out (e.g. `--out runs/e3-r16`)
+# writes adapters, checkpoints and logs into runs/. Those are artifacts, not sources, and
+# the documented default (training/runs/, covered by training/.gitignore) does not catch
+# the relative-path case. Recorded here so the extension is visible in the file itself.
+runs/
+
+# The integration deliverable itself: `git format-patch main --stdout > lora-track.patch`
+# regenerates on demand from the history, so it is an artifact, not a source file.
+lora-track.patch
+
