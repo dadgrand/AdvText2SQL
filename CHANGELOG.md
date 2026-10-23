@@ -116,7 +116,7 @@ harder to audit. Every commit added after it follows `feat:` / `fix:` / `test:` 
 - `dev_tools/run_benchmark.py` — runs the real course harness once into
   `data_cache/runs/<run-id>/` (`query_results.json`, `db_schemas.json`, `run.json`) and refuses to
   overwrite a run. Reason: the harness writes its outputs into the CWD, so two runs silently overwrite
-  each other (R1-D22); `--check` also makes the endpoint/plan reviewable before spending tokens.
+  each other (R1-D22); `--check` also makes the endpoint/plan reviewable before any tokens are spent.
   `--benchmark {bird,ambrosia}` drives `BenchmarkAmbrosia` for S1/S4 and records the choice in the plan.
 - `dev_tools/serve_openai.py` — local OpenAI-compatible server (transformers + optional PEFT adapter,
   `--fake` for contract tests). Reason: vLLM is Linux-only and this workstation has no Docker, so the
@@ -161,18 +161,21 @@ harder to audit. Every commit added after it follows `feat:` / `fix:` / `test:` 
 
 ## Not verified offline / requires the course server
 
-- **The adapter's execution accuracy is not in this patch.** The EX/241, EX/211, EX/209 and Ambrosia
-  accuracy of `runs/e3-r16/adapter` are produced by the measurement run **T2**; its artifact is
-  `docs/REPORT.md` and its numbers land in a follow-up commit. This patch therefore does **not** claim a
-  leaderboard-comparable number, and no EX figure here should be quoted as one.
+- **The measured EX is the branch's own protocol, not a leaderboard number.** The runs behind
+  `## Results` used 4-bit serving, tool v2 (English prompts, sqlglot gate, one repair), greedy decoding and
+  `use_evidence=False`; the team's frozen 42.32 % baseline came from a different tool revision, a May DB
+  snapshot we cannot re-create and its own decoding choices. The two are not interchangeable, which is why
+  the delta against the frozen file is reported as a configuration difference, not as model quality.
 - **The live-server facts were measured once and are not reproducible without the tunnel**: gold
   executability 209/241 (32 failures: 30 unparseable + ids 4 and 35 with `UndefinedColumn`) and the
   572 literal mutation are recorded in `docs/EVAL.md` (§"Denominators on the LIVE server") and
   `research/advtext2sql/captain-verified-numbers.md` §E, not re-derived by any test.
 - **The official Ambrosia score needs a database**: `build()` reads the schema, so Ambrosia cannot be
   scored offline at all; the 70.83 % constant floor is arithmetic on `data/ambrosia_large.json`, not a run.
+  Ambrosia is reported only as ambiguity detection next to that floor (see `## Results`).
 - **The S1–S4 harness runs** (small/large × BIRD/Ambrosia) need the live PostgreSQL and a model
-  endpoint; `docs/RUNBOOK.md` documents them, none has been executed for this patch.
+  endpoint; `docs/RUNBOOK.md` documents them. The measurement run executed the large-file variants
+  (`bird_large`, `ambrosia_large`) plus one unchanged-entrypoint smoke on `bird_small`.
 - **vLLM was never run here** (Linux/WSL2 only, no Docker on this machine). The shipped serving path is
   `dev_tools/serve_openai.py`, tested against a fake backend and a tiny in-memory model; a real 7B +
   adapter load is exercised only through the T1 training run's `PeftModel` check.
@@ -180,11 +183,48 @@ harder to audit. Every commit added after it follows `feat:` / `fix:` / `test:` 
   by `training/.gitignore`; `training/build_data.py` regenerates it from `db_schemas.json` in about a
   minute, and the runbook says how.
 
-## Results (pending T2)
+## Results
 
-The adapter exists — `runs/e3-r16/adapter`, best validation loss **0.1757** at step 50, **29 m 18 s**
-wall clock, **11.0 GiB** peak allocated on a 16 GB card — and its execution-accuracy numbers are produced
-by the T2 run, whose artifact path is `docs/REPORT.md`; they land in a follow-up commit. T2's measurements
-go through `dev_tools/score_runs.py` (`score --kind bird`, `score --kind ambrosia`, `compare` against the
-frozen 42.32 % baseline) and its raw run directories stay under `runs/t2/`, which is ignored by
-`.gitignore` — the report carries the numbers, not the gigabytes.
+Measured with the real harness on the live PostgreSQL through the tunnel: `bird_large` (241) and
+`ambrosia_large` (240), `mode="local"` (the shipped evaluator's semantics), greedy decoding, 4-bit serving,
+tool v2 with its default `birdsafe` ambiguity gate. Full tables, per-run commands, token counts and the
+honest-limitations section live in `docs/REPORT.md`; raw ledgers stay in `runs/t2/` (ignored) because the
+report is the record.
+
+**BIRD, `bird_large` (n = 241; EX/209 = over the gold that executes on the server; honest maximum
+208/241 = 86.3 % because 30 gold queries are unparseable, ids 4 and 35 die with `UndefinedColumn`, and
+id 572 executes against a mutated literal):**
+
+| run | EX/241 | EX/209 | simple / moderate / challenging | soft-F1 | wall clock |
+|---|---|---|---|---|---|
+| E1 base `Qwen2.5-Coder-7B-Instruct` | **51/241 = 21.16 %** (95 % CI 16.5–26.8) | 51/209 = 24.40 % | 37.4 % / 14.6 % / 6.6 % | 0.2974 | 912 s |
+| E3 base + `runs/e3-r16/adapter` | **61/241 = 25.31 %** (95 % CI 20.2–31.2) | 61/209 = 29.19 % | 40.7 % / 12.4 % / 21.3 % | 0.3351 | 1 250 s |
+| team's frozen baseline (id-level only) | 102/241 = 42.32 % | — | n/a | — | — |
+
+**Paired (exact McNemar + 10 000 paired-bootstrap resamples, seed 0):**
+
+| comparison | b | c | exact p | ΔEX | 95 % CI | verdict |
+|---|---|---|---|---|---|---|
+| adapter vs base model (the LoRA effect) | 26 | 16 | 0.164 | **+4.15 pp** | [−0.83, +9.54] pp | **inconclusive at n = 241** |
+| adapter vs frozen 42.32 % baseline | 20 | 61 | 5.7e-06 | −17.01 pp | [−23.65, −9.96] pp | worse, configuration-dominated |
+| base model vs frozen (context) | 10 | 61 | 4.6e-10 | −21.16 pp | [−27.39, −14.97] pp | worse, configuration-dominated |
+
+The pre-registered rule (claim "better" only if `b − c ≥ 6`, `p < 0.05` and the CI excludes 0) is **not**
+met, so the adapter is not claimed to improve BIRD: it fixes 26 questions and breaks 16, which is +10 net
+and +4.15 pp but compatible with chance. What the adapter does move is the shape — invalid-SQL predictions
+40 → 36, challenging 6.6 % → 21.3 % — i.e. it learned the dialect contract more than schema linkage.
+
+**Ambrosia, `ambrosia_large` (n = 240, `TEXT2SQL_AMBIGUITY_MODE=strict`), reported as ambiguity detection
+next to the constant baselines, never as benchmark accuracy:** base model 143/240 = 59.58 % (below the
+170/240 = 70.83 % never-ambiguous floor; predicted ambiguous 61, precision 0.279, recall 0.243); adapter
+70/240 = 29.17 % because it answered "ambiguous" for **all 240** items (precision 0.292, recall 1.000),
+i.e. it collapsed to the always-ambiguous constant. Paired adapter vs base: b = 53, c = 126, exact
+p = 4.9e-08, Δ −30.42 pp — significantly worse, and the honest recommendation is a different training mix
+or a decision threshold, not more epochs.
+
+Adapter provenance: `runs/e3-r16/adapter`, best validation loss **0.1757** at step 50, **29 m 18 s**,
+**11.0 GiB** peak allocated of 15.99 GiB (LoRA r=16, alpha=32, all-linear, 684 rows).
+
+An evidence-enabled E1 addendum (the base model re-run with the stock `use_evidence=True`) is being
+measured; its result is appended in a follow-up commit.
+

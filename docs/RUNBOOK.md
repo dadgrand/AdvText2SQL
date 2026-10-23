@@ -133,8 +133,9 @@ cp .env ../advtext2sql-main/.env          # gitignored secrets; the worktree doe
 cd ../advtext2sql-main
 ```
 
-Serve the **base** model (no adapter) — see §6 for the two servers; then check both plans before spending
-tokens (the recorder exports `DB_USER`/`DB_PASS` and `BENCHMARK_DB_URL` from the environment or `.env`):
+Serve the **base** model (no adapter) — see §6 for the two servers; then check both plans before any
+tokens are spent. The recorder reads `os.environ` only — it does **not** parse `.env` — so export the
+credentials first exactly as §0 shows (`DB_USER`, `DB_PASS` and `BENCHMARK_DB_URL` come from `$REPO/.env`):
 
 ```bash
 python -m dev_tools.run_benchmark --check \
@@ -512,3 +513,33 @@ Everything except the live numbers still works, in this order: `pytest tests -q`
 `build_data.py --self-test` (684 rows) → `train_qlora.py --plan` (no GPU) → `local_bench` (§8.1) →
 `serve_openai --fake` + `run_benchmark --check` (wiring only). Numbers produced this way are offline
 proxies: label them, never paste them into the graded table.
+
+---
+
+## What the branch measured
+
+The first real measurement of the LoRA branch through this runbook's own path (T2) is in `docs/REPORT.md`.
+Headline, so a reader of this runbook knows what the procedure produced before running it again:
+
+* **BIRD `bird_large` (241):** base model **EX/241 = 21.16 %** (51/241, 95 % CI 16.5–26.8),
+  **EX/209 = 24.40 %**; base + `runs/e3-r16/adapter` **EX/241 = 25.31 %** (61/241, CI 20.2–31.2),
+  **EX/209 = 29.19 %**. Honest maximum 208/241 = 86.3 % (30 unparseable + ids 4, 35 `UndefinedColumn` +
+  id 572 mutated literal). Wall clock 912 s and 1 250 s on a 4-bit 7B server.
+* **The LoRA effect is +4.15 pp and inconclusive:** paired b = 26, c = 16, exact McNemar p = 0.164,
+  95 % CI [−0.83, +9.54] pp. The pre-registered rule (b − c ≥ 6, p < 0.05, CI excludes 0) is not met, so
+  §8's table must be reported as "inconclusive at n = 241", not as an improvement. The adapter does move
+  invalid-SQL predictions 40 → 36 and challenging-tier EX 6.6 % → 21.3 %.
+* **Against the team's frozen 42.32 % baseline** both runs are far below (adapter b = 20, c = 61,
+  p = 5.7e-06, Δ −17.01 pp; base b = 10, c = 61, p = 4.6e-10, Δ −21.16 pp). That gap is
+  configuration-dominated (tool revision, 4-bit serving, `use_evidence=False`, decoding), not an adapter
+  regression — §8's paired block is the right instrument for it, and the frozen file is id-level only.
+* **Ambrosia (`ambrosia_large`, strict):** base 143/240 = 59.58 % detection — already below the
+  70.83 % never-ambiguous floor; the adapter 70/240 = 29.17 % because it answered "ambiguous" for all
+  240 items (paired b = 53, c = 126, p = 4.9e-08, Δ −30.42 pp). Reported as ambiguity detection against
+  constant baselines, never as accuracy.
+* **Training:** `runs/e3-r16/adapter`, best validation loss 0.1757 at step 50, 29 m 18 s, 11.0 GiB peak of
+  15.99 GiB (r=16, alpha=32, all-linear, 684 rows).
+
+An evidence-enabled E1 addendum (base model re-run with the stock `use_evidence=True`) is being measured;
+its result is appended to `docs/REPORT.md` and this summary in a follow-up commit.
+

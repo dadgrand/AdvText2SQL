@@ -5,8 +5,8 @@ Ported from ``research/advtext2sql/r3-scratch/build_lora_data.py`` (the version 
 executed and fixed) into the branch, then hardened:
 
   * ``--self-test`` -- offline end-to-end run on ``repo/data`` only, regression-asserted against
-    the captain-measured baseline (dropped=14, usable=343, train/valid=291/52,
-    ambrosia built=438 (394/44), combined=685).  No network, no tokenizer download.
+    the reconciled baseline (dropped=14 unparseable + 1 mutated, usable=342, train/valid=290/52,
+    ambrosia built=438 (394/44), combined=684).  No network, no tokenizer download.
   * schemas -- a real build requires ``--schemas db_schemas.json`` (a harness build run writes it,
     ``benchmarks/base.py:_dump_db_schemas_json``).  Missing db_ids abort the build unless
     ``--allow-missing-schemas`` is passed.  The smoke path may synthesise a schema corpus from the
