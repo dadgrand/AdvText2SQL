@@ -100,6 +100,7 @@ def plan_run(
     llm_base_url: Optional[str],
     llm_model: Optional[str],
     runs_dir: Path,
+    benchmark: str = "bird",
 ) -> dict:
     """Resolve and validate everything a run needs; raises :class:`RunRefused`."""
 
@@ -130,6 +131,7 @@ def plan_run(
         "answer_sha256": _sha256(answer_file),
         "db_url": db_url,
         "tool_class": tool_class,
+        "benchmark": benchmark,
         "llm_base_url": llm_base_url,
         "llm_model": llm_model,
         "git_commit": _git_commit(),
@@ -266,7 +268,10 @@ def run_predict_only(
     ``run.json`` (with token usage) into the run directory.
     """
 
-    from benchmarks.bird import BenchmarkBIRD  # noqa: PLC0415
+    if plan.get("benchmark") == "ambrosia":
+        from benchmarks.ambrosia import BenchmarkAmbrosia as _Benchmark  # noqa: PLC0415
+    else:
+        from benchmarks.bird import BenchmarkBIRD as _Benchmark  # noqa: PLC0415
 
     run_dir = Path(plan["run_dir"])
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -276,7 +281,7 @@ def run_predict_only(
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
     try:
         os.chdir(run_dir)
-        benchmark = BenchmarkBIRD(
+        benchmark = _Benchmark(
             db_url=plan["db_url"],
             query_file=str(query_file),
             answer_file=str(answer_file),
@@ -334,6 +339,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--tool-class", default=DEFAULT_TOOL_CLASS, help="dotted path of the tool class")
     parser.add_argument(
+        "--benchmark",
+        choices=("bird", "ambrosia"),
+        default="bird",
+        help="which harness benchmark to drive (default: bird); ambrosia does not read evidence "
+        "and compares ambiguity flags instead of SQL results",
+    )
+    parser.add_argument(
         "--llm-base-url",
         default=os.environ.get("LLM_BASE_URL"),
         help="OpenAI-compatible endpoint (default: $LLM_BASE_URL)",
@@ -387,6 +399,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             llm_base_url=args.llm_base_url,
             llm_model=args.llm_model,
             runs_dir=Path(args.runs_dir),
+            benchmark=args.benchmark,
         )
     except RunRefused as exc:
         print(f"refusing to run: {exc}", file=sys.stderr)
@@ -432,5 +445,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(main())
+
+
 
 
