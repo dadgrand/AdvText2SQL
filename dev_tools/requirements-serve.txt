@@ -1,0 +1,24 @@
+# Dependencies of dev_tools/serve_openai.py (a dev tool, not the training environment).
+#
+# The server speaks the OpenAI chat-completions contract so the course harness can
+# run against the base model or a LoRA adapter without vLLM (Linux-only) and
+# without Docker.  Install with:
+#
+#   python -m pip install -r dev_tools/requirements-serve.txt
+#
+# Versions are the ones the server was tested with on this machine
+# (Windows, Python 3.12, CUDA 12.6, RTX 4070 Ti SUPER).
+fastapi==0.116.1
+uvicorn==0.35.0
+httpx==0.28.1
+
+# Model loading and generation.
+torch==2.14.1
+transformers==5.13.0
+
+# Only needed for --adapter (PEFT LoRA adapter) and --load-in-4bit.
+# The base-model path runs without them; the server refuses to start with a clear
+# message when a requested feature's dependency is missing.
+peft>=0.14
+accelerate>=1.0
+bitsandbytes>=0.44
