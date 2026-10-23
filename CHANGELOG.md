@@ -7,6 +7,23 @@ changes **on top of that commit**; nothing under `benchmarks/`, `data/` or the r
 
 Paths are relative to `research/advtext2sql/repo/`. One line per file: **path — reason**.
 
+## Applying this branch
+
+`lora-track.patch` (in this directory, ignored by `.gitignore` because it regenerates from history) is a
+`git format-patch main --stdout` bundle of every commit above `main` (`e812451`). Two ways to apply it
+on a fresh clone of `main`:
+
+```bash
+git apply lora-track.patch            # applies the working tree; verified with --check on a fresh clone
+git am --keep-cr lora-track.patch     # replays the nine commits; --keep-cr is required
+```
+
+`--keep-cr` is not cosmetic: the teacher's blob for `src/.../text2sql_implementation.py` stores CRLF, and
+plain `git am` strips CRs from the patch before applying, so it fails on that one file while `git apply`
+succeeds. After `git am --keep-cr` the tree is clean and `python -m pytest tests -q` gives
+`130 passed, 8 skipped` (the skips need the out-of-repo `data_cache/` SQLite copies); in this working
+repository, which has them, the same command gives `138 passed`.
+
 ---
 
 ## Evaluation — offline, non-invasive scoring (`dev_tools/`)
