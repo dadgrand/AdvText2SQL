@@ -457,6 +457,27 @@ class Text2SQLGenerator:
         self.last_self_consistency: dict[str, Any] | None = None
         self.last_schema_link: dict[str, Any] | None = None
         """Per-question schema-linking record; ``None`` when the arm is off."""
+        # Per-run aggregate of the schema-linking arm, accumulated in process so
+        # run.json can record what the model actually saw even when the optional
+        # procedure log is off (the round-3 provenance gap: run.json.schema_link was
+        # null while the arm was running, and the cost had to be replayed offline).
+        self._schema_link_totals: dict[str, Any] = {
+            "questions": 0,
+            "applied": 0,
+            "fallbacks": 0,
+            "over_budget": 0,
+            "tables_sum": 0,
+            "tables_max": 0,
+            "columns_sum": 0,
+            "chars_sum": 0,
+            "chars_max": 0,
+            "annotations_sum": 0,
+            "join_edges_sum": 0,
+            "join_block_chars_sum": 0,
+            "modes": set(),
+            "embedders": set(),
+            "sha256": set(),
+        }
         self._retriever: Retriever | None = None
         self._retriever_ready = False
         self._procedure_log_failed = False
@@ -882,6 +903,102 @@ class Text2SQLGenerator:
             self._procedure_log_failed = True
             logger.exception("Could not append to the procedure log %s; continuing without it", path)
 
+    def _note_schema_link(self, record: dict[str, Any]) -> None:
+        """Fold one question's schema-link record into the in-process aggregate.
+
+        Called from ``_schema_for`` for every question the arm renders a prompt for,
+        so the counters exist whether or not ``TEXT2SQL_PROCEDURE_LOG`` is set. It is
+        intentionally cheap: integer adds, two maxima, and set inserts.
+        """
+
+        totals = self._schema_link_totals
+        totals["questions"] = int(totals["questions"]) + 1
+        if record.get("fallback"):
+            totals["fallbacks"] = int(totals["fallbacks"]) + 1
+        if record.get("applied"):
+            totals["applied"] = int(totals["applied"]) + 1
+        if record.get("over_budget"):
+            totals["over_budget"] = int(totals["over_budget"]) + 1
+        tables = int(record.get("tables_selected") or 0)
+        columns = int(record.get("columns_selected") or 0)
+        chars = int(record.get("schema_chars") or 0)
+        totals["tables_sum"] = int(totals["tables_sum"]) + tables
+        totals["tables_max"] = max(int(totals["tables_max"]), tables)
+        totals["columns_sum"] = int(totals["columns_sum"]) + columns
+        totals["chars_sum"] = int(totals["chars_sum"]) + chars
+        totals["chars_max"] = max(int(totals["chars_max"]), chars)
+        totals["annotations_sum"] = int(totals["annotations_sum"]) + int(record.get("annotations") or 0)
+        totals["join_edges_sum"] = int(totals["join_edges_sum"]) + len(record.get("join_edges") or [])
+        totals["join_block_chars_sum"] = int(totals["join_block_chars_sum"]) + int(
+            record.get("join_block_chars") or 0
+        )
+        if record.get("mode"):
+            totals["modes"].add(str(record["mode"]))
+        if record.get("embedder"):
+            totals["embedders"].add(str(record["embedder"]))
+        if record.get("schema_sha256"):
+            totals["sha256"].add(str(record["schema_sha256"]))
+
+    def schema_link_aggregate(self) -> dict[str, Any]:
+        """Per-run aggregate of the schema-linking arm, independent of the log.
+
+        ``run_benchmark.py`` asks every tool instance for this at the end of a run, so
+        ``run.json.schema_link`` no longer depends on ``TEXT2SQL_PROCEDURE_LOG`` being
+        set. The shape mirrors the log-based summary (same key names, so a reader need
+        not care where a run got it) and adds the annotation/join counters plus
+        ``source: "in-process"``. With the arm off it reports ``mode: "off"`` and zero
+        counters, and ``run_benchmark`` keeps writing ``schema_link: null`` so default
+        runs stay byte-identical.
+        """
+
+        totals = self._schema_link_totals
+        questions = int(totals["questions"])
+
+        def _mean(total: int) -> float | None:
+            return round(total / questions, 1) if questions else None
+
+        aggregate: dict[str, Any] = {
+            "mode": self.schema_link_mode,
+            "modes": sorted(totals["modes"]) or [self.schema_link_mode],
+            "questions": questions,
+            "questions_with_link": questions,
+            "applied": int(totals["applied"]),
+            "fallbacks": int(totals["fallbacks"]),
+            "over_budget": int(totals["over_budget"]),
+            "tables_selected_mean": _mean(int(totals["tables_sum"])),
+            "tables_selected_max": int(totals["tables_max"]) if questions else None,
+            "columns_selected_mean": _mean(int(totals["columns_sum"])),
+            "schema_chars_mean": _mean(int(totals["chars_sum"])),
+            "schema_chars_max": int(totals["chars_max"]) if questions else None,
+            "distinct_schema_sha256": len(totals["sha256"]),
+            "annotations_total": int(totals["annotations_sum"]),
+            "join_edges_total": int(totals["join_edges_sum"]),
+            "join_block_chars_total": int(totals["join_block_chars_sum"]),
+            "embedders": sorted(totals["embedders"]),
+            "source": "in-process",
+        }
+        if self.schema_link_mode == "off":
+            aggregate.update(
+                mode="off",
+                modes=["off"],
+                questions=0,
+                questions_with_link=0,
+                applied=0,
+                fallbacks=0,
+                over_budget=0,
+                tables_selected_mean=None,
+                tables_selected_max=None,
+                columns_selected_mean=None,
+                schema_chars_mean=None,
+                schema_chars_max=None,
+                distinct_schema_sha256=0,
+                annotations_total=0,
+                join_edges_total=0,
+                join_block_chars_total=0,
+                embedders=[],
+            )
+        return aggregate
+
     def _schema_for(self, question: str) -> str:
         """Return the schema block to put in the prompt.
 
@@ -912,6 +1029,7 @@ class Text2SQLGenerator:
         metadata = linked.metadata()
         if linked.applied and linked.schema:
             self.last_schema_link = metadata
+            self._note_schema_link(metadata)
             self.last_selected_tables = linked.tables
             logger.debug(
                 "Schema linking (%s) kept %d/%d tables and %d/%d columns (%d chars)",
@@ -929,6 +1047,7 @@ class Text2SQLGenerator:
         metadata["fallback"] = "prune_schema"
         metadata["fallback_reason"] = metadata.get("reason") or "the linker produced no block"
         self.last_schema_link = metadata
+        self._note_schema_link(metadata)
         logger.info(
             "Schema linking (%s) produced no block (%s); falling back to pruning",
             self.schema_link_mode,

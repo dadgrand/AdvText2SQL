@@ -394,6 +394,21 @@ Expected: `run e3-bird-small finished: overall_accuracy=<x> total=22`, then
 `artifacts in …/data_cache/runs/e3-bird-small: query_results.json, db_schemas.json, run.json`.
 `db_schemas.json` is what the tool actually saw — diff it against §2's dump to catch a schema regression.
 
+### `run.json` is authoritative; the procedure log is an optional trace
+
+When a schema mode is on (`TEXT2SQL_SCHEMA_LINK=highlight|joins|tables|columns`), the
+run's schema-path record is `run.json.schema_link`: `modes`, `questions`,
+`questions_with_link`, `applied`, `fallbacks`, `over_budget`, `tables_selected_mean`/`max`,
+`columns_selected_mean`, `schema_chars_mean`/`max`, `distinct_schema_sha256`,
+`annotations_total`, `join_edges_total`, `join_block_chars_total`, `embedders`, and
+`source`. It is collected **in process from the tool instances that rendered the
+prompts**, so it is present whether or not `TEXT2SQL_PROCEDURE_LOG` is set (round 3 lost
+this record because the arms did not set the log). `TEXT2SQL_PROCEDURE_LOG` is an
+optional detailed trace — one JSONL line per question with the exact block and its
+SHA-256 — for deep dives; when only the log exists (an older run), the same block is
+rebuilt from it and `source` is `"procedure-log"`. An `off` run keeps
+`run.json.schema_link: null`, exactly as before, so default run.json files are unchanged.
+
 Order of runs, cheapest first (**S1–S4**). Every row is copy-pasteable; the Ambrosia rows differ in two
 ways — `--benchmark ambrosia` (the harness class) and `TEXT2SQL_AMBIGUITY_MODE=strict` (ADR-003):
 

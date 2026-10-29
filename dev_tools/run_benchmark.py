@@ -70,7 +70,7 @@ import types
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, Iterable, List, Optional, Sequence
 from urllib.parse import urlsplit, urlunsplit
 
 try:  # package import
@@ -87,6 +87,7 @@ __all__ = [
     "read_schema_health",
     "run_harness",
     "schema_link_summary",
+    "schema_link_summary_from_tools",
     "verify_schemas",
 ]
 
@@ -332,7 +333,84 @@ def schema_link_summary(run_dir: Path, *, log_name: Optional[str] = None) -> Opt
         "schema_chars_max": max(chars) if chars else None,
         "distinct_schema_sha256": len(hashes),
         "embedders": sorted({str(link.get("embedder")) for link in links}),
+        "source": "procedure-log",
         "procedure_log": str(path),
+    }
+
+
+def schema_link_summary_from_tools(tools: Iterable[Any]) -> Optional[Dict[str, Any]]:
+    """Merge the in-process per-tool schema-link aggregates for ``run.json``.
+
+    Why this exists: ``schema_link_summary`` reads the optional procedure log, and the
+    round-3 arms did not set ``TEXT2SQL_PROCEDURE_LOG``, so ``run.json.schema_link`` was
+    ``null`` while the arm was running and the prompt cost had to be replayed offline.
+    Every tool now keeps its own counters (``schema_link_aggregate``); this function
+    sums them across the per-database tools the harness built, so the record exists
+    regardless of the log. The tool is the source of truth, the log stays a detailed
+    per-question trace.
+
+    Returns ``None`` when no tool rendered a linked prompt (the arm is off), which keeps
+    a default run's ``run.json`` byte-identical to today's.
+    """
+
+    aggregates: List[Dict[str, Any]] = []
+    for tool in tools:
+        getter = getattr(tool, "schema_link_aggregate", None)
+        if not callable(getter):
+            continue
+        try:
+            record = getter()
+        except Exception:  # pragma: no cover - a broken tool must not lose the run record
+            logger.exception("schema-link aggregate failed for %r; skipping it", type(tool).__name__)
+            continue
+        if isinstance(record, dict) and int(record.get("questions") or 0) > 0:
+            aggregates.append(record)
+    if not aggregates:
+        return None
+
+    questions = sum(int(record.get("questions") or 0) for record in aggregates)
+
+    def _weighted_mean(key: str) -> Optional[float]:
+        total = 0.0
+        for record in aggregates:
+            value = record.get(key)
+            if value is None:
+                continue
+            total += float(value) * int(record.get("questions") or 0)
+        return round(total / questions, 1) if questions else None
+
+    def _sum(key: str) -> int:
+        return sum(int(record.get(key) or 0) for record in aggregates)
+
+    def _max(key: str) -> Optional[float]:
+        values = [float(record[key]) for record in aggregates if record.get(key) is not None]
+        return max(values) if values else None
+
+    modes = sorted({str(mode) for record in aggregates for mode in (record.get("modes") or [])})
+    embedders = sorted(
+        {str(item) for record in aggregates for item in (record.get("embedders") or [])}
+    )
+    return {
+        "modes": modes,
+        "questions": questions,
+        "questions_with_link": _sum("questions_with_link"),
+        "applied": _sum("applied"),
+        "fallbacks": _sum("fallbacks"),
+        "over_budget": _sum("over_budget"),
+        "tables_selected_mean": _weighted_mean("tables_selected_mean"),
+        "tables_selected_max": _max("tables_selected_max"),
+        "columns_selected_mean": _weighted_mean("columns_selected_mean"),
+        "schema_chars_mean": _weighted_mean("schema_chars_mean"),
+        "schema_chars_max": _max("schema_chars_max"),
+        # Each tool covers one database, so per-tool distinct counts do not overlap in
+        # practice; the sum is the run-level count (documented, not silently assumed).
+        "distinct_schema_sha256": _sum("distinct_schema_sha256"),
+        "annotations_total": _sum("annotations_total"),
+        "join_edges_total": _sum("join_edges_total"),
+        "join_block_chars_total": _sum("join_block_chars_total"),
+        "embedders": embedders,
+        "source": "in-process",
+        "procedure_log": None,
     }
 
 
@@ -447,8 +525,36 @@ def feature_prompt_tool(tool_class: Any, block: str) -> Any:
     return FeaturePromptTool
 
 
-def tool_for_run(plan: Dict[str, Any], tool_class: Any) -> Any:
-    """The tool class the run actually uses (feature-block wrapper when the arm has one)."""
+def recording_tool(tool_class: Any, registry: List[Any]) -> Any:
+    """Subclass that registers every tool instance the harness builds.
+
+    The sealed harness (``benchmarks/base.py``) builds one tool per database and hands
+    them to ``predict``; ``run_harness`` never sees that dict.  Registering the
+    instances from the constructor is the smallest way to ask them, after the run, for
+    the in-process schema-link aggregate — so ``run.json`` no longer depends on the
+    optional procedure log being enabled (the round-3 provenance gap). The subclass
+    adds no behaviour to ``query``.
+    """
+
+    class RecordingTool(tool_class):  # type: ignore[misc, valid-type]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            registry.append(self)
+
+    RecordingTool.__name__ = f"{getattr(tool_class, '__name__', 'Tool')}Recorded"
+    RecordingTool.__qualname__ = RecordingTool.__name__
+    return RecordingTool
+
+
+def tool_for_run(
+    plan: Dict[str, Any], tool_class: Any, *, registry: Optional[List[Any]] = None
+) -> Any:
+    """The tool class the run actually uses (feature-block wrapper when the arm has one).
+
+    ``registry`` is an optional list that receives every constructed tool instance;
+    the runners use it to read the per-run schema-link aggregate from the objects that
+    actually rendered the prompts.
+    """
 
     feature_meta = plan.get("feature_prompt")
     if feature_meta:
@@ -456,6 +562,8 @@ def tool_for_run(plan: Dict[str, Any], tool_class: Any) -> Any:
         tool_class = feature_prompt_tool(tool_class, block)
     if plan.get("sql_repair") == "disabled":
         tool_class = no_repair_tool(tool_class)
+    if registry is not None:
+        tool_class = recording_tool(tool_class, registry)
     return tool_class
 
 
@@ -712,6 +820,7 @@ def run_harness(
     answer_file = Path(answer_file).resolve()
     previous_cwd = Path.cwd()
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    tool_registry: List[Any] = []
     try:
         os.chdir(run_dir)
         benchmark = BenchmarkBIRD(
@@ -721,7 +830,9 @@ def run_harness(
             llm_client=client,
             use_evidence=bool(plan.get("use_evidence")),
         )
-        report = asyncio.run(benchmark.run(tool_for_run(plan, tool_class)))
+        report = asyncio.run(
+            benchmark.run(tool_for_run(plan, tool_class, registry=tool_registry))
+        )
     finally:
         os.chdir(previous_cwd)
 
@@ -733,6 +844,9 @@ def run_harness(
     schema_block, schema_refusal = verify_schemas(
         run_dir, allow_empty_schemas=allow_empty_schemas
     )
+    # In-process aggregate first (it exists without the optional procedure log); the
+    # log-based summary stays as the detailed-trace fallback for older runs.
+    schema_link_block = schema_link_summary_from_tools(tool_registry) or schema_link_summary(run_dir)
     summary = {
         **plan,
         "started_at": started,
@@ -745,7 +859,7 @@ def run_harness(
         ),
         **schema_block,
         "schema_probe": schema_probe,
-        "schema_link": schema_link_summary(run_dir),
+        "schema_link": schema_link_block,
         "artifacts": artifacts,
         "report": {
             "overall_accuracy": report.get("overall_accuracy"),
@@ -826,7 +940,8 @@ def run_predict_only(
             # has no such field, which is why plan_run refuses the combination.
             benchmark_kwargs["use_evidence"] = bool(plan.get("use_evidence"))
         benchmark = _Benchmark(**benchmark_kwargs)
-        tool_class_used = tool_for_run(plan, tool_class)
+        tool_registry: List[Any] = []
+        tool_class_used = tool_for_run(plan, tool_class, registry=tool_registry)
 
         async def _predict() -> Dict[str, str]:
             tools = await benchmark.build(tool_class_used)  # type: ignore[arg-type]
@@ -843,6 +958,9 @@ def run_predict_only(
     schema_block, schema_refusal = verify_schemas(
         run_dir, allow_empty_schemas=allow_empty_schemas
     )
+    # Same rule as run_harness: the tool's in-process counters are the source of truth,
+    # the optional procedure log is only a detailed trace.
+    schema_link_block = schema_link_summary_from_tools(tool_registry) or schema_link_summary(run_dir)
     evidence_block: Dict[str, Any] = {}
     if plan.get("benchmark") == "bird":
         rows = json.loads(query_file.read_text(encoding="utf-8"))
@@ -864,7 +982,7 @@ def run_predict_only(
         ),
         **schema_block,
         "schema_probe": schema_probe,
-        "schema_link": schema_link_summary(run_dir),
+        "schema_link": schema_link_block,
         "artifacts": artifacts,
         "n_predictions": len(predictions),
         "llm_usage": usage,
