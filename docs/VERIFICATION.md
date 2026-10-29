@@ -703,3 +703,5 @@ delivered patch is `lora-track.patch` (full `main..feat/round2`) verified with `
 clean `main` clone; nothing is pushed to the teacher's `origin` — the fork is the delivery channel. A
 record commit immediately after the seal adds the literal sha and the pushed remote refs; it changes no
 content other than this line.
+
+**Recorded seal sha:** `b7dbc2d` (tag `round2-seal` object `b8504e1`). The branch `feat/round2` and the tag were pushed to `fork` on 2026-10-29; `gh api repos/dadgrand/AdvText2SQL/branches/feat/round2` reports head `b7dbc2d521a6edc40550d593218a5739c692a7bc`; `origin/main` is untouched at `e812451`; `feat/lora-track` remains `f4d3d4a`. Patch `lora-track.patch`: 1,412,040 bytes, sha256 `32df23b6280bd06886159276c7612cca9f4e42be7bcbd408c72a8533bd50b0b3`, `git apply --check` passed on a clean `main` clone (107 files, 25,914 insertions). This record commit follows the seal and only adds this line.
