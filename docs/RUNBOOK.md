@@ -713,4 +713,31 @@ so no adapter claim should quote the frozen baseline until it exists (`docs/REPO
 consequence for a re-run: set `use_evidence` explicitly and record `max_tokens`, `use_evidence`, the tool
 commit and `torch.cuda.max_memory_allocated` in `run.json` — the wrapper records none of them today, and a
 1 Hz `nvidia-smi` sample is how the ~8.2 GiB 4-bit serving footprint was measured.
+## 12. Schema linking (R3) — off by default, and the round-3 result is negative
 
+**Enabling a mode.** `TEXT2SQL_SCHEMA_LINK=highlight|joins|tables|columns` (default `off`), with
+`TEXT2SQL_SCHEMA_LINK_K` (default 6), `_MIN_SCORE`, `_MAX_CHARS`, `_EMBEDDER=hash|minilm`. Invalid values
+raise at tool construction; `off` is byte-identical to the pre-change prompt (`_baseline_schema_for`).
+`highlight`/`joins` are non-destructive (every original schema line kept, `columns_selected ==
+columns_total`); `tables`/`columns` are selection modes and can only lose recall — do not use them without a
+paired OOD test.
+
+**Dry run and tests (no DB, no GPU).** `python -m dev_tools.schema_link_dryrun --out runs/t31-schema-linking`
+→ exit 0 for all five modes; `python -m pytest tests/test_schema_linking.py -q` → 41 passed. The selector
+never receives gold SQL or dev questions (signature + source tests).
+
+**Measured cost (OOD-120, 7B scale adapter, tiktoken cl100k).** `off` 396 tokens mean / 715 max;
+`highlight` 505 / 893 (+28 %); `joins` 581 / 1011 (+47 %); in-domain `off` 423 / 891. Wall clock ~6.3–7.1
+s/question on the shared 4070. The A/B result is negative: `joins` 85/120 vs `off` 82/120 (b=7/c=4,
+p=0.549), `highlight` 83/120 (b=6/c=5, p=1.00) — neither meets the pre-registered OOD rule. See
+`docs/REPORT.md` §20 and `research/advtext2sql/ROUND3_RESULTS.ru.md`.
+
+**Traps.**
+- `run.json.schema_link` is `null` for the round-3 A/D/E arms because they did not set
+  `TEXT2SQL_PROCEDURE_LOG`; the schema-cost column is an offline replay of `link_schema` with each arm's
+  settings, **not** a recorder field. The in-process recorder fix is on `feat/recorder-fix` (R4-1), not in
+  this round-3 patch.
+- `joins` can legitimately emit an empty block for questions whose FK columns are named differently
+  (33/241 in the dry run); it reports that honestly rather than fabricating edges.
+- `highlight` annotates tables/columns but never removes a line; a diff in the prompt is expected, a
+  missing original line is a bug.

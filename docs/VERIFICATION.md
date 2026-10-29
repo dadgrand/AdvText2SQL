@@ -748,3 +748,20 @@ content other than this line.
 - No `audit_round3.py` exists; the round-2 audit (`audit_round2.py`, 243/243) still covers the round-1/2
   artifacts and is unchanged. Round-2 tags (`round2-seal` → `b7dbc2d`, `round2-seal-2` → `cd8aa4a`) are not
   moved by this branch.
+### V5.1 Round-3 seal record (reviewed PASS)
+
+Seal commit: **aee8cfc** (`feat/schema-linking`, = `27674a0` + the cherry-picked in-domain/provenance docs
+commit). This entry binds the artifacts the A/B claim rests on by sha256:
+
+- `runs/r3-schema-link/scores/A_off.json` — `6c0f18cdd37095299fe098dd4b2b1c5bd1535c2499bd68e2bda9a52e5eaed952`
+- `runs/r3-schema-link/scores/D_highlight.json` — `a126ddd8581b504a797a7d2d16c7fdf7f2ba38ea357e21b1fd1a87f5f122505e`
+- `runs/r3-schema-link/scores/E_joins.json` — `186b4665001f4305d2b9769bbcfd2c36b4bd82cad152cd41984c4169942ce77e`
+- `runs/r3-schema-link/analysis.json` — `c9bb91826e45d68eb7b1ed167fd5f1ff0b4766d6cc93435c7b1c02b7e0018efb`
+- `runs/schema_linking/schema-audit.json` — `65577424472b086268eedde48875db338439184c9db61bbcb13c846481e1ddfc`
+- `runs/schema_linking/failure-classification.json` — `2c8146ad9098a99173e5a9688f16de9db28b656ecc7fe1644e1894b6649effae`
+
+Verification: `pytest tests -q` → **314 passed, 1 skipped** (99.81 s, offline); `compileall` exit 0;
+independent review PASS (t27) with A/D/E and paired blocks re-derived from the ledgers; no `audit_round3`
+exists (the round-2 audit remains 243/243 for the round-1/2 artifacts). Changelog/RUNBOOK/REPORT carry the
+round-3 modes, costs and the negative A/B result. The delivered patch is regenerated from the branch tip
+after this record; its size/sha are reported with the delivery. Round-2 tags and branches are untouched.
