@@ -646,3 +646,8 @@ the exact sha). At seal time: audit **182/182, 0 findings**; suite **236 passed*
 `benchmarks/`, `data/` and the root entrypoints empty; `feat/lora-track` untouched at `f4d3d4a`; the
 delivered patch is `lora-track.patch` (full `main..feat/round2`, verified with `git apply --check` on a clean
 `main` clone); nothing is pushed to the teacher's `origin` — the fork is the delivery channel.
+
+**Recorded seal sha:** `ae64841` (the commit tagged `round2-seal`; the annotated tag object is `cf596e4`).
+The branch `feat/round2` and the tag were pushed to `fork` on 2026-10-29; this record commit is the tip that
+follows the seal and only adds this line. At the seal: audit **182/182, 0 findings**, suite **241 passed**,
+working tree clean, `origin/main` untouched at `e812451`.
