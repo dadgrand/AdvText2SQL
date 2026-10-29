@@ -637,8 +637,8 @@ including all scale-arm and provenance checks above. The final seal commit sha i
 record.
 
 **Seal record.** This section ships in the commit tagged **`round2-seal`** on `feat/round2` (the annotated
-tag is cut immediately after that commit; `git rev-parse round2-seal` on the delivered branch is the exact
-sha). At seal time: audit **182/182, 0 findings**; suite **236 passed**; scope diff against `main` on
+tag is cut immediately after that commit; `git rev-parse round2-seal^{}` on the delivered branch resolves to
+the exact sha). At seal time: audit **182/182, 0 findings**; suite **236 passed**; scope diff against `main` on
 `benchmarks/`, `data/` and the root entrypoints empty; `feat/lora-track` untouched at `f4d3d4a`; the
 delivered patch is `lora-track.patch` (full `main..feat/round2`, verified with `git apply --check` on a clean
 `main` clone); nothing is pushed to the teacher's `origin` — the fork is the delivery channel.

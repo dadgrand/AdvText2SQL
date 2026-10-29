@@ -271,3 +271,68 @@ resolves r=16, alpha=32, max_seq_len=3072, effective_batch=16, TRL ok. `max_seq_
 for the p99 1,784; do not drop to 1,024 for this dataset without re-measuring the truncation rate.
 `--drop-evidence` builds the no-evidence arm of the adapter x evidence matrix from the same corpus.
 
+---
+
+## 6. The scale run (R2-5): three local attempts, then the A100 — what was actually measured
+
+### 6.1 Local 16 GB attempts (all preserved, none delivered)
+
+| # | start | config | outcome (measured) |
+|---|---|---|---|
+| 1 | 04:04 | `out-scale`, seq 3072, 3 ep | WDDM paging: 15,870/16,376 MiB dedicated, **4,285 MB shared**, step 33 → 93 s; stopped at step 17 (`runs/r2-scale/train-seq3072-e3-paging.log`) |
+| 2 | 04:27 | `out-scale`, seq 2560, 2 ep | still 15,860 MiB dedicated / **1,398 MB shared**; hard stall at step 6 — 100 % GPU util, **77 W**, 0.03 s CPU in 25 s, no TensorBoard events for 12 min (`train-seq2560-e2-stalled.log`) |
+| 3 | 04:44 | `out-scale-t2048`, seq 2048, 2 ep | **healthy**: 14,957 MiB dedicated, **148 MB shared**, 232 W, **18.6 s/step**; reached **step 495/624** in 2 h 54 m, `checkpoint-300` + `checkpoint-450` written, then **terminated externally at 07:40:15 (exit −1, no traceback)** — paging was fixed by then, so this was a kill, not a compute failure |
+
+The 2048 ceiling required dropping, never truncating, the rows above it: **151 of 5,130 training rows
+(2.9 %, all SQL, 2,048-2,460 tokens; nothing above 1,588 remained)** left with per-file and per-db
+counts in `training/out-scale-t2048/filter_report.json`, and the derived directory keeps the build's
+`stats.json` (with a `token_filter` block), `count_table.txt` and `group_split.json`, so it is still
+self-describing.
+
+### 6.2 The delivered run (A100 80 GB), measured
+
+Same corpus, same recipe, one machine change — `training/out-scale-t2048`, data_hash
+`eb1ace92d6f03a9795d44fdab1bd6e2cae80744574641d17be246049fbf75e9b` (identical to the local attempt 3),
+4,979 train / 876 valid rows, `schema_basis=file-partial`. Recipe: r=16, alpha=32, `all-linear`,
+4-bit NF4 double-quant + bf16 compute, gradient checkpointing, **effective batch 16**, lr 1.5e-4
+cosine, warmup 0.03, seq 2048, seed 42, EarlyStopping patience 3, eval/save every 150 steps.
+
+* **750 of 936 planned steps**, EarlyStopping at epoch **2.40** (best eval loss at step 300, then
+  three worse evaluations);
+* **wall clock 6,753.3 s = 112 m 33 s**; **peak VRAM 35.12 GiB allocated / 74.21 GiB reserved** on an
+  A100 80 GB PCIe (the 4-bit weights are only ~4.4 GiB; the rest is the batch-8 micro-batch at 2,048
+  tokens — this recipe cannot be reproduced on 16 GB with batch 8);
+* train loss **0.3756 → 0.0357**;
+* **eval loss per checkpoint**: 150 → 0.131293 · **300 → 0.126443 (best)** · 450 → 0.143776 ·
+  600 → 0.141140 · 750 → 0.169168;
+* LoRA trainable **40,370,176 of 4,393,342,464 (0.919 %)** — identical to the sealed round-1 adapter,
+  so the comparison to round 1 stays honest on the point that matters;
+* greedy sample (row 0, `extra:bird23_train_filtered:5510`): generated == gold exactly,
+  `SELECT COUNT(name) FROM filed_for_bankrupcy`, `looks_postgres: true`, no SQLite markers.
+
+Artifacts: `runs/a100-scale/` (`provenance.json`, `train_summary.json`, `sample_generation.json`,
+`adapter/adapter_config.json`, `adapter/README.md`) and the weights
+**`runs/a100-scale-adapter/adapter_model.safetensors`** (161,533,192 bytes,
+sha256 `71abcde86a45a351…`) with its `adapter_config.json`. Load them with
+`PeftModel.from_pretrained(base, "runs/a100-scale-adapter")` — the `runs/a100-scale/adapter/` directory
+holds the config and README only.
+
+### 6.3 Deviations, named
+
+1. **Three epochs, not the two the resize decision set** — the local run died at 495/624 and the run
+   was restarted from scratch on the rented A100, where three epochs fit (112 min) and EarlyStopping
+   ended it at 2.40 anyway.
+2. **A different machine** (A100 80 GB, `peak_vram 35.12 GiB`), so nothing here says this recipe fits
+   in 16 GB at batch 8; local batch 1 × grad-accum 16 is what fits there.
+3. **Micro-batch shape**: `per_device_batch 8 × grad_accum 2` instead of `1 × 16`. The effective batch
+   is 16 in both, which is the parameter the recipe fixes; the micro-batch shape is what the hardware
+   forced.
+4. **`report_to: none`** on the A100 run (no TensorBoard events shipped), and **`git.commit: null`** —
+   the remote checkout carried no git metadata, so the provenance has no branch commit. The data
+   hashes and pins (`sqlglot 30.23.0`, `trl 0.18.2`) are recorded and match.
+5. **No A100 `train.log` in this workspace** — the measured series above comes from
+   `runs/a100-scale/provenance.json` / `train_summary.json`. And `runs/r2-scale/provenance.json` is the
+   *plan-mode* provenance of the first local attempt (`mode: "plan"`, 3 epochs, seq 3072, no `measured`
+   block): do not read hyper-parameters from it.
+
+
