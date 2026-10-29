@@ -765,3 +765,27 @@ independent review PASS (t27) with A/D/E and paired blocks re-derived from the l
 exists (the round-2 audit remains 243/243 for the round-1/2 artifacts). Changelog/RUNBOOK/REPORT carry the
 round-3 modes, costs and the negative A/B result. The delivered patch is regenerated from the branch tip
 after this record; its size/sha are reported with the delivery. Round-2 tags and branches are untouched.
+## V6 One executable audit for rounds 1–3 (R4-2, no commits)
+
+`research/advtext2sql/audit_all.py` imports `audit_round2.py` as the core (its report block is guarded by
+`main()`, so import runs the 243 round-1/2 checks silently) and appends **15 round-3 checks**. Against the
+sealed tip **f8cdd73**: **258/258 checks reproduced, 0 findings**.
+
+Round-3 checks (artifact-only, CPU, no DB/GPU/server): A_off 82/120, D_highlight 83/120, E_joins 85/120 and
+in-domain A_off 105/241 (counts, EX/107 or EX/209, unexecutable, soft-F1, Wilson); paired E vs A (b=7, c=4,
+p=0.548828125) and D vs A (b=6, c=5, p=1.0) in **ledger question order**, matching `analysis.json`, plus a
+check that the ledger-order convention is documented in REPORT §20; t24 pruning never fires (0/241, 0/876,
+0/120), gold tables 240/241 and 876/876/120/120, failure classification 20/20 gold in prompt and 0/20
+avoidable; selector AST has no gold/answer/SQL argument and reads no train/dev question file; the three
+off-byte-identical tests exist; the empty-schema guard functions and ≥20 guard tests exist; the REPORT §20
+provenance caveat (`run.json.schema_link` null → cost by replay, not run metadata) is present; the six V5.1
+artifact hashes are present.
+
+Hashes: `audit_all.py` sha256 `17354f4955245a4c25fb872d46b1a924ee230ea797a20b4b8a1f6a7cff1a987e`;
+`audit_round2.py` sha256 `0e922a994a9e8fd0eaf65ee4cbe93a9e9c121a7aefd083659ca1dbc2672c72ef`;
+`AUDIT_ALL.json` sha256 `08c6b96d0cc8952d233768add423878eea032ae4723f2ab7897ad4217069680d`.
+
+Manual checks kept explicit rather than dropped: the audit verifies that the runtime tests *exist*; actually
+executing `pytest tests -q` (314 passed, 1 skipped) and `tests/test_schema_linking.py` (41) remains a separate
+command, as does the dry run. No GPU/DB was used. This V6 entry is uncommitted by design (t33: no commits);
+the sealed tip remains f8cdd73.

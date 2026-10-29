@@ -1423,7 +1423,7 @@ EX/209 next to EX/241; the 876, 292 and 120 denominators are never mixed.
 **The attribution: the adapter does not add capability on unseen schemas.** The base arm is a
 **120-question systematic subsample** (every 7th row of the 876, all 10 databases represented) because a
 full 876-row base run did not fit the seal window; the adapter is therefore also quoted on **exactly those
-120 questions**, not against its 876-row number. Paired, exact McNemar + 10 000 bootstrap resamples, seed 0:
+120 questions**, not against its 876-row number. Paired, exact McNemar + 10 000 bootstrap resamples, seed 0; **resampling follows the ledger question order**, which is the reproducible convention (a sorted-id replay shifts D's CI to [−5.00,+5.83] but changes no verdict):
 
 | comparison (same 120 question ids) | b | c | ΔEX | 95 % CI | exact p |
 |---|---|---|---|---|---|
