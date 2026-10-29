@@ -1408,6 +1408,7 @@ percentages look alike.
 | 7B scale adapter, the same 292 questions as the discarded base attempt | 292 | **220/292 = 75.34 %** | 220/277 = 79.42 % | 15 |
 | 7B scale adapter, the same 120 questions as the base arm | 120 | **83/120 = 69.17 %** | 83/107 = 77.57 % | 8 |
 | 7B **base** model, no adapter | 120 | **86/120 = 71.67 %** | 86/107 = 80.37 % | 8 |
+| **14B scale adapter** (`5833a1cc…`, same 120) | 120 | **88/120 = 73.33 %** (Wilson 64.79–80.43) | **88/107 = 82.24 %** | 4 |
 
 **Denominators.** On the full 876, 65 gold queries are unexecutable on the live server (the same
 transpile-damage class as the 32 in `bird_large`, applied here to already-PostgreSQL gold), so the
@@ -1423,12 +1424,23 @@ full 876-row base run did not fit the seal window; the adapter is therefore also
 
 | comparison (same 120 question ids) | b | c | ΔEX | 95 % CI | exact p |
 |---|---|---|---|---|---|
-| scale adapter vs base model | 8 | 11 | **−2.50 pp** | **[−10.00, +4.17] pp** | **0.648** |
+| 7B scale adapter vs base 7B | 8 | 11 | **−2.50 pp** | **[−10.00, +4.17] pp** | **0.648** |
+| 14B scale adapter vs base 7B | 10 | 8 | +1.67 pp | [−5.00, +8.33] pp | 0.815 |
+| 14B scale adapter vs 7B scale adapter | 11 | 6 | +4.17 pp | [−2.50, +10.83] pp | 0.332 |
+
+**All three configurations land at 70–73 %, and none of the differences is significant.** That is the
+result: on 10 unseen databases the wall is not about weights and not about our adapter — it is **schema
+access itself**. In-domain, both capacity and the adapter help (14B 53.94 % vs base 21.16 %); out-of-domain,
+neither does (73.33 / 71.67 / 69.17 %, paired p = 0.815 / 0.332 / 0.648). The next lever is therefore
+**cross-schema training** — the distillation / multi-schema direction — not more capacity and not a better
+LoRA.
 
 **What transfers, and what does not.** The **base model transfers**: with the schema text in its prompt it
 writes executable PostgreSQL for questions on databases it never trained on — 71.67 % EX with only **8
 unexecutable predictions**. The **adapter does not add** to that: 69.17 % on the same questions, a
-difference of −2.5 pp whose CI straddles zero (p = 0.648). Its in-domain advantage (§9, §16: +7.88 pp over
+difference of −2.5 pp whose CI straddles zero (p = 0.648). The **14B**, with all its in-domain capacity,
+reaches **73.33 %** — +1.67 pp over the base (p = 0.815) and +4.17 pp over the 7B adapter (p = 0.332);
+capacity does not break the OOD wall either. The 7B adapter's in-domain advantage (§9, §16: +7.88 pp over
 round-1 base-with-evidence) **does not carry over to unseen schemas**, and on five of the ten databases the
 base is at least as good:
 
@@ -1484,12 +1496,16 @@ adapter's 876-row figure is kept as the population number, never mixed with the 
 120 gold rows (and 65 of the 876) are unexecutable on the live server, hence the executable denominators.
 (3) No difficulty labels exist for these rows (`difficulty: "unknown"`), so no per-difficulty claim is made.
 (4) Same protocol as every other number (4-bit, greedy, 512-token cap, evidence on, tool v2 with repair), on
-the rented A100.
+the rented A100. (5) The 14B OOD run's `run.json` was not copied — only its 120-row ledger and predictions
+are in the workspace; the adapter identity (`5833a1cc…`) comes from the arm spec, and the ledger/predictions
+are audited.
 
 **Artifacts:** `runs/ood/scores/ood-scale7b-v2.json` (876-row adapter ledger), `runs/ood/scores/ood-base7b-120.json`
-(base, 120 rows), `runs/ood/scores/ood-reconciliation.json` (corrected attribution + the discarded run's
-evidence, from `runs/ood/ood_reconciliation.py`), `runs/ood/scores/ood-analysis.json` (per-database adapter
-breakdown from `runs/ood/ood_analysis.py`, CPU-only). The adapter's 292-row cell (220/292, 220/277) is
+(base, 120 rows), `runs/t2/scores/ood-14b-120.json` (14B, 120 rows) with
+`runs/t2/ood-14b-120-query_results.json` (the 120 predictions), `runs/ood/scores/ood-reconciliation.json`
+(corrected attribution + the discarded run's evidence, from `runs/ood/ood_reconciliation.py`),
+`runs/ood/scores/ood-analysis.json` (per-database adapter breakdown from `runs/ood/ood_analysis.py`,
+CPU-only). The adapter's 292-row cell (220/292, 220/277) is
 re-derived from the 876-row ledger by the 292 ids in `runs/ood/scores/ood-base7b-292.json`; the discarded
 run's empty schema dump is `runs/ood/ood-base7b-292/db_schemas.json` (209 bytes, all 10 values empty) and its
 predictions are `runs/ood/ood-base7b-292/query_results.json`. Run metadata: `runs/ood/ood-scale7b-v2/run.json`

@@ -285,11 +285,13 @@ frozen file: **b=32, c=31, Δ+0.41 pp, p=1.0** (the 7B tie stands and is not ret
 **scale × evidence interaction is +11.20 pp** (CI [+4.98,+17.84], sign test 45/19, p=0.0016): scale helps
 only with evidence. Cross-hardware repeat: local 103 vs A100 102, b=1, c=0. The discarded empty-schema A100
 attempt is kept as `runs/t2/scores/r2-scale7b-ev.FAILED-empty-schemas.json` (0/241, never a number).
-**Post-seal addendum (2026-10-29).** OOD attribution measured and negative: base 86/120 = 71.67 % vs adapter 83/120 = 69.17 % on the same 120-question every-7th subsample (b=8, c=11, Δ −2.50 pp, p=0.648) — the adapter adds nothing on unseen schemas; its 292-row cell is 220/292; the first base-292 attempt (empty schema dump, 15/292 = 5.14 %) is discarded and never quoted; empty-schema guard added to `dev_tools/run_benchmark.py` with tests.\n\n**Secondary arms (measured, not headline).** OOD on 10 held-out databases: 620/876 = 70.78 %
-(EX/811 76.45 %, 65 dead gold; attribution to the adapter open — base arm on a 300-question subsample).
+**Post-seal addendum (2026-10-29).** OOD attribution measured and negative: base 86/120 = 71.67 % vs adapter 83/120 = 69.17 % on the same 120-question every-7th subsample (b=8, c=11, Δ −2.50 pp, p=0.648) — the adapter adds nothing on unseen schemas; its 292-row cell is 220/292; the first base-292 attempt (empty schema dump, 15/292 = 5.14 %) is discarded and never quoted; empty-schema guard added to `dev_tools/run_benchmark.py` with tests.
+
+**Secondary arms (measured, not headline).** OOD on 10 held-out databases: 620/876 = 70.78 %
+(EX/811 76.45 %, 65 dead gold). Attribution measured and negative on the same 120: base 86/120 = 71.67 % vs 7B adapter 83/120 = 69.17 % (b=8/c=11, p=0.648; 292-row adapter cell 220/292); the 14B on the same 120 is 88/120 = 73.33 % (b=10/c=8 vs base, p=0.815; b=11/c=6 vs 7B adapter, p=0.332) — all three land at 70–73 % with no significant differences, so the OOD wall is schema access; the first base-292 attempt (empty schema dump, 15/292 = 5.14 %) is discarded and never quoted.
 Retrieval few-shot k=3 on the 7B scale adapter: 117/241 = 48.55 %, +6.22 pp over the same adapter without
 retrieval (b=27, c=12, p=0.0237 — rule met); grammar: 44/241, p=0.1797, contract violations 241/241 → 0/241;
-self-consistency not measured. **Audit:** 233/233 checks, 0 findings, including both scale arms, the 14B,
+self-consistency not measured. **Audit:** 238/238 checks, 0 findings, including both scale arms, the 14B,
 the OOD set and the procedure arms.
 
 ---
