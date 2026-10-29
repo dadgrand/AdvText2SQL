@@ -134,27 +134,37 @@ def score_bird(
     env: Dict[str, str],
     db_url: Optional[str] = None,
     limit: Optional[int] = None,
+    mode: str = "local",
+    executor: Any = None,
 ) -> dict:
-    """EX/241 + EX/211 for a predictions file, using ``fixed_eval`` mode="local".
+    """EX/241 + EX/211 for a predictions file, using ``fixed_eval``.
 
     ``mode="local"`` is the shipped evaluator's semantics (gold through the repo's
     own ``sqlite_to_postgres`` regex), so the numbers are comparable with the
-    team's frozen 42.32 % baseline.
+    team's frozen 42.32 % baseline. ``mode="normalized"`` applies the AST rewrite to
+    both sides, which is the dialect-neutral robustness pass used for OOD work.
+
+    ``executor`` overrides the live-DB executor (a callable ``(sql, db_id) -> rows``);
+    the offline tests use it instead of opening a connection.
     """
 
     answer_rows = fixed_eval._answers_rows(answers)
     if limit is not None:
         answer_rows = answer_rows[:limit]
-    executor = _checkpoint_args(env, db_url)
+    run_executor = executor if executor is not None else _checkpoint_args(env, db_url)
     report = fixed_eval.score_predictions(
         predictions,
         answer_rows,
-        mode="local",
-        execute=executor,
+        mode=mode,
+        execute=run_executor,
         include_per_question=True,
     )
     report["kind"] = "bird"
-    report["protocol"] = "course PostgreSQL harness semantics (benchmarks/evaluate_bird.py:90), scored by dev_tools/fixed_eval.py mode=local"
+    report["mode"] = mode
+    report["protocol"] = (
+        f"course PostgreSQL harness semantics (benchmarks/evaluate_bird.py:90), scored by "
+        f"dev_tools/fixed_eval.py mode={mode}"
+    )
     report["items"] = _ledger_items(report)
     return report
 

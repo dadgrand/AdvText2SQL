@@ -86,6 +86,7 @@ __all__ = [
     "probe_database_schema",
     "read_schema_health",
     "run_harness",
+    "schema_link_summary",
     "verify_schemas",
 ]
 
@@ -258,6 +259,80 @@ def _server_metrics(server: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         "guided_decoding": server.get("guided_decoding"),
         "device_memory": server.get("device_memory"),
         "server_latency": server.get("latency"),
+    }
+
+
+def schema_link_summary(run_dir: Path, *, log_name: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Aggregate the per-question schema-linking records into one run.json block.
+
+    The tool records, per question, which tables/columns it kept, how many
+    characters that was and the SHA-256 of the exact block
+    (``TEXT2SQL_PROCEDURE_LOG``, one JSONL line per question).  ``run.json`` is the
+    run-level artefact, so the arm's effect belongs there too: without this a
+    "schema linking" arm would be indistinguishable from the default one on disk
+    except by its accuracy, which is exactly the kind of unverifiable claim the
+    round-2 recorder work exists to prevent.
+
+    Returns ``None`` when the arm never ran (no log, no records, all ``off``), so
+    the default path keeps a clean run.json.
+    """
+
+    path = Path(log_name or os.environ.get("TEXT2SQL_PROCEDURE_LOG") or "procedures.jsonl")
+    if not path.is_absolute():
+        path = Path(run_dir) / path
+    if not path.is_file():
+        return None
+
+    links: List[Dict[str, Any]] = []
+    questions = 0
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(record, dict):
+            continue
+        questions += 1
+        link = record.get("schema_link")
+        if isinstance(link, dict):
+            links.append(link)
+    if not links:
+        return None
+
+    def _numbers(key: str) -> List[float]:
+        values: List[float] = []
+        for link in links:
+            try:
+                values.append(float(link.get(key) or 0))
+            except (TypeError, ValueError):
+                continue
+        return values
+
+    def _mean(values: List[float]) -> Optional[float]:
+        return round(sum(values) / len(values), 1) if values else None
+
+    tables = _numbers("tables_selected")
+    columns = _numbers("columns_selected")
+    chars = _numbers("schema_chars")
+    hashes = {str(link.get("schema_sha256")) for link in links if link.get("schema_sha256")}
+    return {
+        "modes": sorted({str(link.get("mode")) for link in links}),
+        "questions": questions,
+        "questions_with_link": len(links),
+        "applied": sum(1 for link in links if link.get("applied")),
+        "fallbacks": sum(1 for link in links if link.get("fallback")),
+        "over_budget": sum(1 for link in links if link.get("over_budget")),
+        "tables_selected_mean": _mean(tables),
+        "tables_selected_max": max(tables) if tables else None,
+        "columns_selected_mean": _mean(columns),
+        "schema_chars_mean": _mean(chars),
+        "schema_chars_max": max(chars) if chars else None,
+        "distinct_schema_sha256": len(hashes),
+        "embedders": sorted({str(link.get("embedder")) for link in links}),
+        "procedure_log": str(path),
     }
 
 
@@ -670,6 +745,7 @@ def run_harness(
         ),
         **schema_block,
         "schema_probe": schema_probe,
+        "schema_link": schema_link_summary(run_dir),
         "artifacts": artifacts,
         "report": {
             "overall_accuracy": report.get("overall_accuracy"),
@@ -788,6 +864,7 @@ def run_predict_only(
         ),
         **schema_block,
         "schema_probe": schema_probe,
+        "schema_link": schema_link_summary(run_dir),
         "artifacts": artifacts,
         "n_predictions": len(predictions),
         "llm_usage": usage,

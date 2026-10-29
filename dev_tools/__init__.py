@@ -17,4 +17,8 @@ procedures_dryrun
     Offline proof that the two procedure arms (retrieval few-shot, self-consistency)
     can be enabled with no database, no GPU and no network; writes its transcript
     and the per-question procedure log into ``runs/<out>/``.
+schema_link_dryrun
+    The same proof for the schema-linking arm: ``off``, ``tables`` and ``columns``
+    against a schema dump with a stub LLM and no database, asserting that ``off`` is
+    byte-identical to the pruning prompt and that the linked block reaches the prompt.
 """
