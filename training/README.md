@@ -7,8 +7,9 @@ nothing under `benchmarks/`, `data/`, `src/` or the root entry points.
 
 | file | role |
 |---|---|
-| `build_data.py` | BIRD-train + Ambrosia-train -> SFT jsonl (`--self-test`, `--teacher`, `--feature-prompt`) |
+| `build_data.py` | BIRD-train + Ambrosia-train -> SFT jsonl (`--self-test`, `--teacher`, `--teacher-endpoint`, `--feature-prompt`, `--bird-extra`) |
 | `teacher_filter.py` | distillation filter: keep a teacher answer only if it parses **and** matches gold execution |
+| `distill.md` | **the distillation procedure** (R2-7): the exact pipeline run, the one command, the expected keep rate, the access blocker and the self-distillation fallback |
 | `train_qlora.py` | QLoRA SFT recipe with lazy imports, `--plan` dry run and `provenance.json` |
 | `fixtures/` | canned offline teacher predictions + recorded results (format examples, used by the tests) |
 | `../tests/test_data.py` | the offline acceptance suite for everything above |

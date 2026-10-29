@@ -84,12 +84,13 @@ def _python() -> str:
     return sys.executable
 
 
-def run_build(*args: str, out: str | None = None, timeout: int = 120) -> subprocess.CompletedProcess:
+def run_build(*args: str, out: str | None = None, timeout: int = 120,
+              env: dict | None = None) -> subprocess.CompletedProcess:
     cmd = [_python(), str(BUILD), *args]
     if out is not None:
         cmd += ["--out", out]
     return subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True, timeout=timeout,
-                          env=OFFLINE_ENV)
+                          env={**OFFLINE_ENV, **(env or {})})
 
 
 def run_training_blocked(body: str, timeout: int = 120) -> subprocess.CompletedProcess:
@@ -411,6 +412,114 @@ def test_teacher_strict_mode_keeps_only_verified_rows(tmp_path):
     assert stats["bird_train"] == 2, "strict distillation keeps only teacher-verified BIRD rows"
     assert stats["combined_train"] == 2 + stats["ambrosia_train"]
     assert all(row["target_source"] == "teacher" for row in read_jsonl(out / "sft_bird_train.jsonl"))
+
+
+# ------------------------------------------------------------------------------------------------
+# 5b. --teacher-endpoint: the access side of distillation, as a dry run that never touches the network
+# ------------------------------------------------------------------------------------------------
+ENDPOINT = "https://teacher.example/v1"
+#: A key that is syntactically present and deliberately not real: nothing here talks to a teacher.
+SYNTHETIC_KEY = {"TEACHER_API_KEY": "synthetic-not-a-real-key"}
+NO_KEY = {"TEACHER_API_KEY": ""}
+
+
+def test_endpoint_dry_run_writes_the_plan_and_stops_without_a_dataset(tmp_path):
+    out = tmp_path / "blocked"
+    proc = run_build("--teacher-endpoint", ENDPOINT, out=str(out), env=SYNTHETIC_KEY)
+    assert proc.returncode == 3, f"a blocked distillation is neither success nor a data error: {proc.stderr}"
+    assert "BLOCKED" in proc.stderr
+
+    plan = json.loads((out / "distill_plan.json").read_text(encoding="utf-8"))
+    assert plan["key_present"] is True
+    assert plan["predictions_supplied"] is False
+    assert plan["endpoint_host"] == "teacher.example"
+    assert plan["key_env"] == "TEACHER_API_KEY"
+    assert plan["n_questions"] == 357, "the plan must name the real training set, never the dev files"
+    assert "GPT-5.4-mini" in plan["teacher_recipe"] and "FEAT_" in plan["teacher_recipe"]
+    assert plan["expected_kept"]["n_kept"] == 200 and plan["expected_kept"]["n_input"] == 241
+    assert plan["expected_kept"]["not_a_teacher_estimate"] is True
+    assert plan["blockers"] and "no predictions file" in plan["blockers"][0]
+    assert plan["command"].startswith("python training/build_data.py")
+    assert "--teacher <predictions.json>" in plan["command"]
+    # nothing that could be mistaken for a training set
+    assert sorted(p.name for p in out.iterdir()) == ["distill_plan.json"]
+
+
+def test_endpoint_requires_the_key_and_names_the_variable(tmp_path):
+    proc = run_build("--teacher-endpoint", ENDPOINT, out=str(tmp_path / "nokey"), env=NO_KEY)
+    assert proc.returncode == 2
+    assert "TEACHER_API_KEY" in proc.stderr
+
+    # the variable name is configurable, and the error follows it
+    proc = run_build("--teacher-endpoint", ENDPOINT, "--teacher-key-env", "SPECIAL_TEACHER_KEY",
+                     out=str(tmp_path / "nokey2"), env=NO_KEY)
+    assert proc.returncode == 2
+    assert "SPECIAL_TEACHER_KEY" in proc.stderr
+
+
+def test_endpoint_rejects_a_url_it_could_not_have_called(tmp_path):
+    proc = run_build("--teacher-endpoint", "ftp://teacher.example/v1", out=str(tmp_path / "bad"),
+                     env=SYNTHETIC_KEY)
+    assert proc.returncode == 2
+    assert "http(s) URL" in proc.stderr
+
+
+def test_endpoint_builds_from_predictions_with_the_network_blocked(tmp_path):
+    """The proof that the "dry run" is honest: the build completes with sockets made unusable.
+
+    A `sitecustomize` on PYTHONPATH replaces `socket.socket`/`create_connection`/`getaddrinfo` with
+    raisers, so any attempt to open a connection is a hard failure rather than a slow test.
+    """
+    blocker = tmp_path / "blocked_site"
+    blocker.mkdir()
+    (blocker / "sitecustomize.py").write_text(
+        "import socket\n"
+        "def _no_network(*args, **kwargs):\n"
+        "    raise RuntimeError('network access attempted during a dry run')\n"
+        "socket.socket = _no_network\n"
+        "socket.create_connection = _no_network\n"
+        "socket.getaddrinfo = _no_network\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "distilled"
+    cmd = [_python(), str(BUILD), "--self-test",
+           "--teacher-endpoint", ENDPOINT,
+           "--teacher", str(FIXTURES / "teacher_predictions.json"),
+           "--teacher-results", str(FIXTURES / "teacher_results.json"),
+           "--out", str(out)]
+    proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True, timeout=120,
+                          env={**OFFLINE_ENV, **SYNTHETIC_KEY, "PYTHONPATH": str(blocker)})
+    assert proc.returncode == 0, proc.stderr + proc.stdout
+    assert "network access attempted" not in proc.stderr
+
+    report = json.loads((out / "teacher_report.json").read_text(encoding="utf-8"))
+    assert report["kept"] == 2 and report["exec_checked"] is True
+    endpoint = report["endpoint"]
+    assert endpoint["url"] == ENDPOINT
+    assert endpoint["host"] == "teacher.example"
+    assert endpoint["key_env"] == "TEACHER_API_KEY"
+    assert endpoint["key_present"] is True
+    assert endpoint["network_calls"] == 0
+    assert endpoint["n_questions"] == 357
+    assert "GPT-5.4-mini" in endpoint["teacher_recipe"]
+    assert "network_calls=0" in proc.stdout
+    # the plan is written next to the dataset, so provenance and plan cannot drift apart
+    plan = json.loads((out / "distill_plan.json").read_text(encoding="utf-8"))
+    assert plan["predictions_supplied"] is True
+    assert plan["predictions_file"] == "teacher_predictions.json"
+
+
+def test_endpoint_plan_flags_parse_only_distillation(tmp_path):
+    """With predictions but no recorded results the filter cannot verify execution — say so."""
+    out = tmp_path / "parse_only"
+    proc = run_build("--self-test", "--teacher-endpoint", ENDPOINT,
+                     "--teacher", str(FIXTURES / "teacher_predictions.json"), out=str(out),
+                     env=SYNTHETIC_KEY)
+    assert proc.returncode == 0, proc.stderr
+    assert "parse-only distillation" in proc.stderr
+    report = json.loads((out / "teacher_report.json").read_text(encoding="utf-8"))
+    assert report["exec_checked"] is False
+    assert report["endpoint"]["network_calls"] == 0
 
 
 def test_feature_prompt_block_is_inserted_verbatim(tmp_path):

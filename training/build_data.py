@@ -14,6 +14,12 @@ executed and fixed) into the branch, then hardened:
     ``synth-from-gold`` everywhere, because it leaks the query's columns into the prompt.
   * ``--teacher`` -- distill: keep only teacher SQL that parses as PostgreSQL and matches gold
     execution (``training/teacher_filter.py``; execution is injected, never opened here).
+  * ``--teacher-endpoint URL`` -- the access side of distillation, as a **dry run that never touches
+    the network**: the URL is recorded, ``$TEACHER_API_KEY`` (or ``--teacher-key-env``) must be set,
+    and with ``--teacher`` the predictions are filtered while the endpoint goes into the provenance
+    (``network_calls: 0``).  Without ``--teacher`` it writes ``distill_plan.json`` -- recipe, question
+    file, the one command to run, the expected keep rate and the precise blocker -- and exits 3
+    without writing a dataset.  See ``training/distill.md``.
   * ``--feature-prompt`` -- train the adapter under the same prompt surface the team uses at
     inference: the feature block is inserted verbatim into the user prompt.
   * ``--bird-extra DIR`` -- SCALE-UP mode (round 2).  Every question/SQL file in ``DIR`` is read
@@ -51,6 +57,9 @@ Usage (from the repo root, see ``training/README.md``)::
         --schemas ../data_cache/bird_train/db_schemas_scale.json --out training/out-scale
     python training/build_data.py --teacher training/fixtures/teacher_predictions.json \
         --teacher-results training/fixtures/teacher_results.json
+    python training/build_data.py --teacher-endpoint https://teacher.example/v1 \
+        --teacher training/fixtures/teacher_predictions.json \
+        --teacher-results training/fixtures/teacher_results.json
     python training/build_data.py --feature-prompt training/feature_block.txt
 
 Requires: ``sqlglot==30.23.0`` (hard version check; the measured baseline is a function of it).
@@ -68,6 +77,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 import sqlglot
 from sqlglot import exp, parse_one
@@ -586,6 +596,14 @@ def build_parser() -> argparse.ArgumentParser:
                         help=f"continue even if dropped != {EXPECTED_BIRD_DROP}")
     parser.add_argument("--teacher", default=None,
                         help="teacher predictions (JSON object/list or JSONL) -> distillation mode")
+    parser.add_argument("--teacher-endpoint", default=None, metavar="URL",
+                        help="the team teacher's http(s) base URL. RECORDED ONLY: this pipeline never "
+                             "calls it. With --teacher the predictions are filtered and the endpoint "
+                             "goes into the provenance; without --teacher the build writes "
+                             "distill_plan.json and stops (exit 3) with the exact blocking reason")
+    parser.add_argument("--teacher-key-env", default="TEACHER_API_KEY",
+                        help="environment variable that must hold the endpoint key for "
+                             "--teacher-endpoint (the value is never read into the report)")
     parser.add_argument("--teacher-results", default=None,
                         help="recorded execution results for --teacher (offline replay executor)")
     parser.add_argument("--teacher-require-exec", action="store_true",
@@ -1190,10 +1208,95 @@ def exclude_unschemaed_rows(
 
 
 
+DISTILL_PLAN_FILE = "distill_plan.json"
+#: The team's best pipeline, as named by the task that owns distillation (R2-7).  Recorded in the
+#: plan so the command is self-describing; it is a *label*, not a measurement made here.
+DISTILL_TEACHER_RECIPE = (
+    "GPT-5.4-mini + FEAT_2+3+4+8+12+17+18+19+27+29+30+32+33+35"
+)
+#: The only measured keep rate this repo owns: the round-1 demo filter run on the 241 BIRD dev
+#: questions with a deliberately damaged teacher file (`data_cache/artifacts/distill_sft_report.json`,
+#: `docs/LOCAL_BENCH.md` §6).  200 kept = 11 mismatches + 19 non-executable + 10 omitted + 1 gold
+#: timeout dropped.  It measures what the *filter* does with a teacher of known quality -- not the
+#: accuracy of any teacher we have not run, and not a prediction for GPT-5.4-mini.
+EXPECTED_KEPT_DEMO = {
+    "n_kept": 200,
+    "n_input": 241,
+    "share": 0.8299,
+    "source": "data_cache/artifacts/distill_sft_report.json (round-1 demo, damaged teacher file)",
+    "drop_counts": {"mismatch": 11, "pred_error": 19, "missing_prediction": 10, "gold_unusable": 1},
+    "not_a_teacher_estimate": True,
+}
+
+
+def teacher_endpoint_status(args: argparse.Namespace) -> dict:
+    """What ``--teacher-endpoint`` knows without touching the network.
+
+    This pipeline never calls the endpoint: the team's pipeline produces the predictions, this repo
+    verifies them.  So the "dry run" is the honest whole story -- it records the endpoint, proves the
+    key is present, states exactly what is still missing, and writes that next to the build.
+    """
+    endpoint = args.teacher_endpoint
+    parts = urlsplit(endpoint)
+    if parts.scheme not in ("http", "https") or not parts.netloc:
+        raise BuildError(
+            f"--teacher-endpoint must be an http(s) URL with a host, got {endpoint!r}. It is only "
+            f"recorded in the distillation provenance; this pipeline never calls it."
+        )
+    key_env = args.teacher_key_env
+    key_present = bool(os.environ.get(key_env))
+    predictions = getattr(args, "teacher", None)
+    results = getattr(args, "teacher_results", None)
+    questions = read_json(args.train) if os.path.exists(args.train) else []
+    n_questions = len(questions) if isinstance(questions, list) else 0
+
+    blockers = []
+    if not key_present:
+        blockers.append(
+            f"the endpoint key is not in the environment: export {key_env}=<key> "
+            f"(the variable name is configurable with --teacher-key-env)"
+        )
+    if not predictions:
+        blockers.append(
+            "no predictions file: --teacher <file> is required. The team's pipeline run produces it "
+            "(a JSON object, a JSON list or JSONL of {question_id, prediction|predicted_sql|sql}); "
+            "this pipeline does not call the endpoint itself, by design"
+        )
+    if predictions and not results and not args.teacher_require_exec:
+        blockers.append(
+            "parse-only distillation: --teacher-results <file> is missing, so teacher answers cannot "
+            "be execution-verified and the report will say mode=parse-only. Supply the recorded "
+            "results (or pass --teacher-require-exec to keep nothing instead of guessing)"
+        )
+    return {
+        "mode": "dry-run (this pipeline never makes a network call)",
+        "endpoint": endpoint,
+        "endpoint_host": parts.netloc,
+        "key_env": key_env,
+        "key_present": key_present,
+        "predictions_supplied": bool(predictions),
+        "predictions_file": os.path.basename(predictions) if predictions else None,
+        "results_supplied": bool(results),
+        "results_file": os.path.basename(results) if results else None,
+        "question_file": os.path.basename(args.train),
+        "n_questions": n_questions,
+        "teacher_recipe": DISTILL_TEACHER_RECIPE,
+        "expected_kept": EXPECTED_KEPT_DEMO,
+        "command": (
+            "python training/build_data.py --schemas db_schemas.json --out <dir> "
+            f"--teacher-endpoint {endpoint} --teacher <predictions.json> "
+            "--teacher-results <results.json>"
+        ),
+        "blockers": blockers,
+        "ready": not blockers,
+    }
+
+
 def stage_teacher(args: argparse.Namespace, bird: dict, train_rows: list[dict]) -> dict | None:
     """Stage [5a]: distillation.  Returns the report (or None when not requested)."""
     if not args.teacher:
         return None
+
     if not os.path.exists(args.teacher):
         raise BuildError(f"--teacher file not found: {args.teacher}")
     predictions = teacher_filter.load_predictions(args.teacher)
@@ -1243,6 +1346,23 @@ def stage_teacher(args: argparse.Namespace, bird: dict, train_rows: list[dict]) 
     report["replay_file"] = replay_file
     report["mode_flag"] = args.teacher_mode
     report["applied_to_train_rows"] = applied
+    if args.teacher_endpoint:
+        # Provenance only: the endpoint is never contacted from here (see teacher_endpoint_status).
+        status = teacher_endpoint_status(args)
+        report["endpoint"] = {
+            "url": status["endpoint"],
+            "host": status["endpoint_host"],
+            "key_env": status["key_env"],
+            "key_present": status["key_present"],
+            "network_calls": 0,
+            "teacher_recipe": status["teacher_recipe"],
+            "question_file": status["question_file"],
+            "n_questions": status["n_questions"],
+        }
+        print(f"[teacher] endpoint={status['endpoint_host']} key_env={status['key_env']} "
+              f"key_present={status['key_present']} network_calls=0 (provenance only)")
+        for blocker in status["blockers"]:
+            print(f"[teacher] WARNING: {blocker}", file=sys.stderr)
     return report
 
 
@@ -1432,6 +1552,34 @@ def build(args: argparse.Namespace) -> int:
         print(f"[tokenizer] {args.tokenizer_model} (local files only)")
     else:
         print(f"[tokenizer] none: {token_basis}")
+
+    # --teacher-endpoint: record the endpoint, prove the key, and stop with the exact blocker when
+    # the predictions do not exist yet.  This runs before any data stage, so a blocked distillation
+    # costs seconds and can never leave a half-distilled dataset behind that looks trainable.
+    if args.teacher_endpoint:
+        status = teacher_endpoint_status(args)
+        write_json(os.path.join(args.out, DISTILL_PLAN_FILE), status)
+        print(f"[teacher-endpoint] {status['endpoint_host']} key_env={status['key_env']} "
+              f"key_present={status['key_present']} predictions="
+              f"{status['predictions_file'] or 'MISSING'} -> {DISTILL_PLAN_FILE}")
+        if not status["key_present"]:
+            raise BuildError(
+                f"--teacher-endpoint {status['endpoint']} needs the key in ${status['key_env']} "
+                f"(configurable with --teacher-key-env). Nothing was built. If you have a "
+                f"predictions file instead of endpoint access, drop --teacher-endpoint: the "
+                f"distillation does not need the network, only the file."
+            )
+        if not status["predictions_supplied"]:
+            print("BLOCKED: the endpoint is configured but no predictions exist yet.", file=sys.stderr)
+            for blocker in status["blockers"]:
+                print(f"  - {blocker}", file=sys.stderr)
+            print(f"  plan written to {os.path.join(args.out, DISTILL_PLAN_FILE)}; the one command "
+                  f"that will run when the file lands is in its `command` field. No dataset was "
+                  f"written: a parse-only or empty distillation would be worse than none.",
+                  file=sys.stderr)
+            return 3
+        for blocker in status["blockers"]:
+            print(f"[teacher-endpoint] WARNING: {blocker}", file=sys.stderr)
 
     bird = stage_bird(args)
     extra = stage_bird_extra(args, bird) if args.bird_extra else None
