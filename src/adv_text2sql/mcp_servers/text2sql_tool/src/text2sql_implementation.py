@@ -49,6 +49,16 @@ from .retrieval import (
     render_examples_block,
     split_question_evidence,
 )
+from .schema_linking import (
+    DEFAULT_EMBEDDER as DEFAULT_SCHEMA_LINK_EMBEDDER,
+    DEFAULT_K as DEFAULT_SCHEMA_LINK_K,
+    DEFAULT_MAX_CHARS as DEFAULT_SCHEMA_LINK_MAX_CHARS,
+    DEFAULT_MIN_SCORE as DEFAULT_SCHEMA_LINK_MIN_SCORE,
+    EMBEDDER_CHOICES as SCHEMA_LINK_EMBEDDER_CHOICES,
+    SCHEMA_LINK_MODES,
+    LinkedSchema,
+    link_schema,
+)
 from .schema_pruning import prune_schema
 from .self_consistency import (
     Candidate,
@@ -157,6 +167,22 @@ class Text2SQLConfig:
     procedure_log: str | None = None
     """JSONL path for per-question arm metadata; a relative path lands in the run dir."""
 
+    # -- inference-time schema linking, OFF by default (docs/SCHEMA_LINKING.md) -----
+    # ``off`` keeps the tool's schema block byte-identical to the pre-change path
+    # (prune_schema with the same arguments); ``tables``/``columns`` select what the
+    # model sees. The selector may only read the schema, the question and the
+    # evidence - never gold SQL, never a reference answer.
+    schema_link: str = "off"
+    """``off`` | ``tables`` | ``columns``; see :mod:`schema_linking`."""
+    schema_link_k: int = DEFAULT_SCHEMA_LINK_K
+    """Tables kept by the linker (plus join closure), bounded by its hard cap."""
+    schema_link_min_score: float = DEFAULT_SCHEMA_LINK_MIN_SCORE
+    """Minimum score for a table to be selected; no table above it means fallback."""
+    schema_link_max_chars: int = DEFAULT_SCHEMA_LINK_MAX_CHARS
+    """Hard character budget for the linked block; the best table is always kept."""
+    schema_link_embedder: str = DEFAULT_SCHEMA_LINK_EMBEDDER
+    """``auto`` (local sentence-transformer, else hashing), ``hash``, ``none``."""
+
 
 PROCEDURE_ENV_VARS: Final[Mapping[str, str]] = {
     "retrieval_few_shot": "TEXT2SQL_RETRIEVAL_FEWSHOT",
@@ -173,6 +199,11 @@ PROCEDURE_ENV_VARS: Final[Mapping[str, str]] = {
     "self_consistency_budget_s": "TEXT2SQL_SC_BUDGET_S",
     "self_consistency_row_cap": "TEXT2SQL_SC_ROW_CAP",
     "procedure_log": "TEXT2SQL_PROCEDURE_LOG",
+    "schema_link": "TEXT2SQL_SCHEMA_LINK",
+    "schema_link_k": "TEXT2SQL_SCHEMA_LINK_K",
+    "schema_link_min_score": "TEXT2SQL_SCHEMA_LINK_MIN_SCORE",
+    "schema_link_max_chars": "TEXT2SQL_SCHEMA_LINK_MAX_CHARS",
+    "schema_link_embedder": "TEXT2SQL_SCHEMA_LINK_EMBEDDER",
 }
 """Env overrides for the procedure arms.
 
@@ -229,6 +260,11 @@ _ENV_PARSERS: Final[Mapping[str, Any]] = {
     "self_consistency_budget_s": _env_float,
     "self_consistency_row_cap": _env_int,
     "procedure_log": _env_str,
+    "schema_link": _env_str,
+    "schema_link_k": _env_int,
+    "schema_link_min_score": _env_float,
+    "schema_link_max_chars": _env_int,
+    "schema_link_embedder": _env_str,
 }
 
 
@@ -399,6 +435,7 @@ class Text2SQLGenerator:
         self.config = resolve_procedure_config(config or Text2SQLConfig())
         self._validate_procedure_config()
         self.ambiguous_mode = resolve_ambiguity_mode(self.config.ambiguous_mode)
+        self.schema_link_mode = str(self.config.schema_link).strip().lower()
 
         self.db_schema: str = ""
         self.schema_source: str = "unset"
@@ -418,6 +455,8 @@ class Text2SQLGenerator:
             "query_used_evidence": False,
         }
         self.last_self_consistency: dict[str, Any] | None = None
+        self.last_schema_link: dict[str, Any] | None = None
+        """Per-question schema-linking record; ``None`` when the arm is off."""
         self._retriever: Retriever | None = None
         self._retriever_ready = False
         self._procedure_log_failed = False
@@ -470,6 +509,24 @@ class Text2SQLGenerator:
                     "self_consistency_n=%d is capped at %d candidates",
                     config.self_consistency_n,
                     HARD_CAP_N,
+                )
+        mode = str(config.schema_link).strip().lower()
+        if mode not in SCHEMA_LINK_MODES:
+            raise ValueError(
+                f"unknown schema_link mode {config.schema_link!r}; expected one of {SCHEMA_LINK_MODES}"
+            )
+        if mode != "off":
+            if int(config.schema_link_k) < 1:
+                raise ValueError("schema_link_k must be >= 1")
+            if float(config.schema_link_min_score) < 0.0:
+                raise ValueError("schema_link_min_score must be >= 0")
+            if int(config.schema_link_max_chars) < 200:
+                raise ValueError("schema_link_max_chars must be >= 200")
+            embedder = str(config.schema_link_embedder).strip().lower()
+            if embedder not in SCHEMA_LINK_EMBEDDER_CHOICES:
+                raise ValueError(
+                    f"unknown schema_link_embedder {config.schema_link_embedder!r}; "
+                    f"expected one of {SCHEMA_LINK_EMBEDDER_CHOICES}"
                 )
 
     # ------------------------------------------------------------------ build
@@ -632,6 +689,7 @@ class Text2SQLGenerator:
     async def _query(self, user_query: Any) -> dict[str, Any]:
         question = _coerce_question(user_query)
         self.last_self_consistency = None
+        self.last_schema_link = None
         self.last_retrieval = {
             "injected": 0,
             "examples": [],
@@ -760,9 +818,19 @@ class Text2SQLGenerator:
             "row_cap": int(self.config.self_consistency_row_cap),
             "last": self.last_self_consistency,
         }
+        schema_link: dict[str, Any] = {
+            "enabled": self.schema_link_mode != "off",
+            "mode": self.schema_link_mode,
+            "k": int(self.config.schema_link_k),
+            "min_score": float(self.config.schema_link_min_score),
+            "max_chars": int(self.config.schema_link_max_chars),
+            "embedder": str(self.config.schema_link_embedder),
+            "last": self.last_schema_link,
+        }
         return {
             "retrieval_few_shot": retrieval,
             "self_consistency": consistency,
+            "schema_link": schema_link,
             "procedure_log": self.config.procedure_log,
         }
 
@@ -777,13 +845,18 @@ class Text2SQLGenerator:
         path = self.config.procedure_log
         if not path:
             return
-        if not (self.config.retrieval_few_shot or self.config.self_consistency):
+        if not (
+            self.config.retrieval_few_shot
+            or self.config.self_consistency
+            or self.schema_link_mode != "off"
+        ):
             return
         record = {
             "db_id": self._db_id(),
             "question": question,
             "retrieval": self.last_retrieval,
             "self_consistency": self.last_self_consistency,
+            "schema_link": self.last_schema_link,
             "config": {
                 "retrieval_few_shot": bool(self.config.retrieval_few_shot),
                 "retrieval_k": int(self.config.retrieval_k),
@@ -793,6 +866,11 @@ class Text2SQLGenerator:
                 "self_consistency_n": clamp_candidate_count(self.config.self_consistency_n),
                 "self_consistency_temperature": float(self.config.self_consistency_temperature),
                 "self_consistency_seed": int(self.config.self_consistency_seed),
+                "schema_link": self.schema_link_mode,
+                "schema_link_k": int(self.config.schema_link_k),
+                "schema_link_min_score": float(self.config.schema_link_min_score),
+                "schema_link_max_chars": int(self.config.schema_link_max_chars),
+                "schema_link_embedder": str(self.config.schema_link_embedder),
             },
         }
         if self._procedure_log_failed:
@@ -805,7 +883,62 @@ class Text2SQLGenerator:
             logger.exception("Could not append to the procedure log %s; continuing without it", path)
 
     def _schema_for(self, question: str) -> str:
-        """Return the schema block to put in the prompt, pruned when it pays off."""
+        """Return the schema block to put in the prompt.
+
+        ``schema_link=off`` (the default) is today's behaviour byte for byte: the
+        same :func:`prune_schema` call with the same arguments, which a test pins
+        against the pre-change output. ``tables``/``columns`` run the schema-linking
+        arm and fall back to that same pruning result whenever the linker cannot
+        produce a non-empty block - a prompt without a schema is a guaranteed zero,
+        not a token saving.
+        """
+
+        if self.schema_link_mode == "off":
+            return self._baseline_schema_for(question)
+
+        # The harness may pass the BIRD evidence inside the question string; the
+        # linker scores against both parts and records whether evidence was used.
+        plain_question, evidence = split_question_evidence(question)
+        linked: LinkedSchema = link_schema(
+            self.db_schema,
+            plain_question,
+            evidence=evidence,
+            mode=self.schema_link_mode,
+            k=int(self.config.schema_link_k),
+            min_score=float(self.config.schema_link_min_score),
+            max_chars=int(self.config.schema_link_max_chars),
+            embedder=str(self.config.schema_link_embedder).strip().lower(),
+        )
+        metadata = linked.metadata()
+        if linked.applied and linked.schema:
+            self.last_schema_link = metadata
+            self.last_selected_tables = linked.tables
+            logger.debug(
+                "Schema linking (%s) kept %d/%d tables and %d/%d columns (%d chars)",
+                self.schema_link_mode,
+                len(linked.tables),
+                linked.total_tables,
+                linked.columns_selected,
+                linked.total_columns,
+                linked.schema_chars,
+            )
+            return linked.schema
+
+        # Documented fallback: keep today's pruning result, and say so in the record
+        # so a "linked" arm that silently did nothing is visible in the artefact.
+        metadata["fallback"] = "prune_schema"
+        metadata["fallback_reason"] = metadata.get("reason") or "the linker produced no block"
+        self.last_schema_link = metadata
+        logger.info(
+            "Schema linking (%s) produced no block (%s); falling back to pruning",
+            self.schema_link_mode,
+            metadata["fallback_reason"],
+        )
+        return self._baseline_schema_for(question)
+
+    def _baseline_schema_for(self, question: str) -> str:
+        """Today's schema selection, unchanged: pruning or the whole schema."""
+
         if not self.config.prune_schema:
             self.last_selected_tables = ()
             return self.db_schema
