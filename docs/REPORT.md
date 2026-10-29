@@ -1476,7 +1476,7 @@ robustness pass (a separate scoring in `mode=normalized`) was run on that same b
 discarded with it. The valid base arm is `ood-base7b-120`, whose schema dump is 9,872 bytes; an **empty-schema guard now
 lives in `dev_tools/run_benchmark.py`** so that a run whose schema dump contains an empty value is refused
 before predictions unless `--allow-empty-schemas` is passed (the refusal is written into `run.json`), the
-same way an unreachable `/health` is refused; 20 offline tests pin it in `tests/test_schema_guard.py`. The discarded run and its evidence are
+same way an unreachable `/health` is refused; 26 offline tests pin it in `tests/test_schema_guard.py`. The discarded run and its evidence are
 kept in `runs/ood/scores/ood-reconciliation.json`.
 
 **Honest limits.** (1) The base arm is 120 questions; the paired attribution applies to those 120 and the

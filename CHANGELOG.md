@@ -78,6 +78,29 @@ round-2 bundle against `f4d3d4a`.
 - `runs/t2/recorder-proof-bird-small*` — the short re-run that shows the new fields on disk (ignored
   artifact; quoted in `docs/REPORT.md` §10.3).
 
+### Schema guard — an empty schema fetch must never be reported as a run (`dev_tools/run_benchmark.py`)
+
+- `dev_tools/run_benchmark.py` — the last silent-failure hole in the measurement path. `benchmarks/base.py`
+  writes `{db_id: tool.db_schema}` and the tool renders `""` when it cannot read a schema (wrong credentials,
+  tunnel down); the harness then runs every question against empty prompts and produces a plausible ledger.
+  The wrapper now (a) probes **one** database through the tool's own DSN before spending
+  (`probe_database_schema` + `preflight_schema_problem`) and refuses on a failed probe, (b) reads the produced
+  `db_schemas.json` after the run (`read_schema_health`, minimum 20 non-space characters per block) and
+  refuses — exit 2 — when any value is empty or truncated, naming the first databases and pointing at the
+  `.env` quoting/CRLF trap, and (c) writes the evidence into `run.json` even when refusing:
+  `schemas_bytes_total`, `schemas_db_count`, `schemas_chars_total`, `schemas_empty_count`,
+  `schemas_empty_databases`, `schemas_problem`, `schema_probe`, `schemas_allowed_empty`, plus `status:
+  refused` and the message. `--allow-empty-schemas` keeps a deliberate empty-schema experiment possible and
+  is recorded, so it can never be mistaken for a working fetch. Reason: two round-2 runs finished this way
+  (`runs/t2/r2-scale7b-ev`; `runs/ood/ood-base7b-292` scored 5.14 % where the same model with a real schema
+  scored 71.67 %) and the second nearly became a headline claim.
+- `tests/test_schema_guard.py` — 26 offline tests: healthy / one-empty / truncated / empty-dict / missing /
+  unreadable / wrong-shape schema files, the refusal wording, the escape hatch recorded, `first_db_id`, the
+  probe (success, redacted failure, skipped), the pre-flight refusal, and both run entrypoints
+  (`run_predict_only`, `run_harness`) end to end with a stub harness. Two tests use the real incident dumps
+  (`runs/ood/ood-base7b-292` 209 B all-empty, `ood-base7b-120` 9,872 B healthy) and skip on a clean checkout;
+  an inline ten-database reproduction always runs.
+
 ### Thinking mode — Qwen3-class arms (`dev_tools/serve_openai.py`)
 
 - `dev_tools/serve_openai.py` — explicit reasoning switch plus post-filter, both reported by `/health`.
@@ -241,7 +264,7 @@ round-2 bundle against `f4d3d4a`.
   `tests/test_local_bench.py` (extended): the matrix assembler, the grammar proxy/grammar replay, the
   procedure arms, the empty-schema guard (refuse a run whose schema dump has an empty value unless
   `--allow-empty-schemas`), the recorder/`/health` provenance, the feature-block wiring and the
-  scale-up/group-split build. Suite: **265 passed** (offline, ~69 s; `docs/RUNBOOK.md` §0).
+  scale-up/group-split build. Suite: **267 passed** (offline, ~69 s; `docs/RUNBOOK.md` §0).
 
 ### Results — the round-2 headline (14B) and the 7B mechanism
 
