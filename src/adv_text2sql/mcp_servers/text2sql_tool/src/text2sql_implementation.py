@@ -21,23 +21,42 @@ Ambiguity mode (see :data:`DEFAULT_AMBIGUITY_MODE` and ``Text2SQLConfig``):
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import logging
 import os
 import random
 import re
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, replace
 from textwrap import dedent
-from typing import Any, Final, Sequence
+from typing import Any, Final, Mapping, Sequence
 
 from .prompts import (
     AMBIGUITY_PROMPT_TEMPLATE,
+    FEW_SHOT_PROMPT_TEMPLATE,
     REPAIR_EXECUTION_PROMPT_TEMPLATE,
     REPAIR_SYNTAX_PROMPT_TEMPLATE,
     SQL_DIALECT,
     SQL_PROMPT_TEMPLATE,
     SYSTEM_PROMPT_TEMPLATE,
 )
+from .retrieval import (
+    EMBEDDER_NAMES,
+    HARD_CAP_K,
+    Retriever,
+    build_retriever,
+    render_examples_block,
+    split_question_evidence,
+)
 from .schema_pruning import prune_schema
+from .self_consistency import (
+    Candidate,
+    HARD_CAP_N,
+    choose,
+    clamp_candidate_count,
+    sampling_args,
+)
 from .sql_utils import ValidationResult, strip_code_fence, validate_sql
 
 try:  # pragma: no cover - exercised by the production environment only
@@ -102,6 +121,139 @@ class Text2SQLConfig:
     """Transport retries only; the SQL repair attempt is separate and capped at 1."""
     llm_timeout_s: float = 120.0
     retry_backoff_s: float = 0.4
+
+    # -- optional procedure arms, both OFF by default (docs/PROCEDURES.md) ---------
+    # The two arms below are orthogonal to the adapter: they change what the model
+    # is asked and how its samples are combined, not the weights. Keeping them off
+    # by default is what makes "adapter + procedure" a separate, measurable cell
+    # instead of a silent change to the round-1 baseline.
+    retrieval_few_shot: bool = False
+    """Inject the k most similar *training* questions as worked examples."""
+    retrieval_k: int = 3
+    """Capped at ``retrieval.HARD_CAP_K``; each example is prompt tokens per call."""
+    retrieval_min_similarity: float | None = None
+    """None uses the embedder's own default: the two backends share no score scale."""
+    retrieval_include_evidence: bool = True
+    """Whether evidence joins the similarity query and the rendered example block."""
+    retrieval_bank: str | None = None
+    """None resolves to ``data/train_queries.json``; dev files are refused."""
+    retrieval_embedder: str = "sentence-transformer"
+    """``sentence-transformer`` (local weights only) or ``hash`` (dependency-free)."""
+    retrieval_model: str | None = None
+    """None resolves to the embedder's default; the weights must already be on disk."""
+    db_id: str | None = None
+    """Override the database name scoping the bank; derived from ``db_uri`` otherwise."""
+    self_consistency: bool = False
+    """Draw n candidates and vote: result sets first, normalised SQL text second."""
+    self_consistency_n: int = 5
+    """Capped at ``self_consistency.HARD_CAP_N``; every candidate is a full LLM call."""
+    self_consistency_temperature: float = 0.7
+    self_consistency_seed: int = 0
+    """Candidate i is drawn with ``seed + i``; the round is therefore reproducible."""
+    self_consistency_budget_s: float = 120.0
+    """Wall-clock cap on the whole round (generation *and* execution); partial rounds vote."""
+    self_consistency_row_cap: int = 200
+    """Rows kept per candidate for the result-set comparison."""
+    procedure_log: str | None = None
+    """JSONL path for per-question arm metadata; a relative path lands in the run dir."""
+
+
+PROCEDURE_ENV_VARS: Final[Mapping[str, str]] = {
+    "retrieval_few_shot": "TEXT2SQL_RETRIEVAL_FEWSHOT",
+    "retrieval_k": "TEXT2SQL_RETRIEVAL_K",
+    "retrieval_min_similarity": "TEXT2SQL_RETRIEVAL_MIN_SIMILARITY",
+    "retrieval_include_evidence": "TEXT2SQL_RETRIEVAL_EVIDENCE",
+    "retrieval_bank": "TEXT2SQL_RETRIEVAL_BANK",
+    "retrieval_embedder": "TEXT2SQL_RETRIEVAL_EMBEDDER",
+    "retrieval_model": "TEXT2SQL_RETRIEVAL_MODEL",
+    "self_consistency": "TEXT2SQL_SELF_CONSISTENCY",
+    "self_consistency_n": "TEXT2SQL_SC_N",
+    "self_consistency_temperature": "TEXT2SQL_SC_TEMPERATURE",
+    "self_consistency_seed": "TEXT2SQL_SC_SEED",
+    "self_consistency_budget_s": "TEXT2SQL_SC_BUDGET_S",
+    "self_consistency_row_cap": "TEXT2SQL_SC_ROW_CAP",
+    "procedure_log": "TEXT2SQL_PROCEDURE_LOG",
+}
+"""Env overrides for the procedure arms.
+
+Why the environment and not a constructor argument: ``benchmarks/base.py`` builds
+the tool as ``tool_cls(db_uri=..., llm_client=...)`` and that file is part of the
+sealed harness contract (ADR-001). An eval arm is therefore switched on by the
+process environment, which ``dev_tools/run_benchmark.py`` snapshots into run.json
+under ``procedure_env`` - so an artifact still says which arms produced it.
+"""
+
+_TRUTHY: Final = frozenset({"1", "true", "yes", "on"})
+_FALSY: Final = frozenset({"0", "false", "no", "off"})
+
+
+def _env_bool(name: str, raw: str) -> bool:
+    value = raw.strip().casefold()
+    if value in _TRUTHY:
+        return True
+    if value in _FALSY:
+        return False
+    raise ValueError(f"{name}={raw!r} is not a boolean; use one of {sorted(_TRUTHY | _FALSY)}")
+
+
+def _env_int(name: str, raw: str) -> int:
+    try:
+        return int(raw.strip())
+    except ValueError as error:
+        raise ValueError(f"{name}={raw!r} is not an integer") from error
+
+
+def _env_float(name: str, raw: str) -> float:
+    try:
+        return float(raw.strip())
+    except ValueError as error:
+        raise ValueError(f"{name}={raw!r} is not a number") from error
+
+
+def _env_str(name: str, raw: str) -> str:
+    return raw.strip()
+
+
+_ENV_PARSERS: Final[Mapping[str, Any]] = {
+    "retrieval_few_shot": _env_bool,
+    "retrieval_k": _env_int,
+    "retrieval_min_similarity": _env_float,
+    "retrieval_include_evidence": _env_bool,
+    "retrieval_bank": _env_str,
+    "retrieval_embedder": _env_str,
+    "retrieval_model": _env_str,
+    "self_consistency": _env_bool,
+    "self_consistency_n": _env_int,
+    "self_consistency_temperature": _env_float,
+    "self_consistency_seed": _env_int,
+    "self_consistency_budget_s": _env_float,
+    "self_consistency_row_cap": _env_int,
+    "procedure_log": _env_str,
+}
+
+
+def resolve_procedure_config(
+    config: Text2SQLConfig, env: Mapping[str, str] | None = None
+) -> Text2SQLConfig:
+    """Apply ``TEXT2SQL_*`` overrides to a config; raise on a malformed value.
+
+    Raising (rather than ignoring) mirrors :func:`resolve_ambiguity_mode`: a
+    typo that silently disables an arm would make a run report numbers for a
+    configuration nobody chose. Explicit constructor values win over the
+    environment only for fields the environment does not set, so an arm is never
+    switched on by accident.
+    """
+
+    values = os.environ if env is None else env
+    overrides: dict[str, Any] = {}
+    for field_name, env_name in PROCEDURE_ENV_VARS.items():
+        raw = values.get(env_name)
+        if raw is None or not str(raw).strip():
+            continue
+        overrides[field_name] = _ENV_PARSERS[field_name](env_name, str(raw))
+    if not overrides:
+        return config
+    return replace(config, **overrides)
 
 
 @dataclass(frozen=True)
@@ -244,7 +396,8 @@ class Text2SQLGenerator:
         """
         self.db_uri = db_uri
         self.llm_client = llm_client
-        self.config = config or Text2SQLConfig()
+        self.config = resolve_procedure_config(config or Text2SQLConfig())
+        self._validate_procedure_config()
         self.ambiguous_mode = resolve_ambiguity_mode(self.config.ambiguous_mode)
 
         self.db_schema: str = ""
@@ -254,8 +407,70 @@ class Text2SQLGenerator:
         self.llm_calls: int = 0
         self.last_selected_tables: tuple[str, ...] = ()
 
+        # Procedure-arm state. It is reset per question and exposed through
+        # ``procedure_metadata()`` and the optional procedure log, so an artefact can
+        # show exactly which examples were injected and how a vote resolved.
+        self.last_retrieval: dict[str, Any] = {
+            "injected": 0,
+            "examples": [],
+            "block": "",
+            "block_sha256": None,
+            "query_used_evidence": False,
+        }
+        self.last_self_consistency: dict[str, Any] | None = None
+        self._retriever: Retriever | None = None
+        self._retriever_ready = False
+        self._procedure_log_failed = False
+        self._sampling_args_unsupported = False
+
         self._schema_override = schema
         self._engine = engine
+
+    def _validate_procedure_config(self) -> None:
+        """Refuse a procedure configuration that could only produce misleading numbers.
+
+        Range errors are loud at construction time, exactly like an unknown
+        ambiguity mode: nine candidates where the cap is nine is a clamp (logged),
+        but ``temperature=0`` in self-consistency is a contradiction - the greedy
+        path already exists - and a zero budget would silently disable the arm.
+        """
+
+        config = self.config
+        if config.retrieval_few_shot:
+            if int(config.retrieval_k) < 1:
+                raise ValueError("retrieval_k must be >= 1")
+            if int(config.retrieval_k) > HARD_CAP_K:
+                logger.warning(
+                    "retrieval_k=%d is capped at %d examples per call",
+                    config.retrieval_k,
+                    HARD_CAP_K,
+                )
+            embedder = str(config.retrieval_embedder).strip().lower()
+            if embedder not in EMBEDDER_NAMES:
+                raise ValueError(
+                    f"unknown retrieval_embedder {config.retrieval_embedder!r}; "
+                    f"expected one of {EMBEDDER_NAMES}"
+                )
+            threshold = config.retrieval_min_similarity
+            if threshold is not None and not -1.0 <= float(threshold) <= 1.0:
+                raise ValueError("retrieval_min_similarity must be within [-1, 1]")
+        if config.self_consistency:
+            if int(config.self_consistency_n) < 1:
+                raise ValueError("self_consistency_n must be >= 1")
+            if not float(config.self_consistency_temperature) > 0.0:
+                raise ValueError(
+                    "self-consistency needs a temperature > 0; leave the flag off for greedy decoding"
+                )
+            if float(config.self_consistency_budget_s) <= 0.0:
+                raise ValueError("self_consistency_budget_s must be > 0")
+            if int(config.self_consistency_row_cap) < 1:
+                raise ValueError("self_consistency_row_cap must be >= 1")
+            if int(config.self_consistency_n) > HARD_CAP_N:
+                logger.warning(
+                    "self_consistency_n=%d is capped at %d candidates",
+                    config.self_consistency_n,
+                    HARD_CAP_N,
+                )
 
     # ------------------------------------------------------------------ build
 
@@ -416,6 +631,14 @@ class Text2SQLGenerator:
 
     async def _query(self, user_query: Any) -> dict[str, Any]:
         question = _coerce_question(user_query)
+        self.last_self_consistency = None
+        self.last_retrieval = {
+            "injected": 0,
+            "examples": [],
+            "block": "",
+            "block_sha256": None,
+            "query_used_evidence": False,
+        }
         if not question:
             logger.warning("Empty question received; nothing to translate")
             return {"status": "error", "query": None}
@@ -423,18 +646,163 @@ class Text2SQLGenerator:
         if not self.system_prompt:
             self.build()
 
-        verdict = await self._assess_ambiguity(question)
-        if self.ambiguous_mode == "strict" and verdict.ambiguous:
-            logger.info("Question treated as ambiguous (%s): %s", verdict.detail, question)
-            return {"status": "ambiguous", "query": None}
+        try:
+            verdict = await self._assess_ambiguity(question)
+            if self.ambiguous_mode == "strict" and verdict.ambiguous:
+                logger.info("Question treated as ambiguous (%s): %s", verdict.detail, question)
+                return {"status": "ambiguous", "query": None}
 
-        schema = self._schema_for(question)
-        sql = await self._generate_valid_sql(question, schema)
-        if sql is None:
-            return {"status": "error", "query": None}
+            schema = self._schema_for(question)
+            examples_block = self._retrieve_examples(question)
+            sql = await self._generate_valid_sql(question, schema, examples_block=examples_block)
+            if sql is None:
+                return {"status": "error", "query": None}
 
-        sql = await self._refine_with_execution(question, schema, sql)
-        return {"status": "success", "query": sql}
+            sql = await self._refine_with_execution(question, schema, sql)
+            return {"status": "success", "query": sql}
+        finally:
+            # Written on every exit path (success, error, unexpected failure) so the
+            # artefact shows the arm state for the question that was actually run.
+            self._record_procedure(question)
+
+    # --------------------------------------------------------------- procedures
+
+    def _db_id(self) -> str:
+        """Database name used to scope the few-shot bank; never the DSN itself."""
+
+        if self.config.db_id:
+            return str(self.config.db_id).strip()
+        tail = (self.db_uri or "").rsplit("/", 1)[-1]
+        return tail.split("?", 1)[0].strip()
+
+    def _get_retriever(self) -> Retriever | None:
+        """Build the retriever once per tool; ``None`` when the arm is off.
+
+        Lazy on purpose: the bank costs an embed pass, and a run that never
+        enables the arm must not pay for it (nor load weights it does not use).
+        ``build_retriever`` returns an *unavailable* retriever with a reason
+        instead of raising, so a missing model can never abort a benchmark.
+        """
+
+        if self._retriever_ready:
+            return self._retriever
+        self._retriever_ready = True
+        if not self.config.retrieval_few_shot:
+            return None
+        self._retriever = build_retriever(
+            source=self.config.retrieval_bank,
+            embedder=self.config.retrieval_embedder,
+            model=self.config.retrieval_model,
+            k=self.config.retrieval_k,
+            min_similarity=self.config.retrieval_min_similarity,
+            include_evidence=self.config.retrieval_include_evidence,
+        )
+        return self._retriever
+
+    def _retrieve_examples(self, question: str) -> str:
+        """Retrieve the worked-example block for one question; ``""`` when the arm is off.
+
+        Records the injected examples, the exact block and its hash in
+        ``last_retrieval`` - that is what makes the arm visible in run metadata
+        instead of inferable from an accuracy difference.
+        """
+
+        if not self.config.retrieval_few_shot:
+            return ""
+        retriever = self._get_retriever()
+        if retriever is None or not retriever.available:
+            return ""
+        plain_question, evidence = split_question_evidence(question)
+        if not self.config.retrieval_include_evidence:
+            evidence = ""
+        examples = retriever.retrieve(plain_question, db_id=self._db_id(), evidence=evidence)
+        block = render_examples_block(
+            examples, include_evidence=self.config.retrieval_include_evidence
+        )
+        self.last_retrieval = {
+            "injected": len(examples),
+            "examples": [example.metadata() for example in examples],
+            "block": block,
+            "block_sha256": hashlib.sha256(block.encode("utf-8")).hexdigest() if block else None,
+            "query_used_evidence": bool(evidence),
+        }
+        return block
+
+    def procedure_metadata(self) -> dict[str, Any]:
+        """Procedure-arm configuration, bank provenance and the last question's state.
+
+        ``dev_tools/run_benchmark.py`` snapshots the ``TEXT2SQL_*`` environment into
+        ``run.json``; this method is the richer, per-question surface used by the
+        procedure log and by the offline dry run.
+        """
+
+        retrieval: dict[str, Any] = {
+            "enabled": bool(self.config.retrieval_few_shot),
+            "k": int(self.config.retrieval_k),
+            "min_similarity": self.config.retrieval_min_similarity,
+            "include_evidence_in_query": bool(self.config.retrieval_include_evidence),
+            "requested_embedder": self.config.retrieval_embedder,
+            "bank": self.config.retrieval_bank,
+            "last": self.last_retrieval,
+        }
+        if self.config.retrieval_few_shot:
+            retriever = self._get_retriever()
+            if retriever is not None:
+                retrieval.update(retriever.metadata())
+                retrieval["enabled"] = True
+                retrieval["last"] = self.last_retrieval
+        consistency: dict[str, Any] = {
+            "enabled": bool(self.config.self_consistency),
+            "n": clamp_candidate_count(self.config.self_consistency_n),
+            "temperature": float(self.config.self_consistency_temperature),
+            "seed": int(self.config.self_consistency_seed),
+            "budget_s": float(self.config.self_consistency_budget_s),
+            "row_cap": int(self.config.self_consistency_row_cap),
+            "last": self.last_self_consistency,
+        }
+        return {
+            "retrieval_few_shot": retrieval,
+            "self_consistency": consistency,
+            "procedure_log": self.config.procedure_log,
+        }
+
+    def _record_procedure(self, question: str) -> None:
+        """Append one JSONL record with the arms' state for this question.
+
+        Never raises: a broken log path must not cost a benchmark item. The DSN is
+        deliberately absent (it carries credentials); only the database *name* is
+        written.
+        """
+
+        path = self.config.procedure_log
+        if not path:
+            return
+        if not (self.config.retrieval_few_shot or self.config.self_consistency):
+            return
+        record = {
+            "db_id": self._db_id(),
+            "question": question,
+            "retrieval": self.last_retrieval,
+            "self_consistency": self.last_self_consistency,
+            "config": {
+                "retrieval_few_shot": bool(self.config.retrieval_few_shot),
+                "retrieval_k": int(self.config.retrieval_k),
+                "retrieval_include_evidence": bool(self.config.retrieval_include_evidence),
+                "retrieval_embedder": self.config.retrieval_embedder,
+                "self_consistency": bool(self.config.self_consistency),
+                "self_consistency_n": clamp_candidate_count(self.config.self_consistency_n),
+                "self_consistency_temperature": float(self.config.self_consistency_temperature),
+                "self_consistency_seed": int(self.config.self_consistency_seed),
+            },
+        }
+        if self._procedure_log_failed:
+            return
+        try:
+            with open(path, "a", encoding="utf-8") as handle:
+                handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True, default=str) + "\n")
+        except OSError:
+            self._procedure_log_failed = True
+            logger.exception("Could not append to the procedure log %s; continuing without it", path)
 
     def _schema_for(self, question: str) -> str:
         """Return the schema block to put in the prompt, pruned when it pays off."""
@@ -488,11 +856,26 @@ class Text2SQLGenerator:
         schema: str,
         *,
         repair: RepairRequest | None = None,
+        examples_block: str = "",
+        sampling: Mapping[str, Any] | None = None,
     ) -> str | None:
-        """Ask the model for SQL; ``repair`` switches to a correction prompt."""
+        """Ask the model for SQL; ``repair`` switches to a correction prompt.
+
+        ``examples_block`` carries the retrieval arm's worked examples into the
+        *initial* generation only: a repair prompt already contains the rejected
+        SQL and the error, and adding examples there lengthens the call without
+        addressing either. ``sampling`` carries the self-consistency arm's
+        ``temperature``/``seed`` through ``extra_create_args``.
+        """
+
         system = SYSTEM_PROMPT_TEMPLATE.format(db_schema=schema, sql_dialect=SQL_DIALECT)
         if repair is None:
-            user = SQL_PROMPT_TEMPLATE.format(user_query=question, sql_dialect=SQL_DIALECT)
+            if examples_block:
+                user = FEW_SHOT_PROMPT_TEMPLATE.format(
+                    examples=examples_block, user_query=question, sql_dialect=SQL_DIALECT
+                )
+            else:
+                user = SQL_PROMPT_TEMPLATE.format(user_query=question, sql_dialect=SQL_DIALECT)
         else:
             template = (
                 REPAIR_EXECUTION_PROMPT_TEMPLATE if repair.execution else REPAIR_SYNTAX_PROMPT_TEMPLATE
@@ -507,10 +890,13 @@ class Text2SQLGenerator:
             [
                 SystemMessage(content=system),
                 UserMessage(source="user", content=dedent(user)),
-            ]
+            ],
+            extra_create_args=sampling,
         )
 
-    async def _generate_valid_sql(self, question: str, schema: str) -> str | None:
+    async def _generate_valid_sql(
+        self, question: str, schema: str, *, examples_block: str = ""
+    ) -> str | None:
         """Produce SQL that passes the sqlglot gate, repairing at most once.
 
         Call budget per question (``R = max_llm_retries``): one ambiguity call (if the
@@ -523,8 +909,16 @@ class Text2SQLGenerator:
         The repair budget is one because a second failure is far more likely to be a
         model that does not know the schema than a fixable typo, and every extra call
         costs benchmark time.
+
+        Self-consistency (OFF by default) replaces the single generation with ``n``
+        sampled candidates and a majority vote; its own budget is separate and bounded
+        by ``self_consistency_budget_s``.
         """
-        raw = await self._generate(question, schema)
+
+        if self.config.self_consistency:
+            return await self._self_consistent_sql(question, schema, examples_block)
+
+        raw = await self._generate(question, schema, examples_block=examples_block)
         if raw is None:
             logger.warning("Generation produced no SQL; reporting an error without a repair")
             return None
@@ -544,6 +938,96 @@ class Text2SQLGenerator:
 
         logger.warning("Repair failed (%s); reporting an error instead of invalid SQL", repaired.error)
         return None
+
+    async def _self_consistent_sql(
+        self, question: str, schema: str, examples_block: str
+    ) -> str | None:
+        """Sample ``n`` seeded candidates, execute what is valid, return the vote.
+
+        Cost is bounded three ways: ``n`` is clamped to ``HARD_CAP_N``, the whole
+        round (generation *and* execution) obeys ``self_consistency_budget_s``, and
+        once one candidate proves the database unreachable the remaining executions
+        are skipped. A round that produced no valid SQL returns ``None`` - the same
+        posture as a single failed generation - and nothing here raises.
+        """
+
+        n = clamp_candidate_count(self.config.self_consistency_n)
+        temperature = float(self.config.self_consistency_temperature)
+        seed = int(self.config.self_consistency_seed)
+        budget = float(self.config.self_consistency_budget_s)
+        started = time.monotonic()
+        db_available = self._engine is not None or create_engine is not None
+        db_down = not db_available
+        candidates: list[Candidate] = []
+
+        for index in range(n):
+            if index and time.monotonic() - started > budget:
+                logger.warning(
+                    "Self-consistency budget of %.1fs spent after %d/%d candidates",
+                    budget,
+                    index,
+                    n,
+                )
+                break
+            try:
+                raw = await self._generate(
+                    question,
+                    schema,
+                    examples_block=examples_block,
+                    sampling=sampling_args(index, temperature, seed),
+                )
+            except Exception:  # noqa: BLE001 - a failed draw is a missing candidate
+                logger.exception("Self-consistency candidate %d failed; continuing", index)
+                continue
+
+            validation = self._validate(raw)
+            candidate = Candidate(
+                index=index,
+                sql=validation.sql if validation.ok else None,
+                valid=validation.ok,
+                error=(validation.error or "") if not validation.ok else "",
+            )
+            if candidate.valid and candidate.sql:
+                if db_down:
+                    candidate = replace(
+                        candidate,
+                        execution="unreachable" if not db_available else "skipped",
+                        execution_error=(
+                            "no database engine" if not db_available else "database unreachable"
+                        ),
+                    )
+                else:
+                    status, rows, error = self._execute_rows(candidate.sql)
+                    if status == "unreachable":
+                        db_down = True
+                    candidate = replace(
+                        candidate,
+                        execution=status,
+                        rows=rows if status == "ok" else None,
+                        execution_error=error,
+                    )
+            candidates.append(candidate)
+
+        selection = choose(candidates)
+        self.last_self_consistency = {
+            "n": n,
+            "drawn": len(candidates),
+            "temperature": temperature,
+            "seed": seed,
+            "budget_s": budget,
+            "elapsed_s": round(time.monotonic() - started, 3),
+            "database_executed": any(candidate.execution == "ok" for candidate in candidates),
+            "selection": selection.metadata(),
+            "selected_sql": selection.sql,
+            "candidates": [candidate.metadata() for candidate in candidates],
+        }
+        if selection.sql is None:
+            logger.warning(
+                "Self-consistency produced no valid SQL (%d candidates): %s",
+                len(candidates),
+                selection.detail,
+            )
+        return selection.sql
 
     @staticmethod
     def _validate(raw: str | None) -> ValidationResult:
@@ -600,6 +1084,35 @@ class Text2SQLGenerator:
             return ExecutionFeedback("rejected", str(error))
         return ExecutionFeedback("ok")
 
+    def _execute_rows(self, sql: str) -> tuple[str, tuple[tuple[Any, ...], ...] | None, str]:
+        """Execute one candidate and return ``(status, rows, error)`` for the vote.
+
+        Mirrors :meth:`_execute_for_feedback` (same statement timeout, same
+        unreachable/rejected split) but keeps up to ``self_consistency_row_cap``
+        rows because the self-consistency vote compares result sets. The row cap is
+        what keeps a wide ``SELECT *`` from turning ``n`` executions into a memory
+        problem; it is a comparison budget, not a score.
+        """
+
+        cap = max(1, int(self.config.self_consistency_row_cap))
+        if self._engine is None and create_engine is None:
+            return "unreachable", None, "sqlalchemy is not installed"
+        try:
+            engine = self._get_engine()
+        except Exception as error:
+            return "unreachable", None, str(error)
+
+        try:
+            with engine.connect() as connection:
+                self._apply_statement_timeout(connection)
+                statement = sql_text(sql) if sql_text is not None else sql
+                rows = connection.execute(statement).fetchmany(cap)
+        except Exception as error:
+            if _is_connection_error(error):
+                return "unreachable", None, str(error)
+            return "rejected", None, str(error)
+        return "ok", tuple(tuple(row) for row in rows or ()), ""
+
     def _apply_statement_timeout(self, connection: Any) -> None:
         """Cap the dry-run cost; backends without PostgreSQL settings keep working."""
         if sql_text is None:
@@ -613,7 +1126,33 @@ class Text2SQLGenerator:
 
     # ---------------------------------------------------------------- LLM I/O
 
-    async def _complete(self, messages: Sequence[Any]) -> str | None:
+    async def _create(self, messages: Sequence[Any], extra_create_args: Mapping[str, Any] | None) -> Any:
+        """One client call, tolerating a client that cannot take sampling parameters.
+
+        The harness client is an ``autogen`` ``ChatCompletionClient``, whose
+        ``create`` accepts ``extra_create_args`` (``temperature``/``seed`` override
+        the client-level ``temperature=0`` set by ``benchmarks/base.py``). A stub or
+        an older client that does not accept the keyword must not break the arm, so
+        the fallback drops the parameters and logs it once - the run then reports
+        greedy decoding instead of pretending to have sampled.
+        """
+
+        if not extra_create_args:
+            return await self.llm_client.create(messages)
+        try:
+            return await self.llm_client.create(messages, extra_create_args=dict(extra_create_args))
+        except TypeError:
+            if not self._sampling_args_unsupported:
+                self._sampling_args_unsupported = True
+                logger.warning(
+                    "The LLM client does not accept extra_create_args; self-consistency "
+                    "falls back to the client's decoding settings"
+                )
+            return await self.llm_client.create(messages)
+
+    async def _complete(
+        self, messages: Sequence[Any], extra_create_args: Mapping[str, Any] | None = None
+    ) -> str | None:
         """One resilient completion: timeout, transport retries with jitter, usage.
 
         Returns ``None`` once ``max_llm_retries + 1`` attempts yielded no usable text.
@@ -630,7 +1169,7 @@ class Text2SQLGenerator:
             self.llm_calls += 1
             try:
                 result = await asyncio.wait_for(
-                    self.llm_client.create(messages), timeout=self.config.llm_timeout_s
+                    self._create(messages, extra_create_args), timeout=self.config.llm_timeout_s
                 )
             except (Exception, asyncio.CancelledError) as error:
                 # A client that cancels itself internally is a transport failure like

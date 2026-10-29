@@ -13,4 +13,8 @@ fixed_eval
 stub_llm
     Deterministic, scriptable, OpenAI-compatible fake chat client used as the
     offline substrate for tool tests.
+procedures_dryrun
+    Offline proof that the two procedure arms (retrieval few-shot, self-consistency)
+    can be enabled with no database, no GPU and no network; writes its transcript
+    and the per-question procedure log into ``runs/<out>/``.
 """

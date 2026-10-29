@@ -1,0 +1,140 @@
+# Grammar-constrained decoding: the SELECT-only PostgreSQL grammar (GBNF).
+#
+# Used by dev_tools/guided_proxy.py, which injects it as vLLM's
+# `structured_outputs.grammar` for SQL-generation requests only (the ambiguity
+# gate's request is left unconstrained: it must answer OK / AMBIGUOUS: <clause>).
+#
+# Design rules, each one deliberate:
+#   * Keywords are UPPER CASE.  Measured on the 241 gold bird_large queries:
+#     every one uses upper-case keywords (ORDER lower-case in 2, AND in 6, OR in
+#     1), so this matches the corpus and the tool's own prompt examples instead of
+#     imposing an outside convention.  The cost is measured, not assumed: arm N
+#     (same model, no grammar) reports how many of its predictions used lower-case
+#     keywords, so the size of that particular constraint is on the record.
+#   * Identifiers are bare ([A-Za-z_]...) or double-quoted, never backticked: the
+#     tool's system prompt forbids backticks, and PostgreSQL does not accept them.
+#   * No trailing semicolon and no markdown fence: the output contract of
+#     src/.../prompts.py already demands exactly that, so the grammar turns a
+#     prompt request into a hard guarantee rather than a hope.
+#   * Aliases may carry AS or omit it (both are PostgreSQL-legal; 214/241 gold
+#     queries use AS somewhere).  The Earley-based backend resolves the
+#     "is this token an alias or the next keyword" ambiguity itself.
+#   * Statement coverage: WITH [RECURSIVE], UNION/INTERSECT/EXCEPT, joins (all
+#     flavours), subqueries in FROM/WHERE/IN/EXISTS, CASE, CAST (both forms),
+#     EXTRACT, window functions, DISTINCT, GROUP BY/HAVING, ORDER BY (with
+#     NULLS FIRST/LAST), LIMIT/OFFSET.  Not covered (documented in
+#     docs/DECODER.md): set-returning functions in FROM, LATERAL, FETCH FIRST,
+#     dollar-quoted strings, `x = ANY (<subquery>)`, SUBSTRING(x FROM a FOR b),
+#     and PostgreSQL-specific `AT TIME ZONE`.  The 241 gold queries are the
+#     acceptance test: dev_tools/check_grammar.py reports how many of them the
+#     grammar accepts, and the number is in docs/REPORT.md.
+
+root ::= optws select_stmt optws
+
+# --- whitespace ------------------------------------------------------------
+optws ::= (wschar)*
+ws ::= (wschar)+
+wschar ::= " " | "\n" | "\t" | "\r"
+
+# --- statements ------------------------------------------------------------
+select_stmt ::= with_clause? select_core (ws setop ws select_core)* (optws order_clause)? (optws limit_clause)? (optws offset_clause)?
+
+with_clause ::= "WITH" ws ("RECURSIVE" ws)? cte (optws "," optws cte)* ws
+cte ::= name (optws "(" optws name_list optws ")")? ws "AS" ws "(" optws select_stmt optws ")"
+name_list ::= name (optws "," optws name)*
+
+setop ::= "UNION" (ws "ALL")? | "INTERSECT" | "EXCEPT"
+
+select_core ::= "SELECT" ws ("DISTINCT" ws | "ALL" ws)? select_list (ws "FROM" ws from_clause)? (ws where_clause)? (ws group_clause)? (ws having_clause)?
+
+select_list ::= select_item (optws "," optws select_item)*
+select_item ::= "*" | expr ((ws "AS" ws name) | (ws name))?
+
+from_clause ::= from_join (optws "," optws from_join)*
+from_join ::= from_item (ws join_clause)*
+from_item ::= "(" optws select_stmt optws ")" (ws "AS" ws name | ws name)? | table_ref (ws "AS" ws name | ws name)?
+
+table_ref ::= name (optws "." optws name)?
+join_clause ::= join_kw ws from_item (ws "ON" ws expr | ws "USING" optws "(" optws name_list optws ")")?
+join_kw ::= "JOIN" | "INNER" ws "JOIN" | "LEFT" (ws "OUTER")? ws "JOIN" | "RIGHT" (ws "OUTER")? ws "JOIN" | "FULL" (ws "OUTER")? ws "JOIN" | "CROSS" ws "JOIN"
+
+where_clause ::= "WHERE" ws expr
+group_clause ::= "GROUP" ws "BY" ws expr_list
+having_clause ::= "HAVING" ws expr
+order_clause ::= "ORDER" ws "BY" ws order_list
+order_list ::= order_item (optws "," optws order_item)*
+order_item ::= expr (ws dir_kw)? (ws "NULLS" ws null_pos)?
+dir_kw ::= "ASC" | "DESC"
+null_pos ::= "FIRST" | "LAST"
+limit_clause ::= "LIMIT" ws additive
+offset_clause ::= "OFFSET" ws additive
+
+expr_list ::= expr (optws "," optws expr)*
+
+# --- expressions -----------------------------------------------------------
+expr ::= or_expr
+
+or_expr ::= and_expr (ws "OR" ws and_expr)*
+and_expr ::= not_expr (ws "AND" ws not_expr)*
+not_expr ::= "NOT" ws not_expr | comparison
+
+comparison ::= additive (ws predicate)?
+predicate ::= comp_op ws additive
+            | "IS" ws "NOT" ws "NULL"
+            | "IS" ws "NULL"
+            | "IS" ws "NOT" ws bool_lit
+            | "IS" ws bool_lit
+            | "NOT" ws in_tail
+            | in_tail
+            | "NOT" ws like_op ws additive
+            | like_op ws additive
+            | "NOT" ws "BETWEEN" ws additive ws "AND" ws additive
+            | "BETWEEN" ws additive ws "AND" ws additive
+in_tail ::= "IN" optws "(" optws (select_stmt | expr_list) optws ")"
+like_op ::= "LIKE" | "ILIKE"
+comp_op ::= "=" | "!=" | "<>" | "<=" | ">=" | "<" | ">"
+bool_lit ::= "TRUE" | "FALSE" | "UNKNOWN"
+
+additive ::= multiplicative (ws add_op ws multiplicative)*
+add_op ::= "+" | "-" | "||"
+multiplicative ::= unary (ws mul_op ws unary)*
+mul_op ::= "*" | "/" | "%"
+
+unary ::= (("-" | "+") ws)? postfix
+postfix ::= primary (optws "::" optws type_name)*
+
+primary ::= literal
+          | "(" optws (select_stmt | expr) optws ")"
+          | "EXISTS" optws "(" optws select_stmt optws ")"
+          | "CASE" ws (when_then ws)+ ("ELSE" ws expr ws)? "END"
+          | "CAST" optws "(" optws expr ws "AS" ws type_name optws ")"
+          | "EXTRACT" optws "(" optws extract_unit ws "FROM" ws expr optws ")"
+          | "SUBSTRING" optws "(" optws expr ws "FROM" ws additive (ws "FOR" ws additive)? optws ")"
+          | name optws "." optws name
+          | name call_part?
+
+when_then ::= "WHEN" ws expr ws "THEN" ws expr
+extract_unit ::= "YEAR" | "MONTH" | "DAY" | "HOUR" | "MINUTE" | "SECOND" | "DOW" | "DOY" | "EPOCH" | "QUARTER" | "WEEK"
+
+call_part ::= optws "(" optws ("DISTINCT" ws | "ALL" ws)? (call_args)? optws ")" over_part?
+call_args ::= "*" | expr_list
+over_part ::= optws "OVER" optws "(" optws (partition_part optws)? (order_part optws)? ")"
+partition_part ::= "PARTITION" ws "BY" ws expr_list
+order_part ::= "ORDER" ws "BY" ws order_list
+
+# --- terminals -------------------------------------------------------------
+literal ::= number | string_lit | bool_or_null | typed_literal
+bool_or_null ::= "TRUE" | "FALSE" | "NULL"
+typed_literal ::= type_name ws string_lit
+number ::= ("-")? digit+ ("." digit+)? (exp_part)?
+exp_part ::= ("e" | "E") ("+" | "-")? digit+
+digit ::= [0-9]
+string_lit ::= "'" (str_char)* "'"
+str_char ::= [^'] | "''"
+
+type_name ::= base_type (optws "(" optws digit+ (optws "," optws digit+)? optws ")")?
+base_type ::= "INT" | "INTEGER" | "BIGINT" | "SMALLINT" | "NUMERIC" | "DECIMAL" | "REAL" | "FLOAT" | "DOUBLE" ws "PRECISION" | "TEXT" | "VARCHAR" | "CHAR" | "CHARACTER" ws "VARYING" | "DATE" | "TIMESTAMP" | "TIME" | "BOOLEAN" | "INTERVAL"
+
+name ::= quoted_name | bare_name
+bare_name ::= [A-Za-z_] [A-Za-z0-9_$]*
+quoted_name ::= "\"" ([^"] | "\"\"")+ "\""

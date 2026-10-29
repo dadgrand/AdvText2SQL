@@ -29,7 +29,31 @@ Endpoints
     One choice out, ``finish_reason`` in ``{"stop", "length"}`` and a real
     ``usage`` object (prompt/completion/total tokens counted by the tokenizer).
 ``GET /health``
-    Liveness probe the harness can use before a run.
+    Liveness probe the harness can use before a run, and the *only* source of the
+    per-run provenance ``run_benchmark.py`` copies into ``run.json``: served name,
+    base model id, adapter path plus the SHA-256 of ``adapter_model.safetensors``
+    and ``adapter_config.json``, ``load_in_4bit``, the generation cap
+    (``max_new_tokens``), requests served, the largest completion seen and
+    ``torch.cuda.max_memory_allocated()`` — a number that exists only inside this
+    process, because it owns the CUDA context and the harness does not.
+
+Thinking-mode handling (Qwen3-class models)
+-------------------------------------------
+Qwen3-family chat templates emit a reasoning block (``<think ...>``) *before* the
+answer unless the template is asked for ``enable_thinking=False``. Left alone, a
+reasoning model either burns the whole generation cap on prose or hands the tool
+"Let me think ..." instead of SQL, and an arm would then measure a bug. This
+server therefore does two things, both reported by ``/health`` so a run.json says
+which mode produced a number:
+
+* ``--no-thinking`` passes ``enable_thinking=False`` into the chat template when
+  that template advertises the hook (``thinking_mode="off"``). Templates without
+  it (Qwen2.5) are a graceful no-op: no keyword is invented, ``thinking_mode``
+  becomes ``"off-unsupported"`` and the flag is reported as not passed.
+* A post-filter removes any *residual* reasoning block (``<think ...>...</think>``,
+  an unterminated block, a stray tag, or a ``Thinking:`` lead-in) from the
+  completion before it is returned, and counts how often it fired
+  (``thinking_stripped_count``). A completion with no block is returned untouched.
 
 What it does NOT do
 -------------------
@@ -63,7 +87,9 @@ Dependencies are pinned in ``dev_tools/requirements-serve.txt`` (``fastapi``,
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
+import re
 import secrets
 import sys
 import time
@@ -82,10 +108,139 @@ DEFAULT_SERVED_SUFFIX = "EMPTY"  # the harness sends LLM_API_KEY=EMPTY; anything
 STREAMING_ERROR_CODE = "stream_not_supported"
 MAX_TEMPERATURE = 2.0
 
+THINKING_MODES = ("default", "off", "on", "off-unsupported", "on-unsupported", "not-applicable")
+"""What ``/health.thinking_mode`` can say about the chat template.
+
+``default``
+    No switch was requested: the template does whatever it does by default, which
+    for a Qwen3-class template means reasoning is *on*.
+``off`` / ``on``
+    ``enable_thinking`` was passed to the chat template, which advertises the hook.
+``off-unsupported`` / ``on-unsupported``
+    A switch was requested but the template has no ``enable_thinking`` hook
+    (Qwen2.5 and most non-thinking templates): a graceful no-op, and the flag is
+    reported as not passed so nobody can claim a mode that never applied.
+``not-applicable``
+    The backend has no tokenizer/chat template at all (``--fake``).
+"""
+
+THINKING_TAG = "enable_thinking"
+"""The chat-template variable Qwen3 uses to pre-fill an empty reasoning block."""
+
+
+# ---------------------------------------------------------------------------
+# Thinking-mode helpers (pure: no model, no tokenizer, testable offline)
+# ---------------------------------------------------------------------------
+
+
+def template_supports_thinking(tokenizer: Any) -> bool:
+    """True when the tokenizer's chat template references ``enable_thinking``.
+
+    Detection is by template source because that is the only honest signal: every
+    tokenizer's ``apply_chat_template`` accepts arbitrary Jinja variables, so
+    "the call did not raise" would claim support that does not exist. ``Qwen2.5``
+    templates do not mention the variable, ``Qwen3`` ones do.
+    """
+
+    template = getattr(tokenizer, "chat_template", None)
+    if template is None:
+        return False
+    if isinstance(template, dict):
+        return any(THINKING_TAG in str(value) for value in template.values())
+    return THINKING_TAG in str(template)
+
+
+def thinking_mode_label(requested: Optional[bool], supported: bool) -> str:
+    """Map (requested switch, template support) onto a ``thinking_mode`` label."""
+
+    if requested is None:
+        return "default"
+    if supported:
+        return "on" if requested else "off"
+    return "on-unsupported" if requested else "off-unsupported"
+
+
+_COMPLETE_THINKING_RE = re.compile(r"<(?:think|thinking)\b[^>]*>.*?</(?:think|thinking)\s*>", re.DOTALL | re.IGNORECASE)
+_OPEN_THINKING_RE = re.compile(r"<(?:think|thinking)\b[^>]*>", re.IGNORECASE)
+_STRAY_THINKING_TAG_RE = re.compile(r"</?(?:think|thinking)\b[^>]*>", re.IGNORECASE)
+_THINKING_PREFIX_RE = re.compile(r"\A\s*thinking\s*:\s*", re.IGNORECASE)
+_BLANK_LINE_RE = re.compile(r"\r?\n\s*\r?\n")
+
+
+def strip_thinking(text: str) -> tuple[str, bool]:
+    """Remove a residual reasoning block from a completion; return ``(text, fired)``.
+
+    Why a filter when the template can disable thinking: templates differ, adapters
+    and older servers may still emit a block, and a truncated generation can end
+    inside one. The rules are deliberately narrow so a legitimate SQL answer is
+    never damaged:
+
+    1. Remove complete ``<think ...>...</think>`` blocks wherever they appear.
+    2. Remove an **unterminated** ``<think ...>`` tail - the shape produced when the
+       generation cap is burned inside the reasoning. When the tail contains a blank
+       line, the part after it is kept (that is where an answer would start);
+       otherwise the tail is dropped, because reasoning text is not SQL and passing
+       it on would make the item a silent prose prediction.
+    3. Remove leftover ``<think>``/``</think>`` tags (a lone closing tag is common
+       when a template pre-filled an empty block).
+    4. Remove a ``Thinking:`` lead-in: keep what follows the first blank line, or,
+       when there is no blank line, drop just that line (a line starting with
+       ``Thinking:`` cannot be SQL, so dropping it is strictly safer than passing
+       prose on).
+
+    A completion with none of these is returned **byte-identical** (no whitespace
+    trimming), which is what lets a caller trust "untouched" when ``fired`` is False.
+    """
+
+    if not isinstance(text, str) or not text:
+        return text, False
+
+    cleaned = _COMPLETE_THINKING_RE.sub("", text)
+
+    opener = _OPEN_THINKING_RE.search(cleaned)
+    if opener is not None:  # a complete block would have been removed above
+        tail = cleaned[opener.end() :]
+        blank = _BLANK_LINE_RE.search(tail)
+        cleaned = cleaned[: opener.start()] + (tail[blank.end() :] if blank is not None else "")
+    fired = cleaned != text
+
+    without_tags = _STRAY_THINKING_TAG_RE.sub("", cleaned)
+    fired = fired or without_tags != cleaned
+    cleaned = without_tags
+
+    prefix = _THINKING_PREFIX_RE.match(cleaned)
+    if prefix is not None:
+        remainder = cleaned[prefix.end() :]
+        blank = _BLANK_LINE_RE.search(remainder)
+        if blank is not None:
+            cleaned = remainder[blank.end() :]
+        elif "\n" in remainder:
+            cleaned = remainder.split("\n", 1)[1]
+        else:
+            cleaned = ""
+        fired = True
+
+    if fired:
+        cleaned = cleaned.strip()
+    return cleaned, fired
+
 
 # ---------------------------------------------------------------------------
 # Result and backend protocol
 # ---------------------------------------------------------------------------
+
+
+def _sha256_file(path: Path) -> Optional[str]:
+    """SHA-256 of a file, or ``None`` if it cannot be read (provenance is best effort)."""
+
+    try:
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+    except OSError:  # pragma: no cover - depends on the filesystem
+        return None
 
 
 @dataclass
@@ -116,7 +271,30 @@ class Backend:
         raise NotImplementedError
 
     def describe(self) -> Dict[str, Any]:
-        return {"served_name": self.served_name, "base_model": self.base_model, "adapter": self.adapter}
+        """Machine-readable provenance; a benchmark run copies this into ``run.json``.
+
+        Every key is always present (``None`` when the backend cannot know it), so a
+        consumer never has to guess whether a field is missing or unimplemented.
+        """
+
+        return {
+            "served_name": self.served_name,
+            "base_model": self.base_model,
+            "adapter": self.adapter,
+            "adapter_sha256": None,
+            "adapter_config_sha256": None,
+            "load_in_4bit": None,
+            "device": None,
+            "cuda_max_memory_allocated_bytes": None,
+            "requests_served": None,
+            "max_completion_tokens_observed": None,
+            # Thinking-mode provenance: present on every backend so run.json never
+            # has to guess whether a model reasoned before answering.
+            "thinking_mode": None,
+            "thinking_template_supported": None,
+            "thinking_flag_passed": None,
+            "thinking_stripped_count": None,
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -131,17 +309,42 @@ class FakeBackend(Backend):
     harness wiring.  The answer echoes the last user message so a caller can see
     the server received it, and the token counts are whitespace counts (documented
     as an approximation — the real backends use the model's tokenizer).
+
+    A canned ``answer`` still goes through :func:`strip_thinking`, so the HTTP path
+    of the post-filter (and its counter) is exercised without a model — that is how
+    the fake backend tests the reasoning-block handling end to end.
     """
 
-    def __init__(self, served_name: str = "fake-local-model", answer: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        served_name: str = "fake-local-model",
+        answer: Optional[str] = None,
+        *,
+        enable_thinking: Optional[bool] = None,
+    ) -> None:
         self.served_name = served_name
         self.base_model = "fake"
         self.adapter = None
         self._answer = answer
+        self.enable_thinking = enable_thinking
+        # No tokenizer, hence no chat template to ask: a switch cannot apply here.
+        self.thinking_template_supported = False
+        self.thinking_flag_passed = False
+        self.thinking_mode = "not-applicable"
+        self.thinking_stripped_count = 0
 
     @staticmethod
     def _count(text: str) -> int:
         return len(text.split())
+
+    def describe(self) -> Dict[str, Any]:
+        return {
+            **super().describe(),
+            "thinking_mode": self.thinking_mode,
+            "thinking_template_supported": self.thinking_template_supported,
+            "thinking_flag_passed": self.thinking_flag_passed,
+            "thinking_stripped_count": self.thinking_stripped_count,
+        }
 
     def generate(
         self,
@@ -164,6 +367,9 @@ class FakeBackend(Backend):
             words = answer.split()[:max_new_tokens]
             truncated = " ".join(words)
             finish_reason = "length"
+        truncated, stripped = strip_thinking(truncated)
+        if stripped:
+            self.thinking_stripped_count += 1
         return GenerationResult(
             text=truncated,
             prompt_tokens=self._count(prompt_text),
@@ -199,6 +405,10 @@ class TransformersBackend(Backend):
         device: Optional[str] = None,
         allow_sampling: bool = False,
         seed: int = 0,
+        load_in_4bit: bool = False,
+        adapter_sha256: Optional[str] = None,
+        adapter_config_sha256: Optional[str] = None,
+        enable_thinking: Optional[bool] = None,
     ) -> None:
         self.model = model
         self.tokenizer = tokenizer
@@ -208,7 +418,59 @@ class TransformersBackend(Backend):
         self.device = device or self._infer_device(model)
         self.allow_sampling = allow_sampling
         self.seed = seed
+        self.load_in_4bit = load_in_4bit
+        self.adapter_sha256 = adapter_sha256
+        self.adapter_config_sha256 = adapter_config_sha256
+        self.enable_thinking = enable_thinking
+        self.thinking_template_supported = template_supports_thinking(tokenizer)
+        self.thinking_flag_passed = bool(
+            enable_thinking is not None and self.thinking_template_supported
+        )
+        self.thinking_mode = thinking_mode_label(enable_thinking, self.thinking_template_supported)
+        self.thinking_stripped_count = 0
+        self.cuda_max_memory_allocated_bytes: Optional[int] = None
+        self._requests = 0
+        self._max_completion_tokens = 0
         self._lock = None  # created lazily: single request at a time, see module docstring
+        self._record_cuda_peak()
+
+    def _record_cuda_peak(self) -> None:
+        """Remember ``torch.cuda.max_memory_allocated`` for this server process.
+
+        The server process owns the model, so this is the only place a per-run VRAM
+        figure can come from: the harness sees an HTTP endpoint, not a CUDA context.
+        It is a high-water mark since the process started, which is why the run
+        wrapper records it from ``/health`` before *and* after a run.
+        """
+
+        try:
+            import torch  # noqa: PLC0415
+
+            if torch.cuda.is_available():
+                peak = int(torch.cuda.max_memory_allocated())
+                if self.cuda_max_memory_allocated_bytes is None or peak > self.cuda_max_memory_allocated_bytes:
+                    self.cuda_max_memory_allocated_bytes = peak
+        except Exception:  # pragma: no cover - a CPU-only or broken CUDA build must not 500
+            return
+
+    def describe(self) -> Dict[str, Any]:
+        self._record_cuda_peak()
+        return {
+            "served_name": self.served_name,
+            "base_model": self.base_model,
+            "adapter": self.adapter,
+            "adapter_sha256": self.adapter_sha256,
+            "adapter_config_sha256": self.adapter_config_sha256,
+            "load_in_4bit": self.load_in_4bit,
+            "device": self.device,
+            "cuda_max_memory_allocated_bytes": self.cuda_max_memory_allocated_bytes,
+            "requests_served": self._requests,
+            "max_completion_tokens_observed": self._max_completion_tokens,
+            "thinking_mode": self.thinking_mode,
+            "thinking_template_supported": self.thinking_template_supported,
+            "thinking_flag_passed": self.thinking_flag_passed,
+            "thinking_stripped_count": self.thinking_stripped_count,
+        }
 
     @staticmethod
     def _infer_device(model: Any) -> str:
@@ -229,6 +491,7 @@ class TransformersBackend(Backend):
         served_name: Optional[str] = None,
         allow_sampling: bool = False,
         seed: int = 0,
+        enable_thinking: Optional[bool] = None,
     ) -> "TransformersBackend":
         """Load the base model, then the adapter (if any).  Raises on bad input.
 
@@ -300,8 +563,16 @@ class TransformersBackend(Backend):
         resolved_name = served_name or (
             f"{model_id}+adapter:{Path(adapter).name}" if adapter else model_id
         )
+        adapter_sha256 = adapter_config_sha256 = None
+        if adapter is not None:
+            adapter_sha256 = _sha256_file(Path(adapter) / "adapter_model.safetensors")
+            adapter_config_sha256 = _sha256_file(Path(adapter) / "adapter_config.json")
         logger.info(
-            "loaded %s on %s%s", resolved_name, target_device, " (4-bit)" if load_in_4bit else ""
+            "loaded %s on %s%s (thinking: %s)",
+            resolved_name,
+            target_device,
+            " (4-bit)" if load_in_4bit else "",
+            thinking_mode_label(enable_thinking, template_supports_thinking(tokenizer)),
         )
         return cls(
             model,
@@ -312,6 +583,10 @@ class TransformersBackend(Backend):
             device=target_device,
             allow_sampling=allow_sampling,
             seed=seed,
+            load_in_4bit=load_in_4bit,
+            adapter_sha256=adapter_sha256,
+            adapter_config_sha256=adapter_config_sha256,
+            enable_thinking=enable_thinking,
         )
 
     @classmethod
@@ -325,6 +600,7 @@ class TransformersBackend(Backend):
         adapter: Optional[str] = None,
         allow_sampling: bool = False,
         seed: int = 0,
+        enable_thinking: Optional[bool] = None,
     ) -> "TransformersBackend":
         """Wrap already-built objects (tests build a tiny random model offline)."""
 
@@ -337,16 +613,46 @@ class TransformersBackend(Backend):
             device=cls._infer_device(model),
             allow_sampling=allow_sampling,
             seed=seed,
+            enable_thinking=enable_thinking,
         )
 
     # -- generation -------------------------------------------------------
+    def _disable_thinking_flag(self, reason: str) -> None:
+        """Record that the requested switch could not be applied (and stay honest).
+
+        A ``TypeError`` from a tokenizer that rejects the keyword means the flag
+        never reached the template, so ``/health`` must stop saying it did.
+        """
+
+        if self.enable_thinking is None:
+            return
+        self.thinking_flag_passed = False
+        self.thinking_mode = (
+            "on-unsupported" if self.enable_thinking else "off-unsupported"
+        )
+        logger.warning(
+            "thinking switch could not be applied (%s); serving with the template default",
+            reason,
+        )
+
     def _render_prompt(self, messages: Sequence[Dict[str, str]]) -> str:
         template = getattr(self.tokenizer, "chat_template", None)
         if template:
+            kwargs: Dict[str, Any] = {"tokenize": False, "add_generation_prompt": True}
+            if self.enable_thinking is not None and self.thinking_template_supported:
+                kwargs["enable_thinking"] = bool(self.enable_thinking)
             try:
-                return self.tokenizer.apply_chat_template(
-                    list(messages), tokenize=False, add_generation_prompt=True
-                )
+                return self.tokenizer.apply_chat_template(list(messages), **kwargs)
+            except TypeError:
+                if "enable_thinking" in kwargs:  # a tokenizer that rejects unknown kwargs
+                    self._disable_thinking_flag("the tokenizer rejected enable_thinking")
+                    kwargs.pop("enable_thinking")
+                    try:
+                        return self.tokenizer.apply_chat_template(list(messages), **kwargs)
+                    except Exception:  # pragma: no cover - exotic tokenizers
+                        logger.warning("chat template failed; falling back to plain rendering")
+                else:  # pragma: no cover - exotic tokenizers
+                    logger.warning("chat template failed; falling back to plain rendering")
             except Exception:  # pragma: no cover - exotic tokenizers
                 logger.warning("chat template failed; falling back to plain rendering")
         return _fallback_prompt(messages)
@@ -389,12 +695,19 @@ class TransformersBackend(Backend):
         completion_tokens = int(new_ids.shape[-1])
         text = self.tokenizer.decode(new_ids, skip_special_tokens=True)
 
+        self._requests += 1
+        self._max_completion_tokens = max(self._max_completion_tokens, completion_tokens)
+        self._record_cuda_peak()
+
         finish_reason = "length" if completion_tokens >= int(max_new_tokens) else "stop"
         for marker in stop:
             if marker and marker in text:
                 text = text.split(marker, 1)[0]
                 finish_reason = "stop"
                 break
+        text, stripped = strip_thinking(text)
+        if stripped:
+            self.thinking_stripped_count += 1
         return GenerationResult(
             text=text,
             prompt_tokens=prompt_tokens,
@@ -563,7 +876,20 @@ def create_app(
 
     @app.get("/health")
     def health() -> Dict[str, Any]:
-        return {"status": "ok", **backend.describe()}
+        """Liveness plus the provenance a benchmark run records into ``run.json``.
+
+        ``max_new_tokens`` is the server-side generation cap that actually binds
+        (the harness never sends ``max_tokens``); ``cuda_max_memory_allocated_bytes``
+        is the serving process's high-water mark, the only place that number exists.
+        """
+
+        return {
+            "status": "ok",
+            "server": "dev_tools.serve_openai",
+            "max_new_tokens": max_new_tokens,
+            "allow_sampling": getattr(backend, "allow_sampling", None),
+            **backend.describe(),
+        }
 
     @app.post("/v1/chat/completions")
     async def chat_completions(request: Request) -> JSONResponse:
@@ -651,6 +977,24 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--allow-sampling", action="store_true", help="honour temperature > 0 (seeded); default greedy")
     parser.add_argument("--seed", type=int, default=0, help="seed for --allow-sampling (default: 0)")
+    thinking = parser.add_mutually_exclusive_group()
+    thinking.add_argument(
+        "--no-thinking",
+        dest="enable_thinking",
+        action="store_false",
+        help=(
+            "ask the chat template for enable_thinking=False (Qwen3-class models); a "
+            "template without the hook is a graceful no-op reported by /health. "
+            "Default: leave the template alone"
+        ),
+    )
+    thinking.add_argument(
+        "--thinking",
+        dest="enable_thinking",
+        action="store_true",
+        help="ask the chat template for enable_thinking=True (explicit, same as the Qwen3 default)",
+    )
+    parser.set_defaults(enable_thinking=None)
     parser.add_argument(
         "--relax-model-name",
         action="store_true",
@@ -674,7 +1018,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
 
     if args.fake:
-        backend: Backend = FakeBackend(served_name=args.served_name or "fake-local-model")
+        backend: Backend = FakeBackend(
+            served_name=args.served_name or "fake-local-model",
+            enable_thinking=args.enable_thinking,
+        )
     else:
         try:
             backend = TransformersBackend.load(
@@ -685,6 +1032,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 served_name=args.served_name,
                 allow_sampling=args.allow_sampling,
                 seed=args.seed,
+                enable_thinking=args.enable_thinking,
             )
         except (FileNotFoundError, RuntimeError) as exc:
             print(f"refusing to start: {exc}", file=sys.stderr)
@@ -696,6 +1044,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"  export LLM_BASE_URL=http://{args.host}:{args.port}/v1")
     print("  export LLM_API_KEY=EMPTY")
     print(f"  export LLM_MODEL_NAME={backend.served_name}")
+    described = backend.describe()
+    print(
+        f"  thinking_mode={described.get('thinking_mode')} "
+        f"(template supports enable_thinking: {described.get('thinking_template_supported')}, "
+        f"flag passed: {described.get('thinking_flag_passed')}; residual blocks are stripped "
+        f"and counted in /health.thinking_stripped_count)"
+    )
     try:
         import uvicorn  # noqa: PLC0415
     except ImportError:

@@ -8,8 +8,10 @@ language must match question language. ``tests/test_tool.py`` asserts that no
 Cyrillic character survives in this file.
 
 Formatting contract: the placeholders are ``db_schema``, ``sql_dialect``,
-``user_query``, ``sql_query`` and ``error``. Templates contain no other braces so
-``str.format`` stays safe.
+``user_query``, ``sql_query``, ``error`` and ``examples`` (the retrieval arm's
+worked-example block). Templates contain no other braces so ``str.format`` stays
+safe, and ``examples`` is substituted *after* the block is rendered, so braces
+inside a retrieved SQL string can never be read as a placeholder.
 """
 
 SQL_DIALECT = "PostgreSQL"
@@ -58,6 +60,22 @@ Question:
 
 Return only the SQL, dialect {sql_dialect}. No explanation, no markdown, no trailing \
 semicolon.
+"""
+
+FEW_SHOT_PROMPT_TEMPLATE = """The blocks below are worked examples: other questions on \
+the same database together with their correct PostgreSQL queries, retrieved because they \
+are similar to the question at the end.
+
+### Worked examples
+{examples}
+
+### Question
+{user_query}
+
+The examples are different questions. Copy their identifier style and their way of using \
+this schema; never copy their filter values into the answer. Return only one SELECT \
+statement for the question above, dialect {sql_dialect}. No explanation, no markdown, \
+no trailing semicolon.
 """
 
 AMBIGUITY_PROMPT_TEMPLATE = """You audit a natural-language question for a database \
