@@ -4,6 +4,10 @@ Status: **in progress** (runs E1/E3 in flight; this file is being filled as meas
 Branch `feat/lora-track`, nothing committed. Every number below is attached to the
 command that produced it and to the artifact that stores it.
 
+Round 2 (branch `feat/round2`, §9–§10) adds the **missing fourth cell** of the 2×2 design
+and the `run.json` recorder fix. §1–§8 are the round-1 measurements and are left exactly as
+they were; §9–§10 only add.
+
 ---
 
 ## 1. What was measured, and against what
@@ -347,8 +351,707 @@ that are cheap on our side:
 * **The tool is v2** with pruning/ambiguity-gate; the frozen baseline may have used a
   different tool revision, so part of any delta is tool-side, not adapter-side.
 
+---
+
+## 9. Round 2 — the 2×2 design `{base, adapter} × {no evidence, evidence}`
+
+§7.4 listed the missing fourth cell as the first cheap follow-up: every adapter number in
+this report was measured with evidence **off**, while the frozen baseline lives with evidence
+**on**, so no adapter claim could be compared to it honestly. That cell is now measured.
+The design is the same 241 `bird_large` questions, the same live PostgreSQL through the
+tunnel, the same tool v2, greedy decoding from the same 4-bit server; only the two factors
+move. Measured 2026-10-29 on branch `feat/round2`, run `e3fair-bird-large`.
+
+### 9.1 The four cells
+
+All four ledgers are `dev_tools/fixed_eval.py` `mode="local"` on the live server; each cell
+is one greedy run. "gold unexec." is 32 in every cell (the 30 regex-killed golds plus ids 4
+and 35), so **EX/209** uses the same denominator everywhere and the executable ceiling stays
+**208/241 = 86.31 %**: 32 unexecutable golds plus id 572, whose gold *does* execute but against
+a string literal the repo rewrite mutated, so it is scoreable and wrong rather than dead.
+Verified per question in the ledgers: `gold_ok=false` for ids 4 and 35,
+`gold_ok=true, status=scored` for id 572.
+
+| cell | configuration | EX/241 | EX/209 (gold-exec.) | pred. unexec. | simple / moderate / challenging | soft-F1 | run |
+|---|---|---|---|---|---|---|---|
+| **A** | base 7B, `use_evidence=False` | **51/241 = 21.16 %** <br>CI 16.48–26.75 | 51/209 = 24.40 % <br>CI 19.08–30.65 | 40 | 34/91 = 37.36 % · 13/89 = 14.61 % · 4/61 = 6.56 % | 0.2974 | `runs/t2/e1-bird-large` |
+| **B** | base 7B, `use_evidence=True` | **84/241 = 34.85 %** <br>CI 29.12–41.07 | 84/209 = 40.19 % <br>CI 33.78–46.96 | 39 | 47/91 = 51.65 % · 24/89 = 26.97 % · 13/61 = 21.31 % | 0.4677 | `runs/t2/e1fair-bird-large` |
+| **C** | adapter `runs/e3-r16`, no evidence | **61/241 = 25.31 %** <br>CI 20.24–31.16 | 61/209 = 29.19 % <br>CI 23.44–35.68 | 36 | 37/91 = 40.66 % · 11/89 = 12.36 % · 13/61 = 21.31 % | 0.3351 | `runs/t2/e3-bird-large` |
+| **D** | adapter, `use_evidence=True` | **93/241 = 38.59 %** <br>CI 32.67–44.87 | 93/209 = 44.50 % <br>CI 37.92–51.27 | **23** | 47/91 = 51.65 % · 31/89 = 34.83 % · 15/61 = 24.59 % | 0.4696 | `runs/t2/e3fair-bird-large` |
+
+Zero "ambiguous" predictions in all four cells (the `birdsafe` gate never fires on BIRD), so
+the denominators are unaffected. Per-difficulty denominators are 91 simple, 89 moderate,
+61 challenging.
+
+Reproduce:
+
+```bash
+. runs/t2/run_env.ps1 && export LLM_MODEL_NAME=qwen2.5-coder-7b+e3-r16   # adapter server
+python -m dev_tools.run_benchmark --allow-llm-spend --predict-only --use-evidence \
+    --max-new-tokens 512 --run-id e3fair-bird-large --query-file data/bird_large.json \
+    --answer-file data/bird_large.json --db-url localhost:5444 --runs-dir runs/t2
+python -m dev_tools.score_runs score --kind bird \
+    --predictions runs/t2/e3fair-bird-large/query_results.json \
+    --answers data/bird_large.json --db-url localhost:5444 \
+    --out runs/t2/scores/e3fair-bird-large.json
+python runs/t2/t2_2x2_analysis.py     # four cells + all paired blocks + interaction
+```
+
+`--use-evidence` is new (§10): round 1 could only produce cell B by hand-writing a script
+(`runs/t2/e1fair_run.py`), which is exactly how the E1/E1-fair mismatch happened.
+
+### 9.2 What each factor does, holding the other fixed
+
+b = current right / baseline wrong, c = current wrong / baseline right; exact McNemar p;
+10 000 paired-bootstrap resamples over question ids, seed 0. Rule pre-registered in §5.3:
+claim "better" only if `b − c ≥ 6` **and** `p < 0.05` **and** the CI excludes 0.
+
+| comparison (factor, held fixed) | b | c | b−c | exact p | ΔEX | 10k 95 % CI | rule | verdict |
+|---|---|---|---|---|---|---|---|---|
+| **evidence, adapter ON** (D vs C) | **41** | **9** | +32 | **5.6e-06** | **+13.28 pp** | **[+7.88, +18.67]** | met | **evidence is decisive** |
+| **evidence, adapter OFF** (B vs A) | 39 | 6 | +33 | 5.4e-07 | +13.69 pp | [+8.71, +19.09] | met | evidence is decisive |
+| **adapter, evidence ON** (D vs B) | 29 | 20 | +9 | 0.253 | +3.73 pp | [−1.66, +9.54] | not met | inconclusive |
+| **adapter, evidence OFF** (C vs A) | 26 | 16 | +10 | 0.164 | +4.15 pp | [−0.83, +9.54] | not met | inconclusive |
+| **both, total** (D vs A) | 55 | 13 | +42 | 2.7e-07 | **+17.43 pp** | [+11.20, +23.65] | met | both together are decisive |
+| D vs the frozen 42.32 % (id-level) | 33 | 42 | −9 | 0.356 | −3.73 pp | [−10.38, +3.32] | — | **not distinguishable from the frozen file** |
+
+**The headline is a stability result, not a win.** The evidence effect is +13.7 pp with the
+base model and +13.3 pp with the adapter on — the same effect twice, and significant both
+times. The adapter effect is +4.2 pp without evidence and +3.7 pp with it — the same effect
+twice, and inconclusive both times at n = 241. Round 1 could only say "evidence dominates the
+adapter" by comparing two cells that differed in one factor each; with the square closed, the
+two coefficients are measured twice each and agree. Neither factor's value depends on the
+other's state.
+
+The bottom row is what closing the square buys: with both factors on, cell D is **−3.73 pp**
+from the frozen 42.32 % and the CI covers 0 (`p = 0.356`), whereas round 1's best
+evidence-on/adaptor-off cell (E1-fair) was **significantly** below it by 7.47 pp (§7.3,
+`p = 0.0273`). The missing cell was the difference between "significantly worse" and "not
+distinguishable". The remaining caveat does not move: the frozen file is scores only (no SQL,
+no config), so this is an id-level comparison.
+
+### 9.3 Do the two effects stack? (interaction)
+
+The interaction is the difference in differences, per question:
+`did_q = (D_q − B_q) − (C_q − A_q)` — the adapter effect with evidence on minus the adapter
+effect with evidence off. A purely additive world has `did_q = 0` everywhere.
+
+| quantity | value |
+|---|---|
+| interaction ΔEX | **−0.41 pp** |
+| 10k paired-bootstrap 95 % CI | **[−7.05, +6.22] pp** |
+| exact two-sided sign test on the 56 non-zero `did` | 28 negative / 28 positive, **p = 1.000** |
+| additive prediction (A + evidence + adapter) | 51 + 33 + 10 = **94** |
+| observed cell D | **93** (−1 question) |
+| adapter helps… both arms / only with evidence / only without / neither | 9 / 20 / 17 / 195 |
+| evidence helps… both arms / only with adapter / only without / neither | 18 / 23 / 21 / 179 |
+
+**Verdict: additive.** The point estimate is −0.4 pp, the CI spans ±7 pp, the sign test is
+exactly balanced, and simple addition predicts cell D to within one question. There is no
+interaction to report in either direction: the adapter does not "unlock" with evidence, and
+evidence does not rescue the adapter. Concretely, 185 of 241 questions have the *same* adapter
+gain in both arms (mostly zero), the adapter's gain is positive in at least one arm for 46 of
+them (9 in both + 20 only with evidence + 17 only without), and the 56 questions whose gain
+differs between arms split 28/28 — no systematic direction.
+
+Two consequences worth stating in plain words, because they are the reason this cell was worth
+25 minutes of GPU time:
+
+1. **No re-tuning is warranted before the deadline.** If the adapter were sub-additive (worth
+   less when the prompt carries evidence), then training or serving the adapter for the
+   evidence-on regime would be the obvious next move — that hypothesis is now dead: the
+   adapter's coefficient is flat across the regime.
+2. **Power, not effect, decides what is significant.** The same +4 pp adapter effect is
+   `p = 0.164` without evidence and `p = 0.253` with it; the evidence effect is `p = 5e-07`
+   without the adapter and `p = 6e-06` with it. Any "significance" story about the adapter must
+   be read against the interaction test, which says the two arms are one effect measured twice.
+
+### 9.4 Cost and provenance of cell D
+
+`runs/t2/e3fair-bird-large/run.json` (new schema, §10) for the run: 1 469 s wall clock,
+461 058 prompt / 20 163 completion tokens, **529 requests for 241 questions** (the tool's
+ambiguity-gate + repair calls), peak GPU memory **7 009.7 MiB** recorded by the serving process,
+and `max_completion_tokens_observed = 261` against `max_tokens = 512` — so the generation cap
+did not bind and cannot explain the number. Server: base `qwen2.5-coder-7b-instruct` +
+`runs/e3-r16/adapter` (`adapter_sha256 = ea50f537…`), 4-bit NF4, greedy.
+
+---
+
+## 10. `run.json` schema v2 — the recorder that made the round-1 mix-up possible
+
+### 10.1 The defect being fixed
+
+Round 1 ran cell A and cell B with the same wrapper and the same environment; the only
+difference was `BenchmarkBIRD(use_evidence=True)`, a constructor argument `run_benchmark.py`
+had no flag for. Consequently `runs/t2/e1-bird-large/run.json` and
+`runs/t2/e1fair-bird-large/run.json` differ solely in a hand-written `"changed_vs_e1"` note:
+nothing machine-readable distinguishes a 21 % run from a 35 % run. That is how a paired
+comparison against the frozen baseline was run against the wrong arm (§7), and why §7.4 had to
+list "record `use_evidence`, `max_tokens`, `torch.cuda.max_memory_allocated` and the tool
+commit" as an open item. This section closes it.
+
+### 10.2 What every `run.json` now carries, and where it comes from
+
+Two files changed (`dev_tools/serve_openai.py`, `dev_tools/run_benchmark.py`, no edits under
+`src/` or `benchmarks/`). The serving process now exposes its provenance on `GET /health`, and
+the wrapper probes that endpoint before and after each run and merges the result:
+
+| field | source | why it exists |
+|---|---|---|
+| `use_evidence` | `--use-evidence`, validated against `--benchmark` | the round-1 mismatch itself |
+| `max_tokens` | `/health.max_new_tokens` (the cap that binds) | the harness never sends `max_tokens`; a CLI number alone would be a claim, not a fact |
+| `max_tokens_source` | `"server:/health"` / `"cli:--max-new-tokens"` | says which authority the number came from |
+| `tool_commit_sha`, `tool_commit_dirty`, `tool_commit_dirty_paths`, `tool_branch` | `git` in the repo that contains the tool | a SHA alone lies about a modified worktree |
+| `tool_module`, `tool_source_file`, `tool_source_sha256` | the imported tool class | catches an uncommitted `src/` edit that git status would not tie to the tool |
+| `model_id`, `served_name` | `/health` | the model that answered, not the string in an env var |
+| `adapter_id`, `adapter_sha256`, `adapter_config_sha256` | `/health` (hashed at load) | two r=16 adapters can no longer be confused |
+| `load_in_4bit`, `device`, `allow_sampling` | `/health` | 4-bit is mandatory on this GPU (§2.1); sampling would break greedy comparability |
+| `cuda_max_memory_allocated_bytes` / `_mib` | `torch.cuda.max_memory_allocated()` **inside the serving process** | the harness has no CUDA context; only the server can report it |
+| `requests_served`, `max_completion_tokens_observed` | counters in the server | proves whether the generation cap bound, from the artifact instead of a log |
+| `server_probe`, `server_before`, `server_after` | full `/health` payloads | audit trail of the endpoint on both sides of the run |
+| `n_questions`, `n_with_evidence` | the query file | how much evidence the prompt actually carried |
+
+Refusals added, so a mis-recorded run cannot start (`run_benchmark.plan_run` / `main`):
+`--use-evidence` with `--benchmark ambrosia` (Ambrosia never reads evidence → refused, not
+ignored); `--max-new-tokens` disagreeing with the server's `/health` cap; a live run whose
+`/health` does not answer (no provenance → refuse, `--check` merely reports it); a non-empty
+run directory (pre-existing R1-D22 rule).
+
+### 10.3 Proof: a second short run, with the new fields
+
+`bird_small`, 22 questions, adapter + evidence against a **freshly restarted** server, run id
+`recorder-proof-bird-small` (`runs/t2/recorder-proof-bird-small/run.json`, 154 s, exit 0):
+
+```json
+"use_evidence": true,
+"max_tokens": 512,                       "max_tokens_source": "server:/health",
+"tool_commit_sha": "f4d3d4a0f8ae…",  "tool_commit_dirty": true,  "tool_branch": "feat/round2",
+"tool_source_sha256": "9c2072bc548c…",
+"model_id": "D:\\AI\\Models\\qwen2.5-coder-7b-instruct",
+"served_name": "qwen2.5-coder-7b+e3-r16",
+"adapter_id": "runs/e3-r16/adapter",
+"adapter_sha256": "ea50f537cdf8e5a120306d2d7206908e7a0830803192fd7ba137a17565cd43a7",
+"load_in_4bit": true,                    "device": "cuda",
+"cuda_max_memory_allocated_bytes": 7069570560,   "cuda_max_memory_allocated_mib": 6742.1,
+"requests_served": 46,                   "max_completion_tokens_observed": 90,
+"n_questions": 22,                       "n_with_evidence": 19
+```
+
+Reading the proof: `use_evidence=true` and `adapter_id` are now on disk, so the two former
+twins (base vs base+evidence) are distinguishable by `grep`. `max_tokens=512` is the server's
+cap and 90 was the largest completion, so the cap was not binding. `6742.1 MiB` is a real
+per-process counter for that run because the server was restarted first — the counter is a
+high-water mark *since server start*, so a clean per-run figure requires one server per run
+(done for cell D: 7 009.7 MiB; round 1's 8 218 MiB was an `nvidia-smi` sample and is now
+superseded). `tool_commit_dirty=true` with a path list is honest about the shared worktree: the
+listed files include other round-2 tasks' edits, which is exactly why the tool module's own
+SHA-256 and the dirty list are recorded separately from the commit.
+
+Tests: six new ones pin the behaviour — `tests/test_serve.py` (health exposes every provenance
+key; request/completion counters increment) and `tests/test_local_bench.py` (the plan records
+`use_evidence` + the effective cap; a disagreeing `--max-new-tokens` is refused; ambrosia +
+evidence is refused; `/health` URL derivation drops `/v1`). Full suite: **151 passed**.
+Reproduce the proof:
+
+```bash
+python -m dev_tools.run_benchmark --allow-llm-spend --predict-only --use-evidence \
+    --max-new-tokens 512 --run-id recorder-proof-bird-small \
+    --query-file data/bird_small.json --answer-file data/bird_small.json \
+    --db-url localhost:5444 --runs-dir runs/t2
+```
+
+The three round-1 `run.json` files (§5.1) predate the schema and cannot be retrofitted; for
+those runs the configuration is reconstructed in §7.1 from the wrapper's arguments instead.
+
+---
+
+## 11. Ambrosia decision (round 2): calibrate, keep or drop
+
+Round 1 left Ambrosia as "our numbers are below the constant floor and the adapter collapsed to
+always-ambiguous" (§5.2, §5.4). This section decides what to do about it, using only artifacts
+that already exist (the GPU is occupied by the night-scale run until ~14:30, so nothing here
+re-runs the model). Everything below is traceable to `runs/t2/scores/ambrosia-calibration.json`
+(produced by `runs/t2/t4_ambrosia_calibration.py` from the round-1 ledgers) and to
+`data/ambrosia_{large,small}.json`.
+
+**Artifact note (pre-seal audit, 2026-10-29 — finding fixed).** The pre-seal audit caught a stale
+`cells.base_strict` block in `runs/t2/scores/ambrosia-calibration.json`: it repeated the adapter's
+numbers (240 flags, TP 70, FP 170, correct 70) while naming `e1-ambrosia-large.json`. The cause was a
+loop variable leaking into the payload comprehension of `runs/t2/t4_ambrosia_calibration.py` (both cells
+were filled from the last loaded ledger), not a wrong computation — the `operating_points` below and every
+number in this section were always derived from the correct ledgers. The artifact has been regenerated
+from the existing predictions (CPU-only, no model, no GPU): `cells.base_strict` now reads
+`predicted_ambiguous 61, true_positive 17, correct 143`, `confusion {tp 17, fp 44, fn 53, tn 126}`, and
+`cells.adapter_strict` reads `240 / 70 / 70` with `{tp 70, fp 170, fn 0, tn 0}`. The audit script now
+reports **133/133 checks reproduced, 0 findings** (`research/advtext2sql/AUDIT_ROUND2.json`), and the
+script asserts the cell blocks against their operating points before writing, so the same leak would fail
+loudly instead of shipping.
+
+### 11.1 The hard floors, and the two measured operating points
+
+`evaluate_ambrosia.py` scores a strict binary classification (correct ⇔ `gold_is_ambiguous ==
+pred_is_ambiguous`), so constants are strong: never saying "ambiguous" is 170/240 = **70.83 %**
+on `ambrosia_large` and 15/24 = **62.50 %** on `ambrosia_small`; always saying it is 70/240 =
+**29.17 %** and 9/24 = **37.50 %**. There is no `ambrosia_small` run: the two floors are the only
+numbers that file contributes (no prediction artifact exists for it).
+
+| decision rule | flags | TP | FP | precision | recall | correct | accuracy | vs never-floor |
+|---|---|---|---|---|---|---|---|---|
+| never ambiguous (constant) | 0 | 0 | 0 | n/a | 0.000 | 170/240 | **70.83 %** | — |
+| **base strict gate (E1, measured)** | **61** | **17** | **44** | **27.87 %** | **24.29 %** | **143/240** | **59.58 %** | **−11.25 pp** |
+| adapter strict gate (E3, measured) | 240 | 70 | 170 | 29.17 % | 100 % | 70/240 | 29.17 % | −41.67 pp |
+| union: base OR adapter | 240 | 70 | 170 | 29.17 % | 100 % | 70/240 | 29.17 % | −41.67 pp |
+| intersection: base AND adapter | 61 | 17 | 44 | 27.87 % | 24.29 % | 143/240 | 59.58 % | −11.25 pp |
+| always ambiguous (constant) | 240 | 70 | 170 | 29.17 % | 100 % | 70/240 | 29.17 % | −41.67 pp |
+
+The union and intersection rows are identical to the two singles because the adapter flags
+*every* item: with a classifier that answers "ambiguous" unconditionally, ensembling adds no
+operating point. These six rows are **the complete set of decision rules the stored artifacts
+support**.
+
+### 11.2 Why there is no threshold curve to sweep
+
+A ROC-style sweep needs a *ranked* score per question. The artifacts contain none:
+
+* the gate (`Text2SQLGenerator._assess_ambiguity` → `parse_ambiguity_answer`) makes one LLM call
+  whose reply is reduced to two classes, `OK` or `AMBIGUOUS: <clause>`; the clause is only
+  logged, never persisted;
+* `query_results.json` stores exactly two kinds of value per question — the string `"ambiguous"`
+  or a SQL statement (`runs/t2/t4_ambrosia_calibration.py` asserts this over all 240 items);
+* `dev_tools/serve_openai.py` refuses logprobs by design ("No tool calling, no logprobs…"), so no
+  probability was ever produced;
+* per-item confidence, candidate interpretations and gate replies are absent from
+  `runs/t2/scores/*ambrosia*.json` (`per_question` carries booleans only).
+
+So the honest statement is stronger than "no threshold wins": **no threshold can be computed from
+these artifacts at all.** Recovering a score means re-running the 240 items with the gate's reply
+text (and ideally logprobs) captured — a `serve_openai.py` change plus a GPU run, both blocked
+today. The four-corner table above is therefore the whole calibration surface.
+
+### 11.3 What a calibrated gate would have to achieve
+
+Under this contract accuracy is `(170 + TP − FP)/240`, so beating 70.83 % is *exactly* the
+condition `TP > FP`, i.e. **precision above 50 % on the items the gate flags**. The measured base
+gate is at 27.87 % (17 TP / 44 FP): to reach the floor while keeping its 17 true positives it
+would have to drop **28 of its 44 false alarms** and flag at most 33 items in total (17 TP +
+≤16 FP) instead of 61.
+
+**Plain answer to the task's question: no, nothing beats 70.83 %.** The best measured operating
+point is 59.58 % (base strict), 11.25 pp *below* the constant it must beat, and the adapter is at
+the other constant. There is no threshold to tune in the stored data, and the one measured
+classification point sits on the wrong side of the break-even precision.
+
+One in-sample diagnostic, reported only to close the "maybe a subgroup is calibratable" door:
+the base gate fires on 22 of the 55 `ambrosia_large` databases; only 3 of those 22 have precision
+above 50 % in-sample, and together they cover **4 flagged items** (4 TP). A "use the gate only on
+these databases" rule would score 174/240 = 72.5 % *on the data it was selected from* — selection
+on 4 items out of 240 with no held-out Ambrosia split, so it is noise, not a calibration. The
+largest firing database (`vague_2cols_location`, 16 flags) has precision 0.25.
+
+### 11.4 What the dataset actually encodes (checked before recommending a contract change)
+
+Before proposing anything, the Ambrosia files were read for their structure, not just their
+labels — measured row by row and recorded in `runs/t2/scores/ambrosia-calibration.json`
+(`dataset_structure`, produced by `runs/t2/t4_ambrosia_calibration.py`):
+
+* every row carries `ambig_queries`, a list of **2–3 candidate SQL readings of the same question
+  that differ in operator grouping** (e.g. `(A OR B) AND C` vs `A OR (B AND C)`);
+* for **all 170** unambiguous rows of `ambrosia_large` (and **334/334** in `ambrosia_train`) the
+  gold `SQL` is *exactly one* of those listed readings — the phrasing picks it;
+* for the **70** ambiguous rows (146 in train) `SQL` is the literal token `ambiguous`: the
+  phrasing leaves the listed readings open.
+
+So the teacher's data already contains the *interpretation set* for every item; the binary label
+is a lossy summary of it. That is the fact the recommendation rests on.
+
+**Recommended option: (c) — propose that the Ambrosia head return the list of admissible
+readings instead of a binary flag, and prepare that proposal for the teacher as a blocked task.**
+
+Justification, in one paragraph: the binary contract makes every Ambrosia number a comparison
+against a constant (70.83 %), and the two measured points (59.58 % and 29.17 %) both fail it, with
+the gate's precision at 27.87 % against the 50 % break-even — a gap that threshold tuning cannot
+close because no score was ever recorded and none can be recovered without a re-run. The only lever
+left on our side is class balance, and the measured mix shows how weak it is: the round-1 build was
+already 66.7 % negatives and the natural build is 69.6 %
+(`training/AMBROSIA_NATURAL_RECIPE.md` §1), so "2:1 sampling caused the collapse" contradicts the
+numbers. Meanwhile the dataset already carries the richer target that the binary label throws
+away — each of the 240 items lists its 2–3 candidate readings, the gold `SQL` equals exactly one of
+them on all 170 unambiguous items, and the 70 ambiguous items are precisely those whose phrasing
+leaves that list open — so a head that returns the admissible reading set has a learnable,
+teacher-defined target and a graded score (exact match on the singleton for an unambiguous item,
+set coverage of the listed readings for an ambiguous one), which is the only route to an Ambrosia
+number that is not a constant comparison. It costs no GPU tonight: the proposal is written below
+and the arm that would test it stays blocked on the teacher API, exactly as the round-2 plan
+prescribes for teacher-API work.
+
+What this does *not* mean:
+
+* **No Ambrosia headline is claimed.** Until the teacher answers, the only honest sentences are
+  "the base model scores 59.58 % against a 70.83 % constant floor" and "the round-1 adapter scores
+  the always-ambiguous constant". These must always be printed next to the floor, never as an
+  "Ambrosia accuracy" (§5.2 rule).
+* **`birdsafe` stays the default.** BIRD has 0 ambiguous gold items, so any ambiguity answer is a
+  guaranteed zero on 241 items; `birdsafe` keeps that ceiling intact while still running the gate
+  (one extra call). The delivered branch therefore runs `birdsafe` for BIRD and only
+  `TEXT2SQL_AMBIGUITY_MODE=strict` for an explicit Ambrosia measurement.
+* **Strict mode with a calibrated gate (option a) is rejected on evidence**, not on preference:
+  §11.3 shows there is nothing to calibrate and the one measured point is below break-even.
+
+The proposal in one line for the teacher: *"may the Ambrosia head answer with the set of admissible
+readings instead of a yes/no flag — the dataset already lists them in `ambig_queries` — scored as
+set precision/recall against the gold `SQL` for unambiguous items and against the full listed set
+for ambiguous ones?"* — drafted as a blocked task; it changes what the harness must accept, so it
+cannot be adopted unilaterally.
+
+### 11.5 The blocked arm and its residual risk
+
+The natural-class-balance adapter is **ready but blocked on the GPU**
+(`training/AMBROSIA_NATURAL_RECIPE.md`): dataset built and verified (`training/out-natural/`,
+480 Ambrosia rows = 146 ambiguous + 334 natural negatives, train/valid 432/48, combined 722 rows,
+`schema_basis=file`, leakage clean), planner dry-run recorded (`runs/ambrosia-natural/
+provenance.json`: 138 steps, TRL 0.18.2 ok), training **not** started. Measured-derived cost:
+**≈32 min training** (138 steps × 14.06 s/step from `runs/e3-r16/train_summary.json`) **+ ≈8 min
+evaluation** (the round-1 adapter needed 434 s for the same 240 questions) ≈ **40 min of GPU**,
+versus the 15 minutes in the plan — the card must be free, and after t7 by the captain's order.
+
+Residual risks, stated plainly:
+
+1. **Low expected value.** The mix moves 2.9 pp in the *safe* direction (more negatives), so a
+   negative result kills the class-balance hypothesis rather than the head. It cannot be presented
+   as "we tried everything".
+2. **It cannot produce a pass under the current contract by itself.** Even a much better
+   classifier must clear 50 % precision, and the artifacts still contain no score to calibrate —
+   the arm changes the classifier, not the metric.
+3. **GPU contention.** Peak VRAM of the round-1 7B QLoRA run was 11.0 GiB (`train_summary.json`),
+   so it must not overlap t6's tail or t7; a slipped schedule pushes it past the deadline.
+4. **Teacher may decline or not answer before the deadline.** Then the branch ships with the
+   `birdsafe` default and the explicit "not measurable under this contract" sentence — option (b)
+   becomes the delivered state, and no Ambrosia improvement is claimed.
+
+**Blocked on teacher.** The ask this section recommends is written as a one-page proposal for the course
+teacher at `research/advtext2sql/AMBROSIA_CONTRACT_PROPOSAL.ru.md` (`../AMBROSIA_CONTRACT_PROPOSAL.ru.md`
+from this repo root — outside the repo, so it ships with no commit): let `query()` return the set of
+admissible readings and score it as set-level precision/recall, which the dataset's `ambig_queries`
+already supports. No acceptance is assumed. Until the teacher answers, the fallback above is the delivered
+state: `birdsafe` stays the BIRD default, and no Ambrosia number is ever printed without its 70.83 %
+constant floor (62.50 % on small) next to it, always phrased as "not measurable under this contract", never
+as "Ambrosia accuracy".
+
+---
+
+## 12. Feature x model matrix: measured cells, blocked cells, decision rule
+
+The round-2 plan measures a matrix, not one number (Phase 3 of
+`research/advtext2sql/Roadmap.lora.ru.md`): the team's API pipeline
+with and without its feature set, the local 7B base with the same prompt surface, and the local 7B + LoRA
+adapter with and without the feature block — so that "does the adapter stack with the features?" is
+answered by a paired test instead of an inference. The assembler is `dev_tools/matrix.py`; it reads
+per-question ledgers only, never starts a server, never calls a model, never touches the database
+(CPU-only, and the tests poison the socket to prove it). Artifact of the run below:
+`runs/t2/scores/matrix.json`.
+
+```bash
+python -m dev_tools.matrix                       # the table + paired block vs adapter_ev
+python -m dev_tools.matrix --json runs/t2/scores/matrix.json
+python -m dev_tools.matrix --reference base_ev   # pair every arm against another reference
+python -m dev_tools.matrix --arms my_arms.json   # assemble a caller-supplied arm list
+```
+
+`--arms` takes a JSON array of `{id, model, use_evidence, feature_prompt?, ledger?, status?,
+blocked_reason?, blockers?}`, so the matrix can grow (a new adapter, a new feature file, an API row)
+without editing the module; without it the built-in manifest below is used.
+
+### 12.1 Measured cells (four, from the t2 2×2 artifacts)
+
+`data/bird_large.json`, 241 questions, `dev_tools/fixed_eval.py` `mode="local"`, live PostgreSQL through
+the tunnel, greedy 4-bit serving. EX/241 is the harness number; EX/209 is over the 209 gold-executable
+questions (32 gold items are unexecutable, ceiling 208/241 = 86.31 % — §9.1).
+
+| arm | model | evidence | features | EX/241 | EX/209 | simple / moderate / challenging | soft-F1 |
+|---|---|---|---|---|---|---|---|
+| `base_noev` | base | off | — | **51/241 = 21.16 %** | 51/209 = 24.40 % | 37.36 · 14.61 · 6.56 | 0.2974 |
+| `base_ev` | base | on | — | **84/241 = 34.85 %** | 84/209 = 40.19 % | 51.65 · 26.97 · 21.31 | 0.4677 |
+| `adapter_noev` | adapter | off | — | **61/241 = 25.31 %** | 61/209 = 29.19 % | 40.66 · 12.36 · 21.31 | 0.3351 |
+| `adapter_ev` | adapter | on | — | **93/241 = 38.59 %** | 93/209 = 44.50 % | 51.65 · 34.83 · 24.59 | 0.4696 |
+| `gpt_frozen_file` | team API (frozen file) | — | team best combo | **102/241 = 42.32 %** | 102/209 = 48.80 % | 56.04 · 40.45 · 24.59 | n/a |
+
+The last row is a **reference, not an arm we can re-run**: it is the team's frozen predictions file
+(`../artifacts/pred_scores.json`, id-level scores, no SQL), which does not record which model produced it
+(the team's claim names a GPT-5.x-mini). It scores 42.32 %, not the claimed 44.81 % — that 2.5 pp
+discrepancy was already measured in round 1 (captain-verified numbers, E2) and is not re-litigated here.
+Because it carries no SQL, only the id-level comparison against it is possible (`b`/`c`/exact McNemar work;
+nothing can be re-executed).
+
+**Cross-check (required by the task, and it passes).** The four cells are assembled from
+`runs/t2/scores/{e1,e1fair,e3,e3fair}-bird-large.json` and then compared field by field (EX/241, EX/209 and
+the three per-difficulty counts) against the independent `runs/t2/scores/2x2-analysis.json` written by the
+t2 analysis script. `dev_tools.matrix` reports **no discrepancy** (`findings: []` in
+`runs/t2/scores/matrix.json`); had any number differed, it would have been printed as a `DISCREPANCY` row
+and stored in the artifact rather than averaged away.
+
+### 12.2 Blocked cells (six, printed as `blocked`, never as zero)
+
+| arm | model | evidence | features | blocked on |
+|---|---|---|---|---|
+| `base_noev_features` | base | off | team feature file | team feature file + GPU window |
+| `base_ev_features` | base | on | team feature file | team feature file + GPU window |
+| `adapter_noev_features` | adapter | off | team feature file | team feature file + GPU window |
+| `adapter_ev_features` | adapter | on | team feature file | team feature file + GPU window |
+| `gpt_features` | GPT-5.4-mini | n/a | team best combo | teacher endpoint |
+| `gpt_no_features` | GPT-5.4-mini | n/a | — | teacher endpoint |
+
+The four local feature arms need the same single GPU the night-scale run owns (t6 until ~14:30, then t7's
+four runs first); the two API rows need the teacher's endpoint and are outside this repo's control. For
+every blocked arm the assembler prints the exact command that will produce it (serving line + harness
+line), and the same rows are stored in `runs/t2/scores/matrix.json`; nothing is ever executed by
+`matrix.py`.
+
+### 12.3 The feature-block input format (what the runner needs when the file appears)
+
+* **v1 — global block (supported now):** one UTF-8 text file, conventionally
+  `training/feature_block.txt`, whose text is inserted verbatim as `Feature block:\n<text>` into the SQL
+  prompt of every question. This is the *same* file `training/build_data.py --feature-prompt` consumes, so
+  the training and serving surfaces carry the same block. Validation (shared by the assembler and the
+  runner, so they cannot drift): file must exist, be valid UTF-8, be non-empty after stripping, and be at
+  most 20 000 characters; a block above 4 000 characters is a warning, not a refusal, because it costs
+  prompt tokens on every one of the 241 requests.
+* **v2 — per-question block (documented, not wired):** a JSON object
+  `{"<question_id>": "<feature text>"}`. The runner would have to select the block per question; until the
+  team ships such a file, v1 is the contract.
+* **Wiring:** `run_benchmark.py --feature-prompt FILE` validates the file, wraps the real tool class so the
+  question string becomes `<question>\nFeature block:\n<text>` (the graded harness and the tool's prompt
+  templates are untouched), and records `feature_prompt {file, chars, sha256_16}` plus
+  `tool_wrapper: dev_tools.run_benchmark.feature_prompt_tool` in `run.json`. A missing/empty/oversized file
+  is a **refusal**, and `--feature-prompt` with `--benchmark ambrosia` is refused because Ambrosia asks for
+  an ambiguity verdict and never builds a SQL prompt. Side effect: the ambiguity gate sees the block too;
+  on BIRD the gate is `birdsafe` (never answers "ambiguous"), so the cost is prompt tokens only.
+* When the file appears, the arms become measured by running the printed commands and re-running
+  `python -m dev_tools.matrix`: the blocked rows resolve themselves as their ledgers land, with no code
+  change. Offline tests pin all of this (`tests/test_matrix.py`, `tests/test_local_bench.py`).
+
+### 12.4 Decision rule for when the missing cells land
+
+Every claim below is a **paired** comparison on the same 241 question ids (exact McNemar + 10 000 paired
+bootstrap resamples over question ids, seed 0), reported on **both denominators** — EX/241 (the harness
+number, the one that can be compared to the frozen file) and EX/209 (the denominator that is not capped by
+the 30 dead gold queries). Pre-registered rule (docs/EVAL.md §"decision rule"): claim "better" only if
+`b − c ≥ 6` **and** exact `p < 0.05` **and** the CI excludes 0. Every comparison below holds the evidence
+setting fixed: §9.2 already measured evidence as worth ~+13.5 pp, so mixing the two would repeat round 1's
+mistake of comparing cells that differ in more than one factor.
+
+1. **Feature contribution inside the API pipeline:** `gpt_features` vs `gpt_no_features`. This is the only
+   row that can measure what the team's feature combo is worth; it needs the teacher endpoint.
+2. **Can a cheap model with the same features compete:** `base_*_features` vs `gpt_features`. If the gap is
+   within the CI, the 7B pipeline is a zero-token alternative; if not, it is not.
+3. **Does the adapter stack with the features (the claim that matters):** `adapter_*_features` vs
+   `base_*_features`, i.e. the *same* prompt surface with only the adapter changing. This is the round-2
+   analogue of §9.2's `adapter_ev` vs `base_ev` (+3.73 pp, b = 29, c = 20, p = 0.253, inconclusive) — the
+   feature-free cell is already measured; the feature cell is the missing half.
+4. **Does the combined local pipeline beat the frozen API file:** `adapter_ev_features` vs
+   `gpt_frozen_file` (id-level). Today the best local arm (`adapter_ev`, 93/241) is −3.73 pp from the frozen
+   42.32 % and no longer distinguishable (b = 33, c = 42, p = 0.356, §9.2). The rule for shipping a claim
+   of parity-or-better is the same McNemar rule on the id-level ledger, plus the roadmap's cost clause
+   (no worse than the API arm by more than 2 pp at zero token cost).
+
+The **decision rule** in one line: the matrix decides "adapter + features" only if
+`adapter_*_features` beats `base_*_features` under the pre-registered McNemar rule on EX/241 **and** does
+not lose more than 2 pp to `gpt_features` on either denominator; if the adapter does not beat the base on the
+feature surface, the honest conclusion is that the gain belongs to features/procedures (and the adapter is
+optional), which is itself a result. Until those rows exist, no cell may be quoted as a number: a blocked
+arm is reported as blocked, never as 0, and the matrix is printed with its denominators next to every cell.
 
 
 
 
 
+
+
+
+
+
+---
+
+## 13. Constrained decoding on the A100 (R2-15)
+
+Round 1's "грамматический декодер" was a surrogate: the tool's sqlglot gate plus **one**
+repair generation — post-hoc filtering, not decoding (`Text2SQLGenerator._generate_valid_sql`).
+`docs/DECODER.md` records why every other option was rejected (a `guided_json` envelope
+constrains JSON, not SQL; `guided_regex` is a finite automaton and SQL is recursive;
+`guided_choice` needs a finite answer set). This round the measurement moved to a rented
+A100 80 GB where vLLM exists, and the decoder is real: **xgrammar, a SELECT-only GBNF
+grammar (`dev_tools/grammars/postgres_select.gbnf`), injected per request by
+`dev_tools/guided_proxy.py`.**
+
+### 13.1 The two arms (one serving stack, one prompt surface, repair off in both)
+
+Both arms are the **same** AWQ-4-bit `Qwen/Qwen2.5-Coder-7B-Instruct` on vLLM 0.32.0
+(port 8001), the **same** tool prompts, `--max-new-tokens 512`, `birdsafe` ambiguity gate,
+`dev_tools/run_benchmark.py --predict-only --disable-sql-repair`. The only difference is
+the proxy field: arm **N** forwards the request untouched (`--no-grammar`), arm **G** adds
+`structured_outputs.grammar`. The tool's own repair is disabled in *both* arms precisely so
+that the delta is attributable to decoding (see `run.json`: `sql_repair: "disabled"`,
+`tool_wrapper: dev_tools.run_benchmark.no_repair_tool`).
+
+| arm | decoding | EX/241 | EX/209 | unexecutable predictions | simple · moderate · challenging | soft-F1 | artifact |
+|---|---|---|---|---|---|---|---|
+| **N** no grammar | greedy, unconstrained | **39/241 = 16.18 %** <br>CI 12.1–21.4 | 39/209 = 18.66 % | **62** | 26.37 · 12.36 · 6.56 | 0.2796 | `runs/t2/r2-15-norep-awq/` |
+| **G** SELECT grammar | xgrammar-constrained | **44/241 = 18.26 %** <br>CI 13.9–23.6 | 44/209 = 21.05 % <br>CI 16.1–27.1 | **57** | 30.77 · 13.48 · 6.56 | 0.2951 | `runs/t2/r2-15-grammar-awq/` |
+
+`dev_tools/fixed_eval.py mode="local"`, live PostgreSQL through the tunnel, 32
+gold-unexecutable items in both rows (the same set as everywhere else on this branch:
+EX/209 is the denominator that the shipped evaluator's gold bug does not cap). The two
+runs carry **identical prompt-token counts** (385 921 in both `run.json` files), which is
+the artifact-level proof that the prompt surface really was the same and only the decoder
+changed.
+
+### 13.2 The decoder's own claim (never folded into the LoRA numbers)
+
+The decoder effect is measured on the **raw model text** in each proxy's request log,
+before the tool touches it (`dev_tools/decoder_report.py`, and
+`dev_tools/check_grammar.py --proxy-log` re-parses every completion against the compiled
+grammar):
+
+| decoder fact (241 SQL requests per arm) | arm N (no grammar) | arm G (grammar) |
+|---|---|---|
+| completions that are a markdown fence (```` ``` ````) | **241/241 = 100 %** | **0/241 = 0 %** |
+| completions not starting with `SELECT`/`WITH` | 241/241 | 0/241 |
+| completions containing a `;` (the contract forbids it) | 236/241 | 0/241 |
+| completions accepted by the compiled grammar | 0/241 | **241/241** |
+| requests the proxy actually guided | 0 | **241/241** |
+| predictions the tool's sqlglot gate rejected | 1 (a 512-token truncation mid-string, q517) | 1 (q1484, see below) |
+| predictions that PostgreSQL could not execute | 62 | 57 |
+| completion tokens (mean per SQL request) | 66.5 | 58.3 |
+| cap hits (`finish_reason == "length"`) | 1 | 0 |
+
+Per-error breakdown of the unexecutable predictions (`psycopg` exception class, from the
+`fixed_eval` ledgers):
+
+| error class | arm N | arm G |
+|---|---|---|
+| `UndefinedColumn` | 40 | 40 |
+| `UndefinedTable` | 8 | 3 |
+| `UndefinedFunction` | 7 | 8 |
+| `SyntaxError` | 2 | 2 |
+| `GroupingError` | 2 | 2 |
+| `AmbiguousColumn` / `DatatypeMismatch` / `DatetimeFieldOverflow` | 3 | 2 |
+
+Four facts, and they cut in different directions:
+
+1. **The grammar removes the contract violation at the source.** The base model writes
+   ```` ```sql … ; ``` ```` for *every single* question; the tool's `strip_code_fence`
+   hides that afterwards. With the grammar the same model emits one bare statement every
+   time, and every one of the 241 completions is inside the grammar
+   (`check_grammar.py --proxy-log` → 241/241). That is a real decoder win — and it is
+   invisible in an EX number, because the shipped tool already cleans fences up.
+2. **The grammar does not touch what actually makes predictions unusable.** **55 of arm N's
+   62** unexecutable predictions are identifier/function resolution errors
+   (`UndefinedColumn` 40 + `UndefinedTable` 8 + `UndefinedFunction` 7) — a grammatically
+   perfect query that names a column the database does not have is still a zero. Only **2**
+   of them are `SyntaxError`, so the ceiling for a grammar on this number is small. The
+   measured movement is exactly of that size: 62 → 57, and the 5 removed are
+   `UndefinedTable` losses (8 → 3), not syntax.
+3. **Grammar-legal is not PostgreSQL-legal, and the gap is measurable.** The one gate
+   rejection in arm G (q1484) is a statement the grammar admits but PostgreSQL does not:
+   `SELECT COUNT(*) FILTER WHERE …`. `FROM` is optional in the grammar (`SELECT 1` is
+   legal), which also lets `SELECT … WHERE` through; sqlglot rejected it, the tool
+   reported `"error"`, and that is the 1 sentinel. The fix is to make `FROM` mandatory
+   whenever `WHERE`/`HAVING` appear — not applied to this arm, because that would change
+   the grammar after the measurement; it is recorded as a known permissiveness instead.
+4. **Why arm N shows 62 unexecutable predictions where §5.1 shows 40.** E1's 40 is the
+   same model with **both** repairs switched on (the sqlglot repair *and* the
+   execution-feedback repair, which runs the prediction, feeds the driver error back and
+   asks once more) and a different 4-bit quantizer; both of my arms disable both repairs by
+   design, so an unusable first attempt stays unusable. The arithmetic is
+   `runs/t2/scores/e1-bird-large.json` → 40 `pred_error`, `e1fair` → 39, `e3` → 36, versus
+   arm N → 62. No single factor is isolated by these runs, but the execution-feedback
+   repair is the largest candidate (it is the only mechanism in the tool that can turn an
+   `UndefinedColumn` into a working query), which is exactly why the grammar arm was
+   compared against a repair-off surrogate and not against E1.
+
+**Delta as its own claim** (paired on the same 241 ids, exact McNemar + 10 000 paired
+bootstrap resamples, seed 0; `runs/t2/scores/r2-15-grammar-awq.json`):
+
+| comparison | n | b | c | exact p | ΔEX | 95 % CI | verdict |
+|---|---|---|---|---|---|---|---|
+| **grammar (G) vs no grammar (N)** | 241 | 7 | 2 | **0.180** | **+2.07 pp** | **[−0.41, +4.56] pp** | **inconclusive** |
+| same, on EX/209 denominator | 209 | — | — | — | +2.39 pp (44/209 vs 39/209) | — | descriptive only |
+
+The pre-registered rule (`docs/EVAL.md`: claim "better" only if `b − c ≥ 6` **and**
+`p < 0.05` **and** the CI excludes 0) is **not met**: the grammar fixes 7 questions and
+breaks 2, so `b − c = 5`, `p = 0.18`. The honest statement is: **constrained decoding
+eliminates the output-contract violation completely and moves EX by +2.07 pp, which at
+n = 241 is not distinguishable from chance.** It is not a claim that the grammar improves
+accuracy, and it is not folded into any LoRA number.
+
+### 13.3 Cost (shared GPU: cross-window latency is *not* comparable)
+
+| per-request cost (proxy-side, `/health` + request log) | arm N | arm G |
+|---|---|---|
+| all requests, mean / p50 / p95 | 0.60 / 0.33 / 1.55 s | 5.40 / 1.28 / 16.05 s |
+| SQL-generation requests, mean / p50 / p95 | 0.60 / 0.33 / 1.55 s (unguided) | **10.63 / 9.14 / 20.72 s** (guided) |
+| completion tokens mean | 66.5 | 58.3 |
+| harness wall clock for 241 questions (482 requests) | 359 s | 2 671 s |
+
+These two wall clocks must **not** be read as "the grammar is 7.4× slower": the A100's
+effective throughput changed by ~8× between the two windows (the same short prompt took
+0.6 s during arm N and 5.0 s later with *no* grammar at all — training plus another
+user's evaluation server moved on and off the device). The grammar's own cost was therefore
+measured with an **interleaved** test — one prompt, alternating arm, 6 rounds, same window:
+
+| interleaved cost test | no grammar | full grammar | ratio |
+|---|---|---|---|
+| median latency (same prompt) | 4.99 s | 7.12 s | **×1.43** |
+| median seconds per generated token | 0.185 s | 0.356 s | **×1.92** |
+
+A stricter variant of the grammar (aliases may not omit `AS`) measured the same as the full
+one (median 4.78 s vs 4.84 s in a single noisy round), so the cost is the per-token mask
+computation itself, not the grammar's ambiguity.
+
+The A100 was shared for the whole measurement: the captain's scale-up training held
+46.1 GB and 100 % utilisation for both arms, and another user's evaluation server
+(~7.4 GB) was resident during part of arm G. vLLM itself stayed small on purpose:
+5.29 GiB of weights plus a 10 112-token KV cache at `--gpu-memory-utilization 0.09`
+(~7 GB of 80 GB). Greedy decoding is deterministic, so **EX is unaffected by the
+contention**; only latency is, which is why the ratio above comes from the interleaved
+test rather than from the two harness windows.
+
+### 13.4 What this section does not say
+
+* **It is not a LoRA claim.** No adapter is loaded in either arm; the adapter matrix is
+  §12.
+* **The EX level is not comparable to §5.1.** E1/E3 ran bitsandbytes-nf4 through
+  `serve_openai.py`; these arms run AWQ through vLLM. G vs N is a clean decoder
+  comparison; N vs E1 is a serving-stack comparison and is not quoted as an improvement.
+* **The grammar imposes two documented conventions:** upper-case keywords (every gold
+  query uses them, and 239/240 of arm N's parseable predictions do too) and double-quoted
+  identifiers only (backticks are rejected, as PostgreSQL does). Both are recorded in
+  `docs/DECODER.md` §5.
+* **The engine was small on purpose, and it is gone.** `--gpu-memory-utilization 0.09`
+  (~7 GB) with `--max-model-len 3072`, no bf16 engine, no second model server; the proxy
+  and the engine were shut down at the end of the measurement (04:00 UTC) so the 14B
+  training window got the memory back. `runs/a100-scale` was never touched, and the
+  per-run sampled device peak is in each `run.json` (`device_memory`).
+
+Reproduce (the box, no commits):
+
+```bash
+/root/venv-vllm/bin/vllm serve /root/models/qwen2.5-coder-7b-awq --port 8001 \
+    --max-model-len 3072 --gpu-memory-utilization 0.09 --max-num-seqs 4 \
+    --dtype float16 --quantization awq                       # + VLLM_USE_FLASHINFER_SAMPLER=0
+python -m dev_tools.guided_proxy --port 8100 --upstream http://127.0.0.1:8001 \
+    --served-name qwen2.5-coder-7b-awq-guided --upstream-model qwen2.5-coder-7b-awq \
+    --quantization awq --load-in-4bit --max-new-tokens 512 \
+    --log runs/t2/r2-15-grammar-awq/llm_requests.jsonl        # arm G; --no-grammar -> arm N
+python -m dev_tools.run_benchmark --run-id ... --predict-only --disable-sql-repair \
+    --max-new-tokens 512 --runs-dir runs/t2 --llm-base-url http://127.0.0.1:8100/v1 \
+    --llm-model qwen2.5-coder-7b-awq-guided --allow-llm-spend
+python -m dev_tools.fixed_eval --answers data/bird_large.json \
+    --predictions runs/t2/r2-15-grammar-awq/query_results.json \
+    --baseline runs/t2/r2-15-norep-awq/query_results.json --mode local --out runs/t2/scores/r2-15-grammar-awq.json
+python -m dev_tools.decoder_report --score ... --predictions ... --proxy-log ...
+```
+
+Verification of the decoder itself (both must pass before the numbers above mean anything):
+`python -m dev_tools.check_grammar --sql-file data/bird_large.json --mode safe` →
+**241/241 gold accepted**; `python -m dev_tools.check_grammar --proxy-log <arm G log>` →
+**every guided completion inside the grammar**.

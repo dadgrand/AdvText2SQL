@@ -1,4 +1,4 @@
-# Changelog — LoRA track on `feat/lora-track`
+# Changelog — LoRA track (`feat/lora-track` sealed; round 2 on `feat/round2`)
 
 Baseline: `main` at `e812451` (the teacher's harness). Everything below is what this branch adds or
 changes **on top of that commit**; nothing under `benchmarks/`, `data/` or the root entrypoints
@@ -29,6 +29,207 @@ History note: the bundle contains one historical commit that is **not** in our c
 before an unscheduled shutdown to avoid losing work, and it is preserved as-is in the history on purpose:
 rewriting published-by-us history buys nothing here, while a dishonest re-author would make the record
 harder to audit. Every commit added after it follows `feat:` / `fix:` / `test:` / `docs:` / `chore:`.
+
+---
+
+## Round 2 — `feat/round2` (draft, 2026-10-29; t9 commits)
+
+Round 2 continues from the sealed round-1 tip `f4d3d4a`; `feat/lora-track` is frozen and this section
+describes what `feat/round2` adds on top of it. **Nothing in this section is committed yet** — it is the
+pre-integration draft written by t14 so that the final seal (t9) is a review-and-commit job. Paths are
+relative to this repo; files under `research/advtext2sql/` (outside the repo) are named explicitly and do
+not enter the patch. The round-1 `lora-track.patch` stays the sealed round-1 bundle; t9 regenerates the
+round-2 bundle against `f4d3d4a`.
+
+### Evaluation — the feature × model matrix assembler (`dev_tools/matrix.py`)
+
+- `dev_tools/matrix.py` — CPU-only assembler for the round-2 feature × model matrix: reads per-question
+  `fixed_eval` ledgers, prints EX/241, EX/209, per-difficulty and soft-F1 for every arm, plus a paired
+  McNemar/10k-bootstrap block against a reference arm; arms without an artifact are printed as
+  `blocked`/`not measured` with the command that would produce them, never executed. It cross-checks the
+  four 2×2 cells against the independent `2x2-analysis.json` and reports a `DISCREPANCY` finding instead
+  of smoothing it over. Reason: round 2 must answer "does the adapter stack with the features?" with one
+  table, not with a hand-built spreadsheet.
+- `tests/test_matrix.py` — pins the assembler: no socket is opened during a CLI run, a blocked arm never
+  starts anything, and a planted mismatch surfaces as a finding. Reason: an assembler that can silently
+  "fix" numbers is worse than no assembler.
+- `runs/t2/scores/matrix.json` — the assembled artifact (ignored by `runs/`, quoted in `docs/REPORT.md`
+  §12). Reason: the table must be reproducible from the ledgers, not retyped.
+
+### Recorder and runner — `run.json` schema v2 (`dev_tools/`)
+
+- `dev_tools/serve_openai.py` — `/health` now reports the provenance a run needs: `base_model`,
+  `served_name`, adapter path plus `adapter_model`/`adapter_config` SHA-256, `load_in_4bit`, the effective
+  `max_new_tokens`, `requests_served`, `max_completion_tokens_observed` and
+  `cuda_max_memory_allocated_bytes`. Reason: the serving process is the only source of truth for what was
+  actually loaded and how much VRAM it used; round 1's `run.json` had none of it.
+- `dev_tools/run_benchmark.py` — `run.json` schema v2: records `use_evidence`, `max_tokens` +
+  `max_tokens_source` (and refuses a `--max-new-tokens` that disagrees with the server), the git commit
+  **and dirty-path list**, the tool module's SHA-256, model/adapter ids and hashes, the whole `/health`
+  payload before/after the run, request counts and the largest completion; plus `--feature-prompt FILE`,
+  which validates the block, wraps the tool so the question becomes `<question>\nFeature block:\n<text>`
+  (nothing under `src/` or `benchmarks/` changes), records `feature_prompt {file, chars, sha256_16}`, and
+  refuses a missing/empty/oversized file or an Ambrosia + feature combination. Reason: the round-1 E1 vs
+  E1-fair mix-up was possible because the two runs were indistinguishable on disk; this makes the
+  configuration un-misquotable, and gives the blocked feature arms a runnable path.
+- `tests/test_serve.py` — pins the `/health` provenance keys and the request/completion counters.
+- `tests/test_local_bench.py` — pins the plan-level recorder (`use_evidence`, effective cap, refusal of a
+  disagreeing cap), the feature-block validation/refusal paths and the wrapper behaviour.
+- `runs/t2/recorder-proof-bird-small*` — the short re-run that shows the new fields on disk (ignored
+  artifact; quoted in `docs/REPORT.md` §10.3).
+
+### Thinking mode — Qwen3-class arms (`dev_tools/serve_openai.py`)
+
+- `dev_tools/serve_openai.py` — explicit reasoning switch plus post-filter, both reported by `/health`.
+  `--no-thinking` (and its symmetric `--thinking`) passes `enable_thinking=False` into
+  `tokenizer.apply_chat_template` **only when the template advertises the hook** (detected from the template
+  source, because `apply_chat_template` silently accepts any Jinja variable); a Qwen2.5-style template is a
+  graceful no-op and a tokenizer that rejects the keyword (TypeError) is reported as unsupported instead of
+  claiming a mode. `strip_thinking()` removes residual reasoning before the answer leaves the server:
+  complete `<think>…</think>` blocks, an unterminated block (the shape produced when the generation cap is
+  burned inside reasoning — the part after a blank line is kept, otherwise the tail is dropped), stray tags,
+  and a `Thinking:` lead-in; a completion with no block is returned byte-identical. `/health` gains
+  `thinking_mode` (`default`/`off`/`on`/`off-unsupported`/`on-unsupported`/`not-applicable`),
+  `thinking_template_supported`, `thinking_flag_passed` and `thinking_stripped_count`. Reason: a thinking
+  model served without this either spends the cap on "Let me think…" or hands the tool prose, so the arm
+  would measure a plumbing bug instead of the model.
+- `dev_tools/run_benchmark.py` — `_server_metrics` copies the four thinking keys into `run.json`, so a
+  "thinking" arm cannot be quoted as a normal one (or vice versa).
+- `tests/test_serve.py` — 16 new offline tests (no model, no GPU, no network): the flag reaches a
+  Qwen3-style stub template and is absent from a Qwen2.5-style one, a rejecting tokenizer degrades to
+  `off-unsupported`, `Thinking:…`/block/unterminated-block stripping, the untouched clean answer, the
+  FakeBackend counter over HTTP, the mutually exclusive CLI flags, the startup line, the closed
+  `thinking_mode` vocabulary, and `run.json` provenance.
+
+### Training — scale-up data and the natural Ambrosia arm (`training/`)
+
+- `training/build_data.py` — `--bird-extra DIR` scale-up mode: the official BIRD train split is cleaned by
+  the **same** code path as the base corpus (no rule drift), extra ids are file-derived so they cannot
+  collide with dev ids, and the split becomes a **group split by database** (`--group-split-keep-train`,
+  `--exclude-missing-schema-dbs`) so a db_id is entirely in train or entirely in valid. Reason: training on
+  342 rows over 8 databases measures memorisation; the group split is the only split that measures schema
+  linkage.
+- `tests/test_data.py` — six scale-mode tests: a three-database fixture that reproduces every drop cause
+  the real build hits, shape detection of non-data files in a download directory, byte-determinism, the
+  schema-missing refusal/exclusion paths, a directory with no question files, and `--drop-evidence`.
+- `training/RUN_NOTES.md` §5 — the measured scale build: 6,958 raw pairs → **5,612 usable over 71
+  databases**, group split **4,736 train rows / 61 dbs** and **876 valid / 10 dbs**, combined training file
+  5,130 rows, sequence p99 1,784 (max_seq_len 3,072 keeps every row).
+- `training/AMBROSIA_NATURAL_RECIPE.md` — the natural-class-balance Ambrosia arm, **ready but blocked on
+  GPU**: dataset built (480 rows = 146 ambiguous + 334 natural negatives, 432/48 split, 722 combined),
+  planner dry-run recorded, measured cost **~40 min GPU** (32 min training at 14.06 s/step + 8 min eval).
+- `training/.gitignore` — `out-scale*/` (every scale-build directory, including `out-scale-t2048/`),
+  `out-natural/` and `out-real/` are artifacts; the recipes/build commands that produce them are the
+  sources.
+
+### Tool — procedure arms, both OFF by default (`src/.../text2sql_tool/src/`)
+
+- `src/.../text2sql_tool/src/retrieval.py` — the retrieval few-shot arm: a train-only kNN bank over
+  `data/train_queries.json`, scoped per `db_id`, with two independent leakage layers (source allowlist that
+  refuses `bird_small`/`bird_large`/`mini_dev` by name, plus a content guard on dev ids **and** exact
+  question strings), gold SQL transpiled `sqlite → postgres` and re-parsed before it can become an example,
+  an offline sentence-transformer or a dependency-free hashing embedder, and a recorded reason whenever the
+  arm cannot activate. Reason: the +4 pp adapter result was inconclusive, so the non-adapter question needs
+  an arm that is honest about its bank.
+- `src/.../text2sql_tool/src/self_consistency.py` — the sampling arm's pure decision layer: `n` seeded
+  candidates, majority over canonical result sets (row order ignored, value types preserved), fallback to a
+  majority over normalised SQL text when the database is unreachable, ties to the earliest sample, `n` capped
+  at 9 and `temperature=0` refused. No I/O, which is what makes the rules testable offline.
+- `src/.../text2sql_tool/src/text2sql_implementation.py` — config wiring: 15 new `Text2SQLConfig` fields plus
+  `TEXT2SQL_*` environment overrides (`resolve_procedure_config`), a lazy retriever, `n`-sample generation
+  with `extra_create_args` (`temperature`, `seed`) and a per-round time budget, one shared execution helper
+  for the vote and the feedback dry-run, `procedure_metadata()` and an optional JSONL procedure log. Both
+  arms default to off, so the sealed baseline is unchanged. Also `_create`: a client that rejects
+  `extra_create_args` is tolerated and the fallback is logged instead of pretending to have sampled.
+- `src/.../text2sql_tool/src/prompts.py` — `FEW_SHOT_PROMPT_TEMPLATE` (English, explicitly says the examples
+  are different questions and must not be copied).
+- `dev_tools/procedures_dryrun.py` — offline dry run: both arms on, 357-row bank, hashing embedder, stub LLM,
+  an injected `ConnectionRefusedError` engine; asserts the block was injected and the vote resolved, writes
+  `dry_run.json` / `prompts.txt` / `procedures.jsonl`, exits 2 when an arm did not activate.
+- `dev_tools/run_benchmark.py` — `run.json` gains `procedure_env` (every `TEXT2SQL_*` variable of the
+  process), because the sealed harness builds the tool without arguments and the environment is the only
+  thing that says which arm produced an artefact.
+- `tests/test_procedures.py` — 33 offline tests: the two leakage layers against real dev rows, a dev file
+  renamed to `train_queries.json`, transpilation, embedder/bank determinism, degradation when the weights are
+  absent, block injection + metadata + log without the DSN, the vote rules, both fallbacks, reproducibility,
+  the `n`/budget caps, the greedy path staying untouched when both arms are off, the env/constructor
+  configuration paths, and `run.json.procedure_env`.
+- `docs/PROCEDURES.md` — the options, the measured per-arm prompt cost (`k=1`: 110 cl100k tokens mean;
+  `k=3`: 325 mean / 538 max over 240 of 241 dev questions), the latency formula, the metadata schema, how to
+  enable an arm on the sealed path, and the dry-run transcript.
+
+### Constrained decoding — the A100 grammar arm (`dev_tools/`, `docs/DECODER.md`)
+
+- `dev_tools/grammars/postgres_select.gbnf` — a SELECT-only PostgreSQL grammar in GBNF (xgrammar
+  dialect): `WITH [RECURSIVE]`, set operations, all join flavours, subqueries in `FROM`/`WHERE`/`IN`/
+  `EXISTS`, `CASE`, both `CAST` forms, `EXTRACT`, `SUBSTRING(x FROM a FOR b)`, window functions,
+  `DISTINCT`/`GROUP BY`/`HAVING`, `ORDER BY … NULLS FIRST|LAST`, `LIMIT`/`OFFSET`, double-quoted
+  identifiers. Reason: round 1's "грамматический декодер" was the tool's sqlglot gate plus one repair
+  call — post-hoc filtering, not decoding. Measured acceptance with the serving tokenizer: **241/241**
+  of the `bird_large` gold after a lossless sqlite→postgres rewrite, 215/241 of the raw sqlite gold,
+  211/241 of the gold as the shipped evaluator damages it.
+- `dev_tools/guided_proxy.py` — OpenAI-compatible proxy in front of vLLM that injects
+  `structured_outputs.grammar` **only** into SQL-generation requests (classified by the tool's own
+  system prompt), leaves the ambiguity gate unconstrained, imposes the 512-token cap the harness never
+  sends, and serves `GET /health` with the provenance `run_benchmark.py` records plus a
+  `guided_decoding` block (grammar file/SHA-256/request counts) and an `nvidia-smi` memory sampler.
+  It performs **no** text transformation, so a measured delta is attributable to decoding. Reason: the
+  AutoGen client cannot send guided-decoding fields, and vLLM has no `/health` for the recorder.
+- `dev_tools/check_grammar.py` — compiles the grammar with the serving tokenizer (xgrammar) and reports
+  gold acceptance; `--proxy-log` replays a run's completions and proves they are inside the grammar.
+  Reason: a "guided" arm whose output is outside the grammar is not a guided arm.
+- `dev_tools/decoder_report.py` — assembles per-arm parse validity (sqlglot), decode-side facts from the
+  proxy log (fences, prose prefix, semicolons, cap hits, tokens, latency) next to the `fixed_eval` EX
+  numbers; keeps "unparseable" and "unexecutable" apart on purpose.
+- `dev_tools/run_benchmark.py` — `--disable-sql-repair`: wraps the tool so the arm spends no second
+  generation repairing its own SQL (neither the syntax repair nor the execution repair), records
+  `sql_repair` + `tool_wrapper` in `run.json`, and passes the proxy's `guided_decoding` /
+  `device_memory` / `latency` blocks through `_server_metrics`. Refused for `--benchmark ambrosia` (no
+  SQL to repair). Reason: the grammar delta has to be measured against a surrogate with the *same*
+  repair setting, otherwise repair and decoding are confounded.
+- `tests/test_guided.py` (new) — pins request classification (SQL guided, ambiguity never), the
+  no-rewriting invariant of the injection, `RunState` accounting, the repair-free wrapper (no second
+  generation, execution repair skipped), the `plan_run` refusal for Ambrosia, the grammar's structural
+  invariants (unique rules, no undefined references, no fences/semicolons/backticks/lower-case
+  keywords), and the decoder report's parse-validity/decode-fact counters.
+- `docs/DECODER.md` (new) — what was rejected and why (gate+repair surrogate, `guided_choice`,
+  `guided_json` envelope, `guided_regex` vs recursion, post-hoc cleanup, llama.cpp fallback, bf16,
+  bitsandbytes), the exact serving/proxy configuration, the three environment obstacles (missing `gcc`
+  for inductor, missing `nvcc` for FlashInfer's sampler, the ignored `--enforce-eager`), grammar
+  coverage and the threats to validity.
+- `runs/t2/r2-15-{norep,grammar}-awq/` — the two arms (ignored artifact: `query_results.json`,
+  `run.json`, `llm_requests.jsonl`); `runs/t2/scores/r2-15-*.json` — their `fixed_eval` ledgers.
+  Reason: `docs/REPORT.md` §13 must be reproducible from files, not from a transcript.
+
+### Docs
+
+- `docs/REPORT.md` §9 — the round-2 2×2 `{base, adapter} × {no evidence, evidence}`: four cells, paired
+  blocks, interaction; §10 — `run.json` schema v2 and the proof run; §11 — the Ambrosia keep-or-drop
+  decision, the floors/precision arithmetic and the blocked contract extension; §12 — the feature × model
+  matrix, blocked cells, input format and decision rule; §13 — the A100 grammar arm (see the decoder
+  section above).
+- `docs/DECODER.md` — why every other constrained-decoding option was rejected, the grammar itself, and the
+  measured decoder facts; `docs/PROCEDURES.md` — the two procedure arms and their dry-run verdict.
+- `docs/RUNBOOK.md` §11 — round-2 operations: recorder v2, `--bird-extra`/group split, `matrix.py`, the
+  Ambrosia natural recipe, the Windows/WDDM paging trap (measured 4,285 MB shared GPU memory, step
+  time 33 → 93 s; fix: seq 2,560 + `expandable_segments:True`), the A100 grammar arm and the
+  off-by-default procedure/thinking switches.
+- `research/advtext2sql/AMBROSIA_CONTRACT_PROPOSAL.ru.md` — the one-page proposal to the course teacher
+  (list-of-readings contract; blocked on the teacher, no acceptance assumed); `research/advtext2sql/
+  ROUND2_RESULTS.ru.md` — the owner-facing round-2 results draft (LoRA and decoder kept separate);
+  `research/advtext2sql/INTEGRATION_INVENTORY.md` — the seal checklist and file inventory.
+- `research/advtext2sql/audit_round2.py` + `AUDIT_ROUND2.json` — the independent pre-integration audit:
+  **161/161 checks reproduce**, including the decoder arm; it caught the stale `cells.base_strict` block in
+  `runs/t2/scores/ambrosia-calibration.json` before the seal (root cause fixed, artifact regenerated,
+  audit re-run clean).
+
+### Tests
+
+- `tests/test_matrix.py`, `tests/test_guided.py`, `tests/test_procedures.py` (new) and
+  `tests/test_data.py`, `tests/test_serve.py`, `tests/test_local_bench.py` (extended): the matrix
+  assembler, the grammar proxy/grammar replay, the procedure arms, the recorder/`/health` provenance, the
+  feature-block wiring and the scale-up/group-split build. Suite: **236 passed** (offline, ~61 s;
+  `docs/RUNBOOK.md` §0).
 
 ---
 

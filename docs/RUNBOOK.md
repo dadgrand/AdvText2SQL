@@ -19,9 +19,9 @@ Python 3.12), not from a budget.
 
 ```bash
 cd research/advtext2sql/repo
-git branch --show-current                       # expected: feat/lora-track
+git branch --show-current                       # expected: feat/round2 (sealed feat/lora-track tip f4d3d4a)
 git status --porcelain                          # expected: empty
-python -m pytest tests -q                       # expected: 138 passed, ~35 s (no DB, no network)
+python -m pytest tests -q                       # expected: 236 passed, ~61 s (no DB, no network)
 ```
 
 Secrets live in `$REPO/.env` (gitignored): `BENCHMARK_DB_URL`, `DB_USER`, `DB_PASS`, `DB_HOST`,
@@ -32,7 +32,7 @@ PowerShell: `Get-Content .env | Where-Object {$_ -match '=' -and $_ -notmatch '^
 Expected `python -m pytest` output (the last line is the contract):
 
 ```
-138 passed in 34.62s
+236 passed in 60.88s
 ```
 
 **Fallback:** a non-empty `git status` means someone left work uncommitted — do not start a run until it
@@ -495,7 +495,7 @@ python -m dev_tools.local_bench gold --answers data/bird_large.json --timeout 30
 ## 9. Close-out checklist
 
 ```bash
-python -m pytest tests -q                        # 138 passed
+python -m pytest tests -q                        # 236 passed
 git status --porcelain                           # empty (eval/, runs/, data_cache/ are ignored or outside the repo)
 git log --oneline main..HEAD                     # the branch's commits
 git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py
@@ -509,10 +509,171 @@ number belongs to (`run.json` already stores all four).
 
 ## 10. Fallback path when the tunnel is down
 
-Everything except the live numbers still works, in this order: `pytest tests -q` (138) →
+Everything except the live numbers still works, in this order: `pytest tests -q` (236) →
 `build_data.py --self-test` (684 rows) → `train_qlora.py --plan` (no GPU) → `local_bench` (§8.1) →
 `serve_openai --fake` + `run_benchmark --check` (wiring only). Numbers produced this way are offline
 proxies: label them, never paste them into the graded table.
+
+---
+
+## 11. Round 2 additions (draft — t9 seals)
+
+Everything below is the round-2 delta on `feat/round2` (sealed round-1 tip `f4d3d4a`). The numbers are
+measured on this workstation; the sections that are still missing are named at the end. Full tables live
+in `docs/REPORT.md` §9–§12; this section is the operator's view.
+
+### 11.1 `run.json` schema v2 — the recorder that makes a run quotable
+
+`dev_tools/serve_openai.py` now exposes the serving provenance on `/health` (`base_model`, `served_name`,
+adapter path + `adapter_model`/`adapter_config` SHA-256, `load_in_4bit`, effective `max_new_tokens`,
+`requests_served`, `max_completion_tokens_observed`, `cuda_max_memory_allocated_bytes`), and
+`dev_tools/run_benchmark.py` copies it into every `run.json`, together with:
+
+| field | what it pins |
+|---|---|
+| `use_evidence` | whether `BenchmarkBIRD.use_evidence` was on (the round-1 mix-up) |
+| `max_tokens` / `max_tokens_source` | the cap that actually binds (a disagreeing `--max-new-tokens` is refused) |
+| `tool_commit_sha` / `tool_commit_dirty` / `tool_commit_dirty_paths` | the tool revision, and whether the worktree was dirty |
+| `tool_source_sha256` | the tool module's own hash, independent of git |
+| `model_id` / `served_name` / `adapter_id` / `adapter_sha256` / `adapter_config_sha256` / `load_in_4bit` | what was loaded |
+| `cuda_max_memory_allocated_mib` | per-process peak VRAM (server restarted before the run) |
+| `requests_served` / `max_completion_tokens_observed` | "no prediction hit the cap" is checkable from the artifact |
+| `server_before` / `server_after` | the raw `/health` payloads |
+
+Proof run: `runs/t2/recorder-proof-bird-small*` (`bird_small`, 22 questions) — quoted in §10.3 of the
+report. If `/health` is unreachable the run still works, but the provenance fields are `null` and the run
+is not quotable.
+
+### 11.2 `--bird-extra` and the group split by database
+
+Scale-up data (`training/build_data.py`, measured in `training/RUN_NOTES.md` §5):
+
+```powershell
+python training\build_data.py --bird-extra ..\data_cache\bird_train `
+  --schemas ..\data_cache\bird_train\db_schemas_scale.json --exclude-missing-schema-dbs `
+  --group-split-keep-train california_schools --group-split-keep-train financial `
+  --group-split-keep-train toxicology --group-split-keep-train card_games `
+  --group-split-keep-train codebase_community --group-split-keep-train superhero `
+  --group-split-keep-train student_club --group-split-keep-train debit_card_specializing `
+  --no-tokenizer --out training\out-scale
+```
+
+Result: 6,958 raw pairs → **5,612 usable over 71 databases**; group split **4,736 train / 61 dbs** and
+**876 valid / 10 dbs**, db_id overlap 0; combined training file 5,130 rows; sequence estimate p99 1,784.
+Rules worth knowing: the extra corpus goes through the *same* cleaning code as the base file; items carry
+file-derived ids; non-data files in the download directory are skipped by shape and named; and a database
+whose schema is missing is either refused or excluded explicitly (`--exclude-missing-schema-dbs`) — never
+silently synthesised.
+
+### 11.3 `matrix.py` — assembling the feature × model table (CPU only)
+
+```bash
+python -m dev_tools.matrix                        # table + paired block vs adapter_ev
+python -m dev_tools.matrix --json runs/t2/scores/matrix.json
+python -m dev_tools.matrix --reference base_ev    # pair against another arm
+python -m dev_tools.matrix --arms my_arms.json    # caller-supplied arms
+```
+
+It never starts a server, never touches the DB and never runs a blocked arm: rows without a ledger print
+as `blocked` with the exact command that would produce them. Four measured arms + the frozen reference row
+are in `docs/REPORT.md` §12.1; six blocked arms (four feature arms waiting for a team feature file + GPU
+window, two API arms waiting for the teacher endpoint) in §12.2.
+
+### 11.4 Ambrosia natural-class-balance arm — ready, ~40 min GPU
+
+`training/AMBROSIA_NATURAL_RECIPE.md`. The dataset is built (`training/out-natural/`, ignored): 480 rows =
+146 ambiguous + 334 natural negatives, train/valid 432/48, combined 722. The training command is in the
+recipe; **cost is ~40 min GPU**, not the 15 min originally planned: 138 steps × 14.06 s/step = 32.3 min
+plus 434 s (7.2 min) for the 240-question Ambrosia evaluation. Do not start it while another task owns the
+card, and run t7's scale measurements first (captain's ordering). Evaluation: `TEXT2SQL_AMBIGUITY_MODE=strict`,
+then compare against the 70.83 % never-ambiguous floor — never quote an Ambrosia number without that floor.
+
+### 11.5 Windows/WDDM paging trap on a 16 GB card
+
+Measured on this workstation, and it cost a whole night-scale attempt: above roughly 15.5 GiB of dedicated
+VRAM, Windows/WDDM spills the working set into shared system memory instead of failing with OOM. With the
+scale-up run at 15,870 of 16,376 MiB, `Get-Counter '\GPU Adapter Memory(*)\Shared Usage'` reported
+**4,285 MB of shared GPU memory**, and the step time walked from **33 s to 93 s** (ETA inflated to 24 h).
+Training at the VRAM edge here is not merely slow — it is **3× slow**, and it looks like a data or model
+problem until the counter is read.
+
+Detect:
+
+```powershell
+Get-Counter '\GPU Adapter Memory(*)\Shared Usage'   # must be near zero during training
+nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu --format=csv
+```
+
+Fix, in order:
+
+1. keep the VRAM peak below the paging threshold: for this dataset `--max-seq-len 2560` (the t6 tokenizer
+   check measured max 2,460 / p99 2,414 tokens, so every row still fits and nothing is truncated; the
+   build's chars/3.6 estimate — p99 1,784 / max 1,848, `training/RUN_NOTES.md` §5 — agrees), and
+2. set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` in the environment before the restart.
+3. If shared usage is still in the gigabytes at 2,560, drop to `--max-seq-len 2048` **with an explicit row
+   filter** that drops and counts longer rows — do not truncate targets silently.
+
+After the resize the retry settled around ~44–45 s/it by step 6 (`runs/r2-scale/train.log`; the first
+steps are 33–38 s/it as the allocator warms up), versus the 33 → 93 s/it drift before it.
+
+### 11.6 Still missing after this draft (do not read as results)
+
+- **t7 — scale-up adapter measurement:** adapter (`runs/r2-scale/adapter` when t6 finishes) on
+  `bird_large`, evidence on and off, paired against round 1's `runs/e3-r16` and the 2×2 cells. Placeholder
+  in `research/advtext2sql/ROUND2_RESULTS.ru.md`.
+- **t17 — procedure arms + the real CFG comparison (cut-off 14:00):** the retrieval few-shot bank and
+  self-consistency are implemented, tested and **OFF by default** (`docs/PROCEDURES.md`), but not measured;
+  the grammar arm itself is measured on the A100 (see §11.7).
+- **t18 — OOD check** on 10 databases the model never saw; **t19 — 14B scale arm on the A100**;
+  **t21 — Qwen3.5-9B arm** at the same data and recipe. None measured yet.
+- **Optional natural-balance Ambrosia arm (§11.4):** 40 min GPU, only after t7, low expected value.
+
+### 11.7 Constrained decoding (R2-15) — an optional arm, off by default
+
+Measured on a rented A100 80 GB (vLLM 0.32.0 + xgrammar, AWQ 4-bit `Qwen2.5-Coder-7B-Instruct`), same tool
+prompts, **tool repair disabled in both arms**, only the proxy's grammar field differs:
+
+| arm | decoding | EX/241 | EX/209 | unexecutable | fences in raw completions |
+|---|---|---|---|---|---|
+| N | greedy, unconstrained | **39/241 = 16.18 %** | 39/209 = 18.66 % | **62** | **241/241** |
+| G | xgrammar, SELECT-only GBNF | **44/241 = 18.26 %** | 44/209 = 21.05 % | **57** | **0/241** |
+
+Paired (same 241 ids): **b = 7, c = 2, exact p = 0.1797, +2.07 pp, 95 % CI [−0.41, +4.56]** — inconclusive
+at n = 241. The deliverable is the **contract guarantee** (fenced output 241/241 → 0/241, grammar accepts
+241/241 completions), not the EX delta: **55 of arm N's 62** unexecutable predictions are
+`UndefinedColumn`/`UndefinedTable`/`UndefinedFunction` (schema grounding, not syntax; only 2 are syntax
+errors), so a grammar cannot name the right column. Cost: ×1.43 wall clock / ×1.92 per token. Ship as an
+optional arm, **off by default**.
+
+Run:
+
+```bash
+# vLLM on :8000, then the proxy on :8100 (grammar on; use --no-grammar for arm N)
+python -m dev_tools.guided_proxy --port 8100 --upstream http://127.0.0.1:8000 \
+    --served-name qwen2.5-coder-7b-awq-guided --base-model Qwen/Qwen2.5-Coder-7B-Instruct-AWQ \
+    --max-new-tokens 512 --quantization awq --load-in-4bit --log data_cache/runs/<run-id>/llm_requests.jsonl
+export LLM_BASE_URL=http://127.0.0.1:8100/v1 LLM_API_KEY=EMPTY LLM_MODEL_NAME=qwen2.5-coder-7b-awq-guided
+python -m dev_tools.run_benchmark --predict-only --disable-sql-repair \
+    --run-id r2-15-grammar-awq --query-file data/bird_large.json --answer-file data/bird_large.json \
+    --db-url localhost:5444 --runs-dir runs/t2
+# contract facts (independent of EX): grammar acceptance + the raw-text table
+python -m dev_tools.check_grammar --proxy-log runs/t2/r2-15-grammar-awq/llm_requests.jsonl
+python -m dev_tools.decoder_report --runs-dir runs/t2 --run-id r2-15-grammar-awq
+```
+
+`run.json` records `sql_repair: "disabled"`, `tool_wrapper: dev_tools.run_benchmark.no_repair_tool`,
+`guided_decoding` (backend, grammar file/SHA-256, guided/unguided request counts), `device_memory` and
+`latency`. Rules for quoting it: print **both** EX/241 and EX/209; never fold this number into the LoRA
+cells (different serving stack — vLLM/AWQ vs transformers 4-bit); and never call +2.07 pp an improvement —
+"inconclusive at n = 241, with the contract guarantee as the actual deliverable".
+
+### 11.8 Procedure arms and thinking mode (R2-14, R2-19) — present, off by default
+
+Both are sources plus docs, not results: retrieval few-shot (`src/.../retrieval.py`) and self-consistency
+(`src/.../self_consistency.py`) are wired but **disabled by default**; `docs/PROCEDURES.md` has the
+commands and the dry-run verdict. Thinking-mode handling is the explicit `--no-thinking` / `--thinking`
+switch in `dev_tools/serve_openai.py` (`enable_thinking` recorded in `run.json`); it is a serving shim, not
+a measured arm yet.
 
 ---
 

@@ -545,3 +545,61 @@ defensive error handling around a transport failure); not a blocker.
 `f280ca0` is covered by this verdict.** No blocker. One delivery note (owner's fork push) and one low
 observation (no dedicated retry test) are recorded above. This section is uncommitted by design (no commits were
 allowed in this task); integration must commit `docs/VERIFICATION.md` so the delivered tip carries the verdict.
+
+---
+
+# V4 — round-2 pre-seal artifacts audit (branch `feat/round2`, 2026-10-29)
+
+Scope: the round-2 commits on `feat/round2` (created from the sealed round-1 tip `f4d3d4a`), verified before the
+seal's final push. This section is written by the integration pass; it cites the four code commits that precede
+the docs commit carrying it, and will be extended with the final seal commit sha when t7 lands.
+
+## V4.1 Commands executed
+
+| command | result |
+|---|---|
+| `python research/advtext2sql/audit_round2.py` | **161/161 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
+| `python -m pytest tests -q` | **236 passed in 60.88 s** (offline: no DB, no network, no GPU) |
+| `git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py` | empty — the teacher-owned harness, data and root entrypoints are untouched |
+| `git rev-parse --short feat/lora-track` | `f4d3d4a` — round 1's branch is untouched |
+
+Pinned audit identity: `audit_round2.py` sha256 `775b7df07352db784c8195a8dfdb2203d2791b1935715b91e935789353e9b0cd`;
+`AUDIT_ROUND2.json` sha256 `052577003816a39f3b8819f0fe3cf68ca96b4e74eb459ec5e7f545fb814a67e7`.
+
+## V4.2 What the audit covers
+
+Independent re-implementation (no `dev_tools` import) of: the four 2×2 cells and their EX/209 denominators
+(A 51/241, B 84/241, C 61/241, D 93/241), the five paired blocks plus D vs the frozen 42.32 % file, the
+difference-in-differences interaction, the 208/241 ceiling derivation (qid 4/35 unexecutable, qid 572
+executable-but-mutated), the Ambrosia floors/operating points and the regenerated `cells.base_strict` block,
+the feature × model matrix cross-check (`findings: []`), the natural-Ambrosia-arm arithmetic (480 = 146 + 334,
+432/48, 722, 138 steps, ~40 min), and the decoder arm (N 39/241 / G 44/241 with both EX/209 denominators,
+unexecutable 62 → 57, fenced completions 241/241 → 0/241, grammar acceptance 241/241, 55 of 62 schema-grounding
+errors, paired b=7, c=2, +2.07 pp, p=0.1797).
+
+The one finding this audit raised pre-seal — a stale `cells.base_strict` block in
+`runs/t2/scores/ambrosia-calibration.json` caused by a loop-variable leak in the artifact generator — was fixed
+at source (generator + pre-write self-check), the artifact was regenerated CPU-only, and the audit is green
+(0 findings). The run artifacts stay out of the patch (`runs/` is ignored); this document and `docs/REPORT.md`
+§11 carry the numbers.
+
+## V4.3 Commits in this round (before the final scale commit)
+
+| bucket | commit | subject |
+|---|---|---|
+| tool | `4ea7d4f` | `feat(tool): round-2 recorder, grammar proxy, procedure arms and thinking mode` |
+| eval | `98e6a22` | `feat(eval): feature x model matrix, grammar checker and decoder report` |
+| training | `70c2fe6` | `feat(training): scale-up build with group split and natural Ambrosia recipe` |
+| tests | `1689af2` | `test: pin round-2 recorder, matrix, grammar, procedure and scale-up behaviour` |
+
+The docs commit carrying this section follows them. Commit now / push later is the captain's 2026-10-29
+decision: nine hours of uncommitted multi-agent work was the largest avoidable risk; nothing is pushed until t7
+lands and the patch is regenerated on a fresh `main` clone.
+
+## V4.4 Open item at this checkpoint
+
+**t7 (scale-adapter measurement) is not complete.** No scale number is invented or implied. Placeholder policy if
+t7 cannot be measured before the deadline: ship with the explicit sentence "scale-up measured dataset 5,612 rows /
+71 DBs, adapter trained 3 epochs, measurement not completed in this round", and keep the dataset work in the
+patch. The final seal commits the scale results, the refreshed `ROUND2_RESULTS.ru.md`, the regenerated patch and
+the refreshed suite/audit counts, and records the final commit sha here.
