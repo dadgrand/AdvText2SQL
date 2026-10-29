@@ -1398,35 +1398,100 @@ number is implied.
 menu, movies_4, law_episode, european_football_1, social_media, sales_in_weather, music_tracker). The
 evaluation set is **876 BIRD *train* questions** from those databases — the same corpus as training, a
 different set of schemas. It tests **schema transfer**, not a new domain, and it is not a generalisation
-proof.
+proof. It is also **not comparable** to the 241-question in-domain results (different population, different
+difficulty mix, PG-native gold): a sentence that puts 71.67 % next to 38.59 % is wrong even though the
+percentages look alike.
 
-| arm (live DB, evidence on, greedy 4-bit, mode=local) | EX/876 | EX/811 | soft-F1 | unexec / missing |
+| arm (live DB, evidence on, greedy 4-bit, `mode=local`) | rows | EX | EX over gold-executable | unexec. predictions |
 |---|---|---|---|---|
-| 7B scale adapter (`runs/a100-scale-adapter`, `71abcde8…`) | **620/876 = 70.78 %** (Wilson 67.68–73.69) | **620/811 = 76.45 %** | 0.7931 | 50 / 0 |
+| 7B scale adapter, full held-out set (`71abcde8…`) | 876 | **620/876 = 70.78 %** (Wilson 67.68–73.69) | **620/811 = 76.45 %** | 50 |
+| 7B scale adapter, the same 292 questions as the discarded base attempt | 292 | **220/292 = 75.34 %** | 220/277 = 79.42 % | 15 |
+| 7B scale adapter, the same 120 questions as the base arm | 120 | **83/120 = 69.17 %** | 83/107 = 77.57 % | 8 |
+| 7B **base** model, no adapter | 120 | **86/120 = 71.67 %** | 86/107 = 80.37 % | 8 |
 
-**Denominators and ceiling.** 65 gold queries are unexecutable on the live server (same transpile-damage
-class as the 32 in `bird_large`), so the denominator that is not capped by dead gold is **811**, and the
-honest ceiling is **811/876 = 92.6 %**. EX/811 is quoted next to EX/876, the same discipline as EX/209 next
-to EX/241.
+**Denominators.** On the full 876, 65 gold queries are unexecutable on the live server (the same
+transpile-damage class as the 32 in `bird_large`, applied here to already-PostgreSQL gold), so the
+denominator that is not capped by dead gold is **811/876 = 92.6 %**. On the 120-row pairing, 13 gold rows
+are unexecutable, leaving **107** as the executable denominator; on the adapter's 292-row cell the executable
+denominator is 277. EX over the executable subset is quoted next to EX throughout, the same discipline as
+EX/209 next to EX/241; the 876, 292 and 120 denominators are never mixed.
 
-**Not comparable to 42.32 % / 53.94 %.** Different population (BIRD train questions, not dev), different
-difficulty mix, and no evidence-vs-no-evidence control on this set. A sentence that compares these numbers
-to the 241-question results is wrong even if the percentages look similar. Per-difficulty is not reported:
-the held-out train rows carry no BIRD difficulty label, and no label is invented.
+**The attribution: the adapter does not add capability on unseen schemas.** The base arm is a
+**120-question systematic subsample** (every 7th row of the 876, all 10 databases represented) because a
+full 876-row base run did not fit the seal window; the adapter is therefore also quoted on **exactly those
+120 questions**, not against its 876-row number. Paired, exact McNemar + 10 000 bootstrap resamples, seed 0:
 
-**Attribution is open by design.** The base-model arm on the same held-out set is being measured on a
-**292-question systematic subsample** of the 876 (every 3rd row, first 300, all 10 databases represented),
-because the full 876-question base run was too slow for the seal window. When it lands, the paired test must
-be run on the **same 292 questions for both arms** and the paragraph must say "300-question systematic
-subsample of the 876-question held-out set"; comparing a 300-question base accuracy with the 876-question
-adapter accuracy would be a denominator error. If the base arm misses the window, this section ships with
-the explicit sentence "adapter-vs-base attribution not measured; the 70.78 % figure stands alone" and no
-invented comparison. If the base lands near 70 %, the honest conclusion is: *the adapter mostly transfers
-what it learned on the 8 schema families it trained on and adds little on unseen ones* — a finding about
-the limits of schema transfer, not a failure of the method.
+| comparison (same 120 question ids) | b | c | ΔEX | 95 % CI | exact p |
+|---|---|---|---|---|---|
+| scale adapter vs base model | 8 | 11 | **−2.50 pp** | **[−10.00, +4.17] pp** | **0.648** |
 
-**Artifacts:** `runs/t2/scores/ood-scale7b.json` (full `fixed_eval` report, 876 per-question records),
-`runs/t2/ood-scale7b-v2/run.json` (adapter `71abcde8…`, `use_evidence=true`, 4-bit, 512 cap) and
-`query_results.json` (the 876 predictions); on the A100 the source is
-`/root/work/data_cache/runs/ood-scale7b-v2/` and `/root/work/eval/ood-scale7b.json`.
+**What transfers, and what does not.** The **base model transfers**: with the schema text in its prompt it
+writes executable PostgreSQL for questions on databases it never trained on — 71.67 % EX with only **8
+unexecutable predictions**. The **adapter does not add** to that: 69.17 % on the same questions, a
+difference of −2.5 pp whose CI straddles zero (p = 0.648). Its in-domain advantage (§9, §16: +7.88 pp over
+round-1 base-with-evidence) **does not carry over to unseen schemas**, and on five of the ten databases the
+base is at least as good:
 
+| database (rows on the 120) | scale adapter | base model |
+|---|---|---|
+| talkingdata (11) | 10/11 = 90.9 % | 9/11 = 81.8 % |
+| movie_3 (29) | 24/29 = 82.8 % | 23/29 = 79.3 % |
+| movies_4 (20) | 15/20 = 75.0 % | 13/20 = 65.0 % |
+| european_football_1 (6) | 5/6 = 83.3 % | 4/6 = 66.7 % |
+| law_episode (13) | 7/13 = 53.8 % | **12/13 = 92.3 %** |
+| menu (9) | 5/9 = 55.6 % | 7/9 = 77.8 % |
+| disney (11) | 6/11 = 54.5 % | 7/11 = 63.6 % |
+| sales_in_weather (9) | 5/9 = 55.6 % | 5/9 = 55.6 % |
+| social_media (8) | 3/8 = 37.5 % | 3/8 = 37.5 % |
+| music_tracker (4) | 3/4 = 75.0 % | 3/4 = 75.0 % |
+
+The honest reading is a **negative transfer result**: what the adapter learned on the 61 training schemas
+is schema-family-specific, and it does not make the model better at reading a schema it has never seen. The
+capability that transfers is the one both arms already have — the PostgreSQL output contract and the ability
+to follow the schema text. Full-population adapter per-database counts (876 rows, no base counterpart) are
+in `runs/ood/scores/ood-analysis.json`.
+
+**This retro-frames the in-domain numbers honestly.** The 42.32 / 42.74 / 53.94 % results are measured on
+`bird_large`'s **8 databases**, which the group split pins to the training side. The 14B capacity result
+(130/241) stands **on that population**; nothing about it should be read as cross-schema capability. The
+transferable asset is the **base model plus the evidence interface**, not the adapter. The sentence that ties
+the mechanism together: *the adapter learned what this benchmark rewards — the dialect, the output contract,
+and the eight schemas — and that is why the scale-up gain appears only with evidence, which supplies the
+schema linkage at inference time.*
+
+**This is a credit, not a defeat.** We built the check that could have embarrassed the project, and it fired.
+Reporting it plainly is the point: the branch now states what the adapter is (a benchmark-specific asset) and
+what the base model already does (transfer to unseen schemas), instead of quietly selling 70.78 % as
+generalisation.
+
+**A discarded run, and why it is recorded here.** A first base-model attempt (`ood-base7b-292`, 292 rows,
+13:32–13:44 MSK) reported 15/292 = 5.14 %, suggesting the base model could not ground on unseen schemas at
+all. It is wrong and is **not** a finding: that run's `db_schemas.json` is **209 bytes of empty strings**
+(`{"disney": "", "movie_3": "", …}`) and its log shows
+`psycopg.OperationalError: password authentication failed for user ""readonly_user""` — a `.env` loader kept
+the surrounding quotes, the DSN was malformed, every schema fetch returned nothing, and the harness still
+wrote predictions; the model then hallucinated plausible identifiers (`movies`, `MPAA_rating`,
+`role_name`). The 259 `ProgrammingError` rows were the empty prompt, not the model. Its dialect-neutral
+robustness pass (a separate scoring in `mode=normalized`) was run on that same broken run and is therefore
+discarded with it. The valid base arm is `ood-base7b-120`, whose schema dump is 9,872 bytes; an **empty-schema guard now
+lives in `dev_tools/run_benchmark.py`** so that a run whose schema dump contains an empty value is refused
+before predictions unless `--allow-empty-schemas` is passed (the refusal is written into `run.json`), the
+same way an unreachable `/health` is refused; 20 offline tests pin it in `tests/test_schema_guard.py`. The discarded run and its evidence are
+kept in `runs/ood/scores/ood-reconciliation.json`.
+
+**Honest limits.** (1) The base arm is 120 questions; the paired attribution applies to those 120 and the
+adapter's 876-row figure is kept as the population number, never mixed with the 120-row base. (2) 13 of the
+120 gold rows (and 65 of the 876) are unexecutable on the live server, hence the executable denominators.
+(3) No difficulty labels exist for these rows (`difficulty: "unknown"`), so no per-difficulty claim is made.
+(4) Same protocol as every other number (4-bit, greedy, 512-token cap, evidence on, tool v2 with repair), on
+the rented A100.
+
+**Artifacts:** `runs/ood/scores/ood-scale7b-v2.json` (876-row adapter ledger), `runs/ood/scores/ood-base7b-120.json`
+(base, 120 rows), `runs/ood/scores/ood-reconciliation.json` (corrected attribution + the discarded run's
+evidence, from `runs/ood/ood_reconciliation.py`), `runs/ood/scores/ood-analysis.json` (per-database adapter
+breakdown from `runs/ood/ood_analysis.py`, CPU-only). The adapter's 292-row cell (220/292, 220/277) is
+re-derived from the 876-row ledger by the 292 ids in `runs/ood/scores/ood-base7b-292.json`; the discarded
+run's empty schema dump is `runs/ood/ood-base7b-292/db_schemas.json` (209 bytes, all 10 values empty) and its
+predictions are `runs/ood/ood-base7b-292/query_results.json`. Run metadata: `runs/ood/ood-scale7b-v2/run.json`
+(adapter `71abcde8…`) and `runs/ood/ood-base7b-120/run.json` (no adapter), both `use_evidence=true`, 4-bit,
+512 cap.

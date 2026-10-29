@@ -33,7 +33,13 @@ process* rather than from the caller's memory:
 * ``cuda_max_memory_allocated_bytes`` / ``..._mib`` plus the whole ``/health``
   payload before and after the run;
 * ``requests_served`` and ``max_completion_tokens_observed``, so "no prediction hit
-  the cap" is checkable from the artifact instead of re-read from a log.
+  the cap" is checkable from the artifact instead of re-read from a log;
+* ``schemas_bytes_total``, ``schemas_empty_count`` (plus the database count, the
+  names of the empty databases and whether ``--allow-empty-schemas`` was used) —
+  the health of the schema fetch, because a failed fetch is silent otherwise: the
+  harness renders ``""`` for every unreadable database and still runs the whole
+  benchmark.  A run with an empty schema is **refused** (exit 2) unless the empty
+  case was asked for explicitly, and the refusal is written into ``run.json``.
 
 Safety
 ------
@@ -45,6 +51,8 @@ never accepted on the command line: pass ``--llm-api-key-env NAME`` (default
 
 The tunnel must be up: the harness needs ``DB_USER``/``DB_PASS`` and a reachable
 PostgreSQL (``baseline_agent.py``/``bird_benchmark.py`` pass ``BENCHMARK_DB_URL``).
+The schema guard below checks that the *database side* of that sentence is true
+before the run (one probe) and after it (the produced ``db_schemas.json``).
 """
 
 from __future__ import annotations
@@ -70,7 +78,16 @@ try:  # package import
 except ImportError:  # pragma: no cover - direct script execution
     import paths  # type: ignore[no-redef]
 
-__all__ = ["RunRefused", "build_client", "main", "plan_run", "run_harness"]
+__all__ = [
+    "RunRefused",
+    "build_client",
+    "main",
+    "plan_run",
+    "probe_database_schema",
+    "read_schema_health",
+    "run_harness",
+    "verify_schemas",
+]
 
 logger = logging.getLogger("dev_tools.run_benchmark")
 
@@ -439,6 +456,7 @@ def plan_run(
     server: Optional[Dict[str, Any]] = None,
     feature_prompt: Optional[str] = None,
     sql_repair: str = "enabled",
+    allow_empty_schemas: bool = False,
 ) -> dict:
     """Resolve and validate everything a run needs; raises :class:`RunRefused`.
 
@@ -525,6 +543,7 @@ def plan_run(
         "max_tokens_source": max_tokens_source,
         "feature_prompt": feature_meta,
         "sql_repair": sql_repair,
+        "allow_empty_schemas": bool(allow_empty_schemas),
         "server_probe": server or None,
         "planned_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
@@ -597,6 +616,21 @@ def run_harness(
 
     run_dir = Path(plan["run_dir"])
     run_dir.mkdir(parents=True, exist_ok=True)
+    # Before the harness runs: one database through the tool's own credentials.  A
+    # wrong credential / down tunnel would otherwise produce 241 answers from an
+    # empty schema and a plausible ledger (see SCHEMA_MIN_CHARS).
+    allow_empty_schemas = bool(plan.get("allow_empty_schemas"))
+    schema_probe = probe_database_schema(
+        plan.get("db_url"),
+        first_db_id(query_file),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASS"),
+    )
+    probe_problem = preflight_schema_problem(schema_probe, allow_empty_schemas=allow_empty_schemas)
+    if probe_problem is not None:
+        raise RunRefused(probe_problem)
+    if schema_probe.get("skipped"):
+        logger.warning("pre-flight schema probe skipped: %s", schema_probe.get("error"))
     # The harness opens these paths *after* we chdir into the run directory, so
     # they must be absolute by then.
     query_file = Path(query_file).resolve()
@@ -618,6 +652,12 @@ def run_harness(
 
     server_after = probe_server(plan.get("llm_base_url"))
     artifacts = sorted(path.name for path in run_dir.iterdir() if path.is_file())
+    # After the harness ran: the schemas it actually prompted with.  A run whose
+    # fetch failed is recorded and then refused, so it can never be quoted as a
+    # model result while the evidence stays on disk.
+    schema_block, schema_refusal = verify_schemas(
+        run_dir, allow_empty_schemas=allow_empty_schemas
+    )
     summary = {
         **plan,
         "started_at": started,
@@ -628,6 +668,8 @@ def run_harness(
             server_before=plan.get("server_probe"),
             server_after=server_after,
         ),
+        **schema_block,
+        "schema_probe": schema_probe,
         "artifacts": artifacts,
         "report": {
             "overall_accuracy": report.get("overall_accuracy"),
@@ -639,10 +681,15 @@ def run_harness(
         if isinstance(report, dict)
         else None,
     }
+    if schema_refusal is not None:
+        summary["status"] = "refused"
+        summary["refusal"] = schema_refusal
     (run_dir / "run.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n",
         encoding="utf-8",
     )
+    if schema_refusal is not None:
+        raise RunRefused(schema_refusal)
     return summary
 
 
@@ -674,6 +721,18 @@ def run_predict_only(
 
     run_dir = Path(plan["run_dir"])
     run_dir.mkdir(parents=True, exist_ok=True)
+    allow_empty_schemas = bool(plan.get("allow_empty_schemas"))
+    schema_probe = probe_database_schema(
+        plan.get("db_url"),
+        first_db_id(query_file),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASS"),
+    )
+    probe_problem = preflight_schema_problem(schema_probe, allow_empty_schemas=allow_empty_schemas)
+    if probe_problem is not None:
+        raise RunRefused(probe_problem)
+    if schema_probe.get("skipped"):
+        logger.warning("pre-flight schema probe skipped: %s", schema_probe.get("error"))
     query_file = Path(query_file).resolve()
     answer_file = Path(answer_file).resolve()
     previous_cwd = Path.cwd()
@@ -705,6 +764,9 @@ def run_predict_only(
 
     server_after = probe_server(plan.get("llm_base_url"))
     artifacts = sorted(path.name for path in run_dir.iterdir() if path.is_file())
+    schema_block, schema_refusal = verify_schemas(
+        run_dir, allow_empty_schemas=allow_empty_schemas
+    )
     evidence_block: Dict[str, Any] = {}
     if plan.get("benchmark") == "bird":
         rows = json.loads(query_file.read_text(encoding="utf-8"))
@@ -724,16 +786,243 @@ def run_predict_only(
             server_after=server_after,
             extra=evidence_block,
         ),
+        **schema_block,
+        "schema_probe": schema_probe,
         "artifacts": artifacts,
         "n_predictions": len(predictions),
         "llm_usage": usage,
         "note": "scoring is done by dev_tools.fixed_eval.py; the harness evaluation is skipped on purpose",
     }
+    if schema_refusal is not None:
+        summary["status"] = "refused"
+        summary["refusal"] = schema_refusal
     (run_dir / "run.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n",
         encoding="utf-8",
     )
+    if schema_refusal is not None:
+        raise RunRefused(schema_refusal)
     return summary
+
+
+# ---------------------------------------------------------------------------
+# Schema guard: a failed schema fetch must never look like a model result
+# ---------------------------------------------------------------------------
+
+
+SCHEMA_MIN_CHARS: int = 20
+"""A schema block shorter than this cannot describe a database: it is a failed fetch.
+
+A real light schema of a single table is hundreds of characters
+(``TABLE t`` + one ``  - column (TYPE)`` line per column), so 20 is generous and
+still catches ``""`` and a stub like ``"TABLE"``.
+"""
+
+SCHEMA_FILENAME: str = "db_schemas.json"
+"""The file ``benchmarks/base.py`` writes into the run directory after ``build()``."""
+
+SCHEMA_EMPTY_NAMES_SHOWN: int = 8
+"""How many empty database names the artefact and the refusal message list."""
+
+
+def read_schema_health(path: Path, *, min_chars: int = SCHEMA_MIN_CHARS) -> Dict[str, Any]:
+    """Describe how healthy the harness's ``db_schemas.json`` fetch was.
+
+    Why this exists: ``benchmarks/base.py::_dump_db_schemas_json`` writes
+    ``{db_id: tool.db_schema}`` and the tool renders ``""`` when the schema could
+    not be read (wrong credentials, tunnel down).  The harness then runs the whole
+    benchmark with empty prompts and produces a plausible-looking ledger.  Round 2
+    hit this twice (``runs/t2/r2-scale7b-ev`` and ``runs/ood-base7b-292``, the
+    latter scoring 5.14 % where the same model with a real schema scored 71.67 %).
+
+    Every count needed to detect that is returned, whether or not the file is
+    usable, so ``run.json`` can record the health of the fetch instead of only the
+    verdict.  A block counts as present only when it is a string with at least
+    ``min_chars`` non-space characters.
+    """
+
+    health: Dict[str, Any] = {
+        "schema_file": str(path),
+        "schemas_present": Path(path).is_file(),
+        "schemas_ok": False,
+        "schemas_db_count": 0,
+        "schemas_bytes_total": 0,
+        "schemas_chars_total": 0,
+        "schemas_empty_count": 0,
+        "schemas_empty_databases": [],
+        "schemas_min_chars": int(min_chars),
+        "schemas_problem": "",
+    }
+    if not health["schemas_present"]:
+        health["schemas_problem"] = f"{Path(path).name} was not written by the harness"
+        return health
+
+    try:
+        raw = Path(path).read_bytes()
+        payload = json.loads(raw.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        health["schemas_problem"] = f"{Path(path).name} is unreadable: {type(exc).__name__}: {exc}"
+        return health
+
+    health["schemas_bytes_total"] = len(raw)
+    if not isinstance(payload, dict):
+        health["schemas_problem"] = (
+            f"{Path(path).name} is a {type(payload).__name__}, not an object of "
+            f"{{db_id: schema}}"
+        )
+        return health
+
+    health["schemas_db_count"] = len(payload)
+    empty: List[str] = []
+    chars_total = 0
+    for db_id, schema in payload.items():
+        text = schema if isinstance(schema, str) else ""
+        chars_total += len(text.strip())
+        if len(text.strip()) < int(min_chars):
+            empty.append(str(db_id))
+    health["schemas_chars_total"] = chars_total
+    health["schemas_empty_count"] = len(empty)
+    health["schemas_empty_databases"] = sorted(empty)[:SCHEMA_EMPTY_NAMES_SHOWN]
+
+    if not payload:
+        health["schemas_problem"] = f"{Path(path).name} lists no databases at all"
+    elif empty:
+        health["schemas_problem"] = (
+            f"{len(empty)}/{len(payload)} database schemas are empty or shorter than "
+            f"{int(min_chars)} characters"
+        )
+    else:
+        health["schemas_ok"] = True
+    return health
+
+
+def schema_refusal_message(
+    health: Dict[str, Any], *, allow_empty_schemas: bool, run_dir: Path
+) -> Optional[str]:
+    """The message to refuse a run with, or ``None`` when the schema fetch is sound.
+
+    ``allow_empty_schemas`` turns the refusal off but never hides the evidence: the
+    counts are still written to ``run.json`` (``schemas_allowed_empty: true``), so a
+    reader can tell a deliberate empty-schema experiment from a broken one.
+    """
+
+    if health.get("schemas_ok") or allow_empty_schemas:
+        return None
+    names = ", ".join(health.get("schemas_empty_databases") or [])
+    first = f" First: {names}." if names else ""
+    return (
+        f"schema build failed: {health.get('schemas_problem')}.{first} "
+        f"Refusing to report this run ({run_dir}) as a model result: the model answered "
+        f"from EMPTY schema prompts, which is a credential/tunnel defect, not a number. "
+        f"Check DB_USER/DB_PASS/BENCHMARK_DB_URL — the `.env` quoting trap turns "
+        f"readonly_user into \"\"readonly_user\"\" and CRLF line endings do the same — and "
+        f"re-run with a new --run-id. Pass --allow-empty-schemas only for a deliberate "
+        f"empty-schema experiment; that choice is recorded in run.json."
+    )
+
+
+def verify_schemas(
+    run_dir: Path, *, allow_empty_schemas: bool
+) -> tuple[Dict[str, Any], Optional[str]]:
+    """Read the schema file a run produced; return (``run.json`` block, refusal)."""
+
+    health = read_schema_health(Path(run_dir) / SCHEMA_FILENAME)
+    block = {**health, "schemas_allowed_empty": bool(allow_empty_schemas)}
+    return block, schema_refusal_message(
+        health, allow_empty_schemas=allow_empty_schemas, run_dir=Path(run_dir)
+    )
+
+
+def first_db_id(query_file: Path) -> Optional[str]:
+    """The first ``db_id`` of a query file, for the pre-flight schema probe."""
+
+    try:
+        rows = json.loads(Path(query_file).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(rows, list):
+        return None
+    for row in rows:
+        if isinstance(row, dict) and isinstance(row.get("db_id"), str) and row["db_id"].strip():
+            return row["db_id"].strip()
+    return None
+
+
+def _redact(text: str, secret: Optional[str]) -> str:
+    """Never let a password reach ``run.json`` through a driver error message."""
+
+    if secret and text and secret in text:
+        return text.replace(secret, "***")
+    return text
+
+
+def probe_database_schema(
+    db_url: Optional[str], db_id: Optional[str], *, user: Optional[str], password: Optional[str]
+) -> Dict[str, Any]:
+    """Read one database's table list through the credentials the tool will use.
+
+    This is the *before* half of the guard: it mirrors the tool's own DSN
+    (``postgresql+psycopg://user:password@db_url/db_id``) and its light-schema
+    reflection, so a wrong credential or a down tunnel refuses the run before a
+    single model call instead of after 241 of them.
+
+    It never raises: a probe is evidence, and the caller decides.  ``skipped`` marks
+    the case where no probe was possible (no sqlalchemy, no db_id) — that must not
+    be confused with a failed probe.
+    """
+
+    detail: Dict[str, Any] = {
+        "db_id": db_id,
+        "probed": False,
+        "skipped": False,
+        "tables": None,
+        "error": "",
+    }
+    if not db_url or not db_id:
+        detail["skipped"] = True
+        detail["error"] = "no db_url/db_id to probe"
+        return detail
+    try:
+        from sqlalchemy import create_engine, inspect  # noqa: PLC0415
+    except ImportError:  # pragma: no cover - sqlalchemy is a project dependency
+        detail["skipped"] = True
+        detail["error"] = "sqlalchemy is not installed; pre-flight schema probe skipped"
+        return detail
+
+    dsn = f"postgresql+psycopg://{user or ''}:{password or ''}@{db_url}/{db_id}"
+    try:
+        engine = create_engine(dsn, pool_pre_ping=True)
+        try:
+            inspector = inspect(engine)
+            tables = inspector.get_table_names(schema="public") or inspector.get_table_names()
+        finally:
+            engine.dispose()
+    except Exception as exc:  # noqa: BLE001 - a probe reports, it never raises
+        detail["error"] = _redact(f"{type(exc).__name__}: {exc}", password)
+        return detail
+
+    detail["probed"] = True
+    detail["tables"] = len(tables)
+    if not tables:
+        detail["error"] = "these credentials see no tables"
+    return detail
+
+
+def preflight_schema_problem(
+    probe: Dict[str, Any], *, allow_empty_schemas: bool
+) -> Optional[str]:
+    """Refuse the run on a failed probe; a skipped probe only warns."""
+
+    if allow_empty_schemas or probe.get("skipped") or probe.get("probed"):
+        return None
+    return (
+        f"pre-flight schema probe failed for {probe.get('db_id')!r}: {probe.get('error')}. "
+        f"The harness would run every question against an empty schema and produce a "
+        f"plausible but meaningless ledger (the round-2 defect: 5.14 % instead of 71.67 %). "
+        f"Check the tunnel and DB_USER/DB_PASS — the `.env` quoting/CRLF trap turns "
+        f"readonly_user into \"\"readonly_user\"\". Pass --allow-empty-schemas only for a "
+        f"deliberate empty-schema experiment."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -819,6 +1108,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="required to actually call the model (the wrapper refuses otherwise)",
     )
     parser.add_argument(
+        "--allow-empty-schemas",
+        action="store_true",
+        help="do not refuse a run whose db_schemas.json is empty or truncated. Only for a "
+        "deliberate empty-schema experiment: the flag, schemas_empty_count and "
+        "schemas_bytes_total are recorded in run.json, so the choice can never be mistaken "
+        "for a working schema fetch.",
+    )
+    parser.add_argument(
         "--predict-only",
         action="store_true",
         help="stop after predictions (query_results.json + db_schemas.json) and leave scoring to "
@@ -861,6 +1158,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             server=probe,
             feature_prompt=args.feature_prompt,
             sql_repair="disabled" if args.disable_sql_repair else "enabled",
+            allow_empty_schemas=args.allow_empty_schemas,
         )
     except RunRefused as exc:
         print(f"refusing to run: {exc}", file=sys.stderr)
@@ -869,7 +1167,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print("run plan:")
     for key in ("run_id", "run_dir", "query_file", "answer_file", "db_url", "tool_class",
                 "llm_base_url", "llm_model", "git_commit", "tool_commit_dirty", "tool_branch",
-                "use_evidence", "max_tokens", "max_tokens_source", "feature_prompt", "sql_repair"):
+                "use_evidence", "max_tokens", "max_tokens_source", "feature_prompt", "sql_repair",
+                "allow_empty_schemas"):
         print(f"  {key}: {plan[key]}")
     if probe:
         print("serving endpoint (/health):")
@@ -916,6 +1215,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(
         f"run {summary['run_id']} finished: overall_accuracy={report.get('overall_accuracy')} "
         f"total={report.get('total')}"
+    )
+    print(
+        f"schemas: {summary.get('schemas_db_count')} database(s), "
+        f"{summary.get('schemas_bytes_total')} bytes, "
+        f"{summary.get('schemas_empty_count')} empty"
+        + (" (allowed by --allow-empty-schemas)" if summary.get("schemas_allowed_empty") else "")
     )
     print(f"artifacts in {summary['run_dir']}: {', '.join(summary['artifacts']) or '(none)'}")
     return 0

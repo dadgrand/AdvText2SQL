@@ -558,14 +558,14 @@ the docs commit carrying it, and will be extended with the final seal commit sha
 
 | command | result |
 |---|---|
-| `python research/advtext2sql/audit_round2.py` | **232/232 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
-| `python -m pytest tests -q` | **241 passed in 70.00 s** (offline: no DB, no network, no GPU) |
+| `python research/advtext2sql/audit_round2.py` | **233/233 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
+| `python -m pytest tests -q` | **265 passed in 68.98 s** (offline: no DB, no network, no GPU; includes the 20-test empty-schema guard) |
 | `python -m compileall -q dev_tools src training tests` | exit 0 — the tree compiles |
 | `git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py` | empty — the teacher-owned harness, data and root entrypoints are untouched |
 | `git rev-parse --short feat/lora-track` | `f4d3d4a` — round 1's branch is untouched |
 
-Pinned audit identity: `audit_round2.py` sha256 `1e3d26849c9b0ebbad7afb0799b94e02692096f548cc9ecd37cb19267e37284e`;
-`AUDIT_ROUND2.json` sha256 `9b54f8dd290933506704c8e49ed94144dcf36ebe64aeaa3448e2c74c25fac42b`.
+Pinned audit identity: `audit_round2.py` sha256 `000bd18485a6f0a04e0d1d3eca16927633d5b26697c151a9c011d653610d5202`;
+`AUDIT_ROUND2.json` sha256 `dba37790604e98f23e2e55cfbdc0bdaffa4d4de11b346fa8cbee92a70f12e1e0`.
 
 ## V4.2 What the audit covers
 
@@ -679,10 +679,20 @@ predictions and ledger are in the workspace.
 (65 gold-unexecutable, ceiling 811/876 = 92.6 %), soft-F1 0.7931, 50 prediction-unexecutable / 0 missing;
 the 10 databases are exactly the held-out ones; 761 scored / 65 gold_error / 50 pred_error. Labels: BIRD
 *train* questions from held-out schemas — schema transfer, not a new domain; **not comparable** to 42.32 % /
-53.94 %; per-difficulty not reported (no labels). **Attribution to the adapter is open**: the base-model arm
-is being measured on a 292-question systematic subsample of the 876; the paired test must use the same 292
-for both arms, and if base misses the window the text ships as "adapter-vs-base attribution not measured;
-the 70.78 % figure stands alone". No adapter-vs-base sentence exists yet.
+53.94 %; per-difficulty not reported (no labels).
+
+**Attribution (post-seal addendum) — negative and measured.** Base 7B, no adapter, on a **120-question
+systematic every-7th-row subsample** of the 876: **86/120 = 71.67 %** (Wilson 63.03–78.96), 86/107 = 80.37 %
+over executable gold, 8 unexecutable, soft-F1 0.8683. The adapter on the **same 120**: **83/120 = 69.17 %**
+(83/107, 8 unexecutable). Paired: **b=8, c=11, Δ −2.50 pp, 95 % CI [−10.00,+4.17], exact p=0.648** — the
+adapter adds nothing on unseen schemas; the point estimate is negative, and the base model is the transfer
+baseline. The adapter's 292-row cell is 220/292 = 75.34 % (220/277, 15 unexecutable) and is quoted separately.
+A first base-292 attempt (15/292 = 5.14 %, 259/292 unexecutable) is **discarded and never quoted**: its
+`runs/ood/ood-base7b-292/db_schemas.json` is empty for all 10 databases (schema-fetch failure, same trap as
+the empty-schema A100 run); its 292 question ids are used only to define the adapter's 292-row cell. The guard
+against this failure class lives in `dev_tools/run_benchmark.py` (refuse a run whose schema dump has an empty
+value unless `--allow-empty-schemas`), with tests. This is the check that could have embarrassed the project;
+it fired, and it is reported as a credit.
 
 ## V4.7 Procedure/decoder arms
 
@@ -697,7 +707,7 @@ lever. Self-consistency: **not measured — time**, no number implied.
 
 This section ships in the commit tagged **`round2-seal`** on `feat/round2` (the annotated tag is cut
 immediately after that commit; `git rev-parse round2-seal^{}` resolves to the exact sha). At seal time:
-audit **232/232, 0 findings**; suite **241 passed in 70.0 s**; compileall exit 0; scope diff against `main`
+audit **233/233, 0 findings**; suite **265 passed in 68.98 s**; compileall exit 0; scope diff against `main`
 on `benchmarks/`, `data/` and the root entrypoints empty; `feat/lora-track` untouched at `f4d3d4a`; the
 delivered patch is `lora-track.patch` (full `main..feat/round2`) verified with `git apply --check` on a
 clean `main` clone; nothing is pushed to the teacher's `origin` — the fork is the delivery channel. A
@@ -705,3 +715,5 @@ record commit immediately after the seal adds the literal sha and the pushed rem
 content other than this line.
 
 **Recorded seal sha:** `b7dbc2d` (tag `round2-seal` object `b8504e1`). The branch `feat/round2` and the tag were pushed to `fork` on 2026-10-29; `gh api repos/dadgrand/AdvText2SQL/branches/feat/round2` reports head `b7dbc2d521a6edc40550d593218a5739c692a7bc`; `origin/main` is untouched at `e812451`; `feat/lora-track` remains `f4d3d4a`. Patch `lora-track.patch` is regenerated from the delivered HEAD; its size and sha256 are reported with the delivery message, and `git apply --check` passed on a clean `main` clone (107 files over `main`). This record commit follows the seal and only adds this line.
+
+**Post-seal addendum (tag unchanged at `round2-seal` → `b7dbc2d`).** §19 now carries the measured negative OOD attribution (base 86/120 = 71.67 % vs adapter 83/120 = 69.17 %, b=8/c=11, Δ −2.50 pp, p=0.648), the adapter's 292-row cell 220/292, and the discarded base-292 attempt (empty schema dump, 15/292 = 5.14 %, 259/292 unexecutable — never quoted). The empty-schema guard in `dev_tools/run_benchmark.py` refuses a run whose schema dump has an empty value unless `--allow-empty-schemas`, with 20 offline tests in `tests/test_schema_guard.py`. Audit count rises to 233/233; the seal commit and tag do not move.
