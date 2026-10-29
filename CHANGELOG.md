@@ -296,6 +296,88 @@ the OOD set and the procedure arms.
 
 ---
 
+## Round 3 — `feat/schema-linking` (draft; inference-time schema linking, OFF by default)
+
+- `src/.../text2sql_tool/src/schema_linking.py` — the schema-linking arm. Tables stage: lexical
+  scoring over camelCase/snake_case/dash/space identifiers with a plural fold and a 3+-character
+  substring rule for concatenated names (`sat`/`scores` → `satscores`), an optional local
+  sentence-transformer boost that degrades to the deterministic hashing embedder **with the reason
+  recorded**, and a join closure that adds unselected tables sharing a multi-word key column
+  (`account_id`) on spare `k` slots. Columns stage: keep matched columns plus join keys, keep the
+  whole table when in doubt (small table, no match, <2 columns, unalignable block). Hard
+  `max_chars` budget that always keeps the best table, and a never-empty guarantee: no parsable
+  schema, no token match or no table above `min_score` returns `applied=False` and the caller keeps
+  today's pruning result. The selector's only inputs are the schema, the question and the evidence —
+  no gold SQL, no reference answer, no dev-question file (pinned by signature, source and behaviour
+  tests). Reason: a BIRD prompt is dominated by schema the question never touches, and this is the
+  procedural arm that tests whether telling the model *where* to look moves execution accuracy
+  independently of the adapter.
+- `src/.../text2sql_tool/src/text2sql_implementation.py` — config wiring: `schema_link`
+  (`off`|`tables`|`columns`, default `off`), `schema_link_k`, `_min_score`, `_max_chars`, `_embedder`,
+  `TEXT2SQL_SCHEMA_LINK*` environment overrides and construction-time validation; `off` is
+  byte-identical to the pre-change prompt (the old `_schema_for` body is now
+  `_baseline_schema_for`, called unchanged) and a test pins both messages; per-question record with
+  mode, table/column counts, schema chars, block SHA-256 and the block itself, appended to the
+  procedure log and exposed through `procedure_metadata()["schema_link"]`.
+- `dev_tools/run_benchmark.py` — `schema_link_summary()` aggregates the per-question records into
+  `run.json` (`modes`, `questions`, `applied`, `fallbacks`, `over_budget`, mean/max tables/columns/
+  chars, `distinct_schema_sha256`, `embedders`); `None` when the arm never ran, so a default run's
+  `run.json` stays quiet.
+- `tests/test_schema_linking.py` — 24 offline tests (no DB, no model, no network): `off`
+  byte-identical at function and full-prompt level, `tables`/`columns` selection, join closure,
+  the budget and the single-table `over_budget` case, every fallback path, embedder degradation,
+  the honesty constraints, env/constructor wiring, the procedure log and the `run.json` aggregation.
+- `dev_tools/schema_link_dryrun.py` — offline dry run that enables all three modes against a schema
+  dump with a stub LLM and `engine=None`, asserting per mode (off byte-identical; linked block in
+  the prompt with sha/counts); artefacts in `runs/t25-schema-linking/`.
+- `docs/SCHEMA_LINKING.md` — options and costs, measured selector effect on the 241 dev questions
+  (`tables k=6`: 92.9 % of gold tables at 83 % of the schema block; `columns k=6`: 92.9 % at 44 %),
+  how to enable an arm, what the artefact records, and the known limits (lexical-first scoring,
+  `student_club` 79 % recall, name-based FK heuristic).
+- `dev_tools/schema_link_sweep.py` — offline variant sweep (R3-5): 24 cells over  `k ∈ {6,12,20}` × `tables`/`columns` × `min_score ∈ {0,1}` × `samples ∈ {0,3}`, reporting exact
+  per-cell schema tokens/chars, tables/columns sent, gold-table recall (gold parsed only to score),
+  fallbacks, and the measured cost of the sample-values render (read-only `LIMIT 3` per table from
+  the live DB through the tested credential loader); it **never fabricates EX** — `--emit-commands`
+  writes the per-cell `run_benchmark` block for the GPU window. Finds the knee: recall saturates at
+  `k≈10–12` (`columns k=12 min_score=0`: 240/241 at 60 % of the block) and sample values cost
+  +100–230 % of the block, so the proposed (not adopted) default is `columns, k=12, min_score=0.0`.
+- `tests/test_schema_link_sweep.py` — 9 offline tests: the 24-cell grid and its ids, deterministic
+  measurement, recall/fallback arithmetic, the sample renderer touching only kept columns, the
+  "EX blocked" marker (an unmeasured cell can never look measured), the emitted command block and
+  the gold-SQL parser.
+- `docs/SCHEMA_LINKING.md` §Variants — the full 24-cell table (tokens, share of baseline, tables,
+  gold-table recall, EX marked blocked), the knee sentence, the sample-values finding, the measured
+  EX cost (≈39 min per 241-question cell from `runs/t2/e-scale/run.json`; 24 cells ≈ 15.6 GPU-hours;
+  a four-cell knee subset ≈ 2.6 h) and the recommendation to propose.
+
+### Non-destructive modes — `highlight` and `joins` (R3-6)
+
+- `src/.../text2sql_tool/src/schema_linking.py` — two modes that keep the **full** schema and only add
+  guidance, because R3-1 showed the selection hypothesis was dead (pruning never fired, gold tables
+  present in 240/241 and 876/876, and 0/20 OOD failures needed a missing table; 7/20 chose the wrong
+  table, 4/20 read a column from the wrong side of a join). `highlight` orders tables by relevance,
+  prepends `Relevant tables: …` and puts a `-- highlight: score …; question columns: …` comment under
+  each relevant table's header; `joins` additionally appends `Join paths (key columns; derived from the
+  schema only):` with up to `MAX_JOIN_EDGES = 12` `table.col = other.col` edges built from identical
+  key-column names (`*_id`, `id`, `*_code`, `*key`, multi-word first). Every original header and column
+  line is copied verbatim (a test and the dry run assert it), `columns_selected == columns_total`, the
+  budget is recorded but not enforced (truncating would make the mode destructive), and a schema whose
+  FKs are named differently yields zero edges rather than a guess. Measured cost (241 questions,
+  cl100k): `highlight` 524.4 tokens (130 % of the 404.5 baseline, 4.2 annotations/question), `joins`
+  589.1 (146 %, 6.7 edges mean, 268 chars of join block, 33/241 questions with no edges).
+- `dev_tools/schema_link_dryrun.py` — now proves all five modes in one pass and adds the per-mode checks
+  `non_destructive_every_original_line_present` and `annotations_or_edges_present`; artefacts in
+  `runs/t31-schema-linking/` (default database/question changed to `financial`/client 617 so the join
+  block demonstrates real edges).
+- `tests/test_schema_linking.py` — 8 new offline tests: no table/column removed, relevance ordering,
+  edges re-derived from the schema text and capped, join-block cost recorded and equal to the rendered
+  text, `joins` without shared key names ≡ `highlight`, env/constructor wiring for the new modes, and
+  prompt containment for both.
+- `docs/SCHEMA_LINKING.md` §Non-destructive modes — rationale, cost table, the four pinned rules, the
+  exact env vars, and what remains unmeasured (EX; eval-run's OOD-120 paired run).
+
+---
+
 ## Evaluation — offline, non-invasive scoring (`dev_tools/`)
 
 - `dev_tools/fixed_eval.py` — the measurement layer: AST SQLite→PostgreSQL rewrite, gold-damage audit,
