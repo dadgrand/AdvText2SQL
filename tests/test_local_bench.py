@@ -527,3 +527,182 @@ def test_run_benchmark_refuses_without_allow_llm_spend_and_on_existing_artifacts
     (existing / "query_results.json").write_text("{}", encoding="utf-8")
     assert run_benchmark.main(_run_argv(tmp_path, answers, runs_dir, "--check")) == 2
     assert (existing / "query_results.json").read_text(encoding="utf-8") == "{}"
+
+
+def _plan_kwargs(tmp_path, answers, **overrides):
+    from dev_tools import run_benchmark
+
+    base = dict(
+        run_id="plan-run",
+        query_file=answers,
+        answer_file=answers,
+        db_url="127.0.0.1:5444",
+        tool_class=run_benchmark.DEFAULT_TOOL_CLASS,
+        llm_base_url="http://127.0.0.1:9/v1",
+        llm_model="stub-model",
+        runs_dir=tmp_path / "runs",
+    )
+    base.update(overrides)
+    return base
+
+
+def test_plan_run_records_evidence_and_the_effective_generation_cap(tmp_path, monkeypatch):
+    """The round-1 defect: E1 and E1-fair wrote indistinguishable run.json files."""
+
+    from dev_tools import run_benchmark
+
+    monkeypatch.setenv("DB_USER", "readonly_user")
+    monkeypatch.setenv("DB_PASS", "secret")
+    answers = REPO_ROOT / "data" / "bird_small.json"
+
+    plan = run_benchmark.plan_run(
+        **_plan_kwargs(
+            tmp_path,
+            answers,
+            use_evidence=True,
+            server={"max_new_tokens": 512, "probed_url": "http://127.0.0.1:8000/v1/health"},
+        )
+    )
+    assert plan["use_evidence"] is True
+    assert plan["max_tokens"] == 512
+    assert plan["max_tokens_source"] == "server:/health"
+    assert plan["tool_commit_sha"]  # a real repo always has a HEAD
+    assert plan["server_probe"]["max_new_tokens"] == 512
+
+
+def test_plan_run_refuses_a_max_tokens_that_disagrees_with_the_server(tmp_path, monkeypatch):
+    from dev_tools import run_benchmark
+
+    monkeypatch.setenv("DB_USER", "readonly_user")
+    monkeypatch.setenv("DB_PASS", "secret")
+    answers = REPO_ROOT / "data" / "bird_small.json"
+    with pytest.raises(run_benchmark.RunRefused) as excinfo:
+        run_benchmark.plan_run(
+            **_plan_kwargs(
+                tmp_path,
+                answers,
+                max_new_tokens=256,
+                server={"max_new_tokens": 512, "probed_url": "http://127.0.0.1:8000/v1/health"},
+            )
+        )
+    assert "max_new_tokens" in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
+# Feature-block arms (the matrix's blocked cells become runnable through this flag)
+# ---------------------------------------------------------------------------
+
+
+def test_plan_run_records_the_feature_block_and_its_hash(tmp_path, monkeypatch):
+    from dev_tools import run_benchmark
+
+    monkeypatch.setenv("DB_USER", "readonly_user")
+    monkeypatch.setenv("DB_PASS", "secret")
+    answers = REPO_ROOT / "data" / "bird_small.json"
+    feature = tmp_path / "feature_block.txt"
+    feature.write_text("domain: california schools\n- funding per student\n", encoding="utf-8")
+
+    plan = run_benchmark.plan_run(**_plan_kwargs(tmp_path, answers, feature_prompt=str(feature)))
+    meta = plan["feature_prompt"]
+    assert meta["file"] == str(feature)
+    assert meta["chars"] == len(feature.read_text(encoding="utf-8"))
+    assert len(meta["sha256_16"]) == 16
+    assert meta["resolved"].endswith("feature_block.txt")
+
+
+def test_plan_run_refuses_a_missing_or_empty_feature_block(tmp_path, monkeypatch):
+    from dev_tools import run_benchmark
+
+    monkeypatch.setenv("DB_USER", "readonly_user")
+    monkeypatch.setenv("DB_PASS", "secret")
+    answers = REPO_ROOT / "data" / "bird_small.json"
+
+    with pytest.raises(run_benchmark.RunRefused) as excinfo:
+        run_benchmark.plan_run(
+            **_plan_kwargs(tmp_path, answers, feature_prompt=str(tmp_path / "nope.txt"))
+        )
+    assert "feature-prompt" in str(excinfo.value)
+
+    empty = tmp_path / "empty.txt"
+    empty.write_text("   \n", encoding="utf-8")
+    with pytest.raises(run_benchmark.RunRefused) as excinfo:
+        run_benchmark.plan_run(**_plan_kwargs(tmp_path, answers, feature_prompt=str(empty)))
+    assert "empty" in str(excinfo.value)
+
+
+def test_plan_run_refuses_a_feature_block_for_ambrosia(tmp_path, monkeypatch):
+    """Ambrosia asks for an ambiguity verdict, never for SQL: the block would be silently inert."""
+
+    from dev_tools import run_benchmark
+
+    monkeypatch.setenv("DB_USER", "readonly_user")
+    monkeypatch.setenv("DB_PASS", "secret")
+    answers = REPO_ROOT / "data" / "bird_small.json"
+    feature = tmp_path / "feature_block.txt"
+    feature.write_text("domain: schools", encoding="utf-8")
+
+    with pytest.raises(run_benchmark.RunRefused) as excinfo:
+        run_benchmark.plan_run(
+            **_plan_kwargs(tmp_path, answers, benchmark="ambrosia", feature_prompt=str(feature))
+        )
+    assert "feature-prompt" in str(excinfo.value)
+
+
+def test_feature_prompt_tool_appends_the_block_to_every_question():
+    import asyncio
+
+    from dev_tools import run_benchmark
+
+    class StubTool:
+        def __init__(self):
+            self.seen = []
+
+        async def query(self, user_query):
+            self.seen.append(user_query)
+            return {"status": "success", "query": "SELECT 1"}
+
+    wrapped = run_benchmark.feature_prompt_tool(StubTool, "domain: schools")
+    assert issubclass(wrapped, StubTool)
+    assert wrapped.__name__ == "StubToolWithFeatureBlock"
+
+    tool = wrapped()
+    result = asyncio.run(tool.query("How many schools are there?"))
+    assert result == {"status": "success", "query": "SELECT 1"}
+    assert tool.seen == ["How many schools are there?\nFeature block:\ndomain: schools"]
+
+
+def test_tool_for_run_is_the_plain_class_without_a_feature_block():
+    from dev_tools import run_benchmark
+
+    class StubTool:
+        async def query(self, user_query):  # pragma: no cover - never called
+            return {"status": "success", "query": None}
+
+    assert run_benchmark.tool_for_run({"feature_prompt": None}, StubTool) is StubTool
+
+
+
+def test_plan_run_refuses_use_evidence_for_ambrosia(tmp_path, monkeypatch):
+    from dev_tools import run_benchmark
+
+    monkeypatch.setenv("DB_USER", "readonly_user")
+    monkeypatch.setenv("DB_PASS", "secret")
+    answers = REPO_ROOT / "data" / "bird_small.json"
+    with pytest.raises(run_benchmark.RunRefused) as excinfo:
+        run_benchmark.plan_run(**_plan_kwargs(tmp_path, answers, benchmark="ambrosia", use_evidence=True))
+    assert "use-evidence" in str(excinfo.value)
+
+
+def test_probe_server_returns_none_when_the_endpoint_is_down():
+    from dev_tools import run_benchmark
+
+    assert run_benchmark.probe_server("http://127.0.0.1:9/v1", timeout=0.5) is None
+
+
+def test_health_urls_drop_the_openai_v1_suffix():
+    """/health is at the server root, LLM_BASE_URL is the OpenAI surface."""
+
+    from dev_tools import run_benchmark
+
+    assert run_benchmark._health_urls("http://127.0.0.1:8000/v1")[0] == "http://127.0.0.1:8000/health"
+    assert run_benchmark._health_urls("http://127.0.0.1:8000")[0] == "http://127.0.0.1:8000/health"

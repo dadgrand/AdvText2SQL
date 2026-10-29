@@ -143,6 +143,42 @@ def test_health_endpoint_reports_the_backend():
     assert body["served_name"] == "fake-local-model"
 
 
+def test_health_reports_the_provenance_a_run_json_needs(tiny_backend):
+    """run_benchmark.py copies /health into run.json, so the keys must always exist."""
+
+    body = TestClient(serve.create_app(tiny_backend, max_new_tokens=7)).get("/health").json()
+    assert body["status"] == "ok"
+    assert body["server"] == "dev_tools.serve_openai"
+    # the generation cap that actually binds: the harness never sends max_tokens
+    assert body["max_new_tokens"] == 7
+    for key in (
+        "served_name",
+        "base_model",
+        "adapter",
+        "adapter_sha256",
+        "adapter_config_sha256",
+        "load_in_4bit",
+        "device",
+        "cuda_max_memory_allocated_bytes",
+        "requests_served",
+        "max_completion_tokens_observed",
+    ):
+        assert key in body, key
+
+
+def test_health_counts_requests_and_the_largest_completion(tiny_backend):
+    # a fresh backend object over the shared tiny model: the counters are per server
+    fresh = serve.TransformersBackend.from_objects(
+        tiny_backend.model, tiny_backend.tokenizer, served_name="tiny-test-model"
+    )
+    client = TestClient(serve.create_app(fresh, max_new_tokens=6))
+    assert client.get("/health").json()["requests_served"] == 0
+    client.post("/v1/chat/completions", json={"model": "tiny-test-model", "messages": MESSAGES, "max_tokens": 3})
+    body = client.get("/health").json()
+    assert body["requests_served"] == 1
+    assert 0 < body["max_completion_tokens_observed"] <= 3
+
+
 # ---------------------------------------------------------------------------
 # Chat completions: shape, usage, decoding
 # ---------------------------------------------------------------------------
@@ -434,3 +470,242 @@ def test_test_suite_never_needs_a_gpu_or_the_network():
     )
     assert completed.returncode == 0, completed.stderr
     assert completed.stdout.strip() == "ok"
+
+
+# ---------------------------------------------------------------------------
+# Thinking mode (Qwen3-class arms): the switch, the post-filter and /health
+# ---------------------------------------------------------------------------
+
+
+class _Qwen3TemplateTokenizer:
+    """A tokenizer stub whose template advertises ``enable_thinking`` (Qwen3-like)."""
+
+    chat_template = (
+        "{% for m in messages %}{{ m['content'] }}{% endfor %}"
+        "{% if enable_thinking is defined and not enable_thinking %}<think></think>{% endif %}"
+    )
+
+    def __init__(self) -> None:
+        self.calls = []
+
+    def apply_chat_template(self, messages, **kwargs):
+        self.calls.append(dict(kwargs))
+        flag = kwargs.get("enable_thinking")
+        return "QWEN3::" + ("off::" if flag is False else "on::") + messages[-1]["content"]
+
+
+class _Qwen25TemplateTokenizer:
+    """A tokenizer stub without the hook: passing the flag would be an invented mode."""
+
+    chat_template = "{% for m in messages %}{{ m['content'] }}{% endfor %}"
+
+    def __init__(self) -> None:
+        self.calls = []
+
+    def apply_chat_template(self, messages, **kwargs):
+        self.calls.append(dict(kwargs))
+        return "QWEN25::" + messages[-1]["content"]
+
+
+class _RejectingTemplateTokenizer:
+    """Template mentions the hook but the method rejects unknown keywords (TypeError)."""
+
+    chat_template = "{% if enable_thinking is defined %}{% endif %}"
+
+    def apply_chat_template(self, messages, tokenize=False, add_generation_prompt=True):
+        return "PLAIN::" + messages[-1]["content"]
+
+
+def test_strip_thinking_removes_a_complete_block():
+    text, fired = serve.strip_thinking("<think>count the rows</think>\nSELECT COUNT(*) FROM users")
+    assert fired is True
+    assert text == "SELECT COUNT(*) FROM users"
+
+
+def test_strip_thinking_removes_an_unterminated_block():
+    """The shape produced when the generation cap is burned inside the reasoning."""
+
+    text, fired = serve.strip_thinking("<think>Let me think about the join, and the filter, and</think")
+    assert (text, fired) == ("", True)
+
+    # A blank line is the only boundary we trust: the answer starts after it.
+    text, fired = serve.strip_thinking("<think>Let me think about the join and the filter\n\nSELECT 1")
+    assert (text, fired) == ("SELECT 1", True)
+
+    # No boundary at all means the generation died inside reasoning: no answer,
+    # rather than handing the tool a paragraph of prose.
+    text, fired = serve.strip_thinking("<think>reasoning with no boundary\nSELECT 1")
+    assert (text, fired) == ("", True)
+
+
+def test_strip_thinking_removes_a_thinking_prefix():
+    text, fired = serve.strip_thinking("Thinking: I should count rows.\n\nSELECT COUNT(*) FROM users")
+    assert (text, fired) == ("SELECT COUNT(*) FROM users", True)
+
+    # No blank line: only the lead-in line is dropped, and what follows survives.
+    text, fired = serve.strip_thinking("Thinking: I should count rows.\nSELECT COUNT(*) FROM users")
+    assert (text, fired) == ("SELECT COUNT(*) FROM users", True)
+
+    # A lone lead-in with no answer is empty rather than prose.
+    assert serve.strip_thinking("Thinking: only prose here") == ("", True)
+
+
+def test_strip_thinking_leaves_a_clean_answer_untouched():
+    for answer in (
+        "SELECT COUNT(*) FROM users",
+        "  SELECT 1  ",
+        "SELECT 'Thinking: ok' AS note",
+        "SELECT 1\n\n-- second statement is fine too",
+    ):
+        assert serve.strip_thinking(answer) == (answer, False)
+
+
+def test_thinking_disabled_passes_the_flag_to_a_qwen3_template(tiny_backend):
+    tokenizer = _Qwen3TemplateTokenizer()
+    backend = serve.TransformersBackend.from_objects(
+        tiny_backend.model, tokenizer, served_name="qwen3-stub", enable_thinking=False
+    )
+    prompt = backend._render_prompt(MESSAGES)
+    assert prompt.startswith("QWEN3::off::")
+    assert tokenizer.calls[0]["enable_thinking"] is False
+    assert tokenizer.calls[0]["add_generation_prompt"] is True
+
+    body = TestClient(serve.create_app(backend)).get("/health").json()
+    assert body["thinking_mode"] == "off"
+    assert body["thinking_template_supported"] is True
+    assert body["thinking_flag_passed"] is True
+    assert body["thinking_stripped_count"] == 0
+
+
+def test_thinking_flag_is_a_graceful_noop_on_an_old_template(tiny_backend):
+    """Qwen2.5 has no ``enable_thinking`` hook: the switch must not invent one."""
+
+    tokenizer = _Qwen25TemplateTokenizer()
+    backend = serve.TransformersBackend.from_objects(
+        tiny_backend.model, tokenizer, served_name="qwen25-stub", enable_thinking=False
+    )
+    assert backend._render_prompt(MESSAGES).startswith("QWEN25::")
+    assert "enable_thinking" not in tokenizer.calls[0]
+
+    body = TestClient(serve.create_app(backend)).get("/health").json()
+    assert body["thinking_mode"] == "off-unsupported"
+    assert body["thinking_template_supported"] is False
+    assert body["thinking_flag_passed"] is False
+
+
+def test_thinking_default_mode_leaves_the_template_alone(tiny_backend):
+    tokenizer = _Qwen3TemplateTokenizer()
+    backend = serve.TransformersBackend.from_objects(
+        tiny_backend.model, tokenizer, served_name="qwen3-default"
+    )
+    assert backend._render_prompt(MESSAGES).startswith("QWEN3::on::")  # template default
+    assert "enable_thinking" not in tokenizer.calls[0]
+    body = TestClient(serve.create_app(backend)).get("/health").json()
+    assert body["thinking_mode"] == "default"
+    assert body["thinking_flag_passed"] is False
+
+
+def test_a_tokenizer_that_rejects_the_keyword_is_reported_as_unsupported(tiny_backend):
+    tokenizer = _RejectingTemplateTokenizer()
+    backend = serve.TransformersBackend.from_objects(
+        tiny_backend.model, tokenizer, served_name="rejecting", enable_thinking=False
+    )
+    assert backend._render_prompt(MESSAGES).startswith("PLAIN::")
+    assert backend.thinking_mode == "off-unsupported"
+    assert backend.thinking_flag_passed is False
+    assert TestClient(serve.create_app(backend)).get("/health").json()["thinking_flag_passed"] is False
+
+
+def test_fake_backend_serves_without_a_template_and_says_so():
+    body = TestClient(
+        serve.create_app(serve.FakeBackend(enable_thinking=False))
+    ).get("/health").json()
+    assert body["thinking_mode"] == "not-applicable"
+    assert body["thinking_flag_passed"] is False
+    assert body["thinking_stripped_count"] == 0
+
+
+def test_server_strips_a_residual_reasoning_block_and_counts_it():
+    backend = serve.FakeBackend(
+        answer="<think>count the rows of the users table</think>\nSELECT COUNT(*) FROM users"
+    )
+    client = TestClient(serve.create_app(backend))
+
+    first = client.post("/v1/chat/completions", json={"messages": MESSAGES}).json()
+    assert first["choices"][0]["message"]["content"] == "SELECT COUNT(*) FROM users"
+    assert client.get("/health").json()["thinking_stripped_count"] == 1
+
+    client.post("/v1/chat/completions", json={"messages": MESSAGES})
+    assert client.get("/health").json()["thinking_stripped_count"] == 2
+
+
+def test_server_returns_a_clean_answer_untouched():
+    backend = serve.FakeBackend(answer="SELECT COUNT(*) FROM users")
+    client = TestClient(serve.create_app(backend))
+    body = client.post("/v1/chat/completions", json={"messages": MESSAGES}).json()
+    assert body["choices"][0]["message"]["content"] == "SELECT COUNT(*) FROM users"
+    assert client.get("/health").json()["thinking_stripped_count"] == 0
+
+
+def test_cli_thinking_flags_are_explicit_and_mutually_exclusive():
+    parser = serve.build_parser()
+    assert parser.parse_args([]).enable_thinking is None
+    assert parser.parse_args(["--no-thinking"]).enable_thinking is False
+    assert parser.parse_args(["--thinking"]).enable_thinking is True
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--thinking", "--no-thinking"])
+
+
+def test_every_construction_path_accepts_the_thinking_switch():
+    """``load`` is what the A100/Windows serving command calls, so wire it everywhere."""
+
+    import inspect
+
+    assert "enable_thinking" in inspect.signature(serve.TransformersBackend.load).parameters
+    assert "enable_thinking" in inspect.signature(serve.TransformersBackend.from_objects).parameters
+    assert "enable_thinking" in inspect.signature(serve.TransformersBackend.__init__).parameters
+    assert "enable_thinking" in inspect.signature(serve.FakeBackend.__init__).parameters
+
+
+def test_cli_starts_and_prints_the_thinking_mode(monkeypatch, capsys):
+    """The operator sees the mode at startup; the flag reaches the backend object."""
+
+    uvicorn = pytest.importorskip("uvicorn")
+    started = {}
+    monkeypatch.setattr(uvicorn, "run", lambda app, **kwargs: started.update(app=app, kwargs=kwargs))
+    assert serve.main(["--fake", "--no-thinking", "--port", "0"]) == 0
+    out = capsys.readouterr().out
+    assert "thinking_mode=not-applicable" in out
+    assert "thinking_stripped_count" in out
+    assert "app" in started
+
+
+def test_thinking_mode_vocabulary_is_closed():
+    """``/health.thinking_mode`` is a closed set: a consumer can branch on it."""
+
+    assert set(serve.THINKING_MODES) == {
+        "default",
+        "off",
+        "on",
+        "off-unsupported",
+        "on-unsupported",
+        "not-applicable",
+    }
+    assert serve.thinking_mode_label(None, supported=True) == "default"
+    assert serve.thinking_mode_label(False, supported=True) == "off"
+    assert serve.thinking_mode_label(True, supported=True) == "on"
+    assert serve.thinking_mode_label(False, supported=False) == "off-unsupported"
+    assert serve.thinking_mode_label(True, supported=False) == "on-unsupported"
+
+
+def test_thinking_provenance_reaches_run_json():
+    """``run.json`` must record which thinking mode produced a number."""
+
+    from dev_tools import run_benchmark
+
+    health = TestClient(serve.create_app(serve.FakeBackend())).get("/health").json()
+    metrics = run_benchmark._server_metrics(health)
+    assert metrics["thinking_mode"] == "not-applicable"
+    assert metrics["thinking_template_supported"] is False
+    assert metrics["thinking_flag_passed"] is False
+    assert metrics["thinking_stripped_count"] == 0

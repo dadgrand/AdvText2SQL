@@ -580,3 +580,256 @@ def test_trl_compatibility_probe_decisions(tmp_path):
     missing = _probe_trl_with(tmp_path / "missing", None)
     assert missing["decision"] == "blocked"
     assert "No module named" in missing["detail"]
+
+
+# ------------------------------------------------------------------------------------------------
+# 9. scale-up mode: --bird-extra + the group split BY DATABASE
+#
+# The fixture is a three-database corpus that reproduces every drop cause the real 6.6k-row build
+# hits -- one target the evaluator's NULLIF regex silently *changes* while it still parses, one
+# target it destroys, one duplicate question, one duplicate normalised SQL, one row with no
+# question_id -- because "the same cleaning rules apply" is only true if it is tested on all of
+# them.  A download directory also holds provenance/schema/db_id files; those must be skipped by
+# shape and named, not crash the build.
+# ------------------------------------------------------------------------------------------------
+EXTRA_DB_ALPHA = "alpha_demo"
+EXTRA_DB_BETA = "beta_demo"
+EXTRA_DB_GAMMA = "gamma_demo"
+
+
+def _extra_rows() -> list[dict]:
+    return [
+        # alpha: 4 rows, one of which the NULLIF regex mutates inside a quoted identifier
+        {"db_id": EXTRA_DB_ALPHA, "question": "How many rows are in alpha?",
+         "evidence": "", "SQL": "SELECT count(*) FROM alpha_table"},
+        {"db_id": EXTRA_DB_ALPHA, "question": "List the ratio column of alpha",
+         "evidence": "", "SQL": 'SELECT "Ratio A/B" FROM alpha_table'},
+        {"db_id": EXTRA_DB_ALPHA, "question": "How many rows are in alpha?",
+         "evidence": "", "SQL": "SELECT count(1) FROM alpha_table"},           # duplicate question
+        {"db_id": EXTRA_DB_ALPHA, "question": "Which alpha rows are named?",
+         "evidence": "", "SQL": "SELECT name FROM alpha_table WHERE name IS NOT NULL"},
+        # beta: 4 rows, including one duplicate normalised SQL and one target destroyed by rewrite
+        {"db_id": EXTRA_DB_BETA, "question": "How many beta rows are named?",
+         "evidence": "", "SQL": "SELECT count(*) FROM beta_table WHERE name IS NOT NULL"},
+        {"db_id": EXTRA_DB_BETA, "question": "Count named beta rows",
+         "evidence": "", "SQL": "SELECT COUNT(*) FROM beta_table WHERE name IS NOT NULL;",
+         "question_id": 77},                                                   # duplicate SQL
+        {"db_id": EXTRA_DB_BETA, "question": "This target cannot survive the rewrite",
+         "evidence": "", "SQL": "SELECT FROM WHERE ("},                         # unparseable
+        {"db_id": EXTRA_DB_BETA, "question": "Sum the beta amount",
+         "evidence": "", "SQL": "SELECT sum(amount) FROM beta_table"},
+        # gamma: 2 rows, both clean
+        {"db_id": EXTRA_DB_GAMMA, "question": "How many gamma rows?",
+         "evidence": "", "SQL": "SELECT count(*) FROM gamma_table"},
+        {"db_id": EXTRA_DB_GAMMA, "question": "Latest gamma row",
+         "evidence": "", "SQL": "SELECT max(id) FROM gamma_table"},
+    ]
+
+
+def _extra_dir(tmp_path: Path) -> Path:
+    """A ``--bird-extra`` directory shaped like the real cache: one data file + non-data files."""
+    directory = tmp_path / "bird_train_cache"
+    directory.mkdir()
+    rows = _extra_rows()
+    (directory / "bird23_train_filtered.jsonl").write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows), encoding="utf-8"
+    )
+    # exactly the kinds of file the real data_cache holds next to the download
+    (directory / "PROVENANCE.json").write_text(json.dumps({"repo_id": "birdsql/x", "rows": 10}),
+                                               encoding="utf-8")
+    (directory / "db_schemas_scale.json").write_text(json.dumps({EXTRA_DB_ALPHA: "TABLE a"}),
+                                                     encoding="utf-8")
+    (directory / "live_databases.json").write_text(json.dumps([EXTRA_DB_ALPHA]), encoding="utf-8")
+    return directory
+
+
+def test_extra_file_shape_detection_and_id_synthesis(tmp_path):
+    from training.build_data import _extra_items_from_file, normalise_extra_items
+
+    directory = _extra_dir(tmp_path)
+    rows, reason = _extra_items_from_file(directory / "bird23_train_filtered.jsonl")
+    assert reason == "" and len(rows) == 10
+
+    for name, expected in (("PROVENANCE.json", "not a JSON list"),
+                           ("db_schemas_scale.json", "not a JSON list"),
+                           ("live_databases.json", "rows are not objects")):
+        skipped, why = _extra_items_from_file(directory / name)
+        assert skipped is None, f"{name} must not be read as a question file"
+        assert expected in why, (name, why)
+
+    objects_without_sql = directory / "train_column_meaning.json"
+    objects_without_sql.write_text(
+        json.dumps({"cards|name": "the card name"}), encoding="utf-8"
+    )
+    skipped, why = _extra_items_from_file(objects_without_sql)
+    assert skipped is None and "not a JSON list" in why
+
+    normalised = normalise_extra_items(rows, "bird23_train_filtered")
+    assert len(normalised) == 10
+    assert normalised[0]["question_id"] == "extra:bird23_train_filtered:0"
+    assert normalised[5]["question_id"] == "extra:bird23_train_filtered:77", (
+        "a raw question_id from a foreign file is kept, but inside a provenance-prefixed id: BIRD "
+        "train and dev share one id number space"
+    )
+    assert all(row["_extra_file"] == "bird23_train_filtered" for row in normalised)
+
+
+def test_scale_mode_cleans_splits_and_counts(tmp_path):
+    directory = _extra_dir(tmp_path)
+    out = tmp_path / "out_scale"
+    proc = run_build("--bird-extra", str(directory), "--allow-synth-schemas", out=str(out))
+    assert proc.returncode == 0, proc.stderr + proc.stdout
+    stats = json.loads((out / "stats.json").read_text(encoding="utf-8"))
+    extra = stats["bird_extra"]
+
+    # (a) the files that are not question/SQL files were skipped by shape and named
+    assert [row["file"] for row in extra["dir_files"]] == ["bird23_train_filtered.jsonl"]
+    assert sorted(row["file"] for row in extra["skipped_files"]) == [
+        "PROVENANCE.json", "db_schemas_scale.json", "live_databases.json"
+    ]
+    assert all(row["reason"] for row in extra["skipped_files"])
+
+    # (b) the SAME cleaning rules: one unparseable target, one mutated-but-parseable target,
+    #     one duplicate question, one duplicate normalised SQL
+    assert extra["n_raw"] == 10
+    assert extra["unparseable"] == 1, extra["by_reason"]
+    assert extra["mutated"] == 1, extra["by_reason"]
+    assert extra["by_reason"]["unparseable after repo sqlite_to_postgres"] == 1
+    assert extra["by_reason"]["mutated-but-parseable"] == 1
+    assert extra["dup_questions"] == 1
+    assert extra["dup_sql"] == 1
+    assert extra["usable"] == 10 - 1 - 1 - 1 - 1
+
+    # the damage rows are in dropped.json, tagged with their origin
+    dropped = json.loads((out / "dropped.json").read_text(encoding="utf-8"))
+    extra_drops = [row for row in dropped if row.get("source") == "bird-extra"]
+    assert len(extra_drops) == 2
+    assert {row["source_file"] for row in extra_drops} == {"bird23_train_filtered"}
+    mutated = next(row for row in extra_drops if row["reason"] == "mutated-but-parseable")
+    assert "NULLIF(B,0)" in mutated["mutated_target"]
+    assert "Ratio A/B" in mutated["plain_target"]
+
+    # (c) the count table is a real table: the numbers above appear in it, and the totals add up
+    table = (out / "count_table.txt").read_text(encoding="utf-8")
+    assert "COUNT TABLE" in table
+    assert "extra raw pairs              10" in table
+    assert "usable before exclusion    6" in table
+    assert "group split BY DATABASE" in table
+    assert stats["bird_usable"] == stats["bird_train"] + stats["bird_valid"]
+    assert stats["bird_usable"] == 342 + extra["usable"], (
+        "the repo file's 342 usable rows plus the extra corpus must be exactly what the split holds"
+    )
+
+    # (d) the group split, proven from the artifacts rather than from the bookkeeping
+    train_rows = read_jsonl(out / "sft_bird_train.jsonl")
+    valid_rows = read_jsonl(out / "sft_bird_valid.jsonl")
+    train_dbs = {row["db_id"] for row in train_rows}
+    valid_dbs = {row["db_id"] for row in valid_rows}
+    assert train_dbs and valid_dbs
+    assert train_dbs & valid_dbs == set(), "no db_id may appear on both sides"
+    assert len(train_rows) == stats["bird_train"] and len(valid_rows) == stats["bird_valid"]
+    assert stats["group_split"]["overlap"] == []
+    assert set(stats["group_split"]["train_db_ids"]) == train_dbs
+    assert set(stats["group_split"]["valid_db_ids"]) == valid_dbs
+
+    def schema_of(row: dict) -> str:
+        return row["prompt"].split("Question:")[0]
+
+    assert {schema_of(row) for row in train_rows} & {schema_of(row) for row in valid_rows} == set(), (
+        "the valid side must not reuse a schema the training side has seen"
+    )
+    split_file = json.loads((out / "group_split.json").read_text(encoding="utf-8"))
+    assert split_file["basis"] == "by-database (group split)"
+    assert len(split_file["table"]) == len(train_dbs) + len(valid_dbs)
+
+
+def test_scale_mode_is_byte_deterministic(tmp_path):
+    directory = _extra_dir(tmp_path)
+    first, second = tmp_path / "a", tmp_path / "b"
+    for target in (first, second):
+        proc = run_build("--bird-extra", str(directory), "--allow-synth-schemas", out=str(target))
+        assert proc.returncode == 0, proc.stderr
+    for name in ("sft_bird_train.jsonl", "sft_bird_valid.jsonl", "sft_all_train.jsonl",
+                 "stats.json", "dropped.json", "group_split.json", "count_table.txt"):
+        assert sha256(first / name) == sha256(second / name), f"{name} is not byte-identical"
+
+
+def test_scale_mode_excludes_or_refuses_databases_without_schemas(tmp_path):
+    directory = _extra_dir(tmp_path)
+    schemas = {}
+    for name in ("bird_small.json", "bird_large.json", "ambrosia_small.json", "ambrosia_large.json",
+                 "train_queries.json"):
+        for item in json.loads((DATA / name).read_text(encoding="utf-8")):
+            schemas[str(item.get("db_id"))] = f"TABLE stub_{item.get('db_id')}\n  - id (int)"
+    for db_id in (EXTRA_DB_ALPHA, EXTRA_DB_BETA):
+        schemas[db_id] = f"TABLE {db_id}_table\n  - id (int)"
+    schema_file = tmp_path / "schemas.json"
+    schema_file.write_text(json.dumps(schemas), encoding="utf-8")
+
+    refused = run_build("--bird-extra", str(directory), "--schemas", str(schema_file),
+                        out=str(tmp_path / "refused"))
+    assert refused.returncode == 2, "a database with no schema must abort by default"
+    assert EXTRA_DB_GAMMA in refused.stderr
+
+    excluded = run_build("--bird-extra", str(directory), "--schemas", str(schema_file),
+                         "--exclude-missing-schema-dbs", out=str(tmp_path / "excluded"))
+    assert excluded.returncode == 0, excluded.stderr
+    stats = json.loads((tmp_path / "excluded" / "stats.json").read_text(encoding="utf-8"))
+    assert stats["schemas_missing_db_ids"] == [EXTRA_DB_GAMMA]
+    assert stats["bird_extra"]["excluded_db_ids"] == [
+        {"db_id": EXTRA_DB_GAMMA, "rows": 2, "reason": "no schema for this db_id"}
+    ]
+    assert stats["bird_extra"]["excluded_rows"] == 2
+    assert EXTRA_DB_GAMMA not in {row["db_id"]
+                                  for row in read_jsonl(tmp_path / "excluded" / "sft_all_train.jsonl")}
+    assert "excluded (no live schema)  2" in (tmp_path / "excluded" / "count_table.txt").read_text(
+        encoding="utf-8")
+
+
+def test_bird_extra_rejects_a_directory_without_question_files(tmp_path):
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    proc = run_build("--bird-extra", str(empty), "--allow-synth-schemas", out=str(tmp_path / "o"))
+    assert proc.returncode == 2
+    assert "no .json/.jsonl file" in proc.stderr
+
+    only_provenance = tmp_path / "only_provenance"
+    only_provenance.mkdir()
+    (only_provenance / "PROVENANCE.json").write_text(json.dumps({"rows": 1}), encoding="utf-8")
+    proc = run_build("--bird-extra", str(only_provenance), "--allow-synth-schemas",
+                     out=str(tmp_path / "o2"))
+    assert proc.returncode == 2
+    assert "no file yielded question/SQL rows" in proc.stderr
+
+    missing = run_build("--bird-extra", str(tmp_path / "nope"), "--allow-synth-schemas",
+                        out=str(tmp_path / "o3"))
+    assert missing.returncode == 2
+    assert "not a directory" in missing.stderr
+
+
+def test_drop_evidence_removes_the_evidence_line_only(tmp_path):
+    """The no-evidence arm of the adapter x evidence matrix is a build flag, not an edit."""
+    directory = _extra_dir(tmp_path)
+    out = tmp_path / "no_evidence"
+    proc = run_build("--bird-extra", str(directory), "--allow-synth-schemas", "--drop-evidence",
+                     out=str(out))
+    assert proc.returncode == 0, proc.stderr
+    rows = read_jsonl(out / "sft_bird_train.jsonl") + read_jsonl(out / "sft_bird_valid.jsonl")
+    assert rows and all("Evidence:" not in row["prompt"] for row in rows)
+    stats = json.loads((out / "stats.json").read_text(encoding="utf-8"))
+    assert stats["evidence_in_prompts"] is False
+
+    with_evidence = tmp_path / "with_evidence"
+    proc = run_build("--bird-extra", str(directory), "--allow-synth-schemas",
+                     out=str(with_evidence))
+    assert proc.returncode == 0, proc.stderr
+    kept = read_jsonl(with_evidence / "sft_bird_train.jsonl")
+    # the fixture's alpha/beta/gamma questions carry no evidence text, so the only difference is
+    # the repo file's 8 databases: compare the row that has one
+    evidence_rows = [row for row in kept if "Evidence:" in row["prompt"]]
+    assert evidence_rows, "the repo file has rows with evidence; a fixture without them proves nothing"
+    assert "evidence_in_prompts" not in json.loads(
+        (with_evidence / "stats.json").read_text(encoding="utf-8")), (
+        "the default build must not gain a new stats key: round-1 stats.json stays byte-comparable"
+    )
+
