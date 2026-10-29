@@ -1,10 +1,16 @@
 # Build outputs, adapters and run directories are artifacts, not sources.
 out/
 self_test_out/
+# Every scale-up build directory (out-scale/, out-scale-t2048/, future variants):
+# the build is reproducible from `build_data.py --bird-extra`, the dataset is an artifact.
+out-scale*/
 runs/
 tmp*/
 __pycache__/
 .venv*/
 *.log
 out-real/
+# Natural-class-balance Ambrosia build (R2-3, ready-but-blocked-on-GPU): the dataset is an
+# artifact, the recipe that produces it is training/AMBROSIA_NATURAL_RECIPE.md.
+out-natural/
 

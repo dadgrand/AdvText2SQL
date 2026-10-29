@@ -51,6 +51,36 @@ All training commands were run with `training\.venv-train\Scripts\python.exe`. T
 interpreter is untouched (it still has no `trl`/`peft`, so it can still run `--plan` and the offline
 test suite, which is exactly what `tests/test_data.py` relies on).
 
+### WDDM paging on 16 GB — the trap that cost the round-2 run three launches
+
+Above roughly **15.5 GiB of dedicated VRAM, Windows (WDDM) spills GPU memory into system RAM** and the
+training step collapses: on this card, with a 7B QLoRA at `--max-seq-len 3072`, dedicated usage sat at
+**15,870 of 16,376 MiB**, `Get-Counter '\GPU Adapter Memory(*)\Shared Usage'` reported **4,285 MB
+shared**, and the step time walked **33 s → 93 s** with the ETA inflating to 24 h. It is not merely
+slow: at `--max-seq-len 2560` (15,860 MiB dedicated, 1,398 MB shared) the run **stalled outright** at
+step 6 — 100 % GPU utilisation, 77 W power draw, 0.03 s of CPU in 25 s and no TensorBoard events for
+12 minutes — which looks like a hang, not like slowness.
+
+Detect it with:
+
+```powershell
+Get-Counter '\GPU Adapter Memory(*)\Shared Usage'   # MB; must be near zero during training
+nvidia-smi --query-gpu=memory.used,power.draw --format=csv,noheader   # low power at 100 % util = paging
+```
+
+Fix it by keeping the peak below the threshold, not by waiting:
+
+* set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` (free, reversible, less fragmentation);
+* size `--max-seq-len` to the **tokenizer-measured** max, not to the recipe's default. Round 1 fitted
+  in 11.0 GiB because its run rows were ≤1,015 tokens; the round-2 scale-up has rows up to 2,460
+  (`training/out-scale/token_lengths.json`, real Qwen tokenizer: p50 587 / p95 1,294 / p99 2,414 /
+  max 2,460), and 151 rows above 2,048 were **dropped and counted**
+  (`training/out-scale-t2048/filter_report.json`), never truncated.
+* the result at `--max-seq-len 2048`: **14,957 MiB dedicated, 148 MB shared, 232 W, 18.5 s/step** —
+  from 85 s/step to 18.5 s/step by reducing the ceiling 1.5×. Training at the edge of VRAM is not
+  merely slow here; it is 4.6× slow or dead.
+
+
 ---
 
 ## 1. Pre-flight (`--plan`, no GPU allocation)
@@ -199,3 +229,45 @@ Logs: `runs/smoke-1.5b.log`, `runs/e3-r16.log` (loss/lr/step per logging interva
 
 Do not run a second job on this GPU while the 7B trains: the run sits at 11.0 GiB allocated and a
 second model would OOM it.
+
+---
+
+## 5. Scale-up dataset (round 2, R2-4) — `training/out-scale`
+
+Round 1 trained on 342 BIRD rows over 8 databases. `--bird-extra` adds the official BIRD train split
+and splits **by database**, so the adapter sees schemas instead of memorising one.
+
+```powershell
+# 1. raw data (once, ~2.6 MB; the machine's SOCKS proxy breaks huggingface_hub without NO_PROXY)
+$env:NO_PROXY='*'
+python -c "from huggingface_hub import hf_hub_download; hf_hub_download('birdsql/bird23-train-filtered','data/train-00000-of-00001.jsonl',repo_type='dataset')"
+# -> copy to research/advtext2sql/data_cache/bird_train/bird23_train_filtered.jsonl
+#    sha256 2ee64aa593e1adc59be7d5b9ce2395372a8ee27fdd94a3fb4d2fe09f3cd34bc8, 2,654,294 bytes, 6601 rows
+
+# 2. schemas for every db_id, from the LIVE PostgreSQL through the tunnel (~6 min for 77 dbs)
+python -m dev_tools.dump_schemas <--db-id for each of the 77 ids> --skip-missing `
+    --out ../data_cache/bird_train/db_schemas_scale.json
+
+# 3. the build (~15 s, CPU only)
+python training\build_data.py --bird-extra ..\data_cache\bird_train `
+  --schemas ..\data_cache\bird_train\db_schemas_scale.json --exclude-missing-schema-dbs `
+  --group-split-keep-train california_schools --group-split-keep-train financial `
+  --group-split-keep-train toxicology --group-split-keep-train card_games `
+  --group-split-keep-train codebase_community --group-split-keep-train superhero `
+  --group-split-keep-train student_club --group-split-keep-train debit_card_specializing `
+  --no-tokenizer --out training\out-scale
+```
+
+Measured (seed 42, `training/out-scale/count_table.txt`): 6,958 raw pairs (357 repo + 6,601 extra) ->
+362 unparseable + 85 mutated-but-parseable + 2 duplicate questions + 77 duplicate normalised SQL ->
+6,416 parseable -> 820 rows excluded (6 BIRD train databases exist live but are **empty shells**) ->
+**5,612 usable over 71 databases**; group split **4,736 train rows / 61 dbs** and **876 valid rows /
+10 dbs**, db_id overlap 0. Combined training file 5,130 rows (4,736 BIRD + 394 Ambrosia), sequence
+estimate p50/p95/p99/max = 568/1173/1784/1848 (chars/3.6).
+
+For R2-5: the smoke guard passes (`schema_basis=file-partial`, not a stub basis), and
+`training/.venv-train/Scripts/python.exe training/train_qlora.py --plan --data training/out-scale`
+resolves r=16, alpha=32, max_seq_len=3072, effective_batch=16, TRL ok. `max_seq_len=3072` leaves room
+for the p99 1,784; do not drop to 1,024 for this dataset without re-measuring the truncation rate.
+`--drop-evidence` builds the no-evidence arm of the adapter x evidence matrix from the same corpus.
+
