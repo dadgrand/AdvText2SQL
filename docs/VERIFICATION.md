@@ -558,14 +558,14 @@ the docs commit carrying it, and will be extended with the final seal commit sha
 
 | command | result |
 |---|---|
-| `python research/advtext2sql/audit_round2.py` | **238/238 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
+| `python research/advtext2sql/audit_round2.py` | **243/243 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
 | `python -m pytest tests -q` | **267 passed in 69.09 s** (offline: no DB, no network, no GPU; includes the 26-test empty-schema guard) |
 | `python -m compileall -q dev_tools src training tests` | exit 0 — the tree compiles |
 | `git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py` | empty — the teacher-owned harness, data and root entrypoints are untouched |
 | `git rev-parse --short feat/lora-track` | `f4d3d4a` — round 1's branch is untouched |
 
-Pinned audit identity: `audit_round2.py` sha256 `b2ae9b175ac82e72296c341253163e86a134ee887f6d4fca89aa48af50567bcd`;
-`AUDIT_ROUND2.json` sha256 `33355d462865d44cb222b0ef4553f582bfc32bf78acdd117bf0b1161636bdc0b`.
+Pinned audit identity: `audit_round2.py` sha256 `38d72e11f0e09924897733a35c094a67bde414697758af77a82bfb187b7b6db1`;
+`AUDIT_ROUND2.json` sha256 `d61f9800f847f69098118dcd352e30ee7d2d6b63fdb8e3c42bb48b0cc69d9b3a`.
 
 ## V4.2 What the audit covers
 
@@ -697,10 +697,18 @@ it fired, and it is reported as a credit.
 **Post-tag addendum: the 14B OOD cell (measured on the re-rented card).** Same 120 questions:
 **88/120 = 73.33 %** (Wilson 64.79–80.43), **88/107 = 82.24 %** over executable gold, soft-F1 0.8218,
 4 unexecutable. Paired: vs base 7B **b=10, c=8, +1.67 pp, p=0.815**, CI [−5.00,+8.33]; vs the 7B adapter
-**b=11, c=6, +4.17 pp, p=0.332**, CI [−2.50,+10.83]. All three configurations land at **70–73 % with no
+**b=11, c=6, +4.17 pp, p=0.332**, CI [−2.50,+10.83]. All configurations land at **69–73 % with no
 significant differences** — the OOD wall is schema access itself, not weights or the adapter; in-domain
 capacity and adapter help, out-of-domain neither does, so the next lever is cross-schema training, not more
 capacity or a better LoRA. The 14B OOD `run.json` was not copied; its ledger and 120 predictions are audited.
+
+**OOD + retrieval (7B): a verified no-op, not a duplicate.** The same 7B adapter with retrieval k=3 scores
+**83/120 = 69.17 %** (83/107 = 77.57 %, soft-F1 0.8088, 8 unexecutable), with **identical outcomes on 120/120**
+to the arm without retrieval (b=0, c=0, p=1.0). The procedure log `runs/t2/ood-7b-ret-procedures.jsonl` has
+120 rows carrying the retrieval config (few-shot on, k=3, hash) and **`injected = 0` on every row** — the
+bank is per-`db_id` and built only from BIRD-train rows, so unseen schemas get no examples. That is why the
+in-domain retrieval gain (+6.22 pp at 7B) cannot be read as cross-schema capability; all OOD configurations
+now land at 69–73 % and the binding constraint is schema access.
 
 ## V4.7 Procedure/decoder arms
 
@@ -715,7 +723,7 @@ lever. Self-consistency: **not measured — time**, no number implied.
 
 This section ships in the commit tagged **`round2-seal`** on `feat/round2` (the annotated tag is cut
 immediately after that commit; `git rev-parse round2-seal^{}` resolves to the exact sha). At seal time:
-audit **238/238, 0 findings**; suite **267 passed in 69.09 s**; compileall exit 0; scope diff against `main`
+audit **243/243, 0 findings**; suite **267 passed in 69.09 s**; compileall exit 0; scope diff against `main`
 on `benchmarks/`, `data/` and the root entrypoints empty; `feat/lora-track` untouched at `f4d3d4a`; the
 delivered patch is `lora-track.patch` (full `main..feat/round2`) verified with `git apply --check` on a
 clean `main` clone; nothing is pushed to the teacher's `origin` — the fork is the delivery channel. A
@@ -724,6 +732,6 @@ content other than this line.
 
 **Recorded seal sha:** `b7dbc2d` (tag `round2-seal` object `b8504e1`). The branch `feat/round2` and the tag were pushed to `fork` on 2026-10-29; `gh api repos/dadgrand/AdvText2SQL/branches/feat/round2` reports head `b7dbc2d521a6edc40550d593218a5739c692a7bc`; `origin/main` is untouched at `e812451`; `feat/lora-track` remains `f4d3d4a`. Patch `lora-track.patch` is regenerated from the delivered HEAD; its size and sha256 are reported with the delivery message, and `git apply --check` passed on a clean `main` clone (107 files over `main`). This record commit follows the seal and only adds this line.
 
-**Post-seal addendum (tag unchanged at `round2-seal` → `b7dbc2d`).** §19 now carries the measured negative OOD attribution (base 86/120 = 71.67 % vs adapter 83/120 = 69.17 %, b=8/c=11, Δ −2.50 pp, p=0.648), the adapter's 292-row cell 220/292, and the discarded base-292 attempt (empty schema dump, 15/292 = 5.14 %, 259/292 unexecutable — never quoted). The empty-schema guard in `dev_tools/run_benchmark.py` refuses a run whose schema dump has an empty value unless `--allow-empty-schemas`, with 26 offline tests in `tests/test_schema_guard.py`. Audit count rises to 238/238; the seal commit and tag do not move.
+**Post-seal addendum (tag unchanged at `round2-seal` → `b7dbc2d`).** §19 now carries the measured negative OOD attribution (base 86/120 = 71.67 % vs adapter 83/120 = 69.17 %, b=8/c=11, Δ −2.50 pp, p=0.648), the adapter's 292-row cell 220/292, and the discarded base-292 attempt (empty schema dump, 15/292 = 5.14 %, 259/292 unexecutable — never quoted). The empty-schema guard in `dev_tools/run_benchmark.py` refuses a run whose schema dump has an empty value unless `--allow-empty-schemas`, with 26 offline tests in `tests/test_schema_guard.py`. Audit count rises to 243/243; the seal commit and tag do not move.
 
 **Two tags, both on ork (2026-10-29).** ound2-seal (annotated object 8504e1) points at the original seal commit **b7dbc2d**; it stays there and is not rewritten. ound2-seal-2 (annotated object 5862faf) points at **cd8aa4a**, the post-seal addendum that carries the empty-schema guard, its 26 tests, the corrected §19 OOD attribution (base 86/120 vs adapter 83/120, p=0.648) and the 292-row cell. **Hand the teacher ound2-seal-2 (or the branch tip that follows it): ound2-seal predates the guard and the corrected attribution.** Everything below applies to both commits except the tag-index line itself.

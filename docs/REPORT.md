@@ -1384,9 +1384,11 @@ number is implied.
 
 ### 18.4 One line each, for the meeting
 
-* **A (retrieval k=3): fold it in** — +6.22 pp on the same model, p=0.0237, no wall-clock cost, 12
-  unexecutable predictions instead of 19; make it a documented default with the leakage guards and confirm
-  it stacks with 14B before quoting a combined number.
+* **A (retrieval k=3): fold it in at 7B** — +6.22 pp on the same model, p=0.0237, no wall-clock cost, 12
+  unexecutable predictions instead of 19; make it a documented default with the leakage guards. This is an
+  **in-domain** gain only: on the OOD set retrieval is a verified no-op (83/120, b=0/c=0, `injected=0` on
+  120/120 because the bank is per-`db_id` and unseen schemas have no examples — §19), so it is not a
+  cross-schema capability and it does not stack with 14B until a real 14B retrieval run exists.
 * **C (grammar): keep it as a serving flag, not a default score lever** — the contract guarantee is real
   (0 violations), the accuracy effect is +2.07 pp at p=0.18, and its cost needs a clean interleaved test.
 * **B (self-consistency): do not adopt** — unmeasured, and its cheapest possible run is ~3.3 h;
@@ -1409,6 +1411,7 @@ percentages look alike.
 | 7B scale adapter, the same 120 questions as the base arm | 120 | **83/120 = 69.17 %** | 83/107 = 77.57 % | 8 |
 | 7B **base** model, no adapter | 120 | **86/120 = 71.67 %** | 86/107 = 80.37 % | 8 |
 | **14B scale adapter** (`5833a1cc…`, same 120) | 120 | **88/120 = 73.33 %** (Wilson 64.79–80.43) | **88/107 = 82.24 %** | 4 |
+| 7B scale adapter + retrieval k=3 (same 120) | 120 | **83/120 = 69.17 %** | 83/107 = 77.57 % | 8 |
 
 **Denominators.** On the full 876, 65 gold queries are unexecutable on the live server (the same
 transpile-damage class as the 32 in `bird_large`, applied here to already-PostgreSQL gold), so the
@@ -1428,12 +1431,25 @@ full 876-row base run did not fit the seal window; the adapter is therefore also
 | 14B scale adapter vs base 7B | 10 | 8 | +1.67 pp | [−5.00, +8.33] pp | 0.815 |
 | 14B scale adapter vs 7B scale adapter | 11 | 6 | +4.17 pp | [−2.50, +10.83] pp | 0.332 |
 
-**All three configurations land at 70–73 %, and none of the differences is significant.** That is the
-result: on 10 unseen databases the wall is not about weights and not about our adapter — it is **schema
-access itself**. In-domain, both capacity and the adapter help (14B 53.94 % vs base 21.16 %); out-of-domain,
-neither does (73.33 / 71.67 / 69.17 %, paired p = 0.815 / 0.332 / 0.648). The next lever is therefore
-**cross-schema training** — the distillation / multi-schema direction — not more capacity and not a better
-LoRA.
+**All configurations land at 69–73 %, and none of the differences is significant.** That is the result: on
+10 unseen databases the wall is not about weights, not about our adapter and not about retrieval — it is
+**schema access itself**. In-domain, capacity, the adapter and retrieval all help (14B 53.94 % vs base
+21.16 %; retrieval +6.22 pp at 7B); out-of-domain, none of them does (14B 73.33, base 71.67, 7B adapter
+69.17, 7B adapter + retrieval 69.17 %; paired p = 0.815 / 0.332 / 0.648, and retrieval leaves **120/120
+outcomes identical**, b=0, c=0).
+
+**Retrieval on the OOD set is a no-op by construction, and the log proves it.** The same 7B adapter with
+retrieval k=3 scores **83/120 = 69.17 %** with **identical outcomes on all 120 questions** to the arm without
+retrieval (b=0, c=0). This is not the duplicate-prediction artefact caught on the 14B arm: the procedure log
+has 120 rows with the retrieval config (few-shot on, k=3, hash) and **`injected = 0` on every row** — the
+bank is scoped per `db_id` and built only from BIRD-train rows, so on databases it has never seen it has
+nothing to offer. That is exactly why the in-domain retrieval gain (+6.22 pp at 7B, 102 → 117) cannot be read
+as a cross-schema capability.
+
+Together with the 14B and base arms this makes the OOD picture uniform: **all configurations land at 69–73 %,
+and the binding constraint is access to the schema, not capacity, adapter or retrieval.** The next lever is
+therefore **cross-schema training** — the distillation / multi-schema direction — not more capacity and not a
+better LoRA.
 
 **What transfers, and what does not.** The **base model transfers**: with the schema text in its prompt it
 writes executable PostgreSQL for questions on databases it never trained on — 71.67 % EX with only **8
