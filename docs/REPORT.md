@@ -1,12 +1,13 @@
 # T2 — Serving base + adapter and measuring the branch through the real harness
 
-Status: **in progress** (runs E1/E3 in flight; this file is being filled as measurements land).
-Branch `feat/lora-track`, nothing committed. Every number below is attached to the
-command that produced it and to the artifact that stores it.
+Status: **round-2 pre-seal draft** (branch `feat/round2`, commits `4ea7d4f`–`df7325a` plus the scale
+commit; nothing pushed). Every number below is attached to the command that produced it and to the
+artifact that stores it.
 
-Round 2 (branch `feat/round2`, §9–§10) adds the **missing fourth cell** of the 2×2 design
-and the `run.json` recorder fix. §1–§8 are the round-1 measurements and are left exactly as
-they were; §9–§10 only add.
+Round 2 (branch `feat/round2`, §9–§14) adds the **missing fourth cell** of the 2×2 design, the
+`run.json` recorder fix, the Ambrosia decision, the feature × model matrix, the A100 grammar arm and the
+**scale-up headline** (§14). §1–§8 are the round-1 measurements and are left exactly as they were;
+§9–§14 only add.
 
 ---
 
@@ -32,6 +33,9 @@ python -c "import glob,json; out={}; [out.update(json.load(open(p,encoding='utf-
 ```
 
 `runs/t2/chunks/parts.json` records the shard sizes (40/40/69/91 = 240).
+
+Round-2 runs are §9 (2×2), §10 (recorder proof), §11 (Ambrosia), §12 (matrix), §13 (decoder) and §14 (the
+scale-up headline; the run artifacts are listed there).
 
 Predictions are produced by the **unchanged** course tool (`Text2SQLGenerator`, tool v2)
 through `dev_tools/run_benchmark.py --predict-only`; scoring is
@@ -428,7 +432,9 @@ from the frozen 42.32 % and the CI covers 0 (`p = 0.356`), whereas round 1's bes
 evidence-on/adaptor-off cell (E1-fair) was **significantly** below it by 7.47 pp (§7.3,
 `p = 0.0273`). The missing cell was the difference between "significantly worse" and "not
 distinguishable". The remaining caveat does not move: the frozen file is scores only (no SQL,
-no config), so this is an id-level comparison.
+no config), so this is an id-level comparison. A later scale-up adapter (§14) reaches 102/241 = 42.32 % on
+the same protocol and **ties** this frozen file (b = 32, c = 32, p = 1.0); the round-1 comparison above is
+unchanged and is not superseded by it.
 
 ### 9.3 Do the two effects stack? (interaction)
 
@@ -1055,3 +1061,66 @@ Verification of the decoder itself (both must pass before the numbers above mean
 `python -m dev_tools.check_grammar --sql-file data/bird_large.json --mode safe` →
 **241/241 gold accepted**; `python -m dev_tools.check_grammar --proxy-log <arm G log>` →
 **every guided completion inside the grammar**.
+
+## 14. Round-2 headline — the scale-up adapter on the full BIRD train (R2-5/R2-6)
+
+The round-2 training scaled from 342 rows over 8 databases to **5,612 rows over 71 databases** (group
+split: 4,736 train / 61 DBs, 876 valid / 10 DBs; §11.2 of the runbook, `training/RUN_NOTES.md` §5). The
+adapter keeps the round-1 recipe (r=16, alpha=32, all-linear, 3 epochs) and was measured on the A100
+through the same harness and `fixed_eval mode="local"` protocol as every other number on this branch
+(4-bit serving, greedy, `birdsafe` gate, tool v2):
+
+| measurement | value |
+|---|---|
+| **EX/241** | **102/241 = 42.32 %** (95 % CI 36.25–48.63) |
+| **EX/209** (gold-executable denominator) | **102/209 = 48.80 %** |
+| soft-F1 | 0.4864 |
+| simple · moderate · challenging | 48/91 = 52.75 % · 35/89 = 39.33 % · 19/61 = 31.15 % |
+| unexecutable predictions | 19 |
+| honest ceiling | 208/241 = 86.31 % (unchanged; §9.1) |
+
+Paired comparisons (same 241 question ids, exact McNemar + 10k paired bootstrap, seed 0):
+
+| comparison | b | c | ΔEX | exact p | 95 % CI | verdict |
+|---|---|---|---|---|---|---|
+| scale adapter vs round-1 adapter + evidence (93/241 = 38.59 %) | 26 | 17 | +3.73 pp | 0.2221 | [−1.66, +9.13] pp | **inconclusive** under the pre-registered rule |
+| scale adapter vs the frozen team baseline (102/241 = 42.32 %) | 32 | 32 | 0.00 pp | 1.0 | [−6.64, +6.64] pp | **identical aggregate, different subsets** |
+
+**The honest sentence, and the one to quote:** *local 7B + LoRA on 5,612 rows over 71 databases reaches the
+same aggregate as the team's GPT-5.4-mini + 34-feature pipeline, while erring on different questions.* The
+two systems get the **same number right** and **32 questions each way** — the complementarity is the
+finding; it is not a win.
+
+Four qualifiers that must travel with the number:
+
+1. **It is a tie on 241 questions against a frozen file, not a live run of the team's pipeline.** The
+   frozen file (`..\artifacts\pred_scores.json`) is id-level only — no SQL, no prompt, no config — so the
+   comparison is id-level and cannot attribute the tie to any component.
+2. **The CI is ±6 pp** (36.25–48.63): the same aggregate is not a precise estimate, and neither is theirs.
+3. **The ceiling is 208/241 = 86.31 %**; EX/209 is quoted next to every number above for that reason.
+4. **The paired tests cannot distinguish this adapter from the team baseline (p = 1.0) nor from our own
+   round-1 adapter+evidence (p = 0.2221).** "LoRA beat the baseline" is false under the pre-registered
+   rule and must not appear in any summary; the round-1 2×2 (§9) is unchanged.
+
+**Provenance note (why the recorder mattered).** The first attempt at this number silently produced **empty
+schemas**: a `.env` quoting bug on the A100 made DB authentication fail while the harness still
+"succeeded", and the model answered from pretraining memory. That run was discarded (it scores 0/241 and is
+kept on disk as `runs/t2/scores/r2-scale7b-ev.FAILED-empty-schemas.json` — never a number). The corrected
+run has the real schema dump (11,108 bytes), 19 unexecutable predictions, and its `run.json` records
+`adapter_sha256` `71abcde8…`, `load_in_4bit` and the CUDA peak — a silent empty-schema failure is exactly
+the class of bug the §10 recorder exists to catch, and it was caught before it entered a document.
+
+**Artifacts and the exact revision.** `runs/t2/scale7b-v2/` (run, `run.json`, real 8-DB schema dump),
+`runs/t2/scores/scale7b-v2.json` (ledger) and `runs/t2/scores/scale7b-v2.verification.json` (independent
+CPU-only re-derivation, **0 mismatches**); adapter provenance in `runs/a100-scale/` (best checkpoint 300,
+eval_loss 0.12644, trained on `training/out-scale-t2048` = 4,736 BIRD + 394 Ambrosia = 5,130 rows, 876
+valid; 750/936 steps, 112.5 min, peak 35.1 GiB; the 161.5 MB weights stay on the A100, sha verified there).
+The A100 `run.json` has `git_commit: null` (that box has no git) but `tool_source_sha256` `9c2072bc…`,
+which is exactly the `f4d3d4a` tool revision behind the round-1 2×2 cells — so the comparison with E3-fair
+is on the same tool revision. HEAD's newer tool (procedure/thinking work) is not part of this number, and a
+future run must record its own sha. The run artifacts live under `runs/` (ignored); the per-question
+ledgers are the source of every number above.
+
+**Scope note on t7's second arm.** Only the **evidence-on** cell of the scale-up 2×2 was measured. The
+no-evidence arm never produced predictions (`runs/t2/r2-scale7b-noev/` holds only a 191-byte empty schema
+stub), so no number is quoted for it and none is implied.

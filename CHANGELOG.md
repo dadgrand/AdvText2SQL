@@ -219,9 +219,9 @@ round-2 bundle against `f4d3d4a`.
   ROUND2_RESULTS.ru.md` — the owner-facing round-2 results draft (LoRA and decoder kept separate);
   `research/advtext2sql/INTEGRATION_INVENTORY.md` — the seal checklist and file inventory.
 - `research/advtext2sql/audit_round2.py` + `AUDIT_ROUND2.json` — the independent pre-integration audit:
-  **161/161 checks reproduce**, including the decoder arm; it caught the stale `cells.base_strict` block in
-  `runs/t2/scores/ambrosia-calibration.json` before the seal (root cause fixed, artifact regenerated,
-  audit re-run clean).
+  **182/182 checks reproduce, 0 findings**, including the decoder and scale-up arms; it caught the stale
+  `cells.base_strict` block in `runs/t2/scores/ambrosia-calibration.json` before the seal (root cause fixed,
+  artifact regenerated, audit re-run clean).
 
 ### Tests
 
@@ -230,6 +230,27 @@ round-2 bundle against `f4d3d4a`.
   assembler, the grammar proxy/grammar replay, the procedure arms, the recorder/`/health` provenance, the
   feature-block wiring and the scale-up/group-split build. Suite: **236 passed** (offline, ~61 s;
   `docs/RUNBOOK.md` §0).
+
+### Results — the round-2 headline (scale-up adapter, R2-5/R2-6)
+
+The adapter trained on the **5,612-row / 71-database** scale-up corpus (group split, 3 epochs) was measured
+on the A100 with the same harness protocol: **EX/241 = 102/241 = 42.32 %** (95 % CI 36.25–48.63),
+**EX/209 = 102/209 = 48.80 %**, soft-F1 0.4864, per difficulty 48/91 · 35/89 · 19/61, 19 unexecutable
+predictions, ceiling 208/241.
+
+**It is a tie, not a win.** Against the frozen team baseline (102/241 = 42.32 %) the paired block is
+**b = 32, c = 32, Δ = 0.00 pp, p = 1.0** (95 % CI [−6.64, +6.64] pp) — the same aggregate, different
+subsets (32 questions each way); against round-1's adapter+evidence (93/241) it is **b = 26, c = 17,
++3.73 pp, p = 0.2221**, CI [−1.66, +9.13] — also inconclusive under the pre-registered rule. The honest
+sentence is "the local 7B + LoRA reaches the same aggregate as the team's GPT-5.4-mini + 34-feature pipeline,
+while erring on different questions". The first attempt at this number was discarded: a `.env` quoting bug on
+the A100 made DB auth fail while the harness still "succeeded" and the model answered from pretraining memory
+with empty schemas (kept as `runs/t2/scores/r2-scale7b-ev.FAILED-empty-schemas.json`, 0/241, never a number);
+the corrected run has the real 11,108-byte schema dump, 19 unexecutable predictions and `adapter_sha256`
+`71abcde8…` in `run.json` — the class of bug the recorder (§10) exists to catch. The scale arm is now in the
+pre-seal audit: **182/182 checks, 0 findings**, including the synced ledger, both paired blocks and the
+provenance. Only the evidence-on cell exists: t7's no-evidence arm holds a 191-byte empty schema stub, so no
+no-evidence scale number is quoted.
 
 ---
 
