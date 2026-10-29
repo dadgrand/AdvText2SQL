@@ -1546,9 +1546,21 @@ predictions are `runs/ood/ood-base7b-292/query_results.json`. Run metadata: `run
 | E_joins vs A_off | 7 | 4 | **+2.50 pp** | [−2.50, +8.33] pp | **0.549** | **not met** |
 | D_highlight vs A_off | 6 | 5 | **+0.83 pp** | [−4.17, +6.67] pp | **1.00** | **not met** |
 
-**Verdict: schema-only grounding hints do not move this model on unseen schemas.** Neither arm meets the pre-registered rule; the point estimates are small, the CIs straddle zero, and the extra schema text costs +28 % / +47 % tokens. The in-domain 241 cell was **not measured** for these arms (the `*_bird241` slots are `not measured`; only the zero-byte `r3-A-off-bird241.log` exists), and `tables`/`columns` modes were not measured either — so no in-domain claim is made here. This is a **negative result, not a failure**: it removes schema presentation as the explanation.
+**Verdict: schema-only grounding hints do not move this model on unseen schemas.** Neither arm meets the pre-registered rule; the point estimates are small, the CIs straddle zero, and the extra schema text costs +28 % / +47 % tokens. No **linked** arm was run in-domain: the `*_bird241` linked slots are `not measured`, so no in-domain comparison is made. Arm A alone was measured on `bird_large` afterwards (105/241 = 43.57 %, EX/209 50.24 %, quoted separately below) and the `tables`/`columns` modes were not measured either. This is a **negative result, not a failure**: it removes schema presentation as the explanation.
+**Provenance note on the schema-cost column.** `run.json.schema_link` is `null` for all three arms because the aggregation depends on `TEXT2SQL_PROCEDURE_LOG`, which these runs did not set. The schema token/char columns were therefore **not read from run metadata**: they were measured by replaying `link_schema` with each arm's exact settings and counting with `tiktoken:cl100k_base` (`runs/r3-schema-link/analysis.json`, `schema_cost`). The numbers are reproducible from the recorded schema dumps, but they are replay measurements, not a recorder field.
+
+**Direction vs size of the E effect.** E's discordant pairs are 7 for E and 4 for A, so the direction is favourable (**+3 net**), and the paired difference is +2.50 pp. With only 11 discordant pairs, the exact McNemar test cannot clear the pre-registered 6-question bar (p = 0.549), so the rule is not met. The problem is the **count, not the sign**; the verdict does not change either way.
 
 **Why this closes the loop with t24.** The t24 schema audit measured **gold-table recall already at 100 %** on the OOD sets (`runs/schema_linking/schema-audit.json`: `gold_tables_present_share = 1.0` for `ood_120` and `ood_876`; 0.996 for `bird_large_241`) and found **0 of 20 failures could have been avoided by adding a table**. If the needed tables are already present and adding/exposing them changes nothing, the remaining OOD wall is **training-data coverage** — the model has not seen these database schemas — not schema presentation.
+
+
+**In-domain cell, clearly separate (secondary; no linked arm was run there).** `bird_large` 241, arm A
+(`off`) on the same local server, same adapter, same protocol: **105/241 = 43.57 %** (EX over the 209
+gold-executable = **50.24 %**, Wilson 95 % CI of the 241 denominator 37.46–49.88), 20 unexecutable
+predictions, 423 schema tokens mean / 891 max, 7.09 s/question. That is two questions above the round-2
+`e-scale` cell (103/241 = 42.74 %) for the same adapter and protocol — ordinary drift, not an effect,
+and no paired statement is made because no linked arm was measured in-domain. It is quoted only so the
+OOD table above is not read as a general degradation of the model.
 
 **What would have to be true for schema hints to help.** The schema would have to be missing the gold tables/columns (t24 says it is not), or the model would have to be unable to read identifiers it is shown (the join edges are already derived from the same schema text), or the hint would have to carry information absent from the schema (a semantic bridge from question to column). None of those held; a schema-only annotation cannot add the missing training coverage.
 

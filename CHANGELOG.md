@@ -302,7 +302,7 @@ the OOD set and the procedure arms.
 OOD-120 (10 unseen databases, same 7B model/adapter): **A_off 82/120 = 68.33 %**, **D_highlight 83/120 =
 69.17 %** (paired b=6, c=5, Δ +0.83 pp, p = 1.00), **E_joins 85/120 = 70.83 %** (paired b=7, c=4, Δ +2.50 pp,
 p = 0.549). Neither arm meets the pre-registered OOD rule, and the extra schema text costs +28 % / +47 %
-tokens. The in-domain 241 and the `tables`/`columns` modes are **not measured**. t24 already showed gold-table
+tokens. No **linked** arm was run in-domain; arm A alone is measured on `bird_large` at 105/241 = 43.57 % (EX/209 50.24 %, 20 unexecutable, ordinary drift vs round-2's 103/241), and the `tables`/`columns` modes are **not measured**. t24 already showed gold-table
 recall 100 % on OOD (`runs/schema_linking/schema-audit.json`, `gold_tables_present_share = 1.0`) and 0 of 20
 failures avoidable by adding a table, so the OOD wall is **training-data coverage**, not schema presentation.
 Title of the section: *schema-only grounding hints do not move this model on unseen schemas*. Next lever:
