@@ -21,7 +21,7 @@ Python 3.12), not from a budget.
 cd research/advtext2sql/repo
 git branch --show-current                       # expected: feat/round2 (sealed feat/lora-track tip f4d3d4a)
 git status --porcelain                          # expected: empty
-python -m pytest tests -q                       # expected: 236 passed, ~61 s (no DB, no network)
+python -m pytest tests -q                       # expected: 241 passed, ~63 s (no DB, no network)
 ```
 
 Secrets live in `$REPO/.env` (gitignored): `BENCHMARK_DB_URL`, `DB_USER`, `DB_PASS`, `DB_HOST`,
@@ -32,7 +32,7 @@ PowerShell: `Get-Content .env | Where-Object {$_ -match '=' -and $_ -notmatch '^
 Expected `python -m pytest` output (the last line is the contract):
 
 ```
-236 passed in 60.88s
+241 passed in 63.19s
 ```
 
 **Fallback:** a non-empty `git status` means someone left work uncommitted — do not start a run until it
@@ -495,7 +495,7 @@ python -m dev_tools.local_bench gold --answers data/bird_large.json --timeout 30
 ## 9. Close-out checklist
 
 ```bash
-python -m pytest tests -q                        # 236 passed
+python -m pytest tests -q                        # 241 passed
 git status --porcelain                           # empty (eval/, runs/, data_cache/ are ignored or outside the repo)
 git log --oneline main..HEAD                     # the branch's commits
 git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py
@@ -509,7 +509,7 @@ number belongs to (`run.json` already stores all four).
 
 ## 10. Fallback path when the tunnel is down
 
-Everything except the live numbers still works, in this order: `pytest tests -q` (236) →
+Everything except the live numbers still works, in this order: `pytest tests -q` (241) →
 `build_data.py --self-test` (684 rows) → `train_qlora.py --plan` (no GPU) → `local_bench` (§8.1) →
 `serve_openai --fake` + `run_benchmark --check` (wiring only). Numbers produced this way are offline
 proxies: label them, never paste them into the graded table.

@@ -559,7 +559,7 @@ the docs commit carrying it, and will be extended with the final seal commit sha
 | command | result |
 |---|---|
 | `python research/advtext2sql/audit_round2.py` | **182/182 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
-| `python -m pytest tests -q` | **236 passed in 57.07 s** (offline: no DB, no network, no GPU) |
+| `python -m pytest tests -q` | **241 passed in 63.19 s** (offline: no DB, no network, no GPU) |
 | `git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py` | empty — the teacher-owned harness, data and root entrypoints are untouched |
 | `git rev-parse --short feat/lora-track` | `f4d3d4a` — round 1's branch is untouched |
 
@@ -586,7 +586,7 @@ at source (generator + pre-write self-check), the artifact was regenerated CPU-o
 (0 findings). The run artifacts stay out of the patch (`runs/` is ignored); this document and `docs/REPORT.md`
 §11 carry the numbers.
 
-## V4.3 Commits in this round (before the final scale commit)
+## V4.3 Commits in this round (before the final seal commit)
 
 | bucket | commit | subject |
 |---|---|---|
@@ -594,10 +594,14 @@ at source (generator + pre-write self-check), the artifact was regenerated CPU-o
 | eval | `98e6a22` | `feat(eval): feature x model matrix, grammar checker and decoder report` |
 | training | `70c2fe6` | `feat(training): scale-up build with group split and natural Ambrosia recipe` |
 | tests | `1689af2` | `test: pin round-2 recorder, matrix, grammar, procedure and scale-up behaviour` |
+| docs | `df7325a` | `docs: round-2 report, decoder/procedure docs, runbook and changelog` |
+| docs | `cb57cb1` | `docs: record the scale-up headline (a tie, not a win)` |
+| docs | `e8dd6e3` | `docs(training): record the three local scale attempts and the A100 run` |
+| training | `3d1b6ca` | `feat(training): teacher-endpoint distillation plan, docs and tests` |
 
-The docs commit carrying this section follows them. Commit now / push later is the captain's 2026-10-29
-decision: nine hours of uncommitted multi-agent work was the largest avoidable risk; nothing is pushed until t7
-lands and the patch is regenerated on a fresh `main` clone.
+The docs/seal commit carrying this section follows them. Commit now / push later was the captain's
+2026-10-29 decision: nine hours of uncommitted multi-agent work was the largest avoidable risk; the push
+happens once the patch is regenerated and `git apply --check` passes on a fresh `main` clone.
 
 ## V4.4 Scale-up headline (R2-6) — synced and audited
 

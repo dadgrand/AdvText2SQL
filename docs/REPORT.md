@@ -1,13 +1,12 @@
 # T2 — Serving base + adapter and measuring the branch through the real harness
 
-Status: **round-2 pre-seal draft** (branch `feat/round2`, commits `4ea7d4f`–`df7325a` plus the scale
-commit; nothing pushed). Every number below is attached to the command that produced it and to the
-artifact that stores it.
+Status: **round-2 pre-seal draft** (branch `feat/round2`, commits `4ea7d4f` onward; nothing pushed). Every
+number below is attached to the command that produced it and to the artifact that stores it.
 
-Round 2 (branch `feat/round2`, §9–§14) adds the **missing fourth cell** of the 2×2 design, the
-`run.json` recorder fix, the Ambrosia decision, the feature × model matrix, the A100 grammar arm and the
-**scale-up headline** (§14). §1–§8 are the round-1 measurements and are left exactly as they were;
-§9–§14 only add.
+Round 2 (branch `feat/round2`, §9–§15) adds the **missing fourth cell** of the 2×2 design, the
+`run.json` recorder fix, the Ambrosia decision, the feature × model matrix, the A100 grammar arm, the
+**scale-up headline** (§14) and the blocked distillation path (§15). §1–§8 are the round-1 measurements and
+are left exactly as they were; §9–§15 only add.
 
 ---
 
@@ -34,8 +33,8 @@ python -c "import glob,json; out={}; [out.update(json.load(open(p,encoding='utf-
 
 `runs/t2/chunks/parts.json` records the shard sizes (40/40/69/91 = 240).
 
-Round-2 runs are §9 (2×2), §10 (recorder proof), §11 (Ambrosia), §12 (matrix), §13 (decoder) and §14 (the
-scale-up headline; the run artifacts are listed there).
+Round-2 runs are §9 (2×2), §10 (recorder proof), §11 (Ambrosia), §12 (matrix), §13 (decoder), §14 (the
+scale-up headline; the run artifacts are listed there) and §15 (the blocked distillation path).
 
 Predictions are produced by the **unchanged** course tool (`Text2SQLGenerator`, tool v2)
 through `dev_tools/run_benchmark.py --predict-only`; scoring is

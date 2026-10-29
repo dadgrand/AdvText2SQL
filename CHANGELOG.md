@@ -118,6 +118,13 @@ round-2 bundle against `f4d3d4a`.
 - `training/AMBROSIA_NATURAL_RECIPE.md` — the natural-class-balance Ambrosia arm, **ready but blocked on
   GPU**: dataset built (480 rows = 146 ambiguous + 334 natural negatives, 432/48 split, 722 combined),
   planner dry-run recorded, measured cost **~40 min GPU** (32 min training at 14.06 s/step + 8 min eval).
+- `training/build_data.py` — `--teacher-endpoint` / `--teacher-key-env` distillation plan: records the
+  endpoint and key presence and writes `distill_plan.json` **without opening a socket** (`network_calls: 0`,
+  enforced by a sockets-poisoned test); the actual distillation path stays `--teacher` + `--teacher-results`
+  (teacher SQL kept only if it parses as PostgreSQL and reproduces the gold rows). Reason: the teacher run is
+  blocked, and the one command must be ready without pretending it has run.
+- `training/distill.md` — the blocked distillation procedure, the exact command, the self-distillation
+  fallback and the verification checklist; `docs/REPORT.md` §15 records the arm as blocked.
 - `training/.gitignore` — `out-scale*/` (every scale-build directory, including `out-scale-t2048/`),
   `out-natural/` and `out-real/` are artifacts; the recipes/build commands that produce them are the
   sources.
@@ -228,7 +235,7 @@ round-2 bundle against `f4d3d4a`.
 - `tests/test_matrix.py`, `tests/test_guided.py`, `tests/test_procedures.py` (new) and
   `tests/test_data.py`, `tests/test_serve.py`, `tests/test_local_bench.py` (extended): the matrix
   assembler, the grammar proxy/grammar replay, the procedure arms, the recorder/`/health` provenance, the
-  feature-block wiring and the scale-up/group-split build. Suite: **236 passed** (offline, ~61 s;
+  feature-block wiring and the scale-up/group-split build. Suite: **241 passed** (offline, ~63 s;
   `docs/RUNBOOK.md` §0).
 
 ### Results — the round-2 headline (scale-up adapter, R2-5/R2-6)
