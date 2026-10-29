@@ -558,13 +558,14 @@ the docs commit carrying it, and will be extended with the final seal commit sha
 
 | command | result |
 |---|---|
-| `python research/advtext2sql/audit_round2.py` | **182/182 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
-| `python -m pytest tests -q` | **241 passed in 63.19 s** (offline: no DB, no network, no GPU) |
+| `python research/advtext2sql/audit_round2.py` | **232/232 checks reproduce, 0 findings** (exit 0); report `research/advtext2sql/AUDIT_ROUND2.json` |
+| `python -m pytest tests -q` | **241 passed in 70.00 s** (offline: no DB, no network, no GPU) |
+| `python -m compileall -q dev_tools src training tests` | exit 0 — the tree compiles |
 | `git diff main --stat -- benchmarks data bird_benchmark.py ambrosia_benchmark.py bird_evaluate_only.py` | empty — the teacher-owned harness, data and root entrypoints are untouched |
 | `git rev-parse --short feat/lora-track` | `f4d3d4a` — round 1's branch is untouched |
 
-Pinned audit identity: `audit_round2.py` sha256 `762efe57b6d0d24286af1cca3715efe14da929426ae2b28f14ab823fecdea8c9`;
-`AUDIT_ROUND2.json` sha256 `3d3391015570c0a7391a43faf8b904ee05384dad533e52b0ce0755245c6373c0`.
+Pinned audit identity: `audit_round2.py` sha256 `1e3d26849c9b0ebbad7afb0799b94e02692096f548cc9ecd37cb19267e37284e`;
+`AUDIT_ROUND2.json` sha256 `9b54f8dd290933506704c8e49ed94144dcf36ebe64aeaa3448e2c74c25fac42b`.
 
 ## V4.2 What the audit covers
 
@@ -578,7 +579,10 @@ unexecutable 62 → 57, fenced completions 241/241 → 0/241, grammar acceptance
 errors, paired b=7, c=2, +2.07 pp, p=0.1797), and the **scale-up headline** (102/241 and 102/209, per-difficulty,
 soft-F1, 19 unexecutable, the b=26/c=17 and b=32/c=32 paired blocks with their CIs, the 11,108-byte schema dump,
 the `71abcde8…` adapter and the `9c2072bc…` tool revision, the discarded empty-schema attempt and the absent
-no-evidence arm).
+no-evidence arm), the **completed t7 2×2** (103/241 and 53/241, the +11.20 pp interaction, the 103-vs-102
+repeat), the **14B arm** (130/241, both paired blocks, the training provenance), the **OOD set** (620/876 and
+620/811, 65 gold-unexecutable, the 10 held-out databases), and the **procedure arm** (retrieval 117/241 with
+both paired blocks; self-consistency explicitly not measured).
 
 The one finding this audit raised pre-seal — a stale `cells.base_strict` block in
 `runs/t2/scores/ambrosia-calibration.json` caused by a loop-variable leak in the artifact generator — was fixed
@@ -632,22 +636,70 @@ while the harness still "succeeded"; it is kept as `runs/t2/scores/r2-scale7b-ev
 `run.json` recorder exists to catch.
 
 **Two limits that must travel with the headline.** (1) It is a tie against a **frozen file**, not a live run
-of the team's pipeline (id-level only). (2) t7's **no-evidence arm does not exist**:
-`runs/t2/r2-scale7b-noev/` holds only a 191-byte empty schema stub, so no no-evidence scale number is quoted
-or implied; the scale-up 2×2 has one measured cell.
+of the team's pipeline (id-level only). (2) The A100 no-evidence attempt never produced predictions
+(`runs/t2/r2-scale7b-noev/` holds only a 191-byte empty schema stub); the no-evidence arm was later measured
+locally as `runs/t2/e-scale-noev/` (53/241) — see §V4.4b and `docs/REPORT.md` §16, which supersedes the
+earlier "one cell only" note.
 
-**Audit status:** with the synced artifacts, `audit_round2.py` reproduces **182/182 checks with 0 findings**,
-including all scale-arm and provenance checks above. The final seal commit sha is recorded below in the seal
-record.
+**Audit status:** with the synced artifacts, `audit_round2.py` reproduces **227/227 checks with 0 findings**,
+including all scale, 14B, OOD and procedure-arm checks. The final seal commit sha is recorded below in the
+seal record.
 
-**Seal record.** This section ships in the commit tagged **`round2-seal`** on `feat/round2` (the annotated
-tag is cut immediately after that commit; `git rev-parse round2-seal^{}` on the delivered branch resolves to
-the exact sha). At seal time: audit **182/182, 0 findings**; suite **236 passed**; scope diff against `main` on
-`benchmarks/`, `data/` and the root entrypoints empty; `feat/lora-track` untouched at `f4d3d4a`; the
-delivered patch is `lora-track.patch` (full `main..feat/round2`, verified with `git apply --check` on a clean
-`main` clone); nothing is pushed to the teacher's `origin` — the fork is the delivery channel.
+## V4.4b The completed t7 2×2 (7B scale × evidence)
 
-**Recorded seal sha:** `ae64841` (the commit tagged `round2-seal`; the annotated tag object is `cf596e4`).
-The branch `feat/round2` and the tag were pushed to `fork` on 2026-10-29; this record commit is the tip that
-follows the seal and only adds this line. At the seal: audit **182/182, 0 findings**, suite **241 passed**,
-working tree clean, `origin/main` untouched at `e812451`.
+Both arms on the local 4070: **103/241 = 42.74 %** with evidence (EX/209 49.28 %, soft-F1 0.4935, 19 unexec)
+and **53/241 = 21.99 %** without (25.36 %, 0.2993, 28 unexec); A100 repeat 102/241 (b=1, c=0). Paired:
+vs round-1 base+evidence **b=30, c=11, +7.88 pp, p=0.0043, CI [+2.90,+13.28]** (rule met); vs frozen
+**b=32, c=31, Δ+0.41 pp, p=1.0**; no-evidence vs round-1 adapter **b=12, c=20, −3.32 pp, p=0.2153**;
+**scale × evidence interaction +11.20 pp, CI [+4.98,+17.84], 45/19, p=0.00156**. The group split pins the 8
+`bird_large` databases to train, so EX/241 cannot test schema linkage.
+
+## V4.5 The 14B arm (new headline)
+
+**EX/241 130/241 = 53.94 %** (Wilson 47.64–60.12), **EX/209 130/209 = 62.20 %**, soft-F1 0.5817, per
+difficulty 63/91 · 43/89 · 24/61, **5 unexecutable predictions** (vs 19/40). Paired: vs round-1
+adapter+evidence **b=51, c=14, +15.35 pp, p=4.475e-06, CI [+9.13,+21.58]**; vs frozen team file **b=43,
+c=15, +11.62 pp, p=0.000307, CI [+5.39,+17.43]** (rule met). Qualifiers: id-level frozen file (no
+SQL/prompt/config, provenance is the team's claim), n=241 → CI ≈±6 pp, ceiling 208/241. Training provenance:
+same `out-scale-t2048` corpus, 750/936 steps, early stop 2.405, 214 min, 30.991 GiB allocated / 60.623
+reserved, micro 4×4 = effective 16, best eval 0.112492 at checkpoint-300; a rented A100 80 GB was required —
+nothing here proves the recipe fits 16 GB.
+
+**14B evidence contrast (both arms now measured).** Same adapter, evidence off: **85/241 = 35.27 %**
+(Wilson 29.51–41.49), EX/209 40.67 %, soft-F1 0.4112, per difficulty 52/91 · 24/89 · 9/61, 11 unexecutable;
+paired vs evidence-on **b=51, c=6, +18.67 pp, p=5.68e-10, CI [+12.86,+24.48]**. The same weights lose 45
+questions when evidence is removed (7B scale: 50; base: 33) — the third independent confirmation that
+evidence is the interface through which capacity becomes accuracy. Provenance gaps stated: both 14B arms
+have `git.commit: null` (the A100 has no git), and the no-evidence `run.json` was not copied — only its
+predictions and ledger are in the workspace.
+
+## V4.6 OOD check (10 unseen databases)
+
+`runs/t2/scores/ood-scale7b.json`: **620/876 = 70.78 %** (Wilson 67.68–73.69), **620/811 = 76.45 %**
+(65 gold-unexecutable, ceiling 811/876 = 92.6 %), soft-F1 0.7931, 50 prediction-unexecutable / 0 missing;
+the 10 databases are exactly the held-out ones; 761 scored / 65 gold_error / 50 pred_error. Labels: BIRD
+*train* questions from held-out schemas — schema transfer, not a new domain; **not comparable** to 42.32 % /
+53.94 %; per-difficulty not reported (no labels). **Attribution to the adapter is open**: the base-model arm
+is being measured on a 292-question systematic subsample of the 876; the paired test must use the same 292
+for both arms, and if base misses the window the text ships as "adapter-vs-base attribution not measured;
+the 70.78 % figure stands alone". No adapter-vs-base sentence exists yet.
+
+## V4.7 Procedure/decoder arms
+
+Retrieval few-shot k=3 (7B scale + evidence, A100): **117/241 = 48.55 %** (EX/209 55.98 %, 12 unexec);
+paired vs the same adapter without retrieval **b=27, c=12, +6.22 pp, p=0.0237, CI [+1.24,+11.20]** (rule
+met); vs frozen **b=42, c=27, p=0.0912** (not significant); retrieval fired 240/241, mean 2.98 examples,
+top-1 similarity 0.449, ~zero wall-clock cost (522 vs 520 requests). Grammar: 44/241 vs 39/241, b=7/c=2,
+p=0.1797, +2.07 pp, contract violations 241/241 → 0/241; keep as an output-contract guard, not a score
+lever. Self-consistency: **not measured — time**, no number implied.
+
+## V4.8 Seal record
+
+This section ships in the commit tagged **`round2-seal`** on `feat/round2` (the annotated tag is cut
+immediately after that commit; `git rev-parse round2-seal^{}` resolves to the exact sha). At seal time:
+audit **232/232, 0 findings**; suite **241 passed in 70.0 s**; compileall exit 0; scope diff against `main`
+on `benchmarks/`, `data/` and the root entrypoints empty; `feat/lora-track` untouched at `f4d3d4a`; the
+delivered patch is `lora-track.patch` (full `main..feat/round2`) verified with `git apply --check` on a
+clean `main` clone; nothing is pushed to the teacher's `origin` — the fork is the delivery channel. A
+record commit immediately after the seal adds the literal sha and the pushed remote refs; it changes no
+content other than this line.

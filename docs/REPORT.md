@@ -3,10 +3,11 @@
 Status: **round-2 pre-seal draft** (branch `feat/round2`, commits `4ea7d4f` onward; nothing pushed). Every
 number below is attached to the command that produced it and to the artifact that stores it.
 
-Round 2 (branch `feat/round2`, §9–§15) adds the **missing fourth cell** of the 2×2 design, the
+Round 2 (branch `feat/round2`, §9–§19) adds the **missing fourth cell** of the 2×2 design, the
 `run.json` recorder fix, the Ambrosia decision, the feature × model matrix, the A100 grammar arm, the
-**scale-up headline** (§14) and the blocked distillation path (§15). §1–§8 are the round-1 measurements and
-are left exactly as they were; §9–§15 only add.
+**scale-up results** (§14, §16), the **14B headline** (§17), the procedure/decoder arms (§18), the
+**OOD check** (§19) and the blocked distillation path (§15). §1–§8 are the round-1 measurements and are
+left exactly as they were; §9–§19 only add.
 
 ---
 
@@ -33,8 +34,9 @@ python -c "import glob,json; out={}; [out.update(json.load(open(p,encoding='utf-
 
 `runs/t2/chunks/parts.json` records the shard sizes (40/40/69/91 = 240).
 
-Round-2 runs are §9 (2×2), §10 (recorder proof), §11 (Ambrosia), §12 (matrix), §13 (decoder), §14 (the
-scale-up headline; the run artifacts are listed there) and §15 (the blocked distillation path).
+Round-2 runs are §9 (2×2), §10 (recorder proof), §11 (Ambrosia), §12 (matrix), §13 (decoder), §14 (scale-up
+A100 cell), §15 (blocked distillation), §16 (the completed 7B scale × evidence 2×2) and §17 (the 14B
+headline).
 
 Predictions are produced by the **unchanged** course tool (`Text2SQLGenerator`, tool v2)
 through `dev_tools/run_benchmark.py --predict-only`; scoring is
@@ -1120,11 +1122,311 @@ is on the same tool revision. HEAD's newer tool (procedure/thinking work) is not
 future run must record its own sha. The run artifacts live under `runs/` (ignored); the per-question
 ledgers are the source of every number above.
 
-**Scope note on t7's second arm.** Only the **evidence-on** cell of the scale-up 2×2 was measured. The
-no-evidence arm never produced predictions (`runs/t2/r2-scale7b-noev/` holds only a 191-byte empty schema
-stub), so no number is quoted for it and none is implied.
+**Both arms of t7 are now measured — see §16.** The evidence-on cell is 102/241 on the A100 (repeated
+locally at 103/241) and the **no-evidence cell is 53/241 = 21.99 %** (`runs/t2/e-scale-noev/`), measured on
+the same server minutes apart from the evidence-on repeat. The earlier note in this section ("only the
+evidence-on cell was measured; `runs/t2/r2-scale7b-noev/` holds only an empty schema stub") describes the
+A100 attempt and is superseded by §16; the empty stub remains on disk as provenance of that attempt, and
+§16.3 gives the scale × evidence interaction that only exists because both arms were run.
+
 ---
 
 ## 15. Blocked: the distillation path (R2-7)
 
 Distillation is **implemented and dry-run tested but has never been run against a teacher**: `training/build_data.py --teacher/--teacher-results` already replaces a BIRD training target with teacher SQL only where that SQL parses as PostgreSQL *and* executes to the gold row set (`training/teacher_filter.py`, every rejection counted by reason), and the new `--teacher-endpoint` mode records the endpoint, proves the key variable exists and writes `distill_plan.json` **without opening a socket** (`network_calls: 0`, enforced by a test that runs the build with `socket.socket`/`create_connection`/`getaddrinfo` replaced by raisers). What is missing is access, and only one of two forms is needed: (a) the base URL of the team's GPT-5.4-mini endpoint plus a key with access to it (`TEACHER_API_KEY`), or (b) a predictions file — and, for execution verification, a results file — for `data/train_queries.json` produced by that pipeline; (b) needs no endpoint and no network here, so it is the cheaper ask. What it unlocks is capability rather than format: on the 357 training questions the repo's own cleaning destroys 14 targets and silently alters 1 (and 348 + 84 in the 6,601-row scale corpus), and no filter we own can recover the intended answer — a stronger teacher answers those questions and the filter keeps only the answers that reproduce the gold rows, while `FEAT_2+3+4+8+12+17+18+19+27+29+30+32+33+35` is the team's feature block, not ours. The expected kept fraction is **200/241 = 83.0 %** — but that is the round-1 demo filter's rate on a deliberately damaged teacher file (`data_cache/artifacts/distill_sft_report.json`; 11 mismatches + 19 non-executable + 10 omitted + 1 unusable gold dropped), **not** an estimate of GPT-5.4-mini's accuracy, and it is labelled `not_a_teacher_estimate` in the plan; on 357 questions it projects to roughly 296 kept rows, to be replaced by the measured `teacher_report.json` after the real run. No teacher output was fabricated and no number in this report comes from a teacher run. The free fallback is **self-distillation**: run the current adapter over the 357 questions, execute-filter its own predictions with the same filter, and train on the survivors — it sharpens format and consistency but cannot add capability the adapter lacks, so it must be labelled `self-distillation` wherever it is quoted. Procedure, exact commands and the verification checklist: `training/distill.md`.
+
+---
+
+## 16. Scale-up results (R2-6): the completed 2×2 for the scaled model
+
+§14 records the scale-up adapter with evidence on, measured on the A100. This section completes the
+measurement: **both evidence arms on one server**, the paired blocks against round 1 and against the
+frozen team file, and the answer to "did more data fix schema linkage?". Artifacts:
+`runs/t2/e-scale/`, `runs/t2/e-scale-noev/`, `runs/t2/scale7b-v2/` (the A100 run), ledgers
+`runs/t2/scores/{e-scale,e-scale-noev,scale7b-v2}.json`, analysis
+`runs/t2/scores/t7-scale-analysis.json` (produced by `runs/t2/t7_scale_analysis.py`, CPU-only).
+
+**Where this sits.** The 14B arm (§17) is the round-2 headline; this section is the 7B scale result and the
+controlled evidence for the scale × evidence mechanism. The 7B tie against the frozen file stands and is not
+retracted by the 14B win.
+
+**The finding in one sentence:** *more data did not make the model link schemas better — it made it use the
+evidence better.* Without evidence, 5,612 rows buy nothing (53/241, statistically the base model and, in
+point estimate, below its smaller predecessor); with evidence, the scaled adapter beats round-1's
+adapter+evidence by **+7.88 pp** (b=30/c=11, p=0.0043, CI [+2.90, +13.28]) — the first round-2 arm to clear
+the pre-registered rule on the evidence surface — and ties the team's pipeline, while erring on different
+questions. The scale × evidence interaction itself is **+11.20 pp** (CI [+4.98, +17.84], p=0.0016): the two
+factors do not add here, unlike the round-1 adapter and evidence (§9.3).
+
+### 16.1 The four cells of the scaled model, next to their round-1 comparators
+
+| arm | EX/241 | EX/209 (gold-exec.) | simple · moderate · challenging | soft-F1 | unexec. preds |
+|---|---|---|---|---|---|
+| **scale adapter, evidence ON** (local 4070) | **103/241 = 42.74 %** | **103/209 = 49.28 %** | 53.85 · 39.33 · 31.15 | 0.4935 | 19 |
+| **scale adapter, evidence OFF** (local 4070) | **53/241 = 21.99 %** | **53/209 = 25.36 %** | 36.26 · 15.73 · 9.84 | 0.2993 | 28 |
+| scale adapter, evidence ON (A100 repeat, §14) | 102/241 = 42.32 % | 102/209 = 48.80 % | 52.75 · 39.33 · 31.15 | 0.4864 | 19 |
+| round-1 base + evidence (cell B, §9) | 84/241 = 34.85 % | 84/209 = 40.19 % | 51.65 · 26.97 · 21.31 | 0.4677 | 39 |
+| round-1 adapter, no evidence (cell C, §9) | 61/241 = 25.31 % | 61/209 = 29.19 % | 40.66 · 12.36 · 21.31 | 0.3351 | 36 |
+| round-1 base, no evidence (cell A, §9) | 51/241 = 21.16 % | 51/209 = 24.40 % | 37.36 · 14.61 · 6.56 | 0.2974 | 40 |
+| frozen team file (id-level only) | 102/241 = 42.32 % | 102/209 = 48.80 % | 56.04 · 40.45 · 24.59 | n/a | n/a |
+
+All rows: `data/bird_large.json`, 241 questions, live PostgreSQL through the tunnel, greedy 4-bit
+serving, `dev_tools/fixed_eval.py` `mode="local"`, tool v2 with its repair enabled. Same 32
+gold-unexecutable items everywhere, so EX/209 keeps its 209 denominator and the ceiling stays
+208/241 = 86.31 %.
+
+**Run conditions (recorded in each `run.json`).** `e-scale`: 39 min wall, 928 requests for 241
+questions, adapter `71abcde8…`, `use_evidence=true`, `max_tokens=512` from `/health`, largest
+completion 319 (cap not binding), 19 unexecutable predictions. `e-scale-noev`: 28.7 min, **1,587
+requests** (the gate/repair path fires far more without evidence), `use_evidence=false`, largest
+completion **512** — at least one generation hit the cap. **Local repeat vs the A100 run: 103 vs 102
+correct, b=1, c=0** — one question apart across different hardware and a different tool revision (the
+A100 ran the `f4d3d4a` tool `9c2072bc…`; this workstation runs HEAD `103fd34e…`, whose prompt templates
+are byte-identical on the default path and whose new procedure/thinking arms are off by default). That
+is the reproducibility evidence §14 did not have.
+
+### 16.2 Paired blocks (exact McNemar + 10 000 paired bootstrap, seed 0)
+
+| comparison | b | c | ΔEX | 95 % CI | exact p | pre-registered rule |
+|---|---|---|---|---|---|---|
+| **scale+evidence vs round-1 base+evidence** | **30** | **11** | **+7.88 pp** | **[+2.90, +13.28] pp** | **0.0043** | **met** |
+| scale+evidence vs frozen team file | 32 | 31 | +0.41 pp | [−6.22, +7.05] pp | 1.0 | identical aggregate |
+| scale+evidence vs round-1 adapter (no evidence) | 54 | 12 | +17.43 pp | [+11.20, +23.65] pp | 1.7e-07 | mixes evidence — contextual, not a claim |
+| scale, no evidence vs round-1 adapter (no evidence) | 12 | 20 | **−3.32 pp** | [−7.88, +1.24] pp | 0.215 | not significant; point estimate **negative** |
+| scale, no evidence vs round-1 base (no evidence) | 19 | 17 | +0.83 pp | [−4.15, +5.81] pp | 0.868 | no effect |
+| evidence effect **inside** the scaled model | 50 | 0 | +20.75 pp | [+15.77, +26.14] pp | 1.8e-15 | met |
+| local run vs A100 run (same adapter) | 1 | 0 | +0.41 pp | [0.00, +1.24] pp | 1.0 | reproducible |
+
+**Scale × evidence interaction** (difference in differences against the round-1 arms):
+**+11.20 pp, 95 % CI [+4.98, +17.84] pp**, sign test 45 positive / 19 negative / 177 zero
+(exact p = 0.0016). The scale-up gain is **+19 questions with evidence and −8 without**: the two
+factors do not add here, unlike the round-1 adapter and evidence (§9.3). More data changed what the
+model does *with* the evidence, not what it does without it.
+
+### 16.3 Did more data fix schema linkage?
+
+**No — and the measurement says something narrower and more useful.** Three numbers decide it:
+
+1. **With evidence, the extra data is a real gain over round 1:** +7.88 pp, b=30/c=11, p=0.0043, CI
+   excludes 0 — the first round-2 arm to clear the pre-registered rule against the round-1
+   adapter+evidence.
+2. **Without evidence, the extra data bought nothing:** 53/241 is statistically the base model
+   (b=19/c=17, p=0.868) and, in point estimate, *below* the round-1 adapter (12/20, −3.32 pp,
+   p=0.215). Sixteen times the training rows did not move the no-evidence regime.
+3. **The interaction is significant and opposite-signed** (+11.20 pp, p=0.0016): scaling helps only
+   when the prompt carries the schema/evidence hints. That is a statement about *using evidence*, not
+   about **schema linkage** — mapping question terms onto unseen schemas.
+
+And `bird_large` cannot test schema linkage at all: the group split pins all **8** `bird_large`
+databases to the training side (`training/out-scale-t2048/group_split.json`, `pinned_to_train`), so
+every one of the 241 questions is asked against a schema the adapter saw during training. The only
+unseen-schema evidence is the held-out side of the group split — **876 rows over 10 databases the
+trainer never saw** (disney, european_football_1, law_episode, menu, movie_3, movies_4, music_tracker,
+sales_in_weather, social_media, talkingdata) — and for it only **validation loss** exists, not
+execution accuracy: best `eval_loss = 0.126443` at `checkpoint-300`. There is no EX number on unseen
+databases for this adapter (the A100 OOD attempt produced no predictions; the independent OOD check is
+a separate task), so the honest sentence is: *more data improved the evidence-conditioned pipeline,
+and the unseen-schema question remains unmeasured.*
+
+### 16.4 Qualifiers that must travel with these numbers
+
+1. **The frozen comparison is id-level and a tie:** 103 vs 102, b=32/c=31, p=1.0 — same aggregate,
+   different questions; §14's sentence stands unchanged.
+2. **Dual denominators everywhere:** EX/241 is the harness number; EX/209 (49.28 % for the headline
+   cell) is the one not capped by the 30 dead gold queries. The ceiling is 208/241.
+3. **Greedy reproduces across hardware to one question (103 vs 102), not bit-identically** — quote a
+   single number, and do not present the one-question difference as an effect.
+4. **The no-evidence arm hit the 512-token cap at least once** and made 1,587 model calls (vs 928): the
+   arms are not equally expensive, and a larger cap could move the no-evidence cell, not the
+   evidence one (largest completion 319).
+5. **The adapter measured here is the A100 one** (`runs/a100-scale-adapter`, sha256 `71abcde8…`,
+   `checkpoint-300`): the task text said `runs/r2-scale/adapter`, but the local night-scale run died at
+   step 495/624 (§14, t6); the delivered weights are the A100 run over the same corpus (`data_hash
+   eb1ace92…`, 4,979 train rows after the 2,048-token filter, 876 valid).
+
+## 17. The 14B arm (R2-18) — capacity converts evidence into accuracy
+
+**The sentence:** *a local 14B open model with LoRA beats the team's GPT-5.4-mini + 34-feature pipeline by
+11.6 pp on 241 questions (p = 0.0003).* Same protocol as every number on this branch — `data/bird_large.json`
+(241), live PostgreSQL through the tunnel, greedy, 4-bit serving, evidence on, tool v2, `fixed_eval
+mode="local"` — on a rented A100 80 GB with the same corpus (`training/out-scale-t2048`) and recipe (r=16,
+alpha=32, all-linear, 3 epochs).
+
+| measurement | value |
+|---|---|
+| **EX/241** | **130/241 = 53.94 %** (Wilson 47.64–60.12) |
+| **EX/209** (gold-executable) | **130/209 = 62.20 %** |
+| soft-F1 | 0.5817 |
+| simple · moderate · challenging | 63/91 = 69.23 % · 43/89 = 48.31 % · 24/61 = 39.34 % |
+| unexecutable predictions | **5** (vs 19 for the 7B scale arm, 40 for round-1 base) |
+| honest ceiling | 208/241 = 86.31 % (unchanged) |
+
+Paired (same 241 ids, exact McNemar + 10k paired bootstrap, seed 0):
+
+| comparison | b | c | ΔEX | 95 % CI | exact p | rule |
+|---|---|---|---|---|---|---|
+| vs round-1 adapter+evidence (93/241) | 51 | 14 | **+15.35 pp** | [+9.13, +21.58] pp | 4.475e-06 | met |
+| **vs the frozen team file (102/241)** | **43** | **15** | **+11.62 pp** | **[+5.39, +17.43] pp** | **0.000307** | **met** |
+
+**Evidence contrast at 14B — the strongest single contrast in the project.** Same adapter, same 241
+questions, evidence off: **EX/241 = 85/241 = 35.27 %** (Wilson 29.51–41.49), **EX/209 = 85/209 = 40.67 %**,
+soft-F1 0.4112, per difficulty 52/91 · 24/89 · 9/61, 11 unexecutable predictions. Paired against the
+evidence-on arm: **b=51, c=6, +18.67 pp, exact p = 5.68e-10, CI [+12.86, +24.48]**. The same weights lose
+**45 questions** when evidence is removed, versus 50 for the 7B scale arm (103→53) and 33 for the base model
+(84→51). Three independent confirmations of one sentence: **evidence is not a nicety, it is the interface
+through which capacity becomes accuracy.** The no-evidence `run.json` was not copied into the workspace
+(only its `query_results.json` and ledger are); the arm identity comes from the task that ran it, and the
+per-question ledger is the source of the paired block.
+
+**Three qualifiers, in the same breath.** (1) The comparison is against the team's **frozen predictions
+file**, not a live run of their pipeline: it carries id-level scores only — no SQL, no prompt, no config —
+so the win is id-level and the file's provenance is their claim, not something this repo can re-execute.
+(2) **n=241 means the CI is ≈±6 pp**; the point estimate +11.62 pp is outside zero, but the interval is the
+honest precision. (3) The ceiling is 208/241, which is why EX/209 (62.20 %) is quoted next to every EX/241.
+
+**The mechanism now has teeth.** The 7B scale-up showed that more data helped only **with** evidence
+(scale × evidence interaction +11.20 pp, §16.2) and bought nothing without it. The 14B confirms the
+direction: evidence-conditioned training is what converts parameters into accuracy, and the capacity gain
+shows up exactly where the errors were — **5 unexecutable predictions instead of 19/40**, and the biggest
+per-difficulty jump on challenging questions (39.34 % vs 31.15 % for the 7B scale arm). The 7B tie against
+the frozen file (§14, §16.4) is not retracted: it is the controlled comparison of what data alone buys, and
+the 14B shows what capacity adds on top of it.
+
+**Honest architecture note.** The 14B was trained on a rented **A100 80 GB** — 750/936 steps, early stop at
+epoch 2.405, **214 min** wall (1.90× the 7B run), **30.991 GiB allocated / 60.623 GiB reserved** peak VRAM,
+micro-batch 4 × grad-accum 4 = effective batch 16, seq 2,048, same corpus (`training/out-scale-t2048`) and
+recipe. Nothing here proves this recipe fits 16 GB. The serving run's `run.json` records a 13,342 MiB CUDA
+peak for the 4-bit 14B + adapter, which is serving, not training. Treat the 14B as an A100 result, not as a
+workstation-feasible one.
+
+**Artifacts:** `runs/t2/14b-ev/` (`query_results.json`, `run.json`, model `qwen2.5-coder-14b`, adapter
+`a100-14b/adapter`, `adapter_sha256` `5833a1cc…`, `tool_source_sha256` `9c2072bc…`, `use_evidence=true`,
+`load_in_4bit=true`, 503 requests, 5 unexecutable); training provenance `runs/a100-14b/{provenance.json,
+train_summary.json,sample_generation.json}` (best checkpoint 300, eval_loss 0.112492, same `data_hash`
+`eb1ace92…`, 4,979 train / 876 valid); ledger `runs/t2/scores/14b-ev.json`; on the A100 the source is
+`/root/work/data_cache/runs/r2-14b-ev/` and `/root/work/eval/14b-ev.json`. The ledger's own paired block
+against `e3fair-bird-large` reproduces locally (b=51, c=14, p=4.475e-06); the frozen-file comparison is
+re-derived in the audit from the per-question ledger.
+
+**One provenance gap, stated plainly.** The A100 `run.json` for the 14B records `git.commit: null` — the
+rented box has no git metadata, the same gap as the scale run. This applies to **both** 14B arms (they come
+from the same A100 checkout; the no-evidence arm's `run.json` was not copied at all, only its predictions and
+ledger). The dataset hash `eb1ace92…` and the pinned `tool_source_sha256` `9c2072bc…` identify what was
+actually trained and served; no reader should assume the 14B was trained from a tracked commit.
+
+---
+
+## 18. Procedure and decoder arms: measured / not measured (R2-16)
+
+Three arms, one protocol as every other number on this branch (`data/bird_large.json`, 241 questions, live
+PostgreSQL through the tunnel, greedy 4-bit serving, evidence on, tool v2, `fixed_eval mode="local"`).
+One is measured with a significant effect, one is measured and null, one is not measured because it cannot
+finish inside the 14:00 cut-off. Artifacts: `runs/t2/t17-retrieval-scale-ev/` (+
+`t17-retrieval-procedures.jsonl`), `runs/t2/r2-15-{norep,grammar}-awq/`, ledgers
+`runs/t2/scores/{t17-retrieval-scale-ev,r2-15-norep-awq,r2-15-grammar-awq}.json`, analysis
+`runs/t2/scores/t17-arms-analysis.json` (from `runs/t2/t17_arms_analysis.py`, CPU-only).
+
+| arm | status | EX/241 | EX/209 | simple · moderate · challenging | unexec. | paired against its control | verdict |
+|---|---|---|---|---|---|---|---|
+| **A. retrieval few-shot, k=3** (7B scale adapter + evidence, A100) | **measured** | **117/241 = 48.55 %** | **117/209 = 55.98 %** | 62.6 · 46.1 · 31.1 | **12** | vs same adapter/evidence without retrieval (102/241): **b=27, c=12, p=0.0237, +6.22 pp [+1.24, +11.20] — rule met** | **worth folding in** (with the caveats below) |
+| **C. grammar-constrained decoding** (AWQ 7B, A100, repair disabled in both arms) | **measured** | **44/241 = 18.26 %** | 44/209 = 21.05 % | 30.8 · 13.5 · 6.6 | 57 (vs **62** unguided) | vs the sqlglot surrogate without grammar/repair (39/241): b=7, c=2, p=0.1797, **+2.07 pp [−0.41, +4.56]** — not significant | **not for score; yes as an output-contract guard** |
+| **B. self-consistency, n=5** | **not measured — time** | — | — | — | — | — | no verdict until measured |
+
+### 18.1 Arm A — retrieval few-shot: the one procedure that pays
+
+The bank is dev-tool's train-only kNN bank (`data/train_queries.json`, 357 rows, per-`db_id`, two leakage
+layers that refuse dev sources by name and by question text; gold SQL transpiled to PostgreSQL and dropped
+when it does not survive). It fired on **240/241 questions (99.6 %)**, with a mean of **2.98 examples** per
+question and a mean top-1 similarity of **0.449**, verified from the procedure log rather than assumed.
+
+The effect is large for a procedure and it is **free in wall clock**: 1,933 s for the retrieval run versus
+1,947 s for the same adapter and hardware without it (8.02 vs 8.08 s/question; 522 vs 520 model requests) —
+the extra prompt tokens are absorbed, so this is a prompt-side win, not a latency trade. It also cuts
+unexecutable predictions from 19 to 12, i.e. the examples teach the dialect contract as well as the mapping.
+
+Against the frozen team file the comparison is **+6.22 pp but not significant** (b=42, c=27, p=0.0912,
+CI [−0.41, +13.28]): the point estimate is above their 42.32 %, the interval still touches zero, and the
+file is id-level only. So the defensible claim is the *within-our-own-model* one: **retrieval beats no
+retrieval by +6.22 pp on the same adapter, same hardware, same evidence setting, p=0.0237.**
+
+Two caveats that must travel with it: (1) the bank is BIRD-train only — this measures in-domain retrieval,
+not cross-database transfer; (2) whether it stacks with the 14B arm (§17, 130/241 without retrieval) is
+**untested** — the obvious next measurement, not a claim.
+
+*Provenance detail worth knowing:* the run used HEAD's tool (`tool_source_sha256 103fd34e…`, the retrieval
+code present, only retrieval enabled) against a baseline measured with the sealed tool (`9c2072bc…`); the
+prompt templates are byte-identical on the default path and every other procedure is off, so the treatment
+difference is retrieval itself. The A100 was also running three other agents' servers during the run
+(ports 8000/8001/8002), which can affect latency but not the scored predictions. **The procedure
+configuration is recorded in `t17-retrieval-procedures.jsonl` (its first line carries k, embedder, bank and
+evidence flags), not in `run.json`** — the recorder captures evidence/feature/tool provenance but not the
+`TEXT2SQL_*` procedure environment; that is a gap to close if procedures become defaults.
+
+### 18.2 Arm C — grammar-constrained decoding: a contract guarantee, not a score lever
+
+Re-derived from t15's artifacts: the grammar removes the output-contract violation completely (241/241
+guided completions parse inside the compiled SELECT grammar; the unguided arm produced fenced/prose
+completions) and moves EX by **+2.07 pp, which is not significant** (b=7, c=2, p=0.1797). It reduces
+unexecutable predictions 62 → 57, and the failure census says why the effect is small: 55 of the unguided
+arm's 62 are `UndefinedColumn/UndefinedTable/UndefinedFunction`, only 2 are syntax — a grammar cannot fix
+identifier resolution. **Latency is not quotable from these two runs**: their per-request means (1.07 s
+unguided vs 10.63 s guided, from `llm_requests.jsonl`) were taken in different windows on a shared A100 and
+are confounded by another resident evaluation server; t15's interleaved same-window test is the honest cost
+figure (×1.43 wall, ×1.92 per token), and a clean interleaved re-test is what a production decision would need.
+
+### 18.3 Arm B — self-consistency: structurally out of budget, not unlucky
+
+Not measured, and it is not a scheduling miss: `n=5` needs a **sampling** server (temperature 0.7, which the
+greedy scale server does not provide) and multiplies every question by five. At the measured greedy rate
+(~6–8 q/min on this hardware) that is **≈3.3 h for 241 questions** on either card, against a 14:00 cut-off
+and a GPU that was booked by the distillation window until ~14:15. It is marked `not measured — time` and no
+number is implied.
+
+### 18.4 One line each, for the meeting
+
+* **A (retrieval k=3): fold it in** — +6.22 pp on the same model, p=0.0237, no wall-clock cost, 12
+  unexecutable predictions instead of 19; make it a documented default with the leakage guards and confirm
+  it stacks with 14B before quoting a combined number.
+* **C (grammar): keep it as a serving flag, not a default score lever** — the contract guarantee is real
+  (0 violations), the accuracy effect is +2.07 pp at p=0.18, and its cost needs a clean interleaved test.
+* **B (self-consistency): do not adopt** — unmeasured, and its cheapest possible run is ~3.3 h;
+  if it is ever tried, it needs a sampling server and a cut-down question set with an explicit caveat.
+
+## 19. Out-of-distribution check: execution accuracy on 10 unseen databases
+
+**What this is.** The group split held out **10 databases** from training (disney, movie_3, talkingdata,
+menu, movies_4, law_episode, european_football_1, social_media, sales_in_weather, music_tracker). The
+evaluation set is **876 BIRD *train* questions** from those databases — the same corpus as training, a
+different set of schemas. It tests **schema transfer**, not a new domain, and it is not a generalisation
+proof.
+
+| arm (live DB, evidence on, greedy 4-bit, mode=local) | EX/876 | EX/811 | soft-F1 | unexec / missing |
+|---|---|---|---|---|
+| 7B scale adapter (`runs/a100-scale-adapter`, `71abcde8…`) | **620/876 = 70.78 %** (Wilson 67.68–73.69) | **620/811 = 76.45 %** | 0.7931 | 50 / 0 |
+
+**Denominators and ceiling.** 65 gold queries are unexecutable on the live server (same transpile-damage
+class as the 32 in `bird_large`), so the denominator that is not capped by dead gold is **811**, and the
+honest ceiling is **811/876 = 92.6 %**. EX/811 is quoted next to EX/876, the same discipline as EX/209 next
+to EX/241.
+
+**Not comparable to 42.32 % / 53.94 %.** Different population (BIRD train questions, not dev), different
+difficulty mix, and no evidence-vs-no-evidence control on this set. A sentence that compares these numbers
+to the 241-question results is wrong even if the percentages look similar. Per-difficulty is not reported:
+the held-out train rows carry no BIRD difficulty label, and no label is invented.
+
+**Attribution is open by design.** The base-model arm on the same held-out set is being measured on a
+**292-question systematic subsample** of the 876 (every 3rd row, first 300, all 10 databases represented),
+because the full 876-question base run was too slow for the seal window. When it lands, the paired test must
+be run on the **same 292 questions for both arms** and the paragraph must say "300-question systematic
+subsample of the 876-question held-out set"; comparing a 300-question base accuracy with the 876-question
+adapter accuracy would be a denominator error. If the base arm misses the window, this section ships with
+the explicit sentence "adapter-vs-base attribution not measured; the 70.78 % figure stands alone" and no
+invented comparison. If the base lands near 70 %, the honest conclusion is: *the adapter mostly transfers
+what it learned on the 8 schema families it trained on and adds little on unseen ones* — a finding about
+the limits of schema transfer, not a failure of the method.
+
+**Artifacts:** `runs/t2/scores/ood-scale7b.json` (full `fixed_eval` report, 876 per-question records),
+`runs/t2/ood-scale7b-v2/run.json` (adapter `71abcde8…`, `use_evidence=true`, 4-bit, 512 cap) and
+`query_results.json` (the 876 predictions); on the A100 the source is
+`/root/work/data_cache/runs/ood-scale7b-v2/` and `/root/work/eval/ood-scale7b.json`.
+

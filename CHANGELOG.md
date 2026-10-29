@@ -125,9 +125,13 @@ round-2 bundle against `f4d3d4a`.
   blocked, and the one command must be ready without pretending it has run.
 - `training/distill.md` — the blocked distillation procedure, the exact command, the self-distillation
   fallback and the verification checklist; `docs/REPORT.md` §15 records the arm as blocked.
+- `training/RUN_NOTES.md` §7 — the executed **self-distillation** fallback (R2-10 Branch B): 357/357 train
+  predictions, 171 execution-identical row sets, filter keep=180 of 342 attempted, dataset 558 combined
+  rows, 60/105 training steps in 810.7 s, peak 10.94 GiB; everything labelled `self-distilled`, no teacher
+  was contacted. `training/out-selfdistill/` is an artifact (`training/.gitignore`).
 - `training/.gitignore` — `out-scale*/` (every scale-build directory, including `out-scale-t2048/`),
-  `out-natural/` and `out-real/` are artifacts; the recipes/build commands that produce them are the
-  sources.
+  `out-natural/`, `out-selfdistill/` and `out-real/` are artifacts; the recipes/build commands that produce
+  them are the sources.
 
 ### Tool — procedure arms, both OFF by default (`src/.../text2sql_tool/src/`)
 
@@ -210,11 +214,10 @@ round-2 bundle against `f4d3d4a`.
 
 ### Docs
 
-- `docs/REPORT.md` §9 — the round-2 2×2 `{base, adapter} × {no evidence, evidence}`: four cells, paired
-  blocks, interaction; §10 — `run.json` schema v2 and the proof run; §11 — the Ambrosia keep-or-drop
-  decision, the floors/precision arithmetic and the blocked contract extension; §12 — the feature × model
-  matrix, blocked cells, input format and decision rule; §13 — the A100 grammar arm (see the decoder
-  section above).
+- `docs/REPORT.md` §14 — the scale-up A100 cell; §15 — blocked distillation; §16 — the completed 7B
+  scale × evidence 2×2 and the mechanism; §17 — the 14B headline; §18 — the procedure/decoder arms
+  (retrieval measured, self-consistency not measured); §19 — the OOD check on 10 unseen databases with the
+  attribution left open. §9–§13 remain as before.
 - `docs/DECODER.md` — why every other constrained-decoding option was rejected, the grammar itself, and the
   measured decoder facts; `docs/PROCEDURES.md` — the two procedure arms and their dry-run verdict.
 - `docs/RUNBOOK.md` §11 — round-2 operations: recorder v2, `--bird-extra`/group split, `matrix.py`, the
@@ -223,12 +226,13 @@ round-2 bundle against `f4d3d4a`.
   off-by-default procedure/thinking switches.
 - `research/advtext2sql/AMBROSIA_CONTRACT_PROPOSAL.ru.md` — the one-page proposal to the course teacher
   (list-of-readings contract; blocked on the teacher, no acceptance assumed); `research/advtext2sql/
-  ROUND2_RESULTS.ru.md` — the owner-facing round-2 results draft (LoRA and decoder kept separate);
-  `research/advtext2sql/INTEGRATION_INVENTORY.md` — the seal checklist and file inventory.
+  ROUND2_RESULTS.ru.md` — the owner-facing round-2 results (14B headline, 7B mechanism, OOD, procedures,
+  blocked arms); `research/advtext2sql/INTEGRATION_INVENTORY.md` — the seal checklist and file inventory.
 - `research/advtext2sql/audit_round2.py` + `AUDIT_ROUND2.json` — the independent pre-integration audit:
-  **182/182 checks reproduce, 0 findings**, including the decoder and scale-up arms; it caught the stale
-  `cells.base_strict` block in `runs/t2/scores/ambrosia-calibration.json` before the seal (root cause fixed,
-  artifact regenerated, audit re-run clean).
+  **232/232 checks reproduce, 0 findings**, including the decoder, both scale-up arms, the 14B, the OOD set
+  and the procedure arms; it caught the stale `cells.base_strict` block in
+  `runs/t2/scores/ambrosia-calibration.json` before the seal (root cause fixed, artifact regenerated,
+  audit re-run clean).
 
 ### Tests
 
@@ -238,26 +242,31 @@ round-2 bundle against `f4d3d4a`.
   feature-block wiring and the scale-up/group-split build. Suite: **241 passed** (offline, ~63 s;
   `docs/RUNBOOK.md` §0).
 
-### Results — the round-2 headline (scale-up adapter, R2-5/R2-6)
+### Results — the round-2 headline (14B) and the 7B mechanism
 
-The adapter trained on the **5,612-row / 71-database** scale-up corpus (group split, 3 epochs) was measured
-on the A100 with the same harness protocol: **EX/241 = 102/241 = 42.32 %** (95 % CI 36.25–48.63),
-**EX/209 = 102/209 = 48.80 %**, soft-F1 0.4864, per difficulty 48/91 · 35/89 · 19/61, 19 unexecutable
-predictions, ceiling 208/241.
+**14B headline (R2-18).** A local 14B open model with LoRA, trained on the same **5,612-row / 71-database**
+corpus and measured on a rented A100 80 GB with the same protocol: **EX/241 = 130/241 = 53.94 %** (Wilson
+47.64–60.12), **EX/209 = 130/209 = 62.20 %**, soft-F1 0.5817, per difficulty 63/91 · 43/89 · 24/61, and
+**only 5 unexecutable predictions** (vs 19 for the 7B scale arm, 40 for round-1 base). Paired: vs round-1
+adapter+evidence **b=51, c=14, +15.35 pp, p=4.475e-06, CI [+9.13,+21.58]**; vs the frozen team file
+**b=43, c=15, +11.62 pp, p=0.000307, CI [+5.39,+17.43] — the pre-registered rule is met**. The comparison is
+against a **frozen predictions file** (id-level, no SQL/prompt/config), not a live run of the team's
+pipeline; n=241 means CI ≈±6 pp; ceiling 208/241; the 14B needed a rented A100 80 GB (~3.5 h, effective
+batch 16) and nothing here proves the recipe fits 16 GB.
 
-**It is a tie, not a win.** Against the frozen team baseline (102/241 = 42.32 %) the paired block is
-**b = 32, c = 32, Δ = 0.00 pp, p = 1.0** (95 % CI [−6.64, +6.64] pp) — the same aggregate, different
-subsets (32 questions each way); against round-1's adapter+evidence (93/241) it is **b = 26, c = 17,
-+3.73 pp, p = 0.2221**, CI [−1.66, +9.13] — also inconclusive under the pre-registered rule. The honest
-sentence is "the local 7B + LoRA reaches the same aggregate as the team's GPT-5.4-mini + 34-feature pipeline,
-while erring on different questions". The first attempt at this number was discarded: a `.env` quoting bug on
-the A100 made DB auth fail while the harness still "succeeded" and the model answered from pretraining memory
-with empty schemas (kept as `runs/t2/scores/r2-scale7b-ev.FAILED-empty-schemas.json`, 0/241, never a number);
-the corrected run has the real 11,108-byte schema dump, 19 unexecutable predictions and `adapter_sha256`
-`71abcde8…` in `run.json` — the class of bug the recorder (§10) exists to catch. The scale arm is now in the
-pre-seal audit: **182/182 checks, 0 findings**, including the synced ledger, both paired blocks and the
-provenance. Only the evidence-on cell exists: t7's no-evidence arm holds a 191-byte empty schema stub, so no
-no-evidence scale number is quoted.
+**7B scale is the mechanism (R2-5/R2-6).** Both arms on the 4070: **103/241 = 42.74 %** with evidence
+(EX/209 49.28 %, soft-F1 0.4935, 19 unexec) and **53/241 = 21.99 %** without (25.36 %, 0.2993, 28 unexec).
+Against round-1 base+evidence: **b=30, c=11, +7.88 pp, p=0.0043, CI [+2.90,+13.28]** (rule met); against the
+frozen file: **b=32, c=31, Δ+0.41 pp, p=1.0** (the 7B tie stands and is not retracted by the 14B). The
+**scale × evidence interaction is +11.20 pp** (CI [+4.98,+17.84], sign test 45/19, p=0.0016): scale helps
+only with evidence. Cross-hardware repeat: local 103 vs A100 102, b=1, c=0. The discarded empty-schema A100
+attempt is kept as `runs/t2/scores/r2-scale7b-ev.FAILED-empty-schemas.json` (0/241, never a number).
+**Secondary arms (measured, not headline).** OOD on 10 held-out databases: 620/876 = 70.78 %
+(EX/811 76.45 %, 65 dead gold; attribution to the adapter open — base arm on a 300-question subsample).
+Retrieval few-shot k=3 on the 7B scale adapter: 117/241 = 48.55 %, +6.22 pp over the same adapter without
+retrieval (b=27, c=12, p=0.0237 — rule met); grammar: 44/241, p=0.1797, contract violations 241/241 → 0/241;
+self-consistency not measured. **Audit:** 232/232 checks, 0 findings, including both scale arms, the 14B,
+the OOD set and the procedure arms.
 
 ---
 

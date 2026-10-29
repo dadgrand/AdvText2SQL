@@ -13,4 +13,6 @@ out-real/
 # Natural-class-balance Ambrosia build (R2-3, ready-but-blocked-on-GPU): the dataset is an
 # artifact, the recipe that produces it is training/AMBROSIA_NATURAL_RECIPE.md.
 out-natural/
+# Self-distillation build (R2-10 fallback): dataset artifact; the command is training/distill.md.
+out-selfdistill/
 

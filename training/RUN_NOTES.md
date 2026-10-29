@@ -336,3 +336,211 @@ holds the config and README only.
    block): do not read hyper-parameters from it.
 
 
+
+---
+
+## 7. The self-distillation arm (R2-10, branch B) — what was run, and what it may not claim
+
+**Branch A never existed.** No teacher prediction file for `data/train_queries.json` is anywhere in
+the tree: the only teacher files are `training/fixtures/teacher_predictions.json` (5 labelled synthetic
+rows) and `data_cache/artifacts/teacher_demo_predictions.json` (the round-1 *damaged dev* demo). So
+this is the free fallback, and everything below is **self-distilled** — never "distilled from the team
+pipeline". Its honest baseline is the round-1 adapter it came from (`runs/e3-r16/adapter`,
+sha256_16 `ea50f537cdf8e5a1`), not a teacher.
+
+### 7.1 Generation (GPU, ~31 min served)
+
+* generator: the round-1 adapter served 4-bit with `--use-evidence` (the stock `BenchmarkBIRD`
+  setting), `/health` recorded `adapter_sha256 ea50f537cdf8e5a1…`, 512-token cap;
+* questions: the **357 train questions** in `data/train_queries.json`, never the dev files (0 id
+  overlap with the 241 dev questions, checked before spending GPU);
+* result: `data_cache/runs/r2-selfdistill-preds/query_results.json`, 357 predictions, 0 empty,
+  0 with backticks, 0 with SQLite functions, 600 server requests, `max_completion_tokens` hit the 512
+  cap at least once (some generations are truncated by the cap and are counted as drops below).
+
+### 7.2 Execution verification (CPU + tunnel, `runs/r2-selfdistill/exec_summary.json`)
+
+Gold = the canonical PostgreSQL target `build_data.py` compares against; teacher = the adapter's raw
+prediction. All 357 questions executed on the live database through the tunnel:
+
+| counter | value |
+|---|---|
+| questions | 357 |
+| gold execution errors | 15 |
+| prediction execution errors | 31 |
+| both executed | 311 |
+| identical row sets | 171 |
+
+### 7.3 The COUNT TABLE of the distilled build (`training/out-selfdistill`)
+
+```
+[teacher] mode=exec-verified attempted=342 kept=180 dropped=162 not_attempted=0
+          keep-exec-match     180
+          exec-mismatch       131
+          exec-error           31
+[teacher] strict mode: dropped 126 train rows without a verified teacher target
+[teacher] applied to 164 BIRD train rows (valid rows keep gold targets)
+sft_bird_train.jsonl         164      sft_bird_valid.jsonl   52
+sft_ambrosia_train.jsonl     394      sft_ambrosia_valid.jsonl 44
+sft_all_train.jsonl          558      schema_basis=file   leakage=clean
+```
+
+`kept 180` vs `identical_row_sets 171` differ by 9 rows: the filter compares row sets with its own
+tolerance (order/floats) and decides the replay side by normalised SQL equality, so a prediction that
+normalises to the canonical gold is compared against the gold record. 16 of the 180 kept questions
+fell into the *valid* split (valid keeps gold targets), which is why 164 reach the training file.
+
+**Leakage audit.** `check_leakage` is clean per benchmark (`bird.id_overlap []`,
+`ambrosia.db_id_overlap []`, 0 question-text overlap). A naive *global* id check shows 58 ids shared
+between the training file and the BIRD dev files — that is the documented BIRD/Ambrosia id-space
+collision, not leakage: those 58 rows are Ambrosia `task=ambiguity` rows with unrelated questions, and
+the round-1 artifact has exactly the same pattern (58 ambiguity ids + 84 SQL ids colliding with the
+*Ambrosia* dev ids). Ids are only unique inside a benchmark, which is why the guard is per benchmark.
+
+### 7.4 Training (round-1 recipe, GPU 13.5 min)
+
+r=16, alpha=32, `all-linear`, 4-bit NF4, bf16 compute, gradient checkpointing, effective batch 16,
+lr 1.5e-4 cosine, seq 3072, seed 42, 3 epochs, EarlyStopping patience 3, eval every 10 steps
+(105 planned steps total for 558 rows).
+
+| measured | value |
+|---|---|
+| steps | **60 / 105**, EarlyStopping at epoch 1.72 |
+| wall clock | **810.7 s = 13 m 30.7 s** |
+| peak VRAM | **10.94 GiB allocated / 12.19 GiB reserved** (RTX 4070 Ti SUPER 15.99 GiB) |
+| train loss | 0.6892 → 0.0541 |
+| eval loss | 10→0.301742 · 20→0.251027 · **30→0.238608 (best)** · 40→0.250141 · 50→0.275472 · 60→0.285863 |
+| best checkpoint | `runs/r2-selfdistill/checkpoint-30` |
+| adapter | `runs/r2-selfdistill/adapter/adapter_model.safetensors`, 161,533,192 B, sha256_16 `1e1419f650144e1b` |
+| LoRA trainable | 40,370,176 (0.919 %) — identical capacity to round 1 |
+| data hash | `690082394235f47b…` over `training/out-selfdistill` (558/52 rows) |
+| git | `feat/round2` @ `49a4b6dc…`, dirty (uncommitted work) |
+
+Greedy sample (train row 0, qid 1333): `SELECT T1.city, T1.state FROM zip_code AS T1 INNER JOIN
+member AS T2 ON CAST(T2.zip AS BIGINT) = T1.zip_code WHERE T2.position = 'President'` — PostgreSQL
+form, no SQLite markers, semantically the same join as the gold (reversed table order plus an explicit
+cast).
+
+### 7.5 What this arm can and cannot claim
+
+* **Can**: it is a real adapter trained under the same recipe on teacher-verified targets produced by
+  our own best model — a controlled test of whether "train only on what you already answer correctly"
+  changes behaviour.
+* **Cannot**: it is not distillation from the team's stronger pipeline, and it cannot add capability
+  the round-1 adapter lacked — every target in it is an answer that adapter already produced. Any
+  later EX comparison must be labelled `self-distilled` and compared against `runs/e3-r16/adapter`.
+* Handoff: the 241-question measurement belongs to the eval owner (`runs/r2-selfdistill/adapter` +
+  `provenance.json`); no number in this section is an EX result.
+
+---
+
+## 8. The 14B capacity arm (R2-18) — one model change, everything else identical
+
+Status note first, because it matters for provenance: **the run was already complete when the task
+reached me** (`runs/a100-14b/provenance.json` is timestamped 2026-10-29T07:48:13Z, the task was
+dispatched afterwards). I did not launch it and did not touch `runs/a100-scale` (its provenance is
+still 04:11:18Z). What this section records is the **verification** of that run and the copy of its
+artifacts into this workspace (`runs/a100-14b/`, weights in `runs/a100-14b-adapter/`, sha256
+`5833a1cce065f186…`, 275,341,720 B — the remote sha256 is byte-identical).
+
+Purpose: the project's question is how much of the team API pipeline's advantage a local model can
+recover. The 7B+LoRA+evidence arm reached 38.59 % (indistinguishable from their 42.32 %). The 14B arm
+holds the data, the recipe and the seed fixed and changes **only the model** (and, for memory, the
+micro-batch), which isolates capacity from data and recipe.
+
+### 8.1 Configuration (identical to the 7B scale run except model and micro-batch)
+
+`Qwen/Qwen2.5-Coder-14B-Instruct` from `/root/models/qwen2.5-coder-14b`, 4-bit NF4 double-quant,
+bf16 compute, gradient checkpointing, r=16, alpha=32, `all-linear`, lr 1.5e-4 cosine, seq 2048,
+**micro-batch 4 × grad-accum 4 = effective batch 16**, 3 epochs, EarlyStopping patience 3, eval/save
+every 150 steps, seed 42. Data: `training/out-scale-t2048`, data_hash `eb1ace92d6f03a9795d44f…`
+(4,979 train / 876 valid) — the same corpus as the 7B arm.
+
+### 8.2 Measured (from `runs/a100-14b/provenance.json` / `train_summary.json`)
+
+| quantity | 7B (`runs/a100-scale`) | **14B (`runs/a100-14b`)** | ratio |
+|---|---|---|---|
+| steps | 750 / 936 (ES at epoch 2.404) | **750 / 936 (ES at epoch 2.405)** | — |
+| wall clock | 6,753.3 s (112 m 33 s) | **12,841.8 s (214 m 02 s)** | 1.90× |
+| peak VRAM allocated | 35.124 GiB | **30.991 GiB** | 0.88× (smaller micro-batch) |
+| peak VRAM reserved | 74.211 GiB | **60.623 GiB** | — |
+| train loss first → last | 0.3756 → 0.0357 | **0.4637 → 0.0332** | — |
+| eval loss @150 / @300 | 0.131293 / **0.126443 (best)** | 0.114024 / **0.112492 (best)** | −11.0 % at the best checkpoint |
+| eval loss @450 / @600 / @750 | 0.143776 / 0.141140 / 0.169168 | 0.122852 / 0.125280 / 0.159049 | — |
+| best checkpoint | `checkpoint-300` | **`checkpoint-300`** | — |
+| LoRA trainable | 40,370,176 (0.919 %) | **68,812,800 (0.836 %)** | — |
+| adapter | 161,533,192 B, sha256_16 `71abcde8…` | **275,341,720 B, sha256 `5833a1cce065f186…`** | — |
+
+Both runs stop at the same place (epoch 2.40, three consecutive worse evaluations after the step-300
+minimum), which is a useful sanity signal: the schedule, not the model size, decided when to stop.
+
+### 8.3 Greedy sample (row 0, `extra:bird23_train_filtered:5510`)
+
+```
+gold   : SELECT COUNT(name) FROM filed_for_bankrupcy
+14B    : SELECT COUNT(name) FROM filed_for_bankrupcy      (identical; looks_postgres true, no markers)
+```
+
+### 8.4 What this does and does not establish
+
+* **Does**: on identical data and recipe, the 14B reaches a lower validation loss (0.112492 vs
+  0.126443) and trains at 1.90× the wall clock, with **lower** peak VRAM than the 7B because the
+  micro-batch is 4 instead of 8. The one parameter changed for memory (micro-batch 8→4, with
+  grad-accum 2→4 keeping the effective batch at 16) is the only deviation, and it is recorded here.
+* **Does not**: eval loss is per-token cross-entropy on the same 876 held-out rows; it is not EX and
+  it does not answer "does it beat the 7B on the benchmark". That answer needs the 241-question
+  measurement on `bird_large` plus the OOD held-out set, which belongs to the eval owner. No EX
+  number is quoted in this section.
+* `git.commit` is `null` for this run (the A100 checkout carries no git metadata), the same gap the
+  scale run has; the dataset hash and the pins are recorded, so the run is still identifiable.
+
+---
+
+## 9. The Qwen3.5-9B generation arm (R2-20) — **prepared and smoke-tested, not run**
+
+**No Qwen3.5 number is claimed.** The arm was prepared end to end, smoke-tested twice on the A100, and
+then closed by the captain's NO-GO on the measured arithmetic: at the achievable speed it cannot land
+before the deadline, and an unmeasured adapter is worth less than an honest gap.
+
+**Why it never started (both on the box, 2026-10-29):** `/root/chain_q35.sh` fired at 07:48:13Z and died
+immediately — the `/root/venv` transformers does not know model type `qwen3_5`
+(`ValueError: ... Transformers does not recognize this architecture`). The retry `/root/chain_q35b.sh`
+then sat **stuck for 6.5 h in `do_wait`** and could never start: its break condition required
+`runs/a100-14b/train.log`, a file the 14B run never wrote (its artifacts are `provenance.json`,
+`train_summary.json`, `sample_generation.json`, checkpoints).
+
+**What was proven before the NO-GO:** the isolated `/root/venv-q35` (transformers 5.21.0) **does** build
+the architecture (`AutoModelForCausalLM.from_config` → `Qwen3_5ForCausalLM`), and the custom
+completion-only trainer `/root/q35_train.py` runs: smoke of 8 rows gave `trainable=43,278,336 (0.782 %)`,
+**VRAM peak 26,836 MiB**, one eval and a saved adapter. The tokenizer question was settled by
+measurement rather than assumption — with the **Qwen3.5** tokenizer the 4,979 training rows are
+p50 614 / p95 1,308 / p99 1,612 / **max 1,751**, so **0 rows truncate at 2,048, 2,560 or 3,072**
+(`/root/q35_token_lengths.json`); `--max-seq-len 2560` was therefore a free choice, and it is recorded
+as measured, not assumed.
+
+**The measured blocker — speed.** One training step at micro-batch 4 × seq 2,560 took **28-33 s**, because
+Qwen3.5's linear-attention / delta-rule layers fall back to reference PyTorch: `causal_conv1d` is absent
+and no fused `flash-linear-attention` kernels are compiled. At 311 steps per epoch that is
+**2.4-2.9 h per epoch** — 3 epochs ≈ 7.2-8.6 h, and even 1 epoch (~2.6 h) would only have *started* the
+evaluation chain, past the deadline. Installing `flash-linear-attention` 0.6.0 (`fla-core`) made it
+**7× worse** — 208 s per step with Triton 3.2.0 below the recommended 3.3.0 — so the install was reverted
+and `/root/venv-q35` is back to the documented baseline. A future Qwen3 arm needs `causal-conv1d` plus a
+Triton ≥ 3.3 stack before it can be costed seriously.
+
+**Hand-off note for the docs:** `--no-thinking` (thinking-mode stripping, R2-19) exists in the
+`/root/work/repo-t17` checkout of `dev_tools/serve_openai.py` and **not** in `/root/work/repo`. That
+checkout is a scratch tree owned by the evaluation work, *not* a maintained serving path (correction from
+its owner, 2026-10-29): a resumed Qwen3 arm must **sync `dev_tools/` from the branch HEAD** that carries
+the flag and serve from that, instead of depending on somebody's scratch copy — otherwise the number is
+meaningless and the provenance does not say which tree produced it.
+
+**Chain note:** do not gate any future chained run on a file the previous run may never write.
+`/root/chain_q35b.sh` waited on `runs/a100-14b/train.log`, and the 14B run writes `provenance.json`,
+`train_summary.json`, `sample_generation.json` and checkpoints — never a `train.log` — so the chain sat
+6 h 28 m in `do_wait` and the arm never started. Gate on the process (`pgrep -f <trainer>`) or on the
+run's `provenance.json`, and give the wait a deadline.
+
+**Artifacts left in place:** `/root/q35_run.sh` (correct launcher: venv-q35, seq 2560, micro 4 × accum 4,
+`EPOCHS=` overridable) and `/root/q35_post.py` (the `provenance.json` + greedy `sample_generation.json`
+that `q35_train.py` does not write); local copies in `runs/a100-q35/`. Nothing under `runs/a100-q35/` on
+the box was produced by a real training run.
