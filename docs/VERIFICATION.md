@@ -735,3 +735,16 @@ content other than this line.
 **Post-seal addendum (tag unchanged at `round2-seal` → `b7dbc2d`).** §19 now carries the measured negative OOD attribution (base 86/120 = 71.67 % vs adapter 83/120 = 69.17 %, b=8/c=11, Δ −2.50 pp, p=0.648), the adapter's 292-row cell 220/292, and the discarded base-292 attempt (empty schema dump, 15/292 = 5.14 %, 259/292 unexecutable — never quoted). The empty-schema guard in `dev_tools/run_benchmark.py` refuses a run whose schema dump has an empty value unless `--allow-empty-schemas`, with 26 offline tests in `tests/test_schema_guard.py`. Audit count rises to 243/243; the seal commit and tag do not move.
 
 **Two tags, both on ork (2026-10-29).** ound2-seal (annotated object 8504e1) points at the original seal commit **b7dbc2d**; it stays there and is not rewritten. ound2-seal-2 (annotated object 5862faf) points at **cd8aa4a**, the post-seal addendum that carries the empty-schema guard, its 26 tests, the corrected §19 OOD attribution (base 86/120 vs adapter 83/120, p=0.648) and the 292-row cell. **Hand the teacher ound2-seal-2 (or the branch tip that follows it): ound2-seal predates the guard and the corrected attribution.** Everything below applies to both commits except the tag-index line itself.
+## V5 Round-3 WIP verification (`feat/schema-linking`, not a sealed deliverable)
+
+- `python -m pytest tests -q` → **314 passed, 1 skipped** (83.95 s); `tests/test_schema_linking.py` → 41;
+  `tests/test_schema_link_sweep.py` → 9. All offline (no DB, no model, no network).
+- `python -m dev_tools.schema_link_dryrun --out runs/t31-schema-linking` → exit 0 for all five modes; the
+  per-mode checks keep every original schema line (`63/63`) and `columns_selected == columns_total`; the
+  join edges are re-derivable from the schema text only. Default remains `off`.
+- Round-3 OOD result: A_off 82/120, D_highlight 83/120 (b=6/c=5, p=1.00), E_joins 85/120 (b=7/c=4,
+  p=0.549); neither passes the pre-registered rule. In-domain 241 not measured for these arms; t24 recall
+  100 % on OOD (`runs/schema_linking/schema-audit.json`). See `docs/REPORT.md` §20.
+- No `audit_round3.py` exists; the round-2 audit (`audit_round2.py`, 243/243) still covers the round-1/2
+  artifacts and is unchanged. Round-2 tags (`round2-seal` → `b7dbc2d`, `round2-seal-2` → `cd8aa4a`) are not
+  moved by this branch.

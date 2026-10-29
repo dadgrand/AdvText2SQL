@@ -1527,3 +1527,31 @@ run's empty schema dump is `runs/ood/ood-base7b-292/db_schemas.json` (209 bytes,
 predictions are `runs/ood/ood-base7b-292/query_results.json`. Run metadata: `runs/ood/ood-scale7b-v2/run.json`
 (adapter `71abcde8…`) and `runs/ood/ood-base7b-120/run.json` (no adapter), both `use_evidence=true`, 4-bit,
 512 cap.
+## 20. Schema-only grounding hints do not move this model on unseen schemas (R3)
+
+**Question.** Round 2 ended with a uniform OOD picture: base 7B 71.67 %, 7B adapter 69.17 %, 14B 73.33 % and retrieval 69.17 % on the same 120 unseen-schema questions, with no significant paired differences. Round 3 asked whether **schema presentation** is the missing lever: can a schema-only hint (highlighting relevant tables/columns, or adding the join graph) move execution accuracy on those 10 unseen databases? The acceptance rule is pre-registered and OOD-first: a gain counts only with a paired test meeting the project rule (exact McNemar p < 0.05 and a paired-bootstrap CI excluding zero).
+
+**Arms (OOD-120, live DB, evidence on, 4-bit, greedy, same 7B model/adapter).**
+
+| arm | schema treatment | EX/120 | EX/107 | unexec. | soft-F1 | schema tokens (mean) |
+|---|---|---|---|---|---|---|
+| **A_off** | current behaviour (`off`) | **82/120 = 68.33 %** (Wilson 59.55–75.98) | 82/107 = 76.64 % | 9 | 0.8068 | 395.6 |
+| **D_highlight** | full schema, relevant tables marked | **83/120 = 69.17 %** (60.42–76.73) | 83/107 = 77.57 % | 7 | 0.8021 | 504.8 (+28 %) |
+| **E_joins** | full schema + join-path block | **85/120 = 70.83 %** (62.16–78.22) | 85/107 = 79.44 % | 8 | 0.8325 | 581.4 (+47 %) |
+
+**Paired blocks (same 120 ids; b = arm correct / off wrong, c = arm wrong / off correct; exact McNemar + 10k bootstrap, seed 0).**
+
+| comparison | b | c | ΔEX | 95 % CI | exact p | rule |
+|---|---|---|---|---|---|---|
+| E_joins vs A_off | 7 | 4 | **+2.50 pp** | [−2.50, +8.33] pp | **0.549** | **not met** |
+| D_highlight vs A_off | 6 | 5 | **+0.83 pp** | [−4.17, +6.67] pp | **1.00** | **not met** |
+
+**Verdict: schema-only grounding hints do not move this model on unseen schemas.** Neither arm meets the pre-registered rule; the point estimates are small, the CIs straddle zero, and the extra schema text costs +28 % / +47 % tokens. The in-domain 241 cell was **not measured** for these arms (the `*_bird241` slots are `not measured`; only the zero-byte `r3-A-off-bird241.log` exists), and `tables`/`columns` modes were not measured either — so no in-domain claim is made here. This is a **negative result, not a failure**: it removes schema presentation as the explanation.
+
+**Why this closes the loop with t24.** The t24 schema audit measured **gold-table recall already at 100 %** on the OOD sets (`runs/schema_linking/schema-audit.json`: `gold_tables_present_share = 1.0` for `ood_120` and `ood_876`; 0.996 for `bird_large_241`) and found **0 of 20 failures could have been avoided by adding a table**. If the needed tables are already present and adding/exposing them changes nothing, the remaining OOD wall is **training-data coverage** — the model has not seen these database schemas — not schema presentation.
+
+**What would have to be true for schema hints to help.** The schema would have to be missing the gold tables/columns (t24 says it is not), or the model would have to be unable to read identifiers it is shown (the join edges are already derived from the same schema text), or the hint would have to carry information absent from the schema (a semantic bridge from question to column). None of those held; a schema-only annotation cannot add the missing training coverage.
+
+**Next lever: cross-schema training** — distillation / multi-schema training data that actually covers unseen databases — not more capacity, not a better adapter, and not schema formatting. That is the round-3 conclusion and the round-4 scope.
+
+**Artifacts:** `runs/r3-schema-link/scores/{A_off,D_highlight,E_joins}.json` (per-question ledgers), `runs/r3-schema-link/analysis.json` (paired blocks + offline schema-cost replay), `runs/r3-schema-link/{r3-A-off-ood120,r3-D-highlight-ood120,r3-E-joins-ood120}/` (runs + schema dumps), `runs/schema_linking/schema-audit.json` (t24 recall). Code and docs: `src/.../schema_linking.py`, `docs/SCHEMA_LINKING.md`, `dev_tools/ood_eval.py`, `dev_tools/schema_link_dryrun.py`.
