@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 19:52 RTZ 2 (зима)",
+  "generated_at": "2026-11-15 19:59 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -35,7 +35,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 19:52 RTZ 2 (зима)",
+    "generated_at": "2026-11-15 19:59 UTC+03",
     "dev_total": 241,
     "dev_verified": 216,
     "dev_divergent": 25,
@@ -126,8 +126,8 @@
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 17810,
-      "sha256": "ffca2489abbf44df1a60595dbead9b3523bb10e7c808fc4e008939434ed80154"
+      "bytes": 17799,
+      "sha256": "11bf3b51400080d0fd4470dada1534f326cb43629196d2f22dc4f1e6d7d77c38"
     },
     "reports/dev_report.json": {
       "bytes": 993,
