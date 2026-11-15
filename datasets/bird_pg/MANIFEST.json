@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 21:54 UTC+03",
+  "generated_at": "2026-11-15 22:12 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -13,7 +13,7 @@
     "bird_dev_divergent.jsonl": 13,
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
-    "synthetic_bird_like.jsonl": 4668,
+    "synthetic_bird_like.jsonl": 5522,
     "synthetic_roundtrip_sample.jsonl": 300,
     "synthetic_roundtrip_join_sample.jsonl": 120
   },
@@ -37,7 +37,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 21:54 UTC+03",
+    "generated_at": "2026-11-15 22:12 UTC+03",
     "dev_plain": 220,
     "dev_repaired": 7,
     "dev_official": 1,
@@ -59,17 +59,19 @@
     "train_other_failures": 508,
     "train_retried": 4,
     "train_recovered": 2,
-    "synth_candidates": 5124,
+    "synth_candidates": 5800,
     "synth_curated": 2649,
-    "synth_attempts": 1150,
-    "synth_keep_rate": "446%",
-    "synth_accepted": 4668,
-    "synth_hand": 4577,
+    "synth_attempts": 1074,
+    "synth_keep_rate": "540%",
+    "synth_accepted": 5522,
+    "synth_hand": 5431,
     "synth_model": 91,
     "synth_dbs": 61,
-    "synth_joins": 1073,
-    "synth_join_pct": "23%",
-    "synth_unique_sql": 2709,
+    "synth_joins": 1927,
+    "synth_join_pct": "35%",
+    "synth_unique_sql": 3136,
+    "synth_multi_table": 290,
+    "synth_nested": 589,
     "rt_match": 135,
     "rt_rate": "45.0%",
     "rt_error": 44,
@@ -160,8 +162,8 @@
       "sha256": "22a53aa537e5f0d8c0c05fa6fe4190c0e5b5f6919c86f644f2f73f229b136eae"
     },
     "data/synthetic_bird_like.jsonl": {
-      "bytes": 4390896,
-      "sha256": "c77e797bb4e55b1c03cf18473c1f24a72b2d6133b6aad840bcdfd79864913cbb"
+      "bytes": 5331328,
+      "sha256": "d4b916981ac58ec0952aeb8a5d75f32ab0dd0981fa96e2ad8ad32c66ed8c3997"
     },
     "data/synthetic_roundtrip_join_sample.jsonl": {
       "bytes": 76090,
@@ -176,8 +178,8 @@
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 25831,
-      "sha256": "b1cc9605fb51021c4c469b71e85746f3e030eed36c852f65d1646f36b5fddb4f"
+      "bytes": 26517,
+      "sha256": "9c606fe2838fc4afd03e24adca74c8be673a112d0713d3d784dee9387438ba24"
     },
     "reports/dev_report.json": {
       "bytes": 829,
@@ -204,8 +206,8 @@
       "sha256": "34cb3963b8e8d7abcc52367ff051d625e399fd093db76f01a7de49a11b787905"
     },
     "reports/synthesis_report.json": {
-      "bytes": 2200,
-      "sha256": "48128f90069f8be85ce6254a1f77cbbd20e52d0abbd00acd2cc73de2405a3f8c"
+      "bytes": 2381,
+      "sha256": "3a58c3663fdd0609141f9806f73280279cb84ec3aed61d3096c9f8ce21f9e6cc"
     },
     "reports/train_report.json": {
       "bytes": 2867,
