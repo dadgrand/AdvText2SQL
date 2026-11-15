@@ -1,0 +1,262 @@
+{
+  "sample": 300,
+  "status": {
+    "match": 135,
+    "mismatch": 121,
+    "pred_error": 44
+  },
+  "match_rate": 0.45,
+  "by_tier": {
+    "model": {
+      "match": 23,
+      "mismatch": 33,
+      "pred_error": 4
+    },
+    "hand": {
+      "match": 112,
+      "pred_error": 40,
+      "mismatch": 88
+    }
+  },
+  "by_db": {
+    "soccer_2016": {
+      "pred_error": 2,
+      "match": 2,
+      "mismatch": 1
+    },
+    "car_retails": {
+      "match": 10,
+      "mismatch": 2,
+      "pred_error": 1
+    },
+    "cars": {
+      "match": 1,
+      "mismatch": 1,
+      "pred_error": 1
+    },
+    "airline": {
+      "mismatch": 3
+    },
+    "hockey": {
+      "mismatch": 7,
+      "pred_error": 2,
+      "match": 4
+    },
+    "retail_complains": {
+      "pred_error": 1,
+      "match": 4,
+      "mismatch": 3
+    },
+    "ice_hockey_draft": {
+      "mismatch": 1,
+      "match": 1
+    },
+    "citeseer": {
+      "pred_error": 1
+    },
+    "mental_health_survey": {
+      "mismatch": 2,
+      "pred_error": 1
+    },
+    "music_tracker": {
+      "mismatch": 1,
+      "match": 1,
+      "pred_error": 1
+    },
+    "book_publishing_company": {
+      "match": 1,
+      "mismatch": 1
+    },
+    "language_corpus": {
+      "pred_error": 2,
+      "mismatch": 1,
+      "match": 1
+    },
+    "professional_basketball": {
+      "pred_error": 2,
+      "mismatch": 2,
+      "match": 3
+    },
+    "cookbook": {
+      "mismatch": 1
+    },
+    "superstore": {
+      "match": 10,
+      "mismatch": 11
+    },
+    "coinmarketcap": {
+      "match": 2,
+      "mismatch": 1
+    },
+    "disney": {
+      "pred_error": 1,
+      "mismatch": 2
+    },
+    "shooting": {
+      "match": 1
+    },
+    "legislator": {
+      "pred_error": 2,
+      "match": 3
+    },
+    "image_and_language": {
+      "match": 2,
+      "pred_error": 2
+    },
+    "computer_student": {
+      "mismatch": 1,
+      "match": 2
+    },
+    "bike_share_1": {
+      "pred_error": 1
+    },
+    "genes": {
+      "mismatch": 4,
+      "match": 1
+    },
+    "movielens": {
+      "pred_error": 1,
+      "mismatch": 5,
+      "match": 6
+    },
+    "mondial_geo": {
+      "match": 7,
+      "mismatch": 10,
+      "pred_error": 3
+    },
+    "food_inspection": {
+      "match": 5,
+      "mismatch": 2
+    },
+    "codebase_comments": {
+      "mismatch": 2,
+      "match": 2
+    },
+    "movie": {
+      "mismatch": 2,
+      "pred_error": 1,
+      "match": 3
+    },
+    "public_review_platform": {
+      "mismatch": 4,
+      "match": 5
+    },
+    "college_completion": {
+      "match": 3,
+      "pred_error": 2,
+      "mismatch": 1
+    },
+    "student_loan": {
+      "match": 1,
+      "mismatch": 2
+    },
+    "movie_3": {
+      "mismatch": 3,
+      "match": 3,
+      "pred_error": 4
+    },
+    "authors": {
+      "match": 3,
+      "pred_error": 1,
+      "mismatch": 1
+    },
+    "sales_in_weather": {
+      "match": 1
+    },
+    "shipping": {
+      "match": 1
+    },
+    "olympics": {
+      "pred_error": 1
+    },
+    "menu": {
+      "mismatch": 3,
+      "pred_error": 1
+    },
+    "books": {
+      "mismatch": 3,
+      "match": 4,
+      "pred_error": 1
+    },
+    "movie_platform": {
+      "match": 2,
+      "pred_error": 2
+    },
+    "movies_4": {
+      "pred_error": 2,
+      "match": 3,
+      "mismatch": 1
+    },
+    "shakespeare": {
+      "mismatch": 1
+    },
+    "retails": {
+      "mismatch": 2,
+      "match": 5
+    },
+    "address": {
+      "mismatch": 5,
+      "pred_error": 1,
+      "match": 5
+    },
+    "software_company": {
+      "match": 2
+    },
+    "music_platform_2": {
+      "match": 1
+    },
+    "app_store": {
+      "match": 2,
+      "mismatch": 1
+    },
+    "law_episode": {
+      "mismatch": 1
+    },
+    "simpson_episodes": {
+      "match": 2
+    },
+    "social_media": {
+      "mismatch": 1
+    },
+    "retail_world": {
+      "match": 2,
+      "pred_error": 1,
+      "mismatch": 1
+    },
+    "food_inspection_2": {
+      "match": 5,
+      "mismatch": 2
+    },
+    "restaurant": {
+      "mismatch": 5
+    },
+    "synthea": {
+      "match": 2,
+      "mismatch": 9,
+      "pred_error": 2
+    },
+    "beer_factory": {
+      "mismatch": 2,
+      "match": 3,
+      "pred_error": 1
+    },
+    "sales": {
+      "mismatch": 1
+    },
+    "craftbeer": {
+      "mismatch": 1,
+      "match": 1
+    },
+    "chicago_crime": {
+      "match": 5,
+      "mismatch": 1
+    },
+    "donor": {
+      "mismatch": 4,
+      "match": 2
+    }
+  },
+  "model": "Qwen2.5-Coder-7B-Instruct + LoRA",
+  "seed": 20261115,
+  "seconds": 805.8
+}
