@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 22:29 UTC+03",
+  "generated_at": "2026-11-15 22:45 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -13,10 +13,10 @@
     "bird_dev_divergent.jsonl": 13,
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
-    "synthetic_bird_like.jsonl": 4089,
+    "synthetic_bird_like.jsonl": 4751,
     "synthetic_roundtrip_sample.jsonl": 300,
     "synthetic_roundtrip_join_sample.jsonl": 120,
-    "synthetic_single_table_extra.jsonl": 2701
+    "synthetic_single_table_extra.jsonl": 2595
   },
   "filters": {
     "dev": "gold исполняется на PostgreSQL; отдельно помечено, совпадает ли набор строк с исполнением того же gold на оригинальной SQLite",
@@ -38,7 +38,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 22:29 UTC+03",
+    "generated_at": "2026-11-15 22:45 UTC+03",
     "dev_plain": 220,
     "dev_repaired": 7,
     "dev_official": 1,
@@ -60,24 +60,24 @@
     "train_other_failures": 508,
     "train_retried": 4,
     "train_recovered": 2,
-    "synth_candidates": 7000,
+    "synth_candidates": 7900,
     "synth_curated": 2649,
-    "synth_attempts": 1150,
-    "synth_keep_rate": "609%",
-    "synth_accepted": 4089,
-    "synth_hand": 4063,
+    "synth_attempts": 1288,
+    "synth_keep_rate": "613%",
+    "synth_accepted": 4751,
+    "synth_hand": 4725,
     "synth_model": 26,
     "synth_dbs": 61,
-    "synth_joins": 2819,
-    "synth_join_pct": "69%",
-    "synth_unique_sql": 2355,
-    "synth_multi_table": 466,
+    "synth_joins": 3375,
+    "synth_join_pct": "71%",
+    "synth_unique_sql": 2722,
+    "synth_multi_table": 1022,
     "synth_nested": 1662,
-    "synth_depth": "{\"0\": 31.1, \"1\": 57.5, \"2\": 10.1, \"3\": 1.3}",
+    "synth_depth": "{\"0\": 29.0, \"1\": 49.5, \"2\": 17.1, \"3\": 4.4}",
     "dev_depth": "{\"0\": 15.8, \"1\": 56.0, \"2\": 22.4, \"3\": 5.4, \"4\": 0.4}",
-    "synth_subq_pct": "41%",
+    "synth_subq_pct": "35%",
     "dev_subq_pct": "11%",
-    "single_table_extra": 2701,
+    "single_table_extra": 2595,
     "rt_match": 135,
     "rt_rate": "45.0%",
     "rt_error": 44,
@@ -168,8 +168,8 @@
       "sha256": "22a53aa537e5f0d8c0c05fa6fe4190c0e5b5f6919c86f644f2f73f229b136eae"
     },
     "data/synthetic_bird_like.jsonl": {
-      "bytes": 4270981,
-      "sha256": "3f476e2c951400142571bd1a4e184cb6a33f388bf4c7887da3784cf8ccaed483"
+      "bytes": 4986395,
+      "sha256": "9b204dc3262a8706783e59a9271d9136906fbb8fa8eed251aeb70b381c133485"
     },
     "data/synthetic_roundtrip_join_sample.jsonl": {
       "bytes": 76090,
@@ -180,16 +180,16 @@
       "sha256": "cb7081801f02785450d37d55cebe98802834db24bda8a7ddbca0dfd1afeeff95"
     },
     "data/synthetic_single_table_extra.jsonl": {
-      "bytes": 2471998,
-      "sha256": "95ed5659019585166354ef1377680636e735c272589705f96a91232d9582e017"
+      "bytes": 2374773,
+      "sha256": "1db7488729f7ac8ec1ebbab2ecf908d3f57e7905375305d7f07f92d2f394f98b"
     },
     "README.md": {
       "bytes": 1706,
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 27696,
-      "sha256": "73a5fb8eccc0aea2dd2d40caebc1f4cffafbdb1ff3eff99bbdc69d8c37d94800"
+      "bytes": 27891,
+      "sha256": "e89d640ac9210be2d05f4e651823c7625ffa4319e06452fe3f4bc439e95a0105"
     },
     "reports/dev_report.json": {
       "bytes": 829,
@@ -217,11 +217,11 @@
     },
     "reports/shape_coverage.json": {
       "bytes": 536,
-      "sha256": "be49d47751f3808fc4a536e97f065ef8abf1190623efe85c2d1d0211e6b68e0d"
+      "sha256": "cc99d90051f1e60ac07d399732f62546bad778ab85f800da72c3ca46586c6b76"
     },
     "reports/synthesis_report.json": {
-      "bytes": 2511,
-      "sha256": "02cb13bd80f6b843b209e5bcda08eb98cfd9e2c67016ab054c25c74e286af5f4"
+      "bytes": 2611,
+      "sha256": "751420da21794918d12b37e00a8b985968f8733415fbe726a05eaaeca380da0d"
     },
     "reports/train_report.json": {
       "bytes": 2867,
