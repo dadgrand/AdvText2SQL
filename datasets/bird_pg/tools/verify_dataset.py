@@ -104,7 +104,9 @@ def main(argv: list[str] | None = None) -> int:
     for name, path in splits.items():
         rows = load_jsonl(path)
         print(f"{name:<32} {len(rows):>5} rows  {path.stat().st_size if path.exists() else 0:>9} bytes")
-        ids = [str(r.get("question_id") or r.get("sample_id")) for r in rows]
+        # a synthetic SQL may legitimately carry two question variants: identity is
+        # (sample id, variant), not the sample id alone
+        ids = [f'{r.get("question_id") or r.get("sample_id")}#{r.get("variant", 1)}' for r in rows]
         if len(ids) != len(set(ids)):
             problems.append(f"{name}: duplicate ids")
         for row in rows:
