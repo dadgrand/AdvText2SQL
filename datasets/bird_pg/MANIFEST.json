@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 21:10 UTC+03",
+  "generated_at": "2026-11-15 21:45 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -13,7 +13,7 @@
     "bird_dev_divergent.jsonl": 13,
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
-    "synthetic_bird_like.jsonl": 3595,
+    "synthetic_bird_like.jsonl": 4668,
     "synthetic_roundtrip_sample.jsonl": 300
   },
   "filters": {
@@ -36,7 +36,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 21:10 UTC+03",
+    "generated_at": "2026-11-15 21:45 UTC+03",
     "dev_plain": 220,
     "dev_repaired": 7,
     "dev_official": 1,
@@ -58,14 +58,17 @@
     "train_other_failures": 508,
     "train_retried": 4,
     "train_recovered": 2,
-    "synth_candidates": 4280,
+    "synth_candidates": 5124,
     "synth_curated": 2649,
-    "synth_attempts": 3208,
-    "synth_keep_rate": "133%",
-    "synth_accepted": 3595,
-    "synth_hand": 3504,
+    "synth_attempts": 1150,
+    "synth_keep_rate": "446%",
+    "synth_accepted": 4668,
+    "synth_hand": 4577,
     "synth_model": 91,
     "synth_dbs": 61,
+    "synth_joins": 1073,
+    "synth_join_pct": "23%",
+    "synth_unique_sql": 2709,
     "rt_match": 135,
     "rt_rate": "45.0%",
     "rt_error": 44,
@@ -156,8 +159,8 @@
       "sha256": "22a53aa537e5f0d8c0c05fa6fe4190c0e5b5f6919c86f644f2f73f229b136eae"
     },
     "data/synthetic_bird_like.jsonl": {
-      "bytes": 3310182,
-      "sha256": "9829e15c68758334edbabe27e2ac66654928ae69d1bdc5bdb24b44cf731e1ff4"
+      "bytes": 4390896,
+      "sha256": "c77e797bb4e55b1c03cf18473c1f24a72b2d6133b6aad840bcdfd79864913cbb"
     },
     "data/synthetic_roundtrip_sample.jsonl": {
       "bytes": 147912,
@@ -168,8 +171,8 @@
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 24180,
-      "sha256": "b2e214ae2a1775a5296357f57ac5aa3e991f44a6d045626a98bc79c3c1e14ea8"
+      "bytes": 25005,
+      "sha256": "4aedcd054d80c03a39a5f34938421fa510c3ebf1f4f025209bc53ec37ebc4c22"
     },
     "reports/dev_report.json": {
       "bytes": 829,
@@ -192,8 +195,8 @@
       "sha256": "34cb3963b8e8d7abcc52367ff051d625e399fd093db76f01a7de49a11b787905"
     },
     "reports/synthesis_report.json": {
-      "bytes": 2145,
-      "sha256": "7ec32e496870c238426dfee335e8b07e5337c5a748b776da6284724d6ae14041"
+      "bytes": 2200,
+      "sha256": "48128f90069f8be85ce6254a1f77cbbd20e52d0abbd00acd2cc73de2405a3f8c"
     },
     "reports/train_report.json": {
       "bytes": 2867,
