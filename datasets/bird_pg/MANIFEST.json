@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 19:59 UTC+03",
+  "generated_at": "2026-11-15 20:07 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -9,8 +9,8 @@
   },
   "counts": {
     "bird_dev_pg.jsonl": 241,
-    "bird_dev_clean.jsonl": 216,
-    "bird_dev_divergent.jsonl": 25,
+    "bird_dev_clean.jsonl": 228,
+    "bird_dev_divergent.jsonl": 13,
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
     "synthetic_bird_like.jsonl": 651
@@ -35,10 +35,14 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 19:59 UTC+03",
+    "generated_at": "2026-11-15 20:07 UTC+03",
+    "dev_plain": 220,
+    "dev_repaired": 7,
+    "dev_official": 1,
+    "dev_toxicology": 7,
     "dev_total": 241,
-    "dev_verified": 216,
-    "dev_divergent": 25,
+    "dev_verified": 228,
+    "dev_divergent": 13,
     "dev_unverified": 0,
     "dev_executable": 241,
     "train_total": 6601,
@@ -58,8 +62,8 @@
     "synth_accepted": 651,
     "synth_accept_rate": "71%",
     "official_matched": 114,
-    "official_agree": 109,
-    "official_disagree": 5,
+    "official_agree": 106,
+    "official_disagree": 8,
     "schema_dbs": 77,
     "schema_tables": 484,
     "schema_columns": 3381
@@ -98,16 +102,16 @@
       "sha256": "69267b03f917d2081c224ba987b35908f228dd9eee3086366ab79cd0c11f92fe"
     },
     "data/bird_dev_clean.jsonl": {
-      "bytes": 218085,
-      "sha256": "2f64a43f19bb74c4868e7af57be2cc2f82a1ff662a0c80c00621312b2834f73e"
+      "bytes": 229796,
+      "sha256": "ebd1aa7d208b42f4a9dc382eb70cf1f349ae674cff592d3c1275070daaea81a2"
     },
     "data/bird_dev_divergent.jsonl": {
-      "bytes": 32681,
-      "sha256": "c5c89f822e70bb194e0fd3f5c62bb54f77e06b028aef62f2c016b8bece4e1bae"
+      "bytes": 16078,
+      "sha256": "ecb0bb98e8d657813a2faf9622c246834f6a7b0f2bcdc9cb04057c3db0b78ab2"
     },
     "data/bird_dev_pg.jsonl": {
-      "bytes": 246934,
-      "sha256": "3962aaf83f21b0e1b4fafc373171361f94cefd7fb15ad6db216c653137aa3f51"
+      "bytes": 245874,
+      "sha256": "8f14eb40c17fd6d6f64d4b7e1dc87bd499e2732a89e8bebf56952e7bfa1277d3"
     },
     "data/bird_train_excluded.jsonl": {
       "bytes": 1376561,
@@ -126,16 +130,20 @@
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 17799,
-      "sha256": "11bf3b51400080d0fd4470dada1534f326cb43629196d2f22dc4f1e6d7d77c38"
+      "bytes": 21096,
+      "sha256": "20fc89cbf9b288e7bb9d0ba5622fab916c2722a2f975494edea67d3033d3741b"
     },
     "reports/dev_report.json": {
-      "bytes": 993,
-      "sha256": "d8f531c88c0ef6a17037ba4009c83ad8178820825b972d9cdf9dfd2b14d37e0a"
+      "bytes": 829,
+      "sha256": "dd7756f263d3d1f0489b74cc6a158c89dbdc91941f173013797cde4046823847"
+    },
+    "reports/drift_report.json": {
+      "bytes": 1249,
+      "sha256": "2acf5956b65b7278dd675a325e9fefe5d9f5fa1cc54bec078056bef4888402d9"
     },
     "reports/official_crosscheck.json": {
-      "bytes": 8110,
-      "sha256": "69d461d950fe573c40e916b83d47beb527e0d8d1714dd869f3f6f17b75604d2d"
+      "bytes": 13022,
+      "sha256": "d964c31f29ebd8d5ae60e33ff10b405f89a4ef73f5bd7f7fb05f7919b59b3215"
     },
     "reports/schema_report.json": {
       "bytes": 119,

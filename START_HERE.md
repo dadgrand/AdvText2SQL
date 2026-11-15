@@ -15,7 +15,7 @@ gap is **training-data coverage**, not capacity, adapter or schema presentation 
 **Dataset hand-off for the team (`datasets/bird_pg/`).** BIRD translated to PostgreSQL and verified by
 **execution** on the course server, not by reading: all **241/241** dev gold queries run (the shipped
 `evaluate_bird.py` destroys 30 of them with a regex — the dataset fixes the rewriter instead of dropping the
-questions), **216** of them return exactly the original SQLite row set, **5,230/6,601** train rows run
+questions), **228** of them return exactly the original SQLite row set, **5,230/6,601** train rows run
 (863 of the failures are six databases that are empty on the server), and **651** synthetic BIRD-like pairs
 were generated over train schemas only. Schemas/DDL for 77 databases, a verifier, an SFT converter and the
 builders ship with it. Start at `datasets/bird_pg/README.ru.md`; the one-page technical summary is

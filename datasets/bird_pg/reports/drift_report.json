@@ -1,0 +1,69 @@
+{
+  "california_schools": {
+    "tables": 3,
+    "equal": 3,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "card_games": {
+    "tables": 6,
+    "equal": 6,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "codebase_community": {
+    "tables": 8,
+    "equal": 8,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "debit_card_specializing": {
+    "tables": 5,
+    "equal": 5,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "financial": {
+    "tables": 8,
+    "equal": 8,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "student_club": {
+    "tables": 8,
+    "equal": 8,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "superhero": {
+    "tables": 10,
+    "equal": 10,
+    "diverging": [],
+    "missing_in_pg": []
+  },
+  "toxicology": {
+    "tables": 4,
+    "equal": 1,
+    "diverging": [
+      {
+        "table": "atom",
+        "sqlite": 9111,
+        "pg": 12333,
+        "equal": false
+      },
+      {
+        "table": "bond",
+        "sqlite": 9156,
+        "pg": 12379,
+        "equal": false
+      },
+      {
+        "table": "connected",
+        "sqlite": 18312,
+        "pg": 24758,
+        "equal": false
+      }
+    ],
+    "missing_in_pg": []
+  }
+}

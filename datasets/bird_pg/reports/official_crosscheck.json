@@ -1,13 +1,297 @@
 {
   "questions_in_course_split": 241,
   "matched_against_official_pg": 114,
-  "agreements": 109,
-  "disagreements": 5,
-  "agreement_rate": 0.9561,
+  "agreements": 106,
+  "disagreements": 8,
+  "agreement_rate": 0.9298,
   "classes": {
-    "result_differs": 5
+    "result_differs": 8
   },
   "items": [
+    {
+      "question_id": "17",
+      "db_id": "california_schools",
+      "class": "result_differs",
+      "question": "Rank schools by their average score in Writing where the score is greater than 499, showing their charter numbers.",
+      "ours_sql": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC NULLS LAST) AS WritingScoreRank FROM schools AS T1 INNER JOIN satscores AS T2 ON CAST(T1.CDSCode AS BIGINT) = CAST(T2.cds AS BIGINT) WHERE T2.AvgScrWrite > 499 AND NOT CharterNum IS NULL",
+      "official_sql": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC NULLS LAST) AS WritingScoreRank FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite > 499 AND NOT CharterNum IS NULL",
+      "sqlite_sql": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC) AS WritingScoreRank FROM schools AS T1  INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite > 499 AND CharterNum is not null",
+      "ours_rows": [
+        [
+          "0210",
+          630,
+          1
+        ],
+        [
+          "0890",
+          593,
+          2
+        ],
+        [
+          "0290",
+          582,
+          3
+        ],
+        [
+          "0352",
+          581,
+          4
+        ],
+        [
+          "0930",
+          579,
+          5
+        ],
+        [
+          "1169",
+          576,
+          6
+        ],
+        [
+          "1114",
+          562,
+          7
+        ],
+        [
+          "1079",
+          558,
+          8
+        ],
+        [
+          "0120",
+          555,
+          9
+        ],
+        [
+          "0747",
+          554,
+          10
+        ]
+      ],
+      "official_rows": [
+        [
+          "0210",
+          630,
+          1
+        ],
+        [
+          "0890",
+          593,
+          2
+        ],
+        [
+          "0290",
+          582,
+          3
+        ],
+        [
+          "0930",
+          579,
+          4
+        ],
+        [
+          "1169",
+          576,
+          5
+        ],
+        [
+          "1079",
+          558,
+          6
+        ],
+        [
+          "0120",
+          555,
+          7
+        ],
+        [
+          "0747",
+          554,
+          8
+        ],
+        [
+          "0612",
+          551,
+          9
+        ],
+        [
+          "0759",
+          548,
+          10
+        ]
+      ],
+      "ours_row_count": 58,
+      "official_row_count": 50,
+      "sqlite_row_count": 58
+    },
+    {
+      "question_id": "27",
+      "db_id": "california_schools",
+      "class": "result_differs",
+      "question": "What is the average score in writing for the schools that were opened after 1991 or closed before 2000? List the school names along with the score. Also, list the communication number of the schools if there is any.",
+      "ours_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON CAST(T2.CDSCode AS BIGINT) = CAST(T1.cds AS BIGINT) WHERE TO_CHAR(CAST(T2.OpenDate AS TIMESTAMP), 'YYYY') > '1991' OR TO_CHAR(CAST(T2.ClosedDate AS TIMESTAMP), 'YYYY') < '2000'",
+      "official_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE TO_CHAR(CAST(T2.OpenDate AS TIMESTAMP), 'YYYY') > '1991' OR TO_CHAR(CAST(T2.ClosedDate AS TIMESTAMP), 'YYYY') < '2000'",
+      "sqlite_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE strftime('%Y', T2.OpenDate) > '1991' OR strftime('%Y', T2.ClosedDate) < '2000'",
+      "ours_rows": [
+        [
+          "FAME Public Charter",
+          505,
+          null
+        ],
+        [
+          "Envision Academy for Arts & Technology",
+          395,
+          "(510) 596-8901"
+        ],
+        [
+          "Aspire California College Preparatory Academy",
+          null,
+          null
+        ],
+        [
+          "Community School for Creative Education",
+          null,
+          "(510) 686-4131"
+        ],
+        [
+          "Yu Ming Charter",
+          null,
+          "(510) 452-2063"
+        ],
+        [
+          "Urban Montessori Charter",
+          null,
+          "(510) 842-1181"
+        ],
+        [
+          "Technical, Agricultural & Nat.",
+          null,
+          null
+        ],
+        [
+          "Berkeley Trade & Tech. College",
+          null,
+          null
+        ],
+        [
+          "Oakland Unity Middle",
+          null,
+          "(510) 969-5302"
+        ],
+        [
+          "Canyon Valley Adult School",
+          null,
+          null
+        ]
+      ],
+      "official_rows": [
+        [
+          "FAME Public Charter",
+          null,
+          null
+        ],
+        [
+          "Envision Academy for Arts & Technology",
+          null,
+          "(510) 596-8901"
+        ],
+        [
+          "Aspire California College Preparatory Academy",
+          null,
+          null
+        ],
+        [
+          "Community School for Creative Education",
+          null,
+          "(510) 686-4131"
+        ],
+        [
+          "Yu Ming Charter",
+          null,
+          "(510) 452-2063"
+        ],
+        [
+          "Urban Montessori Charter",
+          null,
+          "(510) 842-1181"
+        ],
+        [
+          "Technical, Agricultural & Nat.",
+          null,
+          null
+        ],
+        [
+          "Berkeley Trade & Tech. College",
+          null,
+          null
+        ],
+        [
+          "Oakland Unity Middle",
+          null,
+          "(510) 969-5302"
+        ],
+        [
+          "Canyon Valley Adult School",
+          null,
+          null
+        ]
+      ],
+      "ours_row_count": 8574,
+      "official_row_count": 8574,
+      "sqlite_row_count": 8574
+    },
+    {
+      "question_id": "37",
+      "db_id": "california_schools",
+      "class": "result_differs",
+      "question": "What is the complete address of the school with the lowest excellence rate? Indicate the Street, City, Zip and State.",
+      "ours_sql": "SELECT T2.Street, T2.City, T2.State, T2.Zip FROM satscores AS T1 INNER JOIN schools AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) ORDER BY CAST(T1.NumGE1500 AS REAL) / NULLIF(T1.NumTstTakr, 0) ASC NULLS FIRST LIMIT 1",
+      "official_sql": "SELECT T2.Street, T2.City, T2.State, T2.Zip FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY CAST(T1.NumGE1500 AS REAL) / NULLIF(T1.NumTstTakr, 0) ASC NULLS FIRST LIMIT 1",
+      "sqlite_sql": "SELECT T2.Street, T2.City, T2.State, T2.Zip FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr ASC LIMIT 1",
+      "ours_rows": [
+        [
+          "2125 Jefferson Avenue",
+          "Berkeley",
+          "CA",
+          "94703-1414"
+        ]
+      ],
+      "official_rows": [
+        [
+          "1111 Van Ness Avenue",
+          "Fresno",
+          "CA",
+          "93721-2002"
+        ]
+      ],
+      "ours_row_count": 1,
+      "official_row_count": 1,
+      "sqlite_row_count": 1
+    },
+    {
+      "question_id": "50",
+      "db_id": "california_schools",
+      "class": "result_differs",
+      "question": "What is the postal street address for the school with the 7th highest Math average? Indicate the school's name.",
+      "ours_sql": "SELECT T2.MailStreet, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) ORDER BY T1.AvgScrMath DESC NULLS LAST LIMIT 1 OFFSET 6",
+      "official_sql": "SELECT T2.MailStreet, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrMath DESC NULLS LAST LIMIT 1 OFFSET 6",
+      "sqlite_sql": "SELECT T2.MailStreet, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrMath DESC LIMIT 6, 1",
+      "ours_rows": [
+        [
+          "25 Churchill Avenue",
+          null
+        ]
+      ],
+      "official_rows": [
+        [
+          "5172 Orange Avenue",
+          "Oxford Academy"
+        ]
+      ],
+      "ours_row_count": 1,
+      "official_row_count": 1,
+      "sqlite_row_count": 1
+    },
     {
       "question_id": "402",
       "db_id": "card_games",
@@ -62,38 +346,12 @@
       "sqlite_sql": "SELECT SUM(IIF(T1.Currency = 'CZK', T2.Consumption, 0)) - SUM(IIF(T1.Currency = 'EUR', T2.Consumption, 0)) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTR(T2.Date, 1, 4) = '2012'",
       "ours_rows": [
         [
-          402531680
+          402531300
         ]
       ],
       "official_rows": [
         [
-          402524570.022841
-        ]
-      ],
-      "ours_row_count": 1,
-      "official_row_count": 1,
-      "sqlite_row_count": 1
-    },
-    {
-      "question_id": "1482",
-      "db_id": "debit_card_specializing",
-      "class": "result_differs",
-      "question": "Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?",
-      "ours_sql": "SELECT CAST((SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END)) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0), CAST(SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0), CAST(SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
-      "official_sql": "SELECT CAST((SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END)) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0), CAST(SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'LAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0), CAST(SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2013%' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN T1.Segment = 'KAM' AND T2.Date LIKE '2012%' THEN T2.Consumption ELSE 0 END), 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
-      "sqlite_sql": "SELECT CAST((SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0))) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0)), CAST(SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) , CAST(SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
-      "ours_rows": [
-        [
-          545.406886,
-          681.585393,
-          708.11251
-        ]
-      ],
-      "official_rows": [
-        [
-          545.404918,
-          681.585475,
-          708.11167
+          402525000
         ]
       ],
       "ours_row_count": 1,

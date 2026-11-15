@@ -9,8 +9,8 @@ summary for a reader of this repository.
 | Split | Rows | Guarantee |
 |---|---:|---|
 | `data/bird_dev_pg.jsonl` | 241 | every gold query **executed** on the course PostgreSQL |
-| `data/bird_dev_clean.jsonl` | 216 | same row set as the original SQLite execution |
-| `data/bird_dev_divergent.jsonl` | 25 | executes, but the two engines answer differently |
+| `data/bird_dev_clean.jsonl` | 228 | same row set as the original SQLite execution (7 of them after repairing a damaged join key) |
+| `data/bird_dev_divergent.jsonl` | 13 | executes, but the two engines answer differently (see §Data defects) |
 | `data/bird_train_pg.jsonl` | 5,230 | executed on PostgreSQL (no SQLite copy exists for these 63 databases) |
 | `data/bird_train_excluded.jsonl` | 1,371 | the failures, each with its error |
 | `data/synthetic_bird_like.jsonl` | 651 | synthetic BIRD-like pairs, built over **train** schemas only |
@@ -33,11 +33,23 @@ summary for a reader of this repository.
    `numeric`) while BIRD's SQLite stores the same data as `TEXT`: text-vs-number
    comparison, lexicographic vs numeric `ORDER BY`, case-sensitive `LIKE`. Same
    schema drift that `db_schemas.drift.json` recorded in round 1.
-3. **109 of 114 overlapping questions match BIRD's own `mini_dev_postgresql.json`**
+3. **106 of 114 overlapping questions match BIRD's own `mini_dev_postgresql.json`** — and the drop from 109 is the point: seven `california_schools` questions now use the *repaired* join key, so they answer like BIRD's SQLite label instead of like the official PostgreSQL file, which on this server joins on keys that lost their leading zero.
    when both are executed on the server. The five disagreements are in
    `reports/official_crosscheck.json`; two of them are cases where BIRD's own
    PostgreSQL file answers differently from its SQLite gold, one is a `CAST`
    difference (`SUM` over an integer column), one is data typing, one is rounding.
+
+## Two data defects found on the server (worth knowing before comparing numbers)
+
+* **Lost leading zeros in join keys.** In `california_schools` 211 of 2,269 `satscores.cds`
+  values are 13 characters long instead of 14 (the leading zero is gone), so
+  `satscores.cds = frpm.CDSCode` matches **1,620** rows instead of **1,782**. Eight dev
+  questions join on it and answer differently from the BIRD original; seven are repaired
+  by casting both sides to `bigint` (field `pg_sql_repairs`), the eighth is a tie-break
+  case. The per-table comparison for all eight dev databases is in
+  `reports/drift_report.json`.
+* **`toxicology` is a superset.** Its tables hold more rows than BIRD's original (numbers
+  above), which alone explains every divergence in that database.
 
 ## One translation bug worth remembering
 
