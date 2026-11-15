@@ -13,7 +13,7 @@
     "bird_dev_divergent.jsonl": 13,
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
-    "synthetic_bird_like.jsonl": 3730
+    "synthetic_bird_like.jsonl": 3595
   },
   "filters": {
     "dev": "gold исполняется на PostgreSQL; отдельно помечено, совпадает ли набор строк с исполнением того же gold на оригинальной SQLite",
@@ -61,9 +61,9 @@
     "synth_curated": 2649,
     "synth_attempts": 3208,
     "synth_keep_rate": "133%",
-    "synth_accepted": 3730,
-    "synth_hand": 3630,
-    "synth_model": 100,
+    "synth_accepted": 3595,
+    "synth_hand": 3504,
+    "synth_model": 91,
     "synth_dbs": 61,
     "synth_accept_rate": "164%",
     "official_matched": 114,
@@ -147,16 +147,16 @@
       "sha256": "22a53aa537e5f0d8c0c05fa6fe4190c0e5b5f6919c86f644f2f73f229b136eae"
     },
     "data/synthetic_bird_like.jsonl": {
-      "bytes": 3431523,
-      "sha256": "036f0707b76871a4b53f4c57ae019da81d8cc1b80bd3b4a26fe2c2d07fca667b"
+      "bytes": 3310182,
+      "sha256": "9829e15c68758334edbabe27e2ac66654928ae69d1bdc5bdb24b44cf731e1ff4"
     },
     "README.md": {
       "bytes": 1706,
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 22617,
-      "sha256": "866cf1f8af1e9776941fbeb58591fb111681485cb75fe98261e12508327fff2f"
+      "bytes": 22615,
+      "sha256": "1ea6e566dd2d1c06f715d46a7a461ca8d00067c125ca1111fcbada0e77fbfb27"
     },
     "reports/dev_report.json": {
       "bytes": 829,

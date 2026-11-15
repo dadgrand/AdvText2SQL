@@ -13,7 +13,7 @@ summary for a reader of this repository.
 | `data/bird_dev_divergent.jsonl` | 13 | executes, but the two engines answer differently (see §Data defects) |
 | `data/bird_train_pg.jsonl` | 5,230 | executed on PostgreSQL (no SQLite copy exists for these 63 databases) |
 | `data/bird_train_excluded.jsonl` | 1,371 | the failures, each with its error |
-| `data/synthetic_bird_like.jsonl` | 3,730 | synthetic BIRD-like pairs over **train** schemas only; `question_tier` = `hand` (3,630, written per question with schema+SQL+rows in view) or `model` (100, local 7B) |
+| `data/synthetic_bird_like.jsonl` | 3,595 | synthetic BIRD-like pairs over **train** schemas only; `question_tier` = `hand` (3,504, written per question with schema+SQL+rows in view) or `model` (91, local 7B) |
 | `schemas/` | 77 databases | runnable DDL + `schema.json` (types, PK/FK, row-count estimates) |
 | `tools/verify_dataset.py`, `tools/to_sft.py` | — | integrity/live check, chat-SFT converter |
 | `build/` | — | the builders that produced all of the above |
@@ -72,7 +72,7 @@ silently returns an empty string. Question 239 therefore returned `0` instead of
   identifiers, every SQL literal present in the text, 5-gram Jaccard < 0.6
   against real BIRD questions; a final pass checks that the interrogative matches
   the answer shape (a query returning `AVG(...)` must not be asked as "how many").
-  the local-model tier kept 651 of 1,000; the hand tier then produced 3,630 accepted
+  the local-model tier kept 651 of 1,000; the hand tier then produced 3,504 accepted
   rows after the same gate, a curation screen that drops id-only questions, and a
   cap of two phrasings per SQL.
 * Two tiers are shipped with a `question_tier` field: `hand` (written per question by
