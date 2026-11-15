@@ -40,7 +40,7 @@ python tools/to_sft.py data/bird_dev_clean.jsonl out/dev_sft.jsonl
 | `data/bird_dev_pg.jsonl` | 241 | все 241 вопрос dev-сплита, gold SQL в диалекте PostgreSQL, исполним на сервере; у каждой строки поле `sqlite_check` |
 | `data/bird_dev_clean.jsonl` | 228 | подмножество, где SQLite-эталон и PostgreSQL дают **одинаковый набор строк** — безопасно для обучения и для отчётов |
 | `data/bird_dev_divergent.jsonl` | 13 | 13 вопросов, где два движка расходятся: SQL исполняется, но отвечает по-разному (разбор ниже) |
-| `data/bird_train_pg.jsonl` | 5230 | train-сплит, gold SQL в PostgreSQL, исполнение проверено |
+| `data/bird_train_pg.jsonl` | 5230 | train-сплит, gold SQL в PostgreSQL, исполнение проверено; у 246 строк результат пустой — поле `empty_result` |
 | `data/bird_train_excluded.jsonl` | 1371 | что не прошло и почему |
 | `data/synthetic_bird_like.jsonl` | 651 | синтетика: вопрос + evidence + исполнимый PostgreSQL SQL |
 | `schemas/schema.json` | 77 баз | таблицы, колонки, типы, PK/FK, оценка числа строк — для промптов |

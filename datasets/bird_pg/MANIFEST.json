@@ -49,6 +49,7 @@
     "train_accepted": 5230,
     "train_excluded": 1371,
     "train_dbs": 69,
+    "train_empty": 246,
     "train_untranslatable": 0,
     "train_exec_error": 1371,
     "train_empty_dbs": "`trains`, `world_development_indicators`, `video_games`, `works_cycles`, `world`, `university`",
@@ -118,8 +119,8 @@
       "sha256": "e7b116f128bf234d32527284aeea7a8a827b26257db1c14caa99b7d1a5a3e377"
     },
     "data/bird_train_pg.jsonl": {
-      "bytes": 4375444,
-      "sha256": "db4781a29118cf36d7e9e79d4ab2966852d0806fb7224e42d5b527f5c59c144b"
+      "bytes": 4495488,
+      "sha256": "22a53aa537e5f0d8c0c05fa6fe4190c0e5b5f6919c86f644f2f73f229b136eae"
     },
     "data/synthetic_bird_like.jsonl": {
       "bytes": 493552,
@@ -130,8 +131,8 @@
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 21096,
-      "sha256": "4edaa517b29c079d057696576303837ef676c71b6a1f374badbfbac681c59459"
+      "bytes": 21175,
+      "sha256": "19046a808bc7de77c3fd9e9b50341b20691a252a7809106d1b3649cdf1e0856f"
     },
     "reports/dev_report.json": {
       "bytes": 829,
