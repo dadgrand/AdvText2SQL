@@ -1,0 +1,104 @@
+{
+  "sample": 120,
+  "status": {
+    "mismatch": 74,
+    "match": 14,
+    "pred_error": 32
+  },
+  "match_rate": 0.1167,
+  "by_tier": {
+    "hand": {
+      "mismatch": 74,
+      "match": 14,
+      "pred_error": 32
+    }
+  },
+  "by_db": {
+    "hockey": {
+      "mismatch": 14,
+      "pred_error": 17
+    },
+    "menu": {
+      "mismatch": 2,
+      "match": 2
+    },
+    "cookbook": {
+      "pred_error": 1,
+      "mismatch": 2,
+      "match": 1
+    },
+    "citeseer": {
+      "match": 1,
+      "mismatch": 4
+    },
+    "language_corpus": {
+      "match": 2,
+      "pred_error": 2
+    },
+    "computer_student": {
+      "match": 2,
+      "mismatch": 1
+    },
+    "food_inspection": {
+      "mismatch": 8
+    },
+    "olympics": {
+      "mismatch": 1,
+      "pred_error": 2
+    },
+    "car_retails": {
+      "mismatch": 2,
+      "pred_error": 1
+    },
+    "cars": {
+      "mismatch": 4
+    },
+    "genes": {
+      "mismatch": 3,
+      "pred_error": 1
+    },
+    "books": {
+      "mismatch": 3,
+      "match": 1
+    },
+    "donor": {
+      "match": 2,
+      "mismatch": 4,
+      "pred_error": 2
+    },
+    "law_episode": {
+      "mismatch": 1,
+      "pred_error": 1
+    },
+    "address": {
+      "mismatch": 2,
+      "pred_error": 1
+    },
+    "professional_basketball": {
+      "mismatch": 9
+    },
+    "movie": {
+      "match": 1,
+      "mismatch": 1,
+      "pred_error": 1
+    },
+    "chicago_crime": {
+      "mismatch": 1
+    },
+    "legislator": {
+      "match": 1,
+      "mismatch": 1
+    },
+    "image_and_language": {
+      "mismatch": 3,
+      "pred_error": 3,
+      "match": 1
+    },
+    "beer_factory": {
+      "mismatch": 8
+    }
+  },
+  "model": "Qwen2.5-Coder-7B-Instruct + LoRA",
+  "seed": 20261115,
+  "seconds": 473.4
+}

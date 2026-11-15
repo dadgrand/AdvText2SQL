@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 21:45 UTC+03",
+  "generated_at": "2026-11-15 21:54 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -14,7 +14,8 @@
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
     "synthetic_bird_like.jsonl": 4668,
-    "synthetic_roundtrip_sample.jsonl": 300
+    "synthetic_roundtrip_sample.jsonl": 300,
+    "synthetic_roundtrip_join_sample.jsonl": 120
   },
   "filters": {
     "dev": "gold исполняется на PostgreSQL; отдельно помечено, совпадает ли набор строк с исполнением того же gold на оригинальной SQLite",
@@ -36,7 +37,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 21:45 UTC+03",
+    "generated_at": "2026-11-15 21:54 UTC+03",
     "dev_plain": 220,
     "dev_repaired": 7,
     "dev_official": 1,
@@ -162,6 +163,10 @@
       "bytes": 4390896,
       "sha256": "c77e797bb4e55b1c03cf18473c1f24a72b2d6133b6aad840bcdfd79864913cbb"
     },
+    "data/synthetic_roundtrip_join_sample.jsonl": {
+      "bytes": 76090,
+      "sha256": "c2213d1a62040ebae8db1dd6ccd0d512878f2d0034c2fb587e02067e99fd1b02"
+    },
     "data/synthetic_roundtrip_sample.jsonl": {
       "bytes": 147912,
       "sha256": "cb7081801f02785450d37d55cebe98802834db24bda8a7ddbca0dfd1afeeff95"
@@ -171,8 +176,8 @@
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 25005,
-      "sha256": "4aedcd054d80c03a39a5f34938421fa510c3ebf1f4f025209bc53ec37ebc4c22"
+      "bytes": 25831,
+      "sha256": "b1cc9605fb51021c4c469b71e85746f3e030eed36c852f65d1646f36b5fddb4f"
     },
     "reports/dev_report.json": {
       "bytes": 829,
@@ -185,6 +190,10 @@
     "reports/official_crosscheck.json": {
       "bytes": 13022,
       "sha256": "d964c31f29ebd8d5ae60e33ff10b405f89a4ef73f5bd7f7fb05f7919b59b3215"
+    },
+    "reports/roundtrip_join_report.json": {
+      "bytes": 1831,
+      "sha256": "c832e48011da4ccb7b025baa1fdc58189f2e3f1193a03c64466fc896c7250101"
     },
     "reports/roundtrip_report.json": {
       "bytes": 4710,
