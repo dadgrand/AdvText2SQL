@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 20:07 UTC+03",
+  "generated_at": "2026-11-15 20:08 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -35,7 +35,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 20:07 UTC+03",
+    "generated_at": "2026-11-15 20:08 UTC+03",
     "dev_plain": 220,
     "dev_repaired": 7,
     "dev_official": 1,
@@ -102,16 +102,16 @@
       "sha256": "69267b03f917d2081c224ba987b35908f228dd9eee3086366ab79cd0c11f92fe"
     },
     "data/bird_dev_clean.jsonl": {
-      "bytes": 229796,
-      "sha256": "ebd1aa7d208b42f4a9dc382eb70cf1f349ae674cff592d3c1275070daaea81a2"
+      "bytes": 243558,
+      "sha256": "b0179491c978b8a60d4876ffc2c1bd8a4c859b538dff4f2178efa3bc0daad0cf"
     },
     "data/bird_dev_divergent.jsonl": {
-      "bytes": 16078,
-      "sha256": "ecb0bb98e8d657813a2faf9622c246834f6a7b0f2bcdc9cb04057c3db0b78ab2"
+      "bytes": 16780,
+      "sha256": "15c47e6841ee6a147e4b911f03957da1903a2998a990e4368d02afe424632333"
     },
     "data/bird_dev_pg.jsonl": {
-      "bytes": 245874,
-      "sha256": "8f14eb40c17fd6d6f64d4b7e1dc87bd499e2732a89e8bebf56952e7bfa1277d3"
+      "bytes": 260338,
+      "sha256": "734328ac4351f90e72481dec6b99e09700ca5716cfdf900c7a7ff75ac4c00da5"
     },
     "data/bird_train_excluded.jsonl": {
       "bytes": 1376561,
@@ -131,7 +131,7 @@
     },
     "README.ru.md": {
       "bytes": 21096,
-      "sha256": "20fc89cbf9b288e7bb9d0ba5622fab916c2722a2f975494edea67d3033d3741b"
+      "sha256": "4edaa517b29c079d057696576303837ef676c71b6a1f374badbfbac681c59459"
     },
     "reports/dev_report.json": {
       "bytes": 829,
