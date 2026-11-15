@@ -1,0 +1,477 @@
+{
+  "package": "BIRD на PostgreSQL: dev + train + синтетика",
+  "generated_at": "2026-11-15 19:52 RTZ 2 (зима)",
+  "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
+  "rewriter": {
+    "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
+    "sqlglot": "30.23.0",
+    "why": "штатная перезапись benchmarks/evaluate_bird.py ломает 30 gold-запросов из 241"
+  },
+  "counts": {
+    "bird_dev_pg.jsonl": 241,
+    "bird_dev_clean.jsonl": 216,
+    "bird_dev_divergent.jsonl": 25,
+    "bird_train_pg.jsonl": 5230,
+    "bird_train_excluded.jsonl": 1371,
+    "synthetic_bird_like.jsonl": 651
+  },
+  "filters": {
+    "dev": "gold исполняется на PostgreSQL; отдельно помечено, совпадает ли набор строк с исполнением того же gold на оригинальной SQLite",
+    "train": "gold исполняется на PostgreSQL (SQLite-копий для train-баз нет)",
+    "synthetic": "SQL исполняется, 1..30 строк, детерминированный ORDER BY, уникальный набор строк; вопрос проходит список проверок (см. README раздел 6)"
+  },
+  "sources": {
+    "dev_answers": {
+      "path": "repo/data/bird_large.json",
+      "sha256": "54e57841bf5bf14261f6eb886674024be950dfed5b32eff85d6936098d707567"
+    },
+    "train_filtered": {
+      "path": "data_cache/bird_train/bird23_train_filtered.jsonl",
+      "sha256": "2ee64aa593e1adc59be7d5b9ce2395372a8ee27fdd94a3fb4d2fe09f3cd34bc8"
+    },
+    "minidev_zip": {
+      "path": "data_cache/minidev.zip",
+      "sha256": "cc48ba16838204e4e214512030cb572eeb5f7bcdd999bae4b9b6ff12ec13b92f"
+    }
+  },
+  "facts": {
+    "generated_at": "2026-11-15 19:52 RTZ 2 (зима)",
+    "dev_total": 241,
+    "dev_verified": 216,
+    "dev_divergent": 25,
+    "dev_unverified": 0,
+    "dev_executable": 241,
+    "train_total": 6601,
+    "train_accepted": 5230,
+    "train_excluded": 1371,
+    "train_dbs": 69,
+    "train_untranslatable": 0,
+    "train_exec_error": 1371,
+    "train_empty_dbs": "`trains`, `world_development_indicators`, `video_games`, `works_cycles`, `world`, `university`",
+    "train_rows_empty_dbs": 863,
+    "train_other_failures": 508,
+    "train_retried": 4,
+    "train_recovered": 2,
+    "synth_candidates": 1000,
+    "synth_attempts": 1279,
+    "synth_keep_rate": "78%",
+    "synth_accepted": 651,
+    "synth_accept_rate": "71%",
+    "official_matched": 114,
+    "official_agree": 109,
+    "official_disagree": 5,
+    "schema_dbs": 77,
+    "schema_tables": 484,
+    "schema_columns": 3381
+  },
+  "files": {
+    "build/assemble.py": {
+      "bytes": 12160,
+      "sha256": "2e3cbee36e33777d46d62f0f886021616a4e9ececb87928d8ba02f2e7b6f8a77"
+    },
+    "build/build.py": {
+      "bytes": 26588,
+      "sha256": "003da7689f84e1cc0225682f6a054183983d2f62696c9e5c7b5e98ad001aa7c1"
+    },
+    "build/common.py": {
+      "bytes": 11340,
+      "sha256": "58a500b9027484ba3d7324389ab53459af23b20f296bc79695a81354c520e982"
+    },
+    "build/crosscheck_official.py": {
+      "bytes": 4450,
+      "sha256": "fa3d52a67629abd4e2f5ad9bcd468d1bb1400d230009889e44549c114645727a"
+    },
+    "build/README.md": {
+      "bytes": 2477,
+      "sha256": "aad664af25017876fcec060070130d7993a3290e7994e48760bcbef9bc24cc14"
+    },
+    "build/README_template.ru.md": {
+      "bytes": 16656,
+      "sha256": "05b0b79c8f67128b28f59828ffb7a21dd782048f92159413b554b7720927ac62"
+    },
+    "build/synth.py": {
+      "bytes": 21978,
+      "sha256": "1ae54596933f9a1ae22877328c8d8f0572c002ad660a545a6abc920deda3fc64"
+    },
+    "build/verbalize.py": {
+      "bytes": 16917,
+      "sha256": "69267b03f917d2081c224ba987b35908f228dd9eee3086366ab79cd0c11f92fe"
+    },
+    "data/bird_dev_clean.jsonl": {
+      "bytes": 218085,
+      "sha256": "2f64a43f19bb74c4868e7af57be2cc2f82a1ff662a0c80c00621312b2834f73e"
+    },
+    "data/bird_dev_divergent.jsonl": {
+      "bytes": 32681,
+      "sha256": "c5c89f822e70bb194e0fd3f5c62bb54f77e06b028aef62f2c016b8bece4e1bae"
+    },
+    "data/bird_dev_pg.jsonl": {
+      "bytes": 246934,
+      "sha256": "3962aaf83f21b0e1b4fafc373171361f94cefd7fb15ad6db216c653137aa3f51"
+    },
+    "data/bird_train_excluded.jsonl": {
+      "bytes": 1376561,
+      "sha256": "e7b116f128bf234d32527284aeea7a8a827b26257db1c14caa99b7d1a5a3e377"
+    },
+    "data/bird_train_pg.jsonl": {
+      "bytes": 4375444,
+      "sha256": "db4781a29118cf36d7e9e79d4ab2966852d0806fb7224e42d5b527f5c59c144b"
+    },
+    "data/synthetic_bird_like.jsonl": {
+      "bytes": 493552,
+      "sha256": "97f7e2a9e4d13da8c360bc61f163167765663e9a2fd871556055a2428a5d8236"
+    },
+    "README.md": {
+      "bytes": 1706,
+      "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
+    },
+    "README.ru.md": {
+      "bytes": 17810,
+      "sha256": "ffca2489abbf44df1a60595dbead9b3523bb10e7c808fc4e008939434ed80154"
+    },
+    "reports/dev_report.json": {
+      "bytes": 993,
+      "sha256": "d8f531c88c0ef6a17037ba4009c83ad8178820825b972d9cdf9dfd2b14d37e0a"
+    },
+    "reports/official_crosscheck.json": {
+      "bytes": 8110,
+      "sha256": "69d461d950fe573c40e916b83d47beb527e0d8d1714dd869f3f6f17b75604d2d"
+    },
+    "reports/schema_report.json": {
+      "bytes": 119,
+      "sha256": "34cb3963b8e8d7abcc52367ff051d625e399fd093db76f01a7de49a11b787905"
+    },
+    "reports/synthesis_report.json": {
+      "bytes": 1828,
+      "sha256": "76aa11cf2a562ca43a683ba77e05f0a9e0fa7dfc5316e04c22616d0f67aee671"
+    },
+    "reports/train_report.json": {
+      "bytes": 2867,
+      "sha256": "25423b93567c8423eb38ef47e7785d859e3ab0b2b54fcc5ca578a677632c973e"
+    },
+    "reports/verbalize_report.json": {
+      "bytes": 2438,
+      "sha256": "770901463b52e35730e3be1c48bc6384b5c668300296db63fcfb83830e476311"
+    },
+    "schemas/address.sql": {
+      "bytes": 3691,
+      "sha256": "a5169e238cb9a9d4ea417b6197672fde763b3bd3658d0c07e37a12433dc2da31"
+    },
+    "schemas/airline.sql": {
+      "bytes": 1506,
+      "sha256": "1363dfdc4181558aa20dbf3d06baad8f8f539f92cea9232081e8514fef6e2e2a"
+    },
+    "schemas/app_store.sql": {
+      "bytes": 619,
+      "sha256": "76e47b32e4249ca533b8f57ac4c1805664c0c414a3c44b1589c58f4cf6f2e041"
+    },
+    "schemas/authors.sql": {
+      "bytes": 949,
+      "sha256": "d0cbedffc5a52908b26270c3bd191d3af03afac3cb7648f204c2ddee525913bc"
+    },
+    "schemas/beer_factory.sql": {
+      "bytes": 3231,
+      "sha256": "0b100897248b94c5b075e364b3a252fb6072aba64ab88d5cb413525acefce768"
+    },
+    "schemas/bike_share_1.sql": {
+      "bytes": 1643,
+      "sha256": "6cf5c77cd2bb8970acf83410de98ef4a4b41e4c91fc93cb57eff580f8bef689d"
+    },
+    "schemas/book_publishing_company.sql": {
+      "bytes": 3230,
+      "sha256": "3d720658f9873dcf1c157986305a308bad40f9d8158b3a5a85406e72f57245d1"
+    },
+    "schemas/books.sql": {
+      "bytes": 3335,
+      "sha256": "b4be317872b88d500425ef2c76f25d88deb064d52bee0fdbdb46a2f42d22963d"
+    },
+    "schemas/california_schools.sql": {
+      "bytes": 2699,
+      "sha256": "89991d1d398d4a2a903f148b3da960451706a6c061973d21f1ca6bfe5af62fbf"
+    },
+    "schemas/car_retails.sql": {
+      "bytes": 2670,
+      "sha256": "96adc50cbad72eace065f3d02f8a67136ba9a4fb0a3b98e7fdacc1bd0ea9a85d"
+    },
+    "schemas/card_games.sql": {
+      "bytes": 3498,
+      "sha256": "f948ac741ebf7044109aaabd3391a3936d6778618a1093241f28afa6f3d13cdc"
+    },
+    "schemas/cars.sql": {
+      "bytes": 1142,
+      "sha256": "fccb44b33e1e8e014bf1728f6eafdd3f8261a08630e32e1cf57916eadf6a28d9"
+    },
+    "schemas/chicago_crime.sql": {
+      "bytes": 2487,
+      "sha256": "2fb16eca149e9e0b4e0091e0cddb5a244ee4730476e84b97a1a856d605c52b5c"
+    },
+    "schemas/citeseer.sql": {
+      "bytes": 710,
+      "sha256": "099c2592e26713ee8642d8675a628ed753a92c100f078cbaf4139f59c1197f81"
+    },
+    "schemas/codebase_comments.sql": {
+      "bytes": 1025,
+      "sha256": "834d1ee5e99db4b79d56aa564cae37b675eb805c6eded4d9835e6ea0dad475be"
+    },
+    "schemas/codebase_community.sql": {
+      "bytes": 3202,
+      "sha256": "d56361074a4473cb09893da034a23f8b28f71aaaf81673cf2642d7a13c202909"
+    },
+    "schemas/coinmarketcap.sql": {
+      "bytes": 1086,
+      "sha256": "9c9bc33221427180715b769279385f9a8b3759f9e4dee5973bfce83082c118ac"
+    },
+    "schemas/college_completion.sql": {
+      "bytes": 3383,
+      "sha256": "15a1c0e6b8e3cf74c98ad51ad3a0b5cf47ebcb9fe28345bad8e432206c8c06d6"
+    },
+    "schemas/computer_student.sql": {
+      "bytes": 981,
+      "sha256": "4cb02ba1df970d74ab498c2aafcf57cbc21b8da8ac74d2a5d9bdcba6634301c4"
+    },
+    "schemas/cookbook.sql": {
+      "bytes": 1758,
+      "sha256": "c147be5d268d5bd09602e0cc248da0886a3fa98e14cfcb7e78e7969489d44ccd"
+    },
+    "schemas/craftbeer.sql": {
+      "bytes": 542,
+      "sha256": "61291f72152cd50d86fe1d2e03ce7ce3e11a80f5e5dcecce7f3b4c6a2f6ac976"
+    },
+    "schemas/cs_semester.sql": {
+      "bytes": 1516,
+      "sha256": "24f43df9e1554c33d006d766e216ea38866dfeb6f3a5844591981a82ee80f50f"
+    },
+    "schemas/debit_card_specializing.sql": {
+      "bytes": 1050,
+      "sha256": "970ad453647317a6277c2d9f4e694d0cf615bf3a4396763a6a467eb5961349ce"
+    },
+    "schemas/disney.sql": {
+      "bytes": 1223,
+      "sha256": "bceb38803512453abd62fe4076371b1b76eb14de41f965292788308a0758eb53"
+    },
+    "schemas/donor.sql": {
+      "bytes": 2828,
+      "sha256": "99c36ae8d387c5b958e4867a3cef440f5d103c7a246bdc722abf3d3bdc5f6720"
+    },
+    "schemas/european_football_1.sql": {
+      "bytes": 536,
+      "sha256": "d403562baee27c304974237e3a5b216602be3ba3c18e5fbf31bd82c1f3c31aea"
+    },
+    "schemas/financial.sql": {
+      "bytes": 2630,
+      "sha256": "a9a20356e864b92fa3dd00945ba7d388992b11da8233aa1e61073f572cf856ee"
+    },
+    "schemas/food_inspection.sql": {
+      "bytes": 1160,
+      "sha256": "26c4cb72e3701b04ddda7ed682f5758616c30fa5250357fda64aeef07e1d5a22"
+    },
+    "schemas/food_inspection_2.sql": {
+      "bytes": 1853,
+      "sha256": "f18746ac276d21a0a59f1a9ea0a77f2861dfddc8fad8228d23b40b1fa1fea2bd"
+    },
+    "schemas/genes.sql": {
+      "bytes": 917,
+      "sha256": "26745c1d93ce7032e57b7ed3fd44c32e26fd0c97dba3902af7eed46d682d58a8"
+    },
+    "schemas/hockey.sql": {
+      "bytes": 9084,
+      "sha256": "02ba85604933ee4972194473099ffbcecf8cccfd8f7c9ca8494a8e1e431bead9"
+    },
+    "schemas/human_resources.sql": {
+      "bytes": 1082,
+      "sha256": "d365e5690051e74ca591a4f0822733bbcb6388a6896439b82bbb4872e981b72b"
+    },
+    "schemas/ice_hockey_draft.sql": {
+      "bytes": 1520,
+      "sha256": "aba172a34d68681ceff2d399d8efa57f10058e4633b66822ec6fba0a12a1522d"
+    },
+    "schemas/image_and_language.sql": {
+      "bytes": 2166,
+      "sha256": "02c8c1ba8bc69ce009278ff8791ce1285d55d5d5c858786d5e5b6ebd65b290f4"
+    },
+    "schemas/language_corpus.sql": {
+      "bytes": 1791,
+      "sha256": "bcda43e46b0c4fb57c4a75da7bc420fa22eabd4374c9e138c3c8645c79d24f46"
+    },
+    "schemas/law_episode.sql": {
+      "bytes": 2008,
+      "sha256": "7310368756dc4138b963ccdf4358834ca37d9fd864e40e1aa9a85a5afeeeb4a0"
+    },
+    "schemas/legislator.sql": {
+      "bytes": 3100,
+      "sha256": "c7b7c1bdc9f2bb5b972e545c40cfa3fd8f0258091c8bf24e351f5be8cc5b9f8b"
+    },
+    "schemas/mental_health_survey.sql": {
+      "bytes": 647,
+      "sha256": "1d987d0da02869fa5a173425d5d6d06803a2f694f9e0c0ca0c435832e7fbd798"
+    },
+    "schemas/menu.sql": {
+      "bytes": 1580,
+      "sha256": "a032c1fdbdca856dbe893e4f63df548774e0e8eb87b33dbdc42f2a5ad3352498"
+    },
+    "schemas/mondial_geo.sql": {
+      "bytes": 4229,
+      "sha256": "f4c119b3f6fb3ecb6dc68745da1c81203553bfc3e900fa6b0fb62efa053941a0"
+    },
+    "schemas/movie.sql": {
+      "bytes": 1142,
+      "sha256": "3d7153a37dd97f0725cb2da934c710758245ecb3f7ae055233e189d44b644740"
+    },
+    "schemas/movie_3.sql": {
+      "bytes": 3944,
+      "sha256": "36eb12579bda69163f3941fab6369fc96ae6ee4a1ea8aaeb1b019038e61e6a41"
+    },
+    "schemas/movie_platform.sql": {
+      "bytes": 2172,
+      "sha256": "a2b81ab366b610fe123ebfbdf8c1bfcdb9e0fe37e53251dd8ee8b85c28a0164b"
+    },
+    "schemas/movielens.sql": {
+      "bytes": 1320,
+      "sha256": "ddd98de74dda6ac0d70a726d79ce76f7c0dd1ed84e84f97c4b6ead1deb28dcdc"
+    },
+    "schemas/movies_4.sql": {
+      "bytes": 3125,
+      "sha256": "478d53ccb399afc2031ab65d4e35c62ff3055942e8e12918f11decffe3f46ee2"
+    },
+    "schemas/music_platform_2.sql": {
+      "bytes": 804,
+      "sha256": "f6552ab3b22ce6e616ed2395e5f98f31d186e69f8924ea79b85cb26212973763"
+    },
+    "schemas/music_tracker.sql": {
+      "bytes": 558,
+      "sha256": "c24a96a113eae37c21dabb4df53c2b8cfdbe6e2683116398474a492b272e0e91"
+    },
+    "schemas/olympics.sql": {
+      "bytes": 2413,
+      "sha256": "89c7bbca5bdcdc1b5f5e242e61d25e4e2cce790b2af7181baaa134ebdbc7e95a"
+    },
+    "schemas/professional_basketball.sql": {
+      "bytes": 5033,
+      "sha256": "d00c900088a54c710c073a8edc2b7f07996d057d33c156d9d2cb17202c772ec3"
+    },
+    "schemas/public_review_platform.sql": {
+      "bytes": 3510,
+      "sha256": "e4aad55ca09d5ef4c88e12afef4dcfb90754d87c717d4707711d96537d229d36"
+    },
+    "schemas/regional_sales.sql": {
+      "bytes": 2080,
+      "sha256": "16a6e242c6febb6fb5d2f59ab6e3c3b6281b2413b621e5e650ee0f4e71918270"
+    },
+    "schemas/restaurant.sql": {
+      "bytes": 968,
+      "sha256": "d5abd5293f3f16df6b04b92173a56c8f24e688d8fbd689aefaf65499a6a0ac1b"
+    },
+    "schemas/retail_complains.sql": {
+      "bytes": 2115,
+      "sha256": "43d73d9a3c610a5b28796561314dd7b908b451670c2efbf8b9e82aa7527e4fc0"
+    },
+    "schemas/retail_world.sql": {
+      "bytes": 2452,
+      "sha256": "59bf2f05762c3e68f685d64339eaf7813b960926cce9e7c1ab63e2d712be9bd6"
+    },
+    "schemas/retails.sql": {
+      "bytes": 3140,
+      "sha256": "07736aec6d4b7e844921e84a08c43f8f80f4fc7bd36d71e0f855c0e0aa8474fd"
+    },
+    "schemas/sales.sql": {
+      "bytes": 1055,
+      "sha256": "c97be3f01a42c01e978708281cbd8ee581f5a25a1cb3f5498affa0353852de40"
+    },
+    "schemas/sales_in_weather.sql": {
+      "bytes": 997,
+      "sha256": "40ca82ef657c8e2a99957a2714e6bc33b99667f4fd3b8cef8141f986366b3af7"
+    },
+    "schemas/schema.json": {
+      "bytes": 536584,
+      "sha256": "3e70cef78671f19f1394ad179d535fb3b9d2e1e12d5baa9c39eba3db287db304"
+    },
+    "schemas/shakespeare.sql": {
+      "bytes": 888,
+      "sha256": "8ee98ed826bd433f654646b065558fa1c8f7b306442246261f24c381bb1e2c06"
+    },
+    "schemas/shipping.sql": {
+      "bytes": 1601,
+      "sha256": "e0c0597b7a72510411d5a3dd6e8e0c51e5a24dbcfaca952fa0f480739a969d66"
+    },
+    "schemas/shooting.sql": {
+      "bytes": 997,
+      "sha256": "e57fae521ecf6c2223e51f1d7738f1a4370783ad2ebb83d9ffe8c68cd553b0fd"
+    },
+    "schemas/simpson_episodes.sql": {
+      "bytes": 2084,
+      "sha256": "7f2b9b07fefa46d06f714bb675624896304ef47752816e1d2c19a2c2db1d8af4"
+    },
+    "schemas/soccer_2016.sql": {
+      "bytes": 6567,
+      "sha256": "eccaf492b34b923dff7394c9fb8b575e39bcbea0c99094e43080140f7730615f"
+    },
+    "schemas/social_media.sql": {
+      "bytes": 787,
+      "sha256": "92067f648a8b2ce9654e15127c779c59cd6dff1813b800c6e07444f0d82570a0"
+    },
+    "schemas/software_company.sql": {
+      "bytes": 1426,
+      "sha256": "7ac5469f6e0bfbb4e881af389b4763fbbda61d0288ac699a1089ea54da024413"
+    },
+    "schemas/student_club.sql": {
+      "bytes": 2637,
+      "sha256": "7be561ba0a2becf61f83af222304aadfba8500ebf4157be24bbe42b6a899e051"
+    },
+    "schemas/student_loan.sql": {
+      "bytes": 1922,
+      "sha256": "e062eaf241ac64d7e0ff4000d687811964bc1ea48533be7d270bea903b8d2b6e"
+    },
+    "schemas/superhero.sql": {
+      "bytes": 2488,
+      "sha256": "38913aed11930eae2f27ac32f0d1035689e089a528ddd5da520e65b3147c963d"
+    },
+    "schemas/superstore.sql": {
+      "bytes": 1794,
+      "sha256": "9246745b55ad55f306efb18e794d5b8facd0c7b6ae6e5744f329a35250598e03"
+    },
+    "schemas/synthea.sql": {
+      "bytes": 3836,
+      "sha256": "3e05a21ad7f955ef67674a47a06eb6fc17cdeddd657818c0aca4c9f0cd4b9a24"
+    },
+    "schemas/talkingdata.sql": {
+      "bytes": 1770,
+      "sha256": "3315322b2d8cd8283eebb3b427ca02acd28c7b7d9ac3e212e5d74794b3ee3354"
+    },
+    "schemas/toxicology.sql": {
+      "bytes": 1004,
+      "sha256": "8d10f8fabccc2cf00d195fa31ab94f317ea1d10e03e3550b9bcd0d671dbe7ca6"
+    },
+    "schemas/trains.sql": {
+      "bytes": 201,
+      "sha256": "45f74d8e6a1017ca0bd8fc62155fdc6e9bd23f9358b69bdd5b3221ce2d387940"
+    },
+    "schemas/university.sql": {
+      "bytes": 205,
+      "sha256": "c6d2a8780fb2729a26b893189fa59d401ee32917b27832891d8180b295c16c21"
+    },
+    "schemas/video_games.sql": {
+      "bytes": 206,
+      "sha256": "5dc02c28801ff3c63cf88e3922aeebafe71a8cf00da752c1a47279ce66397e9f"
+    },
+    "schemas/works_cycles.sql": {
+      "bytes": 207,
+      "sha256": "5ff63f8e49852605bd8ef6179bd0e53d305bf1579e58a7d0aea34581d9027e2e"
+    },
+    "schemas/world.sql": {
+      "bytes": 200,
+      "sha256": "0cbbe5a6f341c3949810afa40f7c8ef402e46c5c38da3e7929cdf71dbe232170"
+    },
+    "schemas/world_development_indicators.sql": {
+      "bytes": 223,
+      "sha256": "4fe64af97cd06245b6ec9f2565a5d9cfa37748135c250de330c36363c527c84f"
+    },
+    "tools/to_sft.py": {
+      "bytes": 4857,
+      "sha256": "3a05d14b4007c129d25e7f13da0409248cec31a2695e42730032ad5b0dd717af"
+    },
+    "tools/verify_dataset.py": {
+      "bytes": 8842,
+      "sha256": "4de3ce27a6252d722c17f8e37d022240b864e793cfd5b14c138a712ee9fbd13f"
+    }
+  }
+}

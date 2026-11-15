@@ -1,0 +1,71 @@
+# BIRD in PostgreSQL: the dataset hand-off
+
+`datasets/bird_pg/` is the ready-to-use artifact (Russian README with the full
+reasoning: `datasets/bird_pg/README.ru.md`). This page is the short technical
+summary for a reader of this repository.
+
+## What ships
+
+| Split | Rows | Guarantee |
+|---|---:|---|
+| `data/bird_dev_pg.jsonl` | 241 | every gold query **executed** on the course PostgreSQL |
+| `data/bird_dev_clean.jsonl` | 216 | same row set as the original SQLite execution |
+| `data/bird_dev_divergent.jsonl` | 25 | executes, but the two engines answer differently |
+| `data/bird_train_pg.jsonl` | 5,230 | executed on PostgreSQL (no SQLite copy exists for these 63 databases) |
+| `data/bird_train_excluded.jsonl` | 1,371 | the failures, each with its error |
+| `data/synthetic_bird_like.jsonl` | 651 | synthetic BIRD-like pairs, built over **train** schemas only |
+| `schemas/` | 77 databases | runnable DDL + `schema.json` (types, PK/FK, row-count estimates) |
+| `tools/verify_dataset.py`, `tools/to_sft.py` | — | integrity/live check, chat-SFT converter |
+| `build/` | — | the builders that produced all of the above |
+
+## The three numbers that matter
+
+1. **241 of 241 dev gold queries execute.** The shipped
+   `benchmarks/evaluate_bird.py` destroys 30 of them: its regex
+   `(\b\w+\b)\s*/\s*(\b\w+\b)` → `\1 / NULLIF(\2,0)` fires *after* sqlglot has
+   already emitted `NULLIF`, producing `NULLIF(NULLIF,0)(COUNT(...), 0)`, which
+   PostgreSQL cannot parse — so gold never runs and every submission scores 0 on
+   that question. Three more (ids 4, 35, 572) keep parsing but mean something
+   else. The AST rewriter in `dev_tools/fixed_eval.py` fixes all of it; nothing is
+   dropped for this reason in the dataset.
+2. **216 of 241 return exactly the SQLite row set.** The other 25 diverge because
+   the databases on the course server were loaded with typed columns (`bigint`,
+   `numeric`) while BIRD's SQLite stores the same data as `TEXT`: text-vs-number
+   comparison, lexicographic vs numeric `ORDER BY`, case-sensitive `LIKE`. Same
+   schema drift that `db_schemas.drift.json` recorded in round 1.
+3. **109 of 114 overlapping questions match BIRD's own `mini_dev_postgresql.json`**
+   when both are executed on the server. The five disagreements are in
+   `reports/official_crosscheck.json`; two of them are cases where BIRD's own
+   PostgreSQL file answers differently from its SQLite gold, one is a `CAST`
+   difference (`SUM` over an integer column), one is data typing, one is rounding.
+
+## One translation bug worth remembering
+
+`SUBSTR(x, -2)` (SQLite: the last two characters) is rendered by sqlglot as
+`SUBSTRING(x FROM -2)`, which PostgreSQL reads as "start at position -2" and
+silently returns an empty string. Question 239 therefore returned `0` instead of
+`498`. Fixed in `delivery/common.py` by rewriting negative `SUBSTR` starts into
+`SUBSTRING(x FROM LENGTH(x) - 1)`; one case in dev, seven in train.
+
+## Synthetic corpus
+
+* Generated **only over the 69 train databases** — the 8 dev databases are
+  excluded on purpose, so nothing derived from the dev schemas can leak into a
+  team member's training run for the same dev benchmark.
+* SQL: template synthesis over real schemas and real values mined from
+  `pg_stats`, executed, 1–30 rows, deterministic `ORDER BY`, unique result set
+  (1,000 of 1,279 attempts kept).
+* Text: local `Qwen2.5-Coder-7B-Instruct` (4-bit), then a hard filter — valid
+  JSON, 6–40 words, a real question mark, no SQL keywords, at most two raw
+  identifiers, every SQL literal present in the text, 5-gram Jaccard < 0.6
+  against real BIRD questions; a final pass checks that the interrogative matches
+  the answer shape (a query returning `AVG(...)` must not be asked as "how many").
+  651 of 1,000 survived.
+
+## Reproduce
+
+`datasets/bird_pg/build/README.md` lists the commands (`build.py --only dev`,
+`--only train`, `synth.py`, `verbalize.py`, `crosscheck_official.py`,
+`assemble.py`) and the four non-obvious traps that cost time: one connection per
+worker thread (SSH channel budget), `rollback()` after every failed statement,
+SQLite's missing statement timeout, and `pg_stats`' `anyarray` columns.

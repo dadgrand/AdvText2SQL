@@ -1,0 +1,54 @@
+{
+  "questions": 241,
+  "accepted": 216,
+  "excluded": 25,
+  "excluded_by_reason": {
+    "semantic_mismatch": 25
+  },
+  "accepted_by_difficulty": {
+    "challenging": 55,
+    "moderate": 82,
+    "simple": 79
+  },
+  "accepted_by_db": {
+    "california_schools": 16,
+    "card_games": 31,
+    "codebase_community": 25,
+    "debit_card_specializing": 19,
+    "financial": 28,
+    "student_club": 33,
+    "superhero": 36,
+    "toxicology": 28
+  },
+  "excluded_ids": {
+    "semantic_mismatch": [
+      "10",
+      "125",
+      "1476",
+      "1482",
+      "1511",
+      "1524",
+      "1526",
+      "1529",
+      "1531",
+      "17",
+      "207",
+      "239",
+      "246",
+      "27",
+      "276",
+      "292",
+      "306",
+      "326",
+      "37",
+      "43",
+      "50",
+      "57",
+      "699",
+      "708",
+      "9"
+    ]
+  },
+  "verification": "sqlite gold and PostgreSQL gold executed; row sets compared (BIRD EX)",
+  "pg_median_ms": 122.8
+}

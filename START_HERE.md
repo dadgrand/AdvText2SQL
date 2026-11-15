@@ -12,6 +12,15 @@ not a live run of their pipeline). The same branch also measured the wall: on **
 7B, 7B adapter, 14B and retrieval all land at **69–73 % with no significant differences**, so the remaining
 gap is **training-data coverage**, not capacity, adapter or schema presentation (round 3).
 
+**Dataset hand-off for the team (`datasets/bird_pg/`).** BIRD translated to PostgreSQL and verified by
+**execution** on the course server, not by reading: all **241/241** dev gold queries run (the shipped
+`evaluate_bird.py` destroys 30 of them with a regex — the dataset fixes the rewriter instead of dropping the
+questions), **216** of them return exactly the original SQLite row set, **5,230/6,601** train rows run
+(863 of the failures are six databases that are empty on the server), and **651** synthetic BIRD-like pairs
+were generated over train schemas only. Schemas/DDL for 77 databases, a verifier, an SFT converter and the
+builders ship with it. Start at `datasets/bird_pg/README.ru.md`; the one-page technical summary is
+`docs/DATASET.md`.
+
 **Reading order.** `research/advtext2sql/ROUND2_RESULTS.ru.md` (one-page Russian summary) →
 `docs/REPORT.md` §9–§19 (round-2 measurements and qualifiers; §20 is the round-3 negative result) →
 `docs/VERIFICATION.md` (what was verified, commit/tag hashes, test counts) → `docs/RUNBOOK.md` (how to run
