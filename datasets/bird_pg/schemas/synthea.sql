@@ -8,7 +8,8 @@ CREATE TABLE "all_prevalences" (
     "occurrences" bigint,
     "POPULATION COUNT" bigint,
     "PREVALENCE RATE" real,
-    "PREVALENCE PERCENTAGE" real
+    "PREVALENCE PERCENTAGE" real,
+    UNIQUE ("item")
 );
 
 CREATE TABLE "allergies" (
@@ -17,7 +18,8 @@ CREATE TABLE "allergies" (
     "patient" text,
     "encounter" text,
     "code" bigint,
-    "description" text
+    "description" text,
+    UNIQUE ("patient", "encounter", "code")
 );
 
 CREATE TABLE "careplans" (
@@ -39,7 +41,8 @@ CREATE TABLE "claims" (
     "organization" text,
     "encounter" text,
     "diagnosis" text,
-    "total" bigint
+    "total" bigint,
+    UNIQUE ("id")
 );
 
 CREATE TABLE "conditions" (
@@ -58,7 +61,8 @@ CREATE TABLE "encounters" (
     "code" bigint,
     "description" text,
     "reasoncode" bigint,
-    "reasondescription" text
+    "reasondescription" text,
+    UNIQUE ("id")
 );
 
 CREATE TABLE "immunizations" (
@@ -66,7 +70,8 @@ CREATE TABLE "immunizations" (
     "patient" text,
     "encounter" text,
     "code" bigint,
-    "description" text
+    "description" text,
+    UNIQUE ("date", "patient", "encounter", "code")
 );
 
 CREATE TABLE "medications" (
@@ -77,7 +82,8 @@ CREATE TABLE "medications" (
     "code" bigint,
     "description" text,
     "reasoncode" bigint,
-    "reasondescription" text
+    "reasondescription" text,
+    UNIQUE ("start", "patient", "encounter", "code")
 );
 
 CREATE TABLE "observations" (

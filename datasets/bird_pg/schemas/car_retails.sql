@@ -40,7 +40,8 @@ CREATE TABLE "offices" (
     "state" text,
     "country" text,
     "postalcode" text,
-    "territory" text
+    "territory" text,
+    UNIQUE ("officecode")
 );
 
 CREATE TABLE "orderdetails" (
@@ -48,7 +49,8 @@ CREATE TABLE "orderdetails" (
     "productcode" text,
     "quantityordered" bigint,
     "priceeach" real,
-    "orderlinenumber" bigint
+    "orderlinenumber" bigint,
+    UNIQUE ("ordernumber", "productcode")
 );
 
 CREATE TABLE "orders" (
@@ -66,14 +68,16 @@ CREATE TABLE "payments" (
     "customernumber" bigint,
     "checknumber" text,
     "paymentdate" date,
-    "amount" real
+    "amount" real,
+    UNIQUE ("customernumber", "checknumber")
 );
 
 CREATE TABLE "productlines" (
     "productline" text,
     "textdescription" text,
     "htmldescription" text,
-    "image" bytea
+    "image" bytea,
+    UNIQUE ("productline")
 );
 
 CREATE TABLE "products" (
@@ -85,7 +89,8 @@ CREATE TABLE "products" (
     "productdescription" text,
     "quantityinstock" bigint,
     "buyprice" real,
-    "msrp" real
+    "msrp" real,
+    UNIQUE ("productcode")
 );
 
 ALTER TABLE "customers" ADD FOREIGN KEY ("salesrepemployeenumber") REFERENCES "employees" ("employeenumber");

@@ -1,6 +1,6 @@
 {
   "package": "BIRD на PostgreSQL: dev + train + синтетика",
-  "generated_at": "2026-11-15 22:45 UTC+03",
+  "generated_at": "2026-11-17 16:24 UTC+03",
   "postgresql": "курсовой сервер, базы названы по db_id (public schema)",
   "rewriter": {
     "implementation": "repo/dev_tools/fixed_eval.py::sqlite_to_postgres_safe + negative SUBSTR fix",
@@ -13,10 +13,11 @@
     "bird_dev_divergent.jsonl": 13,
     "bird_train_pg.jsonl": 5230,
     "bird_train_excluded.jsonl": 1371,
-    "synthetic_bird_like.jsonl": 4751,
+    "synthetic_bird_like.jsonl": 2815,
     "synthetic_roundtrip_sample.jsonl": 300,
     "synthetic_roundtrip_join_sample.jsonl": 120,
-    "synthetic_single_table_extra.jsonl": 2595
+    "synthetic_cap_unnamed.jsonl": 2494,
+    "synthetic_single_table_extra.jsonl": 2277
   },
   "filters": {
     "dev": "gold исполняется на PostgreSQL; отдельно помечено, совпадает ли набор строк с исполнением того же gold на оригинальной SQLite",
@@ -38,7 +39,7 @@
     }
   },
   "facts": {
-    "generated_at": "2026-11-15 22:45 UTC+03",
+    "generated_at": "2026-11-17 16:24 UTC+03",
     "dev_plain": 220,
     "dev_repaired": 7,
     "dev_official": 1,
@@ -64,20 +65,21 @@
     "synth_curated": 2649,
     "synth_attempts": 1288,
     "synth_keep_rate": "613%",
-    "synth_accepted": 4751,
-    "synth_hand": 4725,
-    "synth_model": 26,
-    "synth_dbs": 61,
-    "synth_joins": 3375,
-    "synth_join_pct": "71%",
-    "synth_unique_sql": 2722,
-    "synth_multi_table": 1022,
-    "synth_nested": 1662,
-    "synth_depth": "{\"0\": 29.0, \"1\": 49.5, \"2\": 17.1, \"3\": 4.4}",
+    "synth_accepted": 2815,
+    "synth_hand": 2748,
+    "synth_model": 67,
+    "synth_dbs": 60,
+    "synth_joins": 1917,
+    "synth_join_pct": "68%",
+    "synth_unique_sql": 1636,
+    "synth_multi_table": 814,
+    "synth_nested": 594,
+    "synth_depth": "{\"0\": 31.9, \"1\": 39.2, \"2\": 22.0, \"3\": 7.0}",
     "dev_depth": "{\"0\": 15.8, \"1\": 56.0, \"2\": 22.4, \"3\": 5.4, \"4\": 0.4}",
-    "synth_subq_pct": "35%",
+    "synth_subq_pct": "21%",
     "dev_subq_pct": "11%",
-    "single_table_extra": 2595,
+    "cap_unnamed": 2494,
+    "single_table_extra": 2277,
     "rt_match": 135,
     "rt_rate": "45.0%",
     "rt_error": 44,
@@ -86,7 +88,7 @@
     "rt_hand": 240,
     "rt_match_model": 23,
     "rt_model": 60,
-    "synth_accept_rate": "164%",
+    "synth_accept_rate": "61%",
     "official_matched": 114,
     "official_agree": 106,
     "official_disagree": 8,
@@ -168,8 +170,12 @@
       "sha256": "22a53aa537e5f0d8c0c05fa6fe4190c0e5b5f6919c86f644f2f73f229b136eae"
     },
     "data/synthetic_bird_like.jsonl": {
-      "bytes": 4986395,
-      "sha256": "9b204dc3262a8706783e59a9271d9136906fbb8fa8eed251aeb70b381c133485"
+      "bytes": 2932785,
+      "sha256": "138b7dcdad6b504b7466f0de3a2a21dda772f6cd28ad4af4e01925b5597ece26"
+    },
+    "data/synthetic_cap_unnamed.jsonl": {
+      "bytes": 2497540,
+      "sha256": "291443e087cee63b70c742ad5a8ca409ccb604196c58d8f23d9fad8658512861"
     },
     "data/synthetic_roundtrip_join_sample.jsonl": {
       "bytes": 76090,
@@ -180,16 +186,16 @@
       "sha256": "cb7081801f02785450d37d55cebe98802834db24bda8a7ddbca0dfd1afeeff95"
     },
     "data/synthetic_single_table_extra.jsonl": {
-      "bytes": 2374773,
-      "sha256": "1db7488729f7ac8ec1ebbab2ecf908d3f57e7905375305d7f07f92d2f394f98b"
+      "bytes": 2084635,
+      "sha256": "18ce8b65be585ca517d365db710dee530417b7348a4af9d46cceb444e76db16c"
     },
     "README.md": {
       "bytes": 1706,
       "sha256": "50f60781971d4faf434744acc33ecd389c57c9a442332dfbe59311e52ae3ed94"
     },
     "README.ru.md": {
-      "bytes": 27891,
-      "sha256": "e89d640ac9210be2d05f4e651823c7625ffa4319e06452fe3f4bc439e95a0105"
+      "bytes": 28874,
+      "sha256": "cb0a2c274e2d64e75a552d59660c94012f5ae24bb08debf1ea72d12d64917b6b"
     },
     "reports/dev_report.json": {
       "bytes": 829,
@@ -213,11 +219,11 @@
     },
     "reports/schema_report.json": {
       "bytes": 119,
-      "sha256": "34cb3963b8e8d7abcc52367ff051d625e399fd093db76f01a7de49a11b787905"
+      "sha256": "242656a8c05174bca945d9be0d0f508c1105d4588d04819c2eb0875978b9a60b"
     },
     "reports/shape_coverage.json": {
       "bytes": 536,
-      "sha256": "cc99d90051f1e60ac07d399732f62546bad778ab85f800da72c3ca46586c6b76"
+      "sha256": "d4699f37e24fb7ee14567327cc530209cf7add10248a19f939687f2e31b03a60"
     },
     "reports/synthesis_report.json": {
       "bytes": 2611,
@@ -227,17 +233,21 @@
       "bytes": 2867,
       "sha256": "25423b93567c8423eb38ef47e7785d859e3ab0b2b54fcc5ca578a677632c973e"
     },
+    "reports/upstream_issues.jsonl": {
+      "bytes": 4240,
+      "sha256": "aa754ff8212bbeafc84ead911a66772e184da809ddf0a2d9006db491fa1c1e4e"
+    },
     "reports/verbalize_report.json": {
-      "bytes": 2526,
-      "sha256": "8d8cd7b31c2a37c1373cc99005f3317e2ec2f9b6c5f98ae11d4847991920a76f"
+      "bytes": 2969,
+      "sha256": "ba8718164932c8d83252d51057ab1da9acaefab35803877d0d07754b0ad8927e"
     },
     "schemas/address.sql": {
       "bytes": 3691,
       "sha256": "a5169e238cb9a9d4ea417b6197672fde763b3bd3658d0c07e37a12433dc2da31"
     },
     "schemas/airline.sql": {
-      "bytes": 1506,
-      "sha256": "1363dfdc4181558aa20dbf3d06baad8f8f539f92cea9232081e8514fef6e2e2a"
+      "bytes": 1528,
+      "sha256": "8eb2c370148d8bdb0c721f5be0680aa78bc14a2c6a64ec6ef756bcf48afa86ca"
     },
     "schemas/app_store.sql": {
       "bytes": 619,
@@ -248,12 +258,12 @@
       "sha256": "d0cbedffc5a52908b26270c3bd191d3af03afac3cb7648f204c2ddee525913bc"
     },
     "schemas/beer_factory.sql": {
-      "bytes": 3231,
-      "sha256": "0b100897248b94c5b075e364b3a252fb6072aba64ab88d5cb413525acefce768"
+      "bytes": 3270,
+      "sha256": "8b97fd10b324d0ddacb3786c8337e18da848801660c5875a95103875188c435a"
     },
     "schemas/bike_share_1.sql": {
-      "bytes": 1643,
-      "sha256": "6cf5c77cd2bb8970acf83410de98ef4a4b41e4c91fc93cb57eff580f8bef689d"
+      "bytes": 1663,
+      "sha256": "42ed4fdea759071198eae435d4100586f00aabf6051efbcade35f8163ecf3d29"
     },
     "schemas/book_publishing_company.sql": {
       "bytes": 3230,
@@ -264,20 +274,20 @@
       "sha256": "b4be317872b88d500425ef2c76f25d88deb064d52bee0fdbdb46a2f42d22963d"
     },
     "schemas/california_schools.sql": {
-      "bytes": 2699,
-      "sha256": "89991d1d398d4a2a903f148b3da960451706a6c061973d21f1ca6bfe5af62fbf"
+      "bytes": 2749,
+      "sha256": "88453d5d05b0798ed2daf931d8ab368bac140985487450f2a3e76029948580b7"
     },
     "schemas/car_retails.sql": {
-      "bytes": 2670,
-      "sha256": "96adc50cbad72eace065f3d02f8a67136ba9a4fb0a3b98e7fdacc1bd0ea9a85d"
+      "bytes": 2847,
+      "sha256": "c068f2716f287efe2dad1d2c001ac5958fb441381c79137581f89d91f27fc639"
     },
     "schemas/card_games.sql": {
-      "bytes": 3498,
-      "sha256": "f948ac741ebf7044109aaabd3391a3936d6778618a1093241f28afa6f3d13cdc"
+      "bytes": 3542,
+      "sha256": "2a1b48cea755ff06f02a957d506e98b51a7fa04c239218c207a48874e3636933"
     },
     "schemas/cars.sql": {
-      "bytes": 1142,
-      "sha256": "fccb44b33e1e8e014bf1728f6eafdd3f8261a08630e32e1cf57916eadf6a28d9"
+      "bytes": 1176,
+      "sha256": "3da35a655f76842d68fa0d436d7aa82a1b7296f13cec06eaf2025d1f795b99bb"
     },
     "schemas/chicago_crime.sql": {
       "bytes": 2487,
@@ -292,8 +302,8 @@
       "sha256": "834d1ee5e99db4b79d56aa564cae37b675eb805c6eded4d9835e6ea0dad475be"
     },
     "schemas/codebase_community.sql": {
-      "bytes": 3202,
-      "sha256": "d56361074a4473cb09893da034a23f8b28f71aaaf81673cf2642d7a13c202909"
+      "bytes": 3262,
+      "sha256": "f61cb844f7728a9344cc0d09bd7556deec5db8de90ff7a537f3be2c7a2952bbe"
     },
     "schemas/coinmarketcap.sql": {
       "bytes": 1086,
@@ -320,8 +330,8 @@
       "sha256": "24f43df9e1554c33d006d766e216ea38866dfeb6f3a5844591981a82ee80f50f"
     },
     "schemas/debit_card_specializing.sql": {
-      "bytes": 1050,
-      "sha256": "970ad453647317a6277c2d9f4e694d0cf615bf3a4396763a6a467eb5961349ce"
+      "bytes": 1171,
+      "sha256": "f1b7271ddfb32f71ac0cf5421e140faace4ea84219c8416dff5a80af84cf5f39"
     },
     "schemas/disney.sql": {
       "bytes": 1223,
@@ -348,12 +358,12 @@
       "sha256": "f18746ac276d21a0a59f1a9ea0a77f2861dfddc8fad8228d23b40b1fa1fea2bd"
     },
     "schemas/genes.sql": {
-      "bytes": 917,
-      "sha256": "26745c1d93ce7032e57b7ed3fd44c32e26fd0c97dba3902af7eed46d682d58a8"
+      "bytes": 977,
+      "sha256": "13a973d904879dea7c7cd99ffe7ceca6a087876787fd50938a8c8d6688cafac4"
     },
     "schemas/hockey.sql": {
-      "bytes": 9084,
-      "sha256": "02ba85604933ee4972194473099ffbcecf8cccfd8f7c9ca8494a8e1e431bead9"
+      "bytes": 9504,
+      "sha256": "13c161923b3065fae63fba96b8ff1b2af9cf1b1f4f15507ad3ffb3b7f474862c"
     },
     "schemas/human_resources.sql": {
       "bytes": 1082,
@@ -364,40 +374,40 @@
       "sha256": "aba172a34d68681ceff2d399d8efa57f10058e4633b66822ec6fba0a12a1522d"
     },
     "schemas/image_and_language.sql": {
-      "bytes": 2166,
-      "sha256": "02c8c1ba8bc69ce009278ff8791ce1285d55d5d5c858786d5e5b6ebd65b290f4"
+      "bytes": 2341,
+      "sha256": "19e8bbf12368e9cfcf32922dbcf28db461fd8249fa4a7a7f1af38112b6a85232"
     },
     "schemas/language_corpus.sql": {
-      "bytes": 1791,
-      "sha256": "bcda43e46b0c4fb57c4a75da7bc420fa22eabd4374c9e138c3c8645c79d24f46"
+      "bytes": 1875,
+      "sha256": "c54833eaedc13048685fd8c415bd7cec289fde2008788ddb7c14d80d6a628586"
     },
     "schemas/law_episode.sql": {
       "bytes": 2008,
       "sha256": "7310368756dc4138b963ccdf4358834ca37d9fd864e40e1aa9a85a5afeeeb4a0"
     },
     "schemas/legislator.sql": {
-      "bytes": 3100,
-      "sha256": "c7b7c1bdc9f2bb5b972e545c40cfa3fd8f0258091c8bf24e351f5be8cc5b9f8b"
+      "bytes": 3174,
+      "sha256": "82633d1358a7e6292a7dd4d7035f1467f6d796f11a8d5999d5f01830c78529fe"
     },
     "schemas/mental_health_survey.sql": {
-      "bytes": 647,
-      "sha256": "1d987d0da02869fa5a173425d5d6d06803a2f694f9e0c0ca0c435832e7fbd798"
+      "bytes": 685,
+      "sha256": "8a68a895847707f4fc34c392ae3c3d4ed4aa1b41734198ce0f4b89a187b3be89"
     },
     "schemas/menu.sql": {
       "bytes": 1580,
       "sha256": "a032c1fdbdca856dbe893e4f63df548774e0e8eb87b33dbdc42f2a5ad3352498"
     },
     "schemas/mondial_geo.sql": {
-      "bytes": 4229,
-      "sha256": "f4c119b3f6fb3ecb6dc68745da1c81203553bfc3e900fa6b0fb62efa053941a0"
+      "bytes": 5353,
+      "sha256": "ac4fb83c1eaf8c2d610d9e97163fde562fc7cad57fb97e71496622704e787e11"
     },
     "schemas/movie.sql": {
-      "bytes": 1142,
-      "sha256": "3d7153a37dd97f0725cb2da934c710758245ecb3f7ae055233e189d44b644740"
+      "bytes": 1178,
+      "sha256": "ae212d7502c27f819cb9364a0d48b425f5ed1361ef017730d85ff27c1e4eb6e2"
     },
     "schemas/movie_3.sql": {
-      "bytes": 3944,
-      "sha256": "36eb12579bda69163f3941fab6369fc96ae6ee4a1ea8aaeb1b019038e61e6a41"
+      "bytes": 4038,
+      "sha256": "35a1f9ca096aaf0d3df5cef7635379a407ca91a32ef3de064960bb11fc970df7"
     },
     "schemas/movie_platform.sql": {
       "bytes": 2172,
@@ -424,24 +434,24 @@
       "sha256": "89c7bbca5bdcdc1b5f5e242e61d25e4e2cce790b2af7181baaa134ebdbc7e95a"
     },
     "schemas/professional_basketball.sql": {
-      "bytes": 5033,
-      "sha256": "d00c900088a54c710c073a8edc2b7f07996d057d33c156d9d2cb17202c772ec3"
+      "bytes": 5221,
+      "sha256": "77c22fef5302f7ce8b4da7040d35a080b2ded798223029638ec15eb8f289a599"
     },
     "schemas/public_review_platform.sql": {
       "bytes": 3510,
       "sha256": "e4aad55ca09d5ef4c88e12afef4dcfb90754d87c717d4707711d96537d229d36"
     },
     "schemas/regional_sales.sql": {
-      "bytes": 2080,
-      "sha256": "16a6e242c6febb6fb5d2f59ab6e3c3b6281b2413b621e5e650ee0f4e71918270"
+      "bytes": 2136,
+      "sha256": "3eb4a6baac90d826b63627d6ed203bb4b08d07d6957edc62a1395b97b03dff0e"
     },
     "schemas/restaurant.sql": {
       "bytes": 968,
       "sha256": "d5abd5293f3f16df6b04b92173a56c8f24e688d8fbd689aefaf65499a6a0ac1b"
     },
     "schemas/retail_complains.sql": {
-      "bytes": 2115,
-      "sha256": "43d73d9a3c610a5b28796561314dd7b908b451670c2efbf8b9e82aa7527e4fc0"
+      "bytes": 2237,
+      "sha256": "0428605e6465ab79026a990ea57219ad6151e293961271b34e745f7b63c8d42a"
     },
     "schemas/retail_world.sql": {
       "bytes": 2452,
@@ -456,12 +466,12 @@
       "sha256": "c97be3f01a42c01e978708281cbd8ee581f5a25a1cb3f5498affa0353852de40"
     },
     "schemas/sales_in_weather.sql": {
-      "bytes": 997,
-      "sha256": "40ca82ef657c8e2a99957a2714e6bc33b99667f4fd3b8cef8141f986366b3af7"
+      "bytes": 1044,
+      "sha256": "6ea458ad09998b3fbfc6387c2d6c118ca853f870559a01914faa298a775341cb"
     },
     "schemas/schema.json": {
-      "bytes": 536584,
-      "sha256": "3e70cef78671f19f1394ad179d535fb3b9d2e1e12d5baa9c39eba3db287db304"
+      "bytes": 544602,
+      "sha256": "38a231b54979066d3395d37b098913788eb4a0677f1c48f168c61bad7187c2f6"
     },
     "schemas/shakespeare.sql": {
       "bytes": 888,
@@ -480,12 +490,12 @@
       "sha256": "7f2b9b07fefa46d06f714bb675624896304ef47752816e1d2c19a2c2db1d8af4"
     },
     "schemas/soccer_2016.sql": {
-      "bytes": 6567,
-      "sha256": "eccaf492b34b923dff7394c9fb8b575e39bcbea0c99094e43080140f7730615f"
+      "bytes": 6865,
+      "sha256": "397401ba4fa0f2345ceeeda07a6a3a17523d8ab9b50e039367fbd1501d1ebd34"
     },
     "schemas/social_media.sql": {
-      "bytes": 787,
-      "sha256": "92067f648a8b2ce9654e15127c779c59cd6dff1813b800c6e07444f0d82570a0"
+      "bytes": 836,
+      "sha256": "777302e619f18b8ec89085dcfe3a63b9bf538374b3f782d89b508b9b08f4570e"
     },
     "schemas/software_company.sql": {
       "bytes": 1426,
@@ -504,16 +514,16 @@
       "sha256": "38913aed11930eae2f27ac32f0d1035689e089a528ddd5da520e65b3147c963d"
     },
     "schemas/superstore.sql": {
-      "bytes": 1794,
-      "sha256": "9246745b55ad55f306efb18e794d5b8facd0c7b6ae6e5744f329a35250598e03"
+      "bytes": 1871,
+      "sha256": "293444c0342f38376cbf1184fdaa80a6bc918d87a814fe9044b848575786fee7"
     },
     "schemas/synthea.sql": {
-      "bytes": 3836,
-      "sha256": "3e05a21ad7f955ef67674a47a06eb6fc17cdeddd657818c0aca4c9f0cd4b9a24"
+      "bytes": 4053,
+      "sha256": "404fc19410a42c0d794530015a0d1206dc174837e8935e20e92c0f5c2cf47493"
     },
     "schemas/talkingdata.sql": {
-      "bytes": 1770,
-      "sha256": "3315322b2d8cd8283eebb3b427ca02acd28c7b7d9ac3e212e5d74794b3ee3354"
+      "bytes": 1830,
+      "sha256": "980666ef39f3c251a98e68fa989f71eee30dee0b420b5d94a65c4c9a2c8dd6cd"
     },
     "schemas/toxicology.sql": {
       "bytes": 1004,

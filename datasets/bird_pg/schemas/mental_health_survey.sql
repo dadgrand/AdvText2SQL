@@ -7,7 +7,8 @@ CREATE TABLE "answer" (
     "surveyid" bigint,
     "userid" bigint NOT NULL,
     "questionid" bigint NOT NULL,
-    PRIMARY KEY ("userid", "questionid")
+    PRIMARY KEY ("userid", "questionid"),
+    UNIQUE ("userid", "questionid")
 );
 
 CREATE TABLE "question" (

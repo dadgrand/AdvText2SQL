@@ -26,7 +26,8 @@ CREATE TABLE "current" (
     "thomas_id" bigint,
     "votesmart_id" real,
     "wikidata_id" text,
-    "wikipedia_id" text
+    "wikipedia_id" text,
+    UNIQUE ("bioguide_id", "cspan_id")
 );
 
 CREATE TABLE "current-terms" (
@@ -52,7 +53,8 @@ CREATE TABLE "current-terms" (
     "state_rank" text,
     "title" text,
     "type" text,
-    "url" text
+    "url" text,
+    UNIQUE ("bioguide", "end")
 );
 
 CREATE TABLE "historical" (

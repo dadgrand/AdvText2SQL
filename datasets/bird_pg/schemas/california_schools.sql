@@ -31,7 +31,8 @@ CREATE TABLE "frpm" (
     "Percent (%) Eligible Free (Ages 5-17)" real,
     "FRPM Count (Ages 5-17)" real,
     "Percent (%) Eligible FRPM (Ages 5-17)" real,
-    "2013-14 CALPADS Fall 1 Certification Status" bigint
+    "2013-14 CALPADS Fall 1 Certification Status" bigint,
+    UNIQUE ("cdscode")
 );
 
 CREATE TABLE "satscores" (
@@ -98,7 +99,8 @@ CREATE TABLE "schools" (
     "admfname3" text,
     "admlname3" text,
     "admemail3" text,
-    "lastupdate" date
+    "lastupdate" date,
+    UNIQUE ("cdscode")
 );
 
 ALTER TABLE "frpm" ADD FOREIGN KEY ("cdscode") REFERENCES "schools" ("cdscode");

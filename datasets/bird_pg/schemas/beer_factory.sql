@@ -76,7 +76,8 @@ CREATE TABLE "rootbeerreview" (
     "starrating" bigint,
     "reviewdate" date,
     "review" text,
-    PRIMARY KEY ("customerid", "brandid")
+    PRIMARY KEY ("customerid", "brandid"),
+    UNIQUE ("customerid", "brandid")
 );
 
 CREATE TABLE "transaction" (

@@ -41,7 +41,8 @@ CREATE TABLE "airlines" (
 
 CREATE TABLE "airports" (
     "code" text,
-    "description" text
+    "description" text,
+    UNIQUE ("code")
 );
 
 ALTER TABLE "airlines" ADD FOREIGN KEY ("dest") REFERENCES "airports" ("code");

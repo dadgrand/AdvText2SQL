@@ -18,7 +18,8 @@ CREATE TABLE "awards_players" (
     "year" bigint,
     "lgid" text,
     "note" text,
-    "pos" text
+    "pos" text,
+    UNIQUE ("playerid", "year", "award")
 );
 
 CREATE TABLE "coaches" (
@@ -30,7 +31,8 @@ CREATE TABLE "coaches" (
     "won" bigint,
     "lost" bigint,
     "post_wins" bigint,
-    "post_losses" bigint
+    "post_losses" bigint,
+    UNIQUE ("coachid", "year", "tmid", "stint")
 );
 
 CREATE TABLE "draft" (
@@ -72,7 +74,8 @@ CREATE TABLE "player_allstar" (
     "ft_attempted" bigint,
     "ft_made" bigint,
     "three_attempted" bigint,
-    "three_made" bigint
+    "three_made" bigint,
+    UNIQUE ("playerid", "season_id")
 );
 
 CREATE TABLE "players" (
@@ -101,7 +104,8 @@ CREATE TABLE "players" (
     "hsstate" text,
     "hscountry" text,
     "deathdate" date,
-    "race" text
+    "race" text,
+    UNIQUE ("playerid")
 );
 
 CREATE TABLE "players_teams" (
@@ -187,7 +191,8 @@ CREATE TABLE "teams" (
     "won" bigint,
     "lost" bigint,
     "games" bigint,
-    "arena" text
+    "arena" text,
+    UNIQUE ("year", "tmid")
 );
 
 ALTER TABLE "coaches" ADD FOREIGN KEY ("tmid") REFERENCES "teams" ("tmid");

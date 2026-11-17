@@ -129,7 +129,8 @@ CREATE TABLE "rental" (
     "return_date" timestamp with time zone,
     "staff_id" bigint,
     "last_update" timestamp with time zone,
-    PRIMARY KEY ("rental_id")
+    PRIMARY KEY ("rental_id"),
+    UNIQUE ("rental_date", "inventory_id", "customer_id")
 );
 
 CREATE TABLE "staff" (
@@ -152,6 +153,7 @@ CREATE TABLE "store" (
     "manager_staff_id" bigint,
     "address_id" bigint,
     "last_update" timestamp with time zone,
-    PRIMARY KEY ("store_id")
+    PRIMARY KEY ("store_id"),
+    UNIQUE ("manager_staff_id")
 );
 

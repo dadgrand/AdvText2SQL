@@ -9,7 +9,8 @@ CREATE TABLE "station" (
     "long" real,
     "dock_count" bigint,
     "city" text,
-    "installation_date" text
+    "installation_date" text,
+    UNIQUE ("id")
 );
 
 CREATE TABLE "status" (

@@ -12,7 +12,8 @@ CREATE TABLE "sales_in_weather" (
     "date" date,
     "store_nbr" bigint,
     "item_nbr" bigint,
-    "units" bigint
+    "units" bigint,
+    UNIQUE ("store_nbr", "date", "item_nbr")
 );
 
 CREATE TABLE "weather" (

@@ -18,7 +18,8 @@ CREATE TABLE "Sales Orders" (
     "Order Quantity" bigint,
     "Discount Applied" real,
     "Unit Price" text,
-    "Unit Cost" text
+    "Unit Cost" text,
+    UNIQUE ("ordernumber")
 );
 
 CREATE TABLE "Sales Team" (
@@ -62,7 +63,8 @@ CREATE TABLE "products" (
 CREATE TABLE "regions" (
     "statecode" text,
     "state" text,
-    "region" text
+    "region" text,
+    UNIQUE ("statecode")
 );
 
 ALTER TABLE "Sales Orders" ADD FOREIGN KEY ("_customerid") REFERENCES "customers" ("customerid");

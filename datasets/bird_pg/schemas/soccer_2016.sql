@@ -13,7 +13,8 @@ CREATE TABLE "ball_by_ball" (
     "striker" bigint,
     "non_striker" bigint,
     "bowler" bigint,
-    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no")
+    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no"),
+    UNIQUE ("match_id", "over_id", "ball_id", "innings_no")
 );
 
 CREATE TABLE "batsman_scored" (
@@ -22,7 +23,8 @@ CREATE TABLE "batsman_scored" (
     "ball_id" bigint NOT NULL,
     "runs_scored" bigint,
     "innings_no" bigint NOT NULL,
-    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no")
+    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no"),
+    UNIQUE ("match_id", "over_id", "ball_id", "innings_no")
 );
 
 CREATE TABLE "batting_style" (
@@ -57,7 +59,8 @@ CREATE TABLE "extra_runs" (
     "extra_type_id" bigint,
     "extra_runs" bigint,
     "innings_no" bigint NOT NULL,
-    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no")
+    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no"),
+    UNIQUE ("match_id", "over_id", "ball_id", "innings_no")
 );
 
 CREATE TABLE "extra_type" (
@@ -110,7 +113,8 @@ CREATE TABLE "player_match" (
     "player_id" bigint NOT NULL,
     "role_id" bigint NOT NULL,
     "team_id" bigint,
-    PRIMARY KEY ("match_id", "player_id", "role_id")
+    PRIMARY KEY ("match_id", "player_id", "role_id"),
+    UNIQUE ("match_id", "player_id", "role_id")
 );
 
 CREATE TABLE "rolee" (
@@ -162,7 +166,8 @@ CREATE TABLE "wicket_taken" (
     "kind_out" bigint,
     "fielders" bigint,
     "innings_no" bigint NOT NULL,
-    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no")
+    PRIMARY KEY ("match_id", "over_id", "ball_id", "innings_no"),
+    UNIQUE ("match_id", "over_id", "ball_id", "innings_no")
 );
 
 CREATE TABLE "win_by" (

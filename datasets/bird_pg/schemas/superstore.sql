@@ -40,7 +40,8 @@ CREATE TABLE "people" (
     "city" text,
     "state" text,
     "Postal Code" bigint,
-    "region" text
+    "region" text,
+    UNIQUE ("Customer ID", "region")
 );
 
 CREATE TABLE "product" (
@@ -48,7 +49,8 @@ CREATE TABLE "product" (
     "Product Name" text,
     "category" text,
     "Sub-Category" text,
-    "region" text
+    "region" text,
+    UNIQUE ("Product ID", "region")
 );
 
 CREATE TABLE "south_superstore" (

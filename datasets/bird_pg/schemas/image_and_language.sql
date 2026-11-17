@@ -16,14 +16,16 @@ CREATE TABLE "img_obj" (
     "y" bigint,
     "w" bigint,
     "h" bigint,
-    PRIMARY KEY ("img_id", "obj_sample_id")
+    PRIMARY KEY ("img_id", "obj_sample_id"),
+    UNIQUE ("img_id", "obj_sample_id")
 );
 
 CREATE TABLE "img_obj_att" (
     "img_id" bigint NOT NULL,
     "att_class_id" bigint NOT NULL,
     "obj_sample_id" bigint NOT NULL,
-    PRIMARY KEY ("img_id", "att_class_id", "obj_sample_id")
+    PRIMARY KEY ("img_id", "att_class_id", "obj_sample_id"),
+    UNIQUE ("img_id", "att_class_id", "obj_sample_id")
 );
 
 CREATE TABLE "img_rel" (
@@ -31,7 +33,8 @@ CREATE TABLE "img_rel" (
     "pred_class_id" bigint NOT NULL,
     "obj1_sample_id" bigint NOT NULL,
     "obj2_sample_id" bigint NOT NULL,
-    PRIMARY KEY ("img_id", "pred_class_id", "obj1_sample_id", "obj2_sample_id")
+    PRIMARY KEY ("img_id", "pred_class_id", "obj1_sample_id", "obj2_sample_id"),
+    UNIQUE ("img_id", "pred_class_id", "obj1_sample_id", "obj2_sample_id")
 );
 
 CREATE TABLE "obj_classes" (

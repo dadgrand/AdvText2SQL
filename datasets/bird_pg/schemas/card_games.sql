@@ -77,7 +77,8 @@ CREATE TABLE "cards" (
     "uuid" text,
     "variations" text,
     "watermark" text,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    UNIQUE ("uuid")
 );
 
 CREATE TABLE "foreign_data" (
@@ -138,7 +139,8 @@ CREATE TABLE "sets" (
     "tcgplayergroupid" bigint,
     "totalsetsize" bigint,
     "type" text,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    UNIQUE ("code")
 );
 
 ALTER TABLE "rulings" ADD FOREIGN KEY ("uuid") REFERENCES "cards" ("uuid");

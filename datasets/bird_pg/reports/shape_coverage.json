@@ -1,13 +1,13 @@
 {
   "synthetic": {
-    "pairs": 4751,
+    "pairs": 2815,
     "join_depth_pct": {
-      "0": 29.0,
-      "1": 49.5,
-      "2": 17.1,
-      "3": 4.4
+      "0": 31.9,
+      "1": 39.2,
+      "2": 22.0,
+      "3": 7.0
     },
-    "with_subquery_pct": 35.0
+    "with_subquery_pct": 21.1
   },
   "dev_benchmark": {
     "pairs": 241,

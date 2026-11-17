@@ -31,7 +31,8 @@ CREATE TABLE "posthistory" (
     "text" text,
     "comment" text,
     "userdisplayname" text,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    UNIQUE ("id")
 );
 
 CREATE TABLE "postlinks" (
@@ -65,7 +66,8 @@ CREATE TABLE "posts" (
     "closeddate" timestamp with time zone,
     "ownerdisplayname" text,
     "lasteditordisplayname" text,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    UNIQUE ("id")
 );
 
 CREATE TABLE "tags" (
@@ -92,7 +94,8 @@ CREATE TABLE "users" (
     "accountid" bigint,
     "age" bigint,
     "profileimageurl" text,
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    UNIQUE ("id")
 );
 
 CREATE TABLE "votes" (

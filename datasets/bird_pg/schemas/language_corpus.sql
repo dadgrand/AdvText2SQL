@@ -16,7 +16,9 @@ CREATE TABLE "langs" (
     "locale" text,
     "pages" bigint,
     "words" bigint,
-    PRIMARY KEY ("lid")
+    PRIMARY KEY ("lid"),
+    UNIQUE ("locale"),
+    UNIQUE ("lang")
 );
 
 CREATE TABLE "langs_words" (
@@ -33,7 +35,8 @@ CREATE TABLE "pages" (
     "revision" bigint,
     "title" text,
     "words" bigint,
-    PRIMARY KEY ("pid")
+    PRIMARY KEY ("pid"),
+    UNIQUE ("lid", "page", "title")
 );
 
 CREATE TABLE "pages_words" (

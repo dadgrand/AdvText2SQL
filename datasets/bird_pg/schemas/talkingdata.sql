@@ -3,14 +3,16 @@
 -- benchmark server; types, keys and column comments are the server's own.
 
 CREATE TABLE "app_all" (
-    "app_id" bigint
+    "app_id" bigint,
+    UNIQUE ("app_id")
 );
 
 CREATE TABLE "app_events" (
     "event_id" bigint,
     "app_id" bigint,
     "is_installed" bigint,
-    "is_active" bigint
+    "is_active" bigint,
+    UNIQUE ("event_id", "app_id")
 );
 
 CREATE TABLE "app_events_relevant" (

@@ -5,7 +5,8 @@
 CREATE TABLE "borders" (
     "country1" text,
     "country2" text,
-    "length" real
+    "length" real,
+    UNIQUE ("country1", "country2")
 );
 
 CREATE TABLE "city" (
@@ -14,12 +15,14 @@ CREATE TABLE "city" (
     "province" text,
     "population" bigint,
     "longitude" real,
-    "latitude" real
+    "latitude" real,
+    UNIQUE ("name", "province")
 );
 
 CREATE TABLE "continent" (
     "name" text,
-    "area" real
+    "area" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "country" (
@@ -28,14 +31,17 @@ CREATE TABLE "country" (
     "capital" text,
     "province" text,
     "area" real,
-    "population" bigint
+    "population" bigint,
+    UNIQUE ("name"),
+    UNIQUE ("code")
 );
 
 CREATE TABLE "desert" (
     "name" text,
     "area" real,
     "longitude" real,
-    "latitude" real
+    "latitude" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "economy" (
@@ -44,67 +50,78 @@ CREATE TABLE "economy" (
     "agriculture" real,
     "service" real,
     "industry" real,
-    "inflation" real
+    "inflation" real,
+    UNIQUE ("country")
 );
 
 CREATE TABLE "encompasses" (
     "country" text,
     "continent" text,
-    "percentage" real
+    "percentage" real,
+    UNIQUE ("country", "continent")
 );
 
 CREATE TABLE "ethnicgroup" (
     "country" text,
     "name" text,
-    "percentage" real
+    "percentage" real,
+    UNIQUE ("name", "country")
 );
 
 CREATE TABLE "geo_desert" (
     "desert" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "desert")
 );
 
 CREATE TABLE "geo_estuary" (
     "river" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "river")
 );
 
 CREATE TABLE "geo_island" (
     "island" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "island")
 );
 
 CREATE TABLE "geo_lake" (
     "lake" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "lake")
 );
 
 CREATE TABLE "geo_mountain" (
     "mountain" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "mountain")
 );
 
 CREATE TABLE "geo_river" (
     "river" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "river")
 );
 
 CREATE TABLE "geo_sea" (
     "sea" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "sea")
 );
 
 CREATE TABLE "geo_source" (
     "river" text,
     "country" text,
-    "province" text
+    "province" text,
+    UNIQUE ("province", "country", "river")
 );
 
 CREATE TABLE "island" (
@@ -114,7 +131,8 @@ CREATE TABLE "island" (
     "height" real,
     "type" text,
     "longitude" real,
-    "latitude" real
+    "latitude" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "islandin" (
@@ -127,7 +145,8 @@ CREATE TABLE "islandin" (
 CREATE TABLE "ismember" (
     "country" text,
     "organization" text,
-    "type" text
+    "type" text,
+    UNIQUE ("country", "organization")
 );
 
 CREATE TABLE "lake" (
@@ -138,13 +157,15 @@ CREATE TABLE "lake" (
     "type" text,
     "river" text,
     "longitude" real,
-    "latitude" real
+    "latitude" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "language" (
     "country" text,
     "name" text,
-    "percentage" real
+    "percentage" real,
+    UNIQUE ("name", "country")
 );
 
 CREATE TABLE "located" (
@@ -160,12 +181,14 @@ CREATE TABLE "locatedon" (
     "city" text,
     "province" text,
     "country" text,
-    "island" text
+    "island" text,
+    UNIQUE ("city", "province", "country", "island")
 );
 
 CREATE TABLE "mergeswith" (
     "sea1" text,
-    "sea2" text
+    "sea2" text,
+    UNIQUE ("sea1", "sea2")
 );
 
 CREATE TABLE "mountain" (
@@ -174,12 +197,14 @@ CREATE TABLE "mountain" (
     "height" real,
     "type" text,
     "longitude" real,
-    "latitude" real
+    "latitude" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "mountainonisland" (
     "mountain" text,
-    "island" text
+    "island" text,
+    UNIQUE ("mountain", "island")
 );
 
 CREATE TABLE "organization" (
@@ -188,20 +213,24 @@ CREATE TABLE "organization" (
     "city" text,
     "country" text,
     "province" text,
-    "established" date
+    "established" date,
+    UNIQUE ("abbreviation"),
+    UNIQUE ("name")
 );
 
 CREATE TABLE "politics" (
     "country" text,
     "independence" date,
     "dependent" text,
-    "government" text
+    "government" text,
+    UNIQUE ("country")
 );
 
 CREATE TABLE "population" (
     "country" text,
     "population_growth" real,
-    "infant_mortality" real
+    "infant_mortality" real,
+    UNIQUE ("country")
 );
 
 CREATE TABLE "province" (
@@ -210,13 +239,15 @@ CREATE TABLE "province" (
     "population" bigint,
     "area" real,
     "capital" text,
-    "capprov" text
+    "capprov" text,
+    UNIQUE ("name", "country")
 );
 
 CREATE TABLE "religion" (
     "country" text,
     "name" text,
-    "percentage" real
+    "percentage" real,
+    UNIQUE ("name", "country")
 );
 
 CREATE TABLE "river" (
@@ -230,16 +261,19 @@ CREATE TABLE "river" (
     "mountains" text,
     "sourcealtitude" real,
     "estuarylongitude" real,
-    "estuarylatitude" real
+    "estuarylatitude" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "sea" (
     "name" text,
-    "depth" real
+    "depth" real,
+    UNIQUE ("name")
 );
 
 CREATE TABLE "target" (
     "country" text,
-    "target" text
+    "target" text,
+    UNIQUE ("country")
 );
 

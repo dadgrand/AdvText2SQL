@@ -31,7 +31,8 @@ CREATE TABLE "production" (
     "id" bigint NOT NULL,
     "model_year" bigint NOT NULL,
     "country" bigint,
-    PRIMARY KEY ("id", "model_year")
+    PRIMARY KEY ("id", "model_year"),
+    UNIQUE ("id", "model_year")
 );
 
 ALTER TABLE "data" ADD FOREIGN KEY ("id") REFERENCES "price" ("id");

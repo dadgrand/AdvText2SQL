@@ -25,11 +25,13 @@ CREATE TABLE "twitter" (
     "sentiment" real,
     "text" text,
     "locationid" bigint,
-    "userid" text
+    "userid" text,
+    UNIQUE ("tweetid")
 );
 
 CREATE TABLE "user" (
     "userid" text,
-    "gender" text
+    "gender" text,
+    UNIQUE ("userid")
 );
 

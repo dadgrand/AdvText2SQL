@@ -5,7 +5,8 @@
 CREATE TABLE "abbrev" (
     "type" text,
     "code" text,
-    "fullname" text
+    "fullname" text,
+    UNIQUE ("type", "code")
 );
 
 CREATE TABLE "awardscoaches" (
@@ -32,7 +33,8 @@ CREATE TABLE "awardsplayers" (
     "year" bigint,
     "lgid" text,
     "note" text,
-    "pos" text
+    "pos" text,
+    UNIQUE ("playerid", "award", "year")
 );
 
 CREATE TABLE "coaches" (
@@ -49,7 +51,8 @@ CREATE TABLE "coaches" (
     "postg" text,
     "postw" text,
     "postl" text,
-    "postt" text
+    "postt" text,
+    UNIQUE ("coachid", "year", "tmid", "stint")
 );
 
 CREATE TABLE "combinedshutouts" (
@@ -86,7 +89,8 @@ CREATE TABLE "goalies" (
     "posteng" text,
     "postsho" text,
     "postga" text,
-    "postsa" text
+    "postsa" text,
+    UNIQUE ("playerid", "year", "stint")
 );
 
 CREATE TABLE "goaliessc" (
@@ -100,7 +104,8 @@ CREATE TABLE "goaliessc" (
     "l" bigint,
     "t" bigint,
     "sho" bigint,
-    "ga" bigint
+    "ga" bigint,
+    UNIQUE ("playerid", "year")
 );
 
 CREATE TABLE "goaliesshootout" (
@@ -118,7 +123,8 @@ CREATE TABLE "hof" (
     "year" bigint,
     "hofid" text,
     "name" text,
-    "category" text
+    "category" text,
+    UNIQUE ("hofid")
 );
 
 CREATE TABLE "master" (
@@ -262,7 +268,8 @@ CREATE TABLE "teams" (
     "sha" text,
     "pkg" text,
     "pkc" text,
-    "shf" text
+    "shf" text,
+    UNIQUE ("year", "tmid")
 );
 
 CREATE TABLE "teamshalf" (
@@ -276,7 +283,8 @@ CREATE TABLE "teamshalf" (
     "l" bigint,
     "t" bigint,
     "gf" bigint,
-    "ga" bigint
+    "ga" bigint,
+    UNIQUE ("year", "tmid", "half")
 );
 
 CREATE TABLE "teamsplits" (
@@ -322,7 +330,8 @@ CREATE TABLE "teamsplits" (
     "aprw" text,
     "aprl" text,
     "aprt" text,
-    "aprol" text
+    "aprol" text,
+    UNIQUE ("year", "tmid")
 );
 
 CREATE TABLE "teamspost" (
@@ -342,7 +351,8 @@ CREATE TABLE "teamspost" (
     "sha" text,
     "pkg" text,
     "pkc" text,
-    "shf" text
+    "shf" text,
+    UNIQUE ("year", "tmid")
 );
 
 CREATE TABLE "teamssc" (
@@ -355,7 +365,8 @@ CREATE TABLE "teamssc" (
     "t" bigint,
     "gf" bigint,
     "ga" bigint,
-    "pim" text
+    "pim" text,
+    UNIQUE ("year", "tmid")
 );
 
 CREATE TABLE "teamvsteam" (
@@ -366,7 +377,8 @@ CREATE TABLE "teamvsteam" (
     "w" bigint,
     "l" bigint,
     "t" bigint,
-    "otl" text
+    "otl" text,
+    UNIQUE ("year", "tmid", "oppid")
 );
 
 ALTER TABLE "coaches" ADD FOREIGN KEY ("tmid") REFERENCES "teams" ("tmid");

@@ -13,7 +13,7 @@ summary for a reader of this repository.
 | `data/bird_dev_divergent.jsonl` | 13 | executes, but the two engines answer differently (see §Data defects) |
 | `data/bird_train_pg.jsonl` | 5,230 | executed on PostgreSQL (no SQLite copy exists for these 63 databases) |
 | `data/bird_train_excluded.jsonl` | 1,371 | the failures, each with its error |
-| `data/synthetic_bird_like.jsonl` | 3,595 | synthetic BIRD-like pairs over **train** schemas only; `question_tier` = `hand` (3,504, written per question with schema+SQL+rows in view) or `model` (91, local 7B) |
+| `data/synthetic_bird_like.jsonl` | 2,815 | synthetic BIRD-like pairs over **train** schemas only; `question_tier` = `hand` (2,748, written per question with schema+SQL+rows in view) or `model` (67, local 7B) |
 | `schemas/` | 77 databases | runnable DDL + `schema.json` (types, PK/FK, row-count estimates) |
 | `tools/verify_dataset.py`, `tools/to_sft.py` | — | integrity/live check, chat-SFT converter |
 | `build/` | — | the builders that produced all of the above |
@@ -72,7 +72,7 @@ silently returns an empty string. Question 239 therefore returned `0` instead of
   identifiers, every SQL literal present in the text, 5-gram Jaccard < 0.6
   against real BIRD questions; a final pass checks that the interrogative matches
   the answer shape (a query returning `AVG(...)` must not be asked as "how many").
-  the local-model tier kept 651 of 1,000; the hand tier then produced 3,504 accepted
+  the local-model tier kept 67 rows; the hand tier produced 2,748 accepted
   rows after the same gate, a curation screen that drops id-only questions, and a
   cap of two phrasings per SQL.
 * Two tiers are shipped with a `question_tier` field: `hand` (written per question by
@@ -87,3 +87,8 @@ silently returns an empty string. Question 239 therefore returned `0` instead of
 `assemble.py`) and the four non-obvious traps that cost time: one connection per
 worker thread (SSH channel budget), `rollback()` after every failed statement,
 SQLite's missing statement timeout, and `pg_stats`' `anyarray` columns.
+
+
+<!-- numbers:start -->
+**Сводка (генерируется из `MANIFEST.json`, не править руками).** dev: **241** вопросов, из них **228** сверены с оригиналом, **13** расходятся с объяснённой причиной. train: **5230** из 6601 строк исполняются. Синтетика: **2815** пар в основном корпусе (из них с соединением **1917 = 68%**, с тремя и более таблицами **814**), **2494** пар с неназванным `LIMIT` — отдельным пулом на проверку, **2277** одиночных — отдельным пулом. Схем: **77** баз.
+<!-- numbers:end -->

@@ -23,7 +23,8 @@ CREATE TABLE "characters" (
     "creditorder" bigint,
     "pay" text,
     "screentime" text,
-    PRIMARY KEY ("movieid", "actorid")
+    PRIMARY KEY ("movieid", "actorid"),
+    UNIQUE ("movieid", "actorid")
 );
 
 CREATE TABLE "movie" (

@@ -15,7 +15,8 @@ CREATE TABLE "callcenterlogs" (
     "server" text,
     "ser_start" text,
     "ser_exit" text,
-    "ser_time" text
+    "ser_time" text,
+    UNIQUE ("Complaint ID")
 );
 
 CREATE TABLE "client" (
@@ -63,7 +64,8 @@ CREATE TABLE "events" (
     "Timely response?" text,
     "Consumer disputed?" text,
     "Complaint ID" text,
-    "client_id" text
+    "client_id" text,
+    UNIQUE ("Complaint ID", "client_id")
 );
 
 CREATE TABLE "reviews" (
@@ -71,13 +73,15 @@ CREATE TABLE "reviews" (
     "stars" bigint,
     "reviews" text,
     "product" text,
-    "district_id" bigint
+    "district_id" bigint,
+    UNIQUE ("date")
 );
 
 CREATE TABLE "state" (
     "statecode" text,
     "state" text,
-    "region" text
+    "region" text,
+    UNIQUE ("statecode")
 );
 
 ALTER TABLE "client" ADD FOREIGN KEY ("district_id") REFERENCES "district" ("district_id");

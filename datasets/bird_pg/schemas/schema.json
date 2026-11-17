@@ -873,7 +873,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 6510
+    "row_count_estimate": 6510,
+    "unique": [
+     [
+      "code"
+     ]
+    ]
    }
   ]
  },
@@ -1603,7 +1608,13 @@
       }
      }
     ],
-    "row_count_estimate": 713
+    "row_count_estimate": 713,
+    "unique": [
+     [
+      "customerid",
+      "brandid"
+     ]
+    ]
    },
    {
     "name": "transaction",
@@ -1739,7 +1750,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 70
+    "row_count_estimate": 70,
+    "unique": [
+     [
+      "id"
+     ]
+    ]
    },
    {
     "name": "status",
@@ -3280,7 +3296,12 @@
       }
      }
     ],
-    "row_count_estimate": 9986
+    "row_count_estimate": 9986,
+    "unique": [
+     [
+      "cdscode"
+     ]
+    ]
    },
    {
     "name": "satscores",
@@ -3658,7 +3679,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 17686
+    "row_count_estimate": 17686,
+    "unique": [
+     [
+      "cdscode"
+     ]
+    ]
    }
   ]
  },
@@ -3895,7 +3921,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 7
+    "row_count_estimate": 7,
+    "unique": [
+     [
+      "officecode"
+     ]
+    ]
    },
    {
     "name": "orderdetails",
@@ -3933,7 +3964,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 2996
+    "row_count_estimate": 2996,
+    "unique": [
+     [
+      "ordernumber",
+      "productcode"
+     ]
+    ]
    },
    {
     "name": "orders",
@@ -4033,7 +4070,13 @@
       }
      }
     ],
-    "row_count_estimate": 273
+    "row_count_estimate": 273,
+    "unique": [
+     [
+      "customernumber",
+      "checknumber"
+     ]
+    ]
    },
    {
     "name": "productlines",
@@ -4065,7 +4108,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 7
+    "row_count_estimate": 7,
+    "unique": [
+     [
+      "productline"
+     ]
+    ]
    },
    {
     "name": "products",
@@ -4135,7 +4183,12 @@
       }
      }
     ],
-    "row_count_estimate": 110
+    "row_count_estimate": 110,
+    "unique": [
+     [
+      "productcode"
+     ]
+    ]
    }
   ]
  },
@@ -4595,7 +4648,12 @@
      "id"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 56822
+    "row_count_estimate": 56822,
+    "unique": [
+     [
+      "uuid"
+     ]
+    ]
    },
    {
     "name": "foreign_data",
@@ -4907,7 +4965,12 @@
      "id"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 551
+    "row_count_estimate": 551,
+    "unique": [
+     [
+      "code"
+     ]
+    ]
    }
   ]
  },
@@ -5080,7 +5143,13 @@
       }
      }
     ],
-    "row_count_estimate": 692
+    "row_count_estimate": 692,
+    "unique": [
+     [
+      "id",
+      "model_year"
+     ]
+    ]
    }
   ]
  },
@@ -5956,7 +6025,12 @@
       }
      }
     ],
-    "row_count_estimate": 303155
+    "row_count_estimate": 303155,
+    "unique": [
+     [
+      "id"
+     ]
+    ]
    },
    {
     "name": "postlinks",
@@ -6147,7 +6221,12 @@
       }
      }
     ],
-    "row_count_estimate": 91966
+    "row_count_estimate": 91966,
+    "unique": [
+     [
+      "id"
+     ]
+    ]
    },
    {
     "name": "tags",
@@ -6281,7 +6360,12 @@
      "id"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 40325
+    "row_count_estimate": 40325,
+    "unique": [
+     [
+      "id"
+     ]
+    ]
    },
    {
     "name": "votes",
@@ -8046,7 +8130,12 @@
      "customerid"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 32461
+    "row_count_estimate": 32461,
+    "unique": [
+     [
+      "customerid"
+     ]
+    ]
    },
    {
     "name": "gasstations",
@@ -8080,7 +8169,12 @@
      "gasstationid"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 5716
+    "row_count_estimate": 5716,
+    "unique": [
+     [
+      "gasstationid"
+     ]
+    ]
    },
    {
     "name": "products",
@@ -8102,7 +8196,12 @@
      "productid"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 591
+    "row_count_estimate": 591,
+    "unique": [
+     [
+      "productid"
+     ]
+    ]
    },
    {
     "name": "transactions_1k",
@@ -8192,7 +8291,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 383282
+    "row_count_estimate": 383282,
+    "unique": [
+     [
+      "date",
+      "customerid"
+     ]
+    ]
    }
   ]
  },
@@ -9986,7 +10091,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 862
+    "row_count_estimate": 862,
+    "unique": [
+     [
+      "geneid"
+     ]
+    ]
    },
    {
     "name": "genes",
@@ -10103,7 +10213,13 @@
       }
      }
     ],
-    "row_count_estimate": 910
+    "row_count_estimate": 910,
+    "unique": [
+     [
+      "geneid1",
+      "geneid2"
+     ]
+    ]
    }
   ]
  },
@@ -10135,7 +10251,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 58
+    "row_count_estimate": 58,
+    "unique": [
+     [
+      "type",
+      "code"
+     ]
+    ]
    },
    {
     "name": "awardscoaches",
@@ -10263,7 +10385,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 2091
+    "row_count_estimate": 2091,
+    "unique": [
+     [
+      "playerid",
+      "award",
+      "year"
+     ]
+    ]
    },
    {
     "name": "coaches",
@@ -10370,7 +10499,15 @@
       }
      }
     ],
-    "row_count_estimate": 1812
+    "row_count_estimate": 1812,
+    "unique": [
+     [
+      "coachid",
+      "year",
+      "tmid",
+      "stint"
+     ]
+    ]
    },
    {
     "name": "combinedshutouts",
@@ -10587,7 +10724,14 @@
       }
      }
     ],
-    "row_count_estimate": 4278
+    "row_count_estimate": 4278,
+    "unique": [
+     [
+      "playerid",
+      "year",
+      "stint"
+     ]
+    ]
    },
    {
     "name": "goaliessc",
@@ -10676,7 +10820,13 @@
       }
      }
     ],
-    "row_count_estimate": 31
+    "row_count_estimate": 31,
+    "unique": [
+     [
+      "playerid",
+      "year"
+     ]
+    ]
    },
    {
     "name": "goaliesshootout",
@@ -10779,7 +10929,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 365
+    "row_count_estimate": 365,
+    "unique": [
+     [
+      "hofid"
+     ]
+    ]
    },
    {
     "name": "master",
@@ -11647,7 +11802,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 1519
+    "row_count_estimate": 1519,
+    "unique": [
+     [
+      "year",
+      "tmid"
+     ]
+    ]
    },
    {
     "name": "teamshalf",
@@ -11736,7 +11897,14 @@
       }
      }
     ],
-    "row_count_estimate": 41
+    "row_count_estimate": 41,
+    "unique": [
+     [
+      "year",
+      "tmid",
+      "half"
+     ]
+    ]
    },
    {
     "name": "teamsplits",
@@ -12017,7 +12185,13 @@
       }
      }
     ],
-    "row_count_estimate": 1519
+    "row_count_estimate": 1519,
+    "unique": [
+     [
+      "year",
+      "tmid"
+     ]
+    ]
    },
    {
     "name": "teamspost",
@@ -12142,7 +12316,13 @@
       }
      }
     ],
-    "row_count_estimate": 927
+    "row_count_estimate": 927,
+    "unique": [
+     [
+      "year",
+      "tmid"
+     ]
+    ]
    },
    {
     "name": "teamssc",
@@ -12225,7 +12405,13 @@
       }
      }
     ],
-    "row_count_estimate": 30
+    "row_count_estimate": 30,
+    "unique": [
+     [
+      "year",
+      "tmid"
+     ]
+    ]
    },
    {
     "name": "teamvsteam",
@@ -12310,7 +12496,14 @@
       }
      }
     ],
-    "row_count_estimate": 25602
+    "row_count_estimate": 25602,
+    "unique": [
+     [
+      "year",
+      "tmid",
+      "oppid"
+     ]
+    ]
    }
   ]
  },
@@ -12851,7 +13044,13 @@
       }
      }
     ],
-    "row_count_estimate": 1750617
+    "row_count_estimate": 1750617,
+    "unique": [
+     [
+      "img_id",
+      "obj_sample_id"
+     ]
+    ]
    },
    {
     "name": "img_obj_att",
@@ -12903,7 +13102,14 @@
       }
      }
     ],
-    "row_count_estimate": 1074674
+    "row_count_estimate": 1074674,
+    "unique": [
+     [
+      "img_id",
+      "att_class_id",
+      "obj_sample_id"
+     ]
+    ]
    },
    {
     "name": "img_rel",
@@ -12976,7 +13182,15 @@
       }
      }
     ],
-    "row_count_estimate": 763159
+    "row_count_estimate": 763159,
+    "unique": [
+     [
+      "img_id",
+      "pred_class_id",
+      "obj1_sample_id",
+      "obj2_sample_id"
+     ]
+    ]
    },
    {
     "name": "obj_classes",
@@ -13124,7 +13338,15 @@
      "lid"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 1
+    "row_count_estimate": 1,
+    "unique": [
+     [
+      "locale"
+     ],
+     [
+      "lang"
+     ]
+    ]
    },
    {
     "name": "langs_words",
@@ -13222,7 +13444,14 @@
       }
      }
     ],
-    "row_count_estimate": 1129144
+    "row_count_estimate": 1129144,
+    "unique": [
+     [
+      "lid",
+      "page",
+      "title"
+     ]
+    ]
    },
    {
     "name": "pages_words",
@@ -13803,7 +14032,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 541
+    "row_count_estimate": 541,
+    "unique": [
+     [
+      "bioguide_id",
+      "cspan_id"
+     ]
+    ]
    },
    {
     "name": "current-terms",
@@ -13949,7 +14184,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 3078
+    "row_count_estimate": 3078,
+    "unique": [
+     [
+      "bioguide",
+      "end"
+     ]
+    ]
    },
    {
     "name": "historical",
@@ -14388,7 +14629,13 @@
      "questionid"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 234640
+    "row_count_estimate": 234640,
+    "unique": [
+     [
+      "userid",
+      "questionid"
+     ]
+    ]
    },
    {
     "name": "question",
@@ -14788,7 +15035,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 320
+    "row_count_estimate": 320,
+    "unique": [
+     [
+      "country1",
+      "country2"
+     ]
+    ]
    },
    {
     "name": "city",
@@ -14832,7 +15085,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 3111
+    "row_count_estimate": 3111,
+    "unique": [
+     [
+      "name",
+      "province"
+     ]
+    ]
    },
    {
     "name": "continent",
@@ -14852,7 +15111,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 5
+    "row_count_estimate": 5,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "country",
@@ -14896,7 +15160,15 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 238
+    "row_count_estimate": 238,
+    "unique": [
+     [
+      "name"
+     ],
+     [
+      "code"
+     ]
+    ]
    },
    {
     "name": "desert",
@@ -14928,7 +15200,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 63
+    "row_count_estimate": 63,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "economy",
@@ -14972,7 +15249,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 238
+    "row_count_estimate": 238,
+    "unique": [
+     [
+      "country"
+     ]
+    ]
    },
    {
     "name": "encompasses",
@@ -14998,7 +15280,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 242
+    "row_count_estimate": 242,
+    "unique": [
+     [
+      "country",
+      "continent"
+     ]
+    ]
    },
    {
     "name": "ethnicgroup",
@@ -15024,7 +15312,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 540
+    "row_count_estimate": 540,
+    "unique": [
+     [
+      "name",
+      "country"
+     ]
+    ]
    },
    {
     "name": "geo_desert",
@@ -15050,7 +15344,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 155
+    "row_count_estimate": 155,
+    "unique": [
+     [
+      "province",
+      "country",
+      "desert"
+     ]
+    ]
    },
    {
     "name": "geo_estuary",
@@ -15076,7 +15377,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 266
+    "row_count_estimate": 266,
+    "unique": [
+     [
+      "province",
+      "country",
+      "river"
+     ]
+    ]
    },
    {
     "name": "geo_island",
@@ -15102,7 +15410,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 202
+    "row_count_estimate": 202,
+    "unique": [
+     [
+      "province",
+      "country",
+      "island"
+     ]
+    ]
    },
    {
     "name": "geo_lake",
@@ -15128,7 +15443,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 254
+    "row_count_estimate": 254,
+    "unique": [
+     [
+      "province",
+      "country",
+      "lake"
+     ]
+    ]
    },
    {
     "name": "geo_mountain",
@@ -15154,7 +15476,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 296
+    "row_count_estimate": 296,
+    "unique": [
+     [
+      "province",
+      "country",
+      "mountain"
+     ]
+    ]
    },
    {
     "name": "geo_river",
@@ -15180,7 +15509,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 852
+    "row_count_estimate": 852,
+    "unique": [
+     [
+      "province",
+      "country",
+      "river"
+     ]
+    ]
    },
    {
     "name": "geo_sea",
@@ -15206,7 +15542,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 736
+    "row_count_estimate": 736,
+    "unique": [
+     [
+      "province",
+      "country",
+      "sea"
+     ]
+    ]
    },
    {
     "name": "geo_source",
@@ -15232,7 +15575,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 220
+    "row_count_estimate": 220,
+    "unique": [
+     [
+      "province",
+      "country",
+      "river"
+     ]
+    ]
    },
    {
     "name": "island",
@@ -15282,7 +15632,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 276
+    "row_count_estimate": 276,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "islandin",
@@ -15340,7 +15695,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 8009
+    "row_count_estimate": 8009,
+    "unique": [
+     [
+      "country",
+      "organization"
+     ]
+    ]
    },
    {
     "name": "lake",
@@ -15396,7 +15757,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 130
+    "row_count_estimate": 130,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "language",
@@ -15422,7 +15788,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 144
+    "row_count_estimate": 144,
+    "unique": [
+     [
+      "name",
+      "country"
+     ]
+    ]
    },
    {
     "name": "located",
@@ -15498,7 +15870,15 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 435
+    "row_count_estimate": 435,
+    "unique": [
+     [
+      "city",
+      "province",
+      "country",
+      "island"
+     ]
+    ]
    },
    {
     "name": "mergeswith",
@@ -15518,7 +15898,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 55
+    "row_count_estimate": 55,
+    "unique": [
+     [
+      "sea1",
+      "sea2"
+     ]
+    ]
    },
    {
     "name": "mountain",
@@ -15562,7 +15948,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 0
+    "row_count_estimate": 0,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "mountainonisland",
@@ -15582,7 +15973,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 68
+    "row_count_estimate": 68,
+    "unique": [
+     [
+      "mountain",
+      "island"
+     ]
+    ]
    },
    {
     "name": "organization",
@@ -15626,7 +16023,15 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 0
+    "row_count_estimate": 0,
+    "unique": [
+     [
+      "abbreviation"
+     ],
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "politics",
@@ -15658,7 +16063,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 0
+    "row_count_estimate": 0,
+    "unique": [
+     [
+      "country"
+     ]
+    ]
    },
    {
     "name": "population",
@@ -15684,7 +16094,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 238
+    "row_count_estimate": 238,
+    "unique": [
+     [
+      "country"
+     ]
+    ]
    },
    {
     "name": "province",
@@ -15728,7 +16143,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 1450
+    "row_count_estimate": 1450,
+    "unique": [
+     [
+      "name",
+      "country"
+     ]
+    ]
    },
    {
     "name": "religion",
@@ -15754,7 +16175,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 454
+    "row_count_estimate": 454,
+    "unique": [
+     [
+      "name",
+      "country"
+     ]
+    ]
    },
    {
     "name": "river",
@@ -15828,7 +16255,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 218
+    "row_count_estimate": 218,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "sea",
@@ -15848,7 +16280,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 35
+    "row_count_estimate": 35,
+    "unique": [
+     [
+      "name"
+     ]
+    ]
    },
    {
     "name": "target",
@@ -15868,7 +16305,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 205
+    "row_count_estimate": 205,
+    "unique": [
+     [
+      "country"
+     ]
+    ]
    }
   ]
  },
@@ -15999,7 +16441,13 @@
       }
      }
     ],
-    "row_count_estimate": 4312
+    "row_count_estimate": 4312,
+    "unique": [
+     [
+      "movieid",
+      "actorid"
+     ]
+    ]
    },
    {
     "name": "movie",
@@ -16667,7 +17115,14 @@
      "rental_id"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 16044
+    "row_count_estimate": 16044,
+    "unique": [
+     [
+      "rental_date",
+      "inventory_id",
+      "customer_id"
+     ]
+    ]
    },
    {
     "name": "staff",
@@ -16777,7 +17232,12 @@
      "store_id"
     ],
     "foreign_keys": [],
-    "row_count_estimate": 2
+    "row_count_estimate": 2,
+    "unique": [
+     [
+      "manager_staff_id"
+     ]
+    ]
    }
   ]
  },
@@ -18608,7 +19068,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 1719
+    "row_count_estimate": 1719,
+    "unique": [
+     [
+      "playerid",
+      "year",
+      "award"
+     ]
+    ]
    },
    {
     "name": "coaches",
@@ -18685,7 +19152,15 @@
       }
      }
     ],
-    "row_count_estimate": 1689
+    "row_count_estimate": 1689,
+    "unique": [
+     [
+      "coachid",
+      "year",
+      "tmid",
+      "stint"
+     ]
+    ]
    },
    {
     "name": "draft",
@@ -18928,7 +19403,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 1608
+    "row_count_estimate": 1608,
+    "unique": [
+     [
+      "playerid",
+      "season_id"
+     ]
+    ]
    },
    {
     "name": "players",
@@ -19092,7 +19573,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 0
+    "row_count_estimate": 0,
+    "unique": [
+     [
+      "playerid"
+     ]
+    ]
    },
    {
     "name": "players_teams",
@@ -19614,7 +20100,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 1536
+    "row_count_estimate": 1536,
+    "unique": [
+     [
+      "year",
+      "tmid"
+     ]
+    ]
    }
   ]
  },
@@ -20367,7 +20859,12 @@
       }
      }
     ],
-    "row_count_estimate": 7991
+    "row_count_estimate": 7991,
+    "unique": [
+     [
+      "ordernumber"
+     ]
+    ]
    },
    {
     "name": "Sales Team",
@@ -20573,7 +21070,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 48
+    "row_count_estimate": 48,
+    "unique": [
+     [
+      "statecode"
+     ]
+    ]
    }
   ]
  },
@@ -20796,7 +21298,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 3999
+    "row_count_estimate": 3999,
+    "unique": [
+     [
+      "Complaint ID"
+     ]
+    ]
    },
    {
     "name": "client",
@@ -21062,7 +21569,13 @@
       }
      }
     ],
-    "row_count_estimate": 23419
+    "row_count_estimate": 23419,
+    "unique": [
+     [
+      "Complaint ID",
+      "client_id"
+     ]
+    ]
    },
    {
     "name": "reviews",
@@ -21108,7 +21621,12 @@
       }
      }
     ],
-    "row_count_estimate": 377
+    "row_count_estimate": 377,
+    "unique": [
+     [
+      "date"
+     ]
+    ]
    },
    {
     "name": "state",
@@ -21134,7 +21652,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 48
+    "row_count_estimate": 48,
+    "unique": [
+     [
+      "statecode"
+     ]
+    ]
    }
   ]
  },
@@ -22264,7 +22787,14 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 4617599
+    "row_count_estimate": 4617599,
+    "unique": [
+     [
+      "store_nbr",
+      "date",
+      "item_nbr"
+     ]
+    ]
    },
    {
     "name": "weather",
@@ -23457,7 +23987,15 @@
       }
      }
     ],
-    "row_count_estimate": 136590
+    "row_count_estimate": 136590,
+    "unique": [
+     [
+      "match_id",
+      "over_id",
+      "ball_id",
+      "innings_no"
+     ]
+    ]
    },
    {
     "name": "batsman_scored",
@@ -23508,7 +24046,15 @@
       }
      }
     ],
-    "row_count_estimate": 133097
+    "row_count_estimate": 133097,
+    "unique": [
+     [
+      "match_id",
+      "over_id",
+      "ball_id",
+      "innings_no"
+     ]
+    ]
    },
    {
     "name": "batting_style",
@@ -23667,7 +24213,15 @@
       }
      }
     ],
-    "row_count_estimate": 7469
+    "row_count_estimate": 7469,
+    "unique": [
+     [
+      "match_id",
+      "over_id",
+      "ball_id",
+      "innings_no"
+     ]
+    ]
    },
    {
     "name": "extra_type",
@@ -24025,7 +24579,14 @@
       }
      }
     ],
-    "row_count_estimate": 12694
+    "row_count_estimate": 12694,
+    "unique": [
+     [
+      "match_id",
+      "player_id",
+      "role_id"
+     ]
+    ]
    },
    {
     "name": "rolee",
@@ -24287,7 +24848,15 @@
       }
      }
     ],
-    "row_count_estimate": 6727
+    "row_count_estimate": 6727,
+    "unique": [
+     [
+      "match_id",
+      "over_id",
+      "ball_id",
+      "innings_no"
+     ]
+    ]
    },
    {
     "name": "win_by",
@@ -24447,7 +25016,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 99901
+    "row_count_estimate": 99901,
+    "unique": [
+     [
+      "tweetid"
+     ]
+    ]
    },
    {
     "name": "user",
@@ -24467,7 +25041,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 99260
+    "row_count_estimate": 99260,
+    "unique": [
+     [
+      "userid"
+     ]
+    ]
    }
   ]
  },
@@ -26043,7 +26622,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 2501
+    "row_count_estimate": 2501,
+    "unique": [
+     [
+      "Customer ID",
+      "region"
+     ]
+    ]
    },
    {
     "name": "product",
@@ -26081,7 +26666,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 5298
+    "row_count_estimate": 5298,
+    "unique": [
+     [
+      "Product ID",
+      "region"
+     ]
+    ]
    },
    {
     "name": "south_superstore",
@@ -26291,7 +26882,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 244
+    "row_count_estimate": 244,
+    "unique": [
+     [
+      "item"
+     ]
+    ]
    },
    {
     "name": "allergies",
@@ -26350,7 +26946,14 @@
       }
      }
     ],
-    "row_count_estimate": 572
+    "row_count_estimate": 572,
+    "unique": [
+     [
+      "patient",
+      "encounter",
+      "code"
+     ]
+    ]
    },
    {
     "name": "careplans",
@@ -26477,7 +27080,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 20523
+    "row_count_estimate": 20523,
+    "unique": [
+     [
+      "id"
+     ]
+    ]
    },
    {
     "name": "conditions",
@@ -26594,7 +27202,12 @@
       }
      }
     ],
-    "row_count_estimate": 20524
+    "row_count_estimate": 20524,
+    "unique": [
+     [
+      "id"
+     ]
+    ]
    },
    {
     "name": "immunizations",
@@ -26647,7 +27260,15 @@
       }
      }
     ],
-    "row_count_estimate": 13189
+    "row_count_estimate": 13189,
+    "unique": [
+     [
+      "date",
+      "patient",
+      "encounter",
+      "code"
+     ]
+    ]
    },
    {
     "name": "medications",
@@ -26718,7 +27339,15 @@
       }
      }
     ],
-    "row_count_estimate": 6048
+    "row_count_estimate": 6048,
+    "unique": [
+     [
+      "start",
+      "patient",
+      "encounter",
+      "code"
+     ]
+    ]
    },
    {
     "name": "observations",
@@ -26980,7 +27609,12 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 0
+    "row_count_estimate": 0,
+    "unique": [
+     [
+      "app_id"
+     ]
+    ]
    },
    {
     "name": "app_events",
@@ -27012,7 +27646,13 @@
     ],
     "primary_key": [],
     "foreign_keys": [],
-    "row_count_estimate": 0
+    "row_count_estimate": 0,
+    "unique": [
+     [
+      "event_id",
+      "app_id"
+     ]
+    ]
    },
    {
     "name": "app_events_relevant",

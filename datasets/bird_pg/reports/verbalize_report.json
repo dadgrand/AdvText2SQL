@@ -1,23 +1,32 @@
 {
   "candidates": 598,
-  "processed": 598,
+  "processed": 1598,
   "accepted": 982,
-  "rejected": -384,
-  "accept_rate": 1.642,
+  "rejected": 616,
+  "accept_rate": 0.6145,
   "rejection_reasons": {
     "duplicate_of_real_question": 2,
-    "duplicate_of_synthetic": 4,
-    "identifier_leak": 2,
-    "length": 1,
-    "literal_missing": 131,
+    "duplicate_of_synthetic": 5,
+    "identifier_leak": 3,
+    "length": 9,
+    "literal_missing": 331,
     "no_output": 70,
-    "not_a_question": 22,
-    "sql_keyword:from": 11,
-    "sql_keyword:having": 2,
+    "not_a_question": 40,
+    "shape_avg_expected": 2,
+    "shape_count_expected": 5,
+    "shape_max_expected": 1,
+    "shape_min_expected": 3,
+    "shape_rows_but_count_asked": 30,
+    "shape_sum_expected": 7,
+    "sql_keyword:cast": 3,
+    "sql_keyword:count": 8,
+    "sql_keyword:from": 29,
+    "sql_keyword:having": 6,
+    "sql_keyword:limit": 1,
     "sql_keyword:rows": 3,
-    "sql_keyword:sum": 5,
+    "sql_keyword:sum": 21,
     "sql_keyword:union": 1,
-    "sql_keyword:where": 13
+    "sql_keyword:where": 36
   },
   "by_shape": {
     "aggregate_avg": 36,
@@ -97,5 +106,6 @@
     "synthea": 19
   },
   "model": "D:\\AI\\Cache\\HuggingFace\\hub\\models--Qwen--Qwen2.5-Coder-7B-Instruct\\snapshots\\c03e6d358207e414f1eca0bb1891e29f1db0e242",
-  "seconds": 847.7
+  "seconds": 847.7,
+  "note": "rejected/processed are recomputed from the files; the earlier value was processed minus the accumulated accepted total, which went negative on resume"
 }

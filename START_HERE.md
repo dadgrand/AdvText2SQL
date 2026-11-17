@@ -16,7 +16,7 @@ gap is **training-data coverage**, not capacity, adapter or schema presentation 
 **execution** on the course server, not by reading: all **241/241** dev gold queries run (the shipped
 `evaluate_bird.py` destroys 30 of them with a regex — the dataset fixes the rewriter instead of dropping the
 questions), **228** of them return exactly the original SQLite row set, **5,230/6,601** train rows run
-(863 of the failures are six databases that are empty on the server), and **3,595** synthetic BIRD-like pairs
+(863 of the failures are six databases that are empty on the server), and **2,815** synthetic BIRD-like pairs
 were generated over train schemas only (two tiers, `question_tier`: `hand` and `model`). Schemas/DDL for 77 databases, a verifier, an SFT converter and the
 builders ship with it. Start at `datasets/bird_pg/README.ru.md`; the one-page technical summary is
 `docs/DATASET.md`.
@@ -35,3 +35,8 @@ round-1 branch (`f4d3d4a`).
 1 skipped, offline); `python -m dev_tools.schema_link_dryrun --out runs/t31-schema-linking` (five modes,
 no DB/GPU); then open `runs/r3-schema-link/analysis.json` and `runs/schema_linking/schema-audit.json` — the
 round-3 numbers and the t24 recall audit are CPU-only replays of recorded artifacts.
+
+
+<!-- numbers:start -->
+**Сводка (генерируется из `MANIFEST.json`, не править руками).** dev: **241** вопросов, из них **228** сверены с оригиналом, **13** расходятся с объяснённой причиной. train: **5230** из 6601 строк исполняются. Синтетика: **2815** пар в основном корпусе (из них с соединением **1917 = 68%**, с тремя и более таблицами **814**), **2494** пар с неназванным `LIMIT` — отдельным пулом на проверку, **2277** одиночных — отдельным пулом. Схем: **77** баз.
+<!-- numbers:end -->

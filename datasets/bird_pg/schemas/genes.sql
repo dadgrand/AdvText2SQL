@@ -4,7 +4,8 @@
 
 CREATE TABLE "classification" (
     "geneid" text,
-    "localization" text
+    "localization" text,
+    UNIQUE ("geneid")
 );
 
 CREATE TABLE "genes" (
@@ -23,7 +24,8 @@ CREATE TABLE "interactions" (
     "geneid1" text,
     "geneid2" text,
     "type" text,
-    "expression_corr" real
+    "expression_corr" real,
+    UNIQUE ("geneid1", "geneid2")
 );
 
 ALTER TABLE "genes" ADD FOREIGN KEY ("geneid") REFERENCES "classification" ("geneid");

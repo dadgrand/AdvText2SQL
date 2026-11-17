@@ -6,7 +6,8 @@ CREATE TABLE "customers" (
     "customerid" bigint NOT NULL,
     "segment" text,
     "currency" text,
-    PRIMARY KEY ("customerid")
+    PRIMARY KEY ("customerid"),
+    UNIQUE ("customerid")
 );
 
 CREATE TABLE "gasstations" (
@@ -14,13 +15,15 @@ CREATE TABLE "gasstations" (
     "chainid" bigint,
     "country" text,
     "segment" text,
-    PRIMARY KEY ("gasstationid")
+    PRIMARY KEY ("gasstationid"),
+    UNIQUE ("gasstationid")
 );
 
 CREATE TABLE "products" (
     "productid" bigint NOT NULL,
     "description" text,
-    PRIMARY KEY ("productid")
+    PRIMARY KEY ("productid"),
+    UNIQUE ("productid")
 );
 
 CREATE TABLE "transactions_1k" (
@@ -39,6 +42,7 @@ CREATE TABLE "transactions_1k" (
 CREATE TABLE "yearmonth" (
     "customerid" bigint,
     "date" text,
-    "consumption" real
+    "consumption" real,
+    UNIQUE ("date", "customerid")
 );
 
