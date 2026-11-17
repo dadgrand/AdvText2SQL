@@ -1,0 +1,125 @@
+{
+  "dev_active": 217,
+  "dev_excluded": 24,
+  "corrections_adopted": 10,
+  "corrections_quarantined": 2,
+  "adopted": [
+    {
+      "question_id": "149",
+      "notes": [
+        "Respect exceeds 8000: exclusive lower salary bound."
+      ]
+    },
+    {
+      "question_id": "309",
+      "notes": [
+        "Use TR346 stated by the question; count bond types per atom, not per bond type."
+      ]
+    },
+    {
+      "question_id": "445",
+      "notes": [
+        "Include the explicitly requested card type in the projection."
+      ]
+    },
+    {
+      "question_id": "571",
+      "notes": [
+        "Count posts and votes independently; avoid the user-level JOIN fan-out."
+      ]
+    },
+    {
+      "question_id": "694",
+      "notes": [
+        "Order by comment timestamp and return the comment author; preserve anonymous comments with LEFT JOIN."
+      ]
+    },
+    {
+      "question_id": "801",
+      "notes": [
+        "Repair reversed Male/Female definitions in evidence; preserve SQL."
+      ]
+    },
+    {
+      "question_id": "1496",
+      "notes": [
+        "Aggregate consumption by segment, not customer."
+      ]
+    },
+    {
+      "question_id": "1525",
+      "notes": [
+        "Count distinct customers rather than transactions for a percentage of customers."
+      ]
+    },
+    {
+      "question_id": "1529",
+      "notes": [
+        "Aggregate transactions directly; January means transaction dates in January."
+      ]
+    },
+    {
+      "question_id": "1531",
+      "notes": [
+        "Choose top customer by total spending; use SUM(price)/SUM(amount) as evidence specifies."
+      ]
+    }
+  ],
+  "quarantined": [
+    "1453",
+    "1501"
+  ],
+  "train_active": 5110,
+  "train_excluded": 1491,
+  "train_excluded_by_review": 120,
+  "train_excluded_carried_over": 1371,
+  "train_empty_result": 197,
+  "synthetic_active": 2815,
+  "synthetic_cap_unnamed": 2494,
+  "synthetic_single_table_extra": 2277,
+  "synthetic_review_queue": 8,
+  "synthetic_theirs_active_subset": 1578,
+  "synthetic_flags_resolved": 1422,
+  "resolved_samples": [
+    {
+      "row": "synth-00006#1",
+      "their_reason": [
+        "unstated_limit20_requires_question_or_sql_review"
+      ],
+      "resolution": "no-op LIMIT removed; the cap never fires"
+    },
+    {
+      "row": "synth-00025#1",
+      "their_reason": [
+        "unstated_limit20_requires_question_or_sql_review"
+      ],
+      "resolution": "no-op LIMIT removed; the cap never fires"
+    },
+    {
+      "row": "synth-00025#2",
+      "their_reason": [
+        "unstated_limit20_requires_question_or_sql_review"
+      ],
+      "resolution": "no-op LIMIT removed; the cap never fires"
+    },
+    {
+      "row": "synth-01463#1",
+      "their_reason": [
+        "unstated_limit20_requires_question_or_sql_review"
+      ],
+      "resolution": "no-op LIMIT removed; the cap never fires"
+    },
+    {
+      "row": "synth-01463#2",
+      "their_reason": [
+        "unstated_limit20_requires_question_or_sql_review"
+      ],
+      "resolution": "no-op LIMIT removed; the cap never fires"
+    }
+  ],
+  "generated_from": {
+    "advtext2sql-lora": "D:\\Work\\TalentHub\\research\\advtext2sql\\delivery\\bird_pg_dataset",
+    "bird-pg-reviewed-20261117": "D:\\Work\\TalentHub\\research\\advtext2sql\\col\\bird_pg_reviewed_20261117",
+    "date": "2026-11-17"
+  }
+}
