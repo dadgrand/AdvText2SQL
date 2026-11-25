@@ -1,0 +1,474 @@
+{
+ "paired_ood876_B_real_vs_A": {
+  "shard": "ood876",
+  "summary": {
+   "shard": "ood876",
+   "current": "B_real",
+   "baseline": "A",
+   "n": 811,
+   "correct_current": 649,
+   "correct_baseline": 574,
+   "fixes": 112,
+   "regressions": 37,
+   "net": 75,
+   "paired_report": "cluster/eval_reports/arms/t36_paired_real_vs_A_ood876/report.json",
+   "delta_pp": 9.247842170160297,
+   "ci_pp": [
+    6.411837237977805,
+    12.20715166461159
+   ],
+   "p": 5.794051283240927e-10
+  },
+  "databases": {
+   "movie_3": {
+    "n": 189,
+    "fixes": 23,
+    "regressions": 10,
+    "both_right": 128,
+    "both_wrong": 28,
+    "net": 13
+   },
+   "movies_4": {
+    "n": 134,
+    "fixes": 16,
+    "regressions": 2,
+    "both_right": 103,
+    "both_wrong": 13,
+    "net": 14
+   },
+   "talkingdata": {
+    "n": 109,
+    "fixes": 14,
+    "regressions": 0,
+    "both_right": 91,
+    "both_wrong": 4,
+    "net": 14
+   },
+   "law_episode": {
+    "n": 89,
+    "fixes": 16,
+    "regressions": 1,
+    "both_right": 49,
+    "both_wrong": 23,
+    "net": 15
+   },
+   "disney": {
+    "n": 74,
+    "fixes": 17,
+    "regressions": 9,
+    "both_right": 30,
+    "both_wrong": 18,
+    "net": 8
+   },
+   "menu": {
+    "n": 68,
+    "fixes": 7,
+    "regressions": 6,
+    "both_right": 39,
+    "both_wrong": 16,
+    "net": 1
+   },
+   "sales_in_weather": {
+    "n": 42,
+    "fixes": 7,
+    "regressions": 2,
+    "both_right": 22,
+    "both_wrong": 11,
+    "net": 5
+   },
+   "social_media": {
+    "n": 39,
+    "fixes": 5,
+    "regressions": 2,
+    "both_right": 30,
+    "both_wrong": 2,
+    "net": 3
+   },
+   "european_football_1": {
+    "n": 36,
+    "fixes": 4,
+    "regressions": 2,
+    "both_right": 24,
+    "both_wrong": 6,
+    "net": 2
+   },
+   "music_tracker": {
+    "n": 31,
+    "fixes": 3,
+    "regressions": 3,
+    "both_right": 21,
+    "both_wrong": 4,
+    "net": 0
+   }
+  }
+ },
+ "paired_ood876_B_real_vs_B_mixed": {
+  "shard": "ood876",
+  "summary": {
+   "shard": "ood876",
+   "current": "B_real",
+   "baseline": "B_mixed",
+   "n": 811,
+   "correct_current": 649,
+   "correct_baseline": 638,
+   "fixes": 40,
+   "regressions": 29,
+   "net": 11,
+   "paired_report": "cluster/eval_reports/arms/t36_paired_real_vs_mixed_ood876/report.json",
+   "delta_pp": 1.3563501849568433,
+   "ci_pp": [
+    -0.7398273736128237,
+    3.3292231812577064
+   ],
+   "p": 0.22840022535329696
+  },
+  "databases": {
+   "movie_3": {
+    "n": 189,
+    "fixes": 8,
+    "regressions": 5,
+    "both_right": 143,
+    "both_wrong": 33,
+    "net": 3
+   },
+   "movies_4": {
+    "n": 134,
+    "fixes": 8,
+    "regressions": 2,
+    "both_right": 111,
+    "both_wrong": 13,
+    "net": 6
+   },
+   "talkingdata": {
+    "n": 109,
+    "fixes": 5,
+    "regressions": 3,
+    "both_right": 100,
+    "both_wrong": 1,
+    "net": 2
+   },
+   "law_episode": {
+    "n": 89,
+    "fixes": 2,
+    "regressions": 4,
+    "both_right": 63,
+    "both_wrong": 20,
+    "net": -2
+   },
+   "disney": {
+    "n": 74,
+    "fixes": 4,
+    "regressions": 3,
+    "both_right": 43,
+    "both_wrong": 24,
+    "net": 1
+   },
+   "menu": {
+    "n": 68,
+    "fixes": 5,
+    "regressions": 5,
+    "both_right": 41,
+    "both_wrong": 17,
+    "net": 0
+   },
+   "sales_in_weather": {
+    "n": 42,
+    "fixes": 3,
+    "regressions": 2,
+    "both_right": 26,
+    "both_wrong": 11,
+    "net": 1
+   },
+   "social_media": {
+    "n": 39,
+    "fixes": 1,
+    "regressions": 1,
+    "both_right": 34,
+    "both_wrong": 3,
+    "net": 0
+   },
+   "european_football_1": {
+    "n": 36,
+    "fixes": 4,
+    "regressions": 1,
+    "both_right": 24,
+    "both_wrong": 7,
+    "net": 3
+   },
+   "music_tracker": {
+    "n": 31,
+    "fixes": 0,
+    "regressions": 3,
+    "both_right": 24,
+    "both_wrong": 4,
+    "net": -3
+   }
+  }
+ },
+ "paired_dev216_B_real_vs_A": {
+  "shard": "dev216",
+  "summary": {
+   "shard": "dev216",
+   "current": "B_real",
+   "baseline": "A",
+   "n": 216,
+   "correct_current": 103,
+   "correct_baseline": 87,
+   "fixes": 35,
+   "regressions": 19,
+   "net": 16,
+   "paired_report": "cluster/eval_reports/arms/t36_paired_real_vs_A_dev217/report.json",
+   "delta_pp": 7.4074074074074066,
+   "ci_pp": [
+    0.9259259259259258,
+    13.88888888888889
+   ],
+   "p": 0.0402235640957167
+  },
+  "databases": {
+   "superhero": {
+    "n": 36,
+    "fixes": 10,
+    "regressions": 4,
+    "both_right": 19,
+    "both_wrong": 3,
+    "net": 6
+   },
+   "student_club": {
+    "n": 30,
+    "fixes": 4,
+    "regressions": 1,
+    "both_right": 16,
+    "both_wrong": 9,
+    "net": 3
+   },
+   "card_games": {
+    "n": 28,
+    "fixes": 2,
+    "regressions": 4,
+    "both_right": 9,
+    "both_wrong": 13,
+    "net": -2
+   },
+   "financial": {
+    "n": 27,
+    "fixes": 7,
+    "regressions": 0,
+    "both_right": 2,
+    "both_wrong": 18,
+    "net": 7
+   },
+   "toxicology": {
+    "n": 27,
+    "fixes": 4,
+    "regressions": 4,
+    "both_right": 6,
+    "both_wrong": 13,
+    "net": 0
+   },
+   "codebase_community": {
+    "n": 26,
+    "fixes": 3,
+    "regressions": 3,
+    "both_right": 12,
+    "both_wrong": 8,
+    "net": 0
+   },
+   "california_schools": {
+    "n": 23,
+    "fixes": 3,
+    "regressions": 2,
+    "both_right": 1,
+    "both_wrong": 17,
+    "net": 1
+   },
+   "debit_card_specializing": {
+    "n": 19,
+    "fixes": 2,
+    "regressions": 1,
+    "both_right": 3,
+    "both_wrong": 13,
+    "net": 1
+   }
+  }
+ },
+ "paired_dev216_B_real_vs_B_mixed": {
+  "shard": "dev216",
+  "summary": {
+   "shard": "dev216",
+   "current": "B_real",
+   "baseline": "B_mixed",
+   "n": 216,
+   "correct_current": 103,
+   "correct_baseline": 101,
+   "fixes": 20,
+   "regressions": 18,
+   "net": 2,
+   "paired_report": "cluster/eval_reports/arms/t36_paired_real_vs_mixed_dev217/report.json",
+   "delta_pp": 0.9259259259259258,
+   "ci_pp": [
+    -4.62962962962963,
+    6.481481481481481
+   ],
+   "p": 0.8714146793645341
+  },
+  "databases": {
+   "superhero": {
+    "n": 36,
+    "fixes": 6,
+    "regressions": 2,
+    "both_right": 23,
+    "both_wrong": 5,
+    "net": 4
+   },
+   "student_club": {
+    "n": 30,
+    "fixes": 2,
+    "regressions": 2,
+    "both_right": 18,
+    "both_wrong": 8,
+    "net": 0
+   },
+   "card_games": {
+    "n": 28,
+    "fixes": 2,
+    "regressions": 3,
+    "both_right": 9,
+    "both_wrong": 14,
+    "net": -1
+   },
+   "financial": {
+    "n": 27,
+    "fixes": 3,
+    "regressions": 3,
+    "both_right": 6,
+    "both_wrong": 15,
+    "net": 0
+   },
+   "toxicology": {
+    "n": 27,
+    "fixes": 1,
+    "regressions": 2,
+    "both_right": 9,
+    "both_wrong": 15,
+    "net": -1
+   },
+   "codebase_community": {
+    "n": 26,
+    "fixes": 2,
+    "regressions": 3,
+    "both_right": 13,
+    "both_wrong": 8,
+    "net": -1
+   },
+   "california_schools": {
+    "n": 23,
+    "fixes": 3,
+    "regressions": 1,
+    "both_right": 1,
+    "both_wrong": 18,
+    "net": 2
+   },
+   "debit_card_specializing": {
+    "n": 19,
+    "fixes": 1,
+    "regressions": 2,
+    "both_right": 4,
+    "both_wrong": 12,
+    "net": -1
+   }
+  }
+ },
+ "spread_breal_vs_bmixed_ood876": {
+  "n_questions": 69,
+  "net": 11,
+  "per_database": {
+   "movie_3": {
+    "n": 13,
+    "fixes": 8,
+    "regressions": 5,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 3
+   },
+   "menu": {
+    "n": 10,
+    "fixes": 5,
+    "regressions": 5,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 0
+   },
+   "movies_4": {
+    "n": 10,
+    "fixes": 8,
+    "regressions": 2,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 6
+   },
+   "talkingdata": {
+    "n": 8,
+    "fixes": 5,
+    "regressions": 3,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 2
+   },
+   "disney": {
+    "n": 7,
+    "fixes": 4,
+    "regressions": 3,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 1
+   },
+   "law_episode": {
+    "n": 6,
+    "fixes": 2,
+    "regressions": 4,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": -2
+   },
+   "european_football_1": {
+    "n": 5,
+    "fixes": 4,
+    "regressions": 1,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 3
+   },
+   "sales_in_weather": {
+    "n": 5,
+    "fixes": 3,
+    "regressions": 2,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 1
+   },
+   "music_tracker": {
+    "n": 3,
+    "fixes": 0,
+    "regressions": 3,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": -3
+   },
+   "social_media": {
+    "n": 2,
+    "fixes": 1,
+    "regressions": 1,
+    "both_right": 0,
+    "both_wrong": 0,
+    "net": 0
+   }
+  },
+  "databases_touched": 10,
+  "biggest_database": "movies_4",
+  "biggest_net": 6,
+  "biggest_share_of_net": 0.5455,
+  "concentrated": true,
+  "verdict": "The 69 discordant questions (net +11) are **concentrated**: `movies_4` alone carries +6 of the net +11 (55 %), and `law_episode` -2, `music_tracker` -3 offset it on the other side — so the +1.36 pp is **not a general effect**"
+ }
+}
