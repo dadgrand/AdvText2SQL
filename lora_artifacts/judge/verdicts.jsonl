@@ -1,0 +1,200 @@
+{"sample_id": "synth-00006", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00007", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question exactly"}
+{"sample_id": "synth-00010", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question exactly"}
+{"sample_id": "synth-00027", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "SQL uses 88 instead of 88000"}
+{"sample_id": "synth-00035", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question exactly"}
+{"sample_id": "synth-00036", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00044", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00046", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL projects extra columns not asked"}
+{"sample_id": "synth-00051", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly finds min ID for name"}
+{"sample_id": "synth-00052", "variant": 1, "verdict": "match", "defect": null, "reason": "LIKE prefix matches affiliation filter"}
+{"sample_id": "synth-00053", "variant": 1, "verdict": "match", "defect": null, "reason": "COUNT DISTINCT matches unique affiliations"}
+{"sample_id": "synth-00061", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00069", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL selects requested fields for email"}
+{"sample_id": "synth-00073", "variant": 1, "verdict": "match", "defect": null, "reason": "LIKE Can matches cans filter"}
+{"sample_id": "synth-00075", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Filters review text not brand name"}
+{"sample_id": "synth-00079", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts transactions price > 1"}
+{"sample_id": "synth-00089", "variant": 1, "verdict": "match", "defect": null, "reason": "Filters and count match question exactly"}
+{"sample_id": "synth-00100", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Secondary sort by street_number is unstated"}
+{"sample_id": "synth-00103", "variant": 1, "verdict": "match", "defect": null, "reason": "Distinct count of authors matches question"}
+{"sample_id": "synth-00108", "variant": 1, "verdict": "match", "defect": null, "reason": "Sum of language IDs matches question"}
+{"sample_id": "synth-00118", "variant": 1, "verdict": "match", "defect": null, "reason": "Ordering and limit match question intent"}
+{"sample_id": "synth-00137", "variant": 1, "verdict": "match", "defect": null, "reason": "Min ID for specific publisher matches"}
+{"sample_id": "synth-00151", "variant": 1, "verdict": "match", "defect": null, "reason": "Min customer number with filter matches"}
+{"sample_id": "synth-00152", "variant": 1, "verdict": "match", "defect": null, "reason": "Count with date and ID filters matches"}
+{"sample_id": "synth-00164", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00170", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks recent by year, SQL orders by country"}
+{"sample_id": "synth-00171", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00176", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00177", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00215", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00226", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "West means less than longitude, SQL uses greater than"}
+{"sample_id": "synth-00245", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00258", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL filters course_id > 12 not in question"}
+{"sample_id": "synth-00260", "variant": 1, "verdict": "match", "defect": null, "reason": "Matches question exactly"}
+{"sample_id": "synth-00265", "variant": 1, "verdict": "match", "defect": null, "reason": "Matches question exactly"}
+{"sample_id": "synth-00274", "variant": 1, "verdict": "match", "defect": null, "reason": "Matches question exactly"}
+{"sample_id": "synth-00280", "variant": 1, "verdict": "match", "defect": null, "reason": "Matches question exactly"}
+{"sample_id": "synth-00284", "variant": 1, "verdict": "match", "defect": null, "reason": "First five implies limit 5"}
+{"sample_id": "synth-00288", "variant": 1, "verdict": "match", "defect": null, "reason": "Matches question exactly"}
+{"sample_id": "synth-00293", "variant": 1, "verdict": "match", "defect": null, "reason": "Matches question exactly"}
+{"sample_id": "synth-00303", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00332", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00344", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks inspections but table is establishment"}
+{"sample_id": "synth-00365", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00368", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00371", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Table abbrev stores codes not teams"}
+{"sample_id": "synth-00376", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and projection"}
+{"sample_id": "synth-00377", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00381", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts players with posthumous note correctly"}
+{"sample_id": "synth-00384", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts distinct awards for specific player"}
+{"sample_id": "synth-00408", "variant": 1, "verdict": "match", "defect": null, "reason": "Filters playoffs postppg and year correctly"}
+{"sample_id": "synth-00411", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks shootout assists but SQL uses regular assists"}
+{"sample_id": "synth-00420", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts games with goal difference less than 2"}
+{"sample_id": "synth-00422", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not in question"}
+{"sample_id": "synth-00433", "variant": 1, "verdict": "match", "defect": null, "reason": "Max wins for teams with losses over 22"}
+{"sample_id": "synth-00454", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts images matching sample ID and x filters"}
+{"sample_id": "synth-00455", "variant": 1, "verdict": "mismatch", "defect": "ambiguous", "reason": "Last image undefined without explicit ordering column"}
+{"sample_id": "synth-00461", "variant": 1, "verdict": "match", "defect": null, "reason": "Filters and count match question exactly"}
+{"sample_id": "synth-00475", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts distinct first words for given second word"}
+{"sample_id": "synth-00477", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "First language implies lid=1 not lid<1"}
+{"sample_id": "synth-00481", "variant": 1, "verdict": "match", "defect": null, "reason": "Max revision for specified pid range matches"}
+{"sample_id": "synth-00487", "variant": 1, "verdict": "match", "defect": null, "reason": "First 20 pids ordered by pid matches question"}
+{"sample_id": "synth-00500", "variant": 1, "verdict": "match", "defect": null, "reason": "Count votes matching episode and threshold"}
+{"sample_id": "synth-00503", "variant": 1, "verdict": "match", "defect": null, "reason": "Selects requested fields for specific thomas_id"}
+{"sample_id": "synth-00505", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00506", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL selects suffix_name not requested"}
+{"sample_id": "synth-00508", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts terms for specified bioguide"}
+{"sample_id": "synth-00552", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL selects code not requested"}
+{"sample_id": "synth-00554", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds latitude filter not in question"}
+{"sample_id": "synth-00563", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL sums percentage for specified country"}
+{"sample_id": "synth-00566", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL averages percentage for Turkish groups"}
+{"sample_id": "synth-00567", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL lists three lowest percentage groups"}
+{"sample_id": "synth-00568", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts distinct deserts in California province."}
+{"sample_id": "synth-00580", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks for organization members, SQL filters by country code."}
+{"sample_id": "synth-00595", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly calculates average source latitude for Dalaelv."}
+{"sample_id": "synth-00600", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL retrieves requested columns for first 20 rivers of length 440."}
+{"sample_id": "synth-00614", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks for addresses, SQL selects address_id and district."}
+{"sample_id": "synth-00629", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks for titles/descriptions, SQL includes film_id."}
+{"sample_id": "synth-00634", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts relationships for film IDs >= 170."}
+{"sample_id": "synth-00636", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves title/description for lowest film ID."}
+{"sample_id": "synth-00646", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Question asks last payment by customer 599 but SQL lacks customer filter"}
+{"sample_id": "synth-00663", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Earliest movie implies release year not minimum ID"}
+{"sample_id": "synth-00683", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves director with highest quality and revenue"}
+{"sample_id": "synth-00690", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly calculates average movie ID for specified actors"}
+{"sample_id": "synth-00692", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly calculates minimum movie ID for specified actors"}
+{"sample_id": "synth-00695", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts movies with Drama genre"}
+{"sample_id": "synth-00697", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves first movie sorted by director and movie ID"}
+{"sample_id": "synth-00700", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts Comedy movies with director ID constraint"}
+{"sample_id": "synth-00708", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts female users"}
+{"sample_id": "synth-00711", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL uses HAVING > 1 instead of > 1000"}
+{"sample_id": "synth-00725", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts photographers in movies < 820"}
+{"sample_id": "synth-00732", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly lists distinct company IDs for movie 4824"}
+{"sample_id": "synth-00751", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly orders by language role ID descending limit 10"}
+{"sample_id": "synth-00754", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts people with ID <= 1335145"}
+{"sample_id": "synth-00755", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly gets last company by ID descending"}
+{"sample_id": "synth-00768", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks recently added but SQL orders by itunes_id"}
+{"sample_id": "synth-00777", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00812", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Unstated LIMIT 20 caps results"}
+{"sample_id": "synth-00821", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Missing filters for award and league"}
+{"sample_id": "synth-00834", "variant": 1, "verdict": "mismatch", "defect": "wrong_aggregate", "reason": "Counts distinct assists instead of players"}
+{"sample_id": "synth-00851", "variant": 1, "verdict": "match", "defect": null, "reason": "Attribute ID order approximates recency"}
+{"sample_id": "synth-00863", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Filters IDs instead of counting attributes"}
+{"sample_id": "synth-00881", "variant": 1, "verdict": "mismatch", "defect": "wrong_aggregate", "reason": "No aggregation for most members"}
+{"sample_id": "synth-00884", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00887", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00901", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches unique users and high compliments"}
+{"sample_id": "synth-00903", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks orders but table is compliments"}
+{"sample_id": "synth-00906", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "SQL selects warehousecode not requested"}
+{"sample_id": "synth-00914", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "SQL selects longitude not requested"}
+{"sample_id": "synth-00916", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches requested columns and filter"}
+{"sample_id": "synth-00920", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "SQL selects region not requested"}
+{"sample_id": "synth-00921", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches count and county filter"}
+{"sample_id": "synth-00924", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00926", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00927", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00939", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00948", "variant": 1, "verdict": "mismatch", "defect": "ambiguous", "reason": "Question ambiguous on sorting priority stars or date"}
+{"sample_id": "synth-00952", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and projection"}
+{"sample_id": "synth-00959", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and limit"}
+{"sample_id": "synth-00965", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and distinct"}
+{"sample_id": "synth-00966", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00972", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00977", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00978", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Counts distinct phones instead of customers"}
+{"sample_id": "synth-00995", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-00997", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "LIKE matches only Manufacturer#4 not subsequent"}
+{"sample_id": "synth-01428", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-01429", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-01434", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly selects area codes ordered by zip code with limit 3"}
+{"sample_id": "synth-01437", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "SQL orders by area_code instead of zip_code to find smallest zip"}
+{"sample_id": "synth-01443", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts aliases starting with Manhattan using LIKE filter"}
+{"sample_id": "synth-01450", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL finds max CBSA code for Metro type as requested"}
+{"sample_id": "synth-01465", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL finds min zip code for state WI which is Wisconsin abbreviation"}
+{"sample_id": "synth-01467", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL selects district with smallest zip code via ordering and limit"}
+{"sample_id": "synth-01473", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL finds min zip code for district IL-12 as requested"}
+{"sample_id": "synth-01474", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL retrieves districts and zip codes for zip 38474 correctly"}
+{"sample_id": "synth-01479", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Question asks for single lowest, SQL returns top 10"}
+{"sample_id": "synth-01509", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts apps in specified category"}
+{"sample_id": "synth-01511", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts distinct genres in category"}
+{"sample_id": "synth-01523", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL adds LIMIT 20 not requested by question"}
+{"sample_id": "synth-01524", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches requested columns, order, and limit"}
+{"sample_id": "synth-01525", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches requested columns, order, and limit"}
+{"sample_id": "synth-01529", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL retrieves requested data for specific ID"}
+{"sample_id": "synth-01530", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts authors with ID condition"}
+{"sample_id": "synth-01531", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves ID for specified name"}
+{"sample_id": "synth-01538", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL retrieves latest 10 journals by ID as requested"}
+{"sample_id": "synth-01564", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL filters >1 instead of >10 as stated"}
+{"sample_id": "synth-01574", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts reviews with rating >= 5 correctly"}
+{"sample_id": "synth-01590", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL calculates average docks for Mountain View"}
+{"sample_id": "synth-01000", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts customers with lastname starting Sanders"}
+{"sample_id": "synth-01009", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts customers matching name and initial"}
+{"sample_id": "synth-01010", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts distinct products for specified name"}
+{"sample_id": "synth-01014", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope, order, and limit."}
+{"sample_id": "synth-01015", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL retrieves requested fields for named product."}
+{"sample_id": "synth-01021", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts sales matching ID and quantity filters."}
+{"sample_id": "synth-01023", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts sales matching quantity filter."}
+{"sample_id": "synth-01027", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL lacks date filter for January 1 2012."}
+{"sample_id": "synth-01037", "variant": 1, "verdict": "mismatch", "defect": "wrong_aggregate", "reason": "SQL orders by date not max temperature."}
+{"sample_id": "synth-01054", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "SQL selects description not requested."}
+{"sample_id": "synth-01055", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL finds max ID for described character."}
+{"sample_id": "synth-01062", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts distinct populations for Kansas City correctly"}
+{"sample_id": "synth-01066", "variant": 1, "verdict": "match", "defect": null, "reason": "Top 10 by area with limit matches question"}
+{"sample_id": "synth-01085", "variant": 1, "verdict": "match", "defect": null, "reason": "Max subject count for specific location matches"}
+{"sample_id": "synth-01098", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question says Black race but SQL filters race B"}
+{"sample_id": "synth-01104", "variant": 1, "verdict": "match", "defect": null, "reason": "Episodes with 44 votes found via vote table"}
+{"sample_id": "synth-01121", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts credits for Bill Higley in S20-E7"}
+{"sample_id": "synth-01126", "variant": 1, "verdict": "match", "defect": null, "reason": "Selects tallest person by height limit 1"}
+{"sample_id": "synth-01147", "variant": 1, "verdict": "match", "defect": null, "reason": "First 20 balls for team 13 matches question"}
+{"sample_id": "synth-01151", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts balls with runs >= 5"}
+{"sample_id": "synth-01153", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Unstated LIMIT 20 caps results"}
+{"sample_id": "synth-01154", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly finds min match_id for runs > 5"}
+{"sample_id": "synth-01163", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Missing filter for innings 3"}
+{"sample_id": "synth-01171", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Missing filter for team 11"}
+{"sample_id": "synth-01183", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly finds min player_id for name"}
+{"sample_id": "synth-01202", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Unstated filter locationid > 3495"}
+{"sample_id": "synth-01209", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly counts tweets with day > 2 and lang _u"}
+{"sample_id": "synth-01211", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question filters and aggregate"}
+{"sample_id": "synth-01219", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL retrieves requested gender for specific ID"}
+{"sample_id": "synth-01222", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL counts users with specified gender"}
+{"sample_id": "synth-01227", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question filters and aggregate"}
+{"sample_id": "synth-01228", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly orders and selects requested fields"}
+{"sample_id": "synth-01232", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL calculates average for specified gender"}
+{"sample_id": "synth-01272", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL finds earliest enrollment by month"}
+{"sample_id": "synth-01279", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL finds first absent student by month"}
+{"sample_id": "synth-01282", "variant": 1, "verdict": "match", "defect": null, "reason": "Checks existence in enlist table correctly"}
+{"sample_id": "synth-01293", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "LIKE wildcard matches prefixes not stated"}
+{"sample_id": "synth-01299", "variant": 1, "verdict": "match", "defect": null, "reason": "Orders by ship date limit 10 matches question"}
+{"sample_id": "synth-01300", "variant": 1, "verdict": "match", "defect": null, "reason": "Counts orders in Central region correctly"}
+{"sample_id": "synth-01302", "variant": 1, "verdict": "mismatch", "defect": "unstated_filter", "reason": "Selects Ship Date not requested in question"}
+{"sample_id": "synth-01316", "variant": 1, "verdict": "mismatch", "defect": "wrong_aggregate", "reason": "Question asks how many but SQL lists IDs"}
+{"sample_id": "synth-01317", "variant": 1, "verdict": "match", "defect": null, "reason": "Top 3 by postal code descending matches"}
+{"sample_id": "synth-01322", "variant": 1, "verdict": "match", "defect": null, "reason": "Finds regions with orders on specific date"}
+{"sample_id": "synth-01340", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL matches question scope and aggregate"}
+{"sample_id": "synth-01356", "variant": 1, "verdict": "match", "defect": null, "reason": "Distinct count matches question intent"}
+{"sample_id": "synth-01374", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Order by code not start date"}
+{"sample_id": "synth-01401", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Selects from medications not claims"}
+{"sample_id": "synth-01402", "variant": 1, "verdict": "match", "defect": null, "reason": "Distinct code count matches question"}
+{"sample_id": "synth-01413", "variant": 1, "verdict": "match", "defect": null, "reason": "Order by deathdate desc matches question"}
+{"sample_id": "synth-01414", "variant": 1, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Selects deathdate instead of birthdate"}
+{"sample_id": "synth-01417", "variant": 1, "verdict": "match", "defect": null, "reason": "Filters suffix PhD and orders correctly"}

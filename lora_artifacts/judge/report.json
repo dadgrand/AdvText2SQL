@@ -1,0 +1,844 @@
+{
+  "task": "t6 - semantic audit of accepted synthetic pairs with the local model as judge",
+  "generated_by": "cluster/judge/run_judge.py (judging) + cluster/judge/build_report.py (this report)",
+  "criteria_reference": "cluster/judge/METHODOLOGY.md criteria G1..G8",
+  "sample": {
+    "seed": 20261125,
+    "corpus": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/delivery/out/synth/synthetic_bird_like.jsonl",
+    "corpus_lines": 982,
+    "corpus_sha256_at_sample_time": "e259bee3a73c9746a33528046c64b34581307f6656da0ad2aedf06d68ade9c81",
+    "corpus_sha256_at_report_time": "e259bee3a73c9746a33528046c64b34581307f6656da0ad2aedf06d68ade9c81",
+    "corpus_unmodified": true,
+    "draw": "random.Random(seed).sample(range(len(corpus)), n), indices sorted ascending",
+    "n_sampled": 200,
+    "n_with_verdict": 200,
+    "verdict_file": "cluster/judge/verdicts.jsonl",
+    "manifest_file": "cluster/judge/sample_manifest.json"
+  },
+  "judge": {
+    "endpoint": "http://127.0.0.1:8081/v1/chat/completions",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "temperature": 0,
+    "top_p": 1.0,
+    "thinking": "chat_template_kwargs.enable_thinking=false; reasoning text ignored",
+    "pairs_per_request": 8,
+    "requests": 25,
+    "prompt_payload": "schema excerpt of the tables the SQL uses (columns, types, PK, FK, row-count estimate), question, evidence, SQL, executed result size",
+    "system_prompt_files": [
+      "cluster/judge/prompt_main_system.txt",
+      "cluster/judge/prompt_control_strict_system.txt"
+    ],
+    "independent_of": "the shipped gate (literals SQL->question, answer shape, 5-gram duplicate distance)"
+  },
+  "counts": {
+    "verdict": {
+      "match": 141,
+      "mismatch": 59,
+      "unclear": 0
+    },
+    "defect": {
+      "unstated_filter": 28,
+      "wrong_entity": 25,
+      "wrong_aggregate": 4,
+      "ambiguous": 2
+    }
+  },
+  "mismatch_rate": {
+    "definition": "verdict == 'mismatch' over all judged pairs",
+    "mismatches": 59,
+    "n": 200,
+    "point_estimate": 0.295,
+    "wilson_95": {
+      "low": 0.2361,
+      "high": 0.3616
+    },
+    "adjusted_for_disproved_limit_claims": {
+      "definition": "raw mismatches minus mismatches whose only stated basis was a LIMIT that provably could not cut rows or was named in the question",
+      "mismatches": 51,
+      "point_estimate": 0.255,
+      "wilson_95": {
+        "low": 0.1996,
+        "high": 0.3196
+      },
+      "discounted_sample_ids": [
+        "synth-00006",
+        "synth-00036",
+        "synth-00044",
+        "synth-00245",
+        "synth-00422",
+        "synth-00812",
+        "synth-01523",
+        "synth-01153"
+      ]
+    },
+    "combined_judge_and_mechanical_estimate": {
+      "definition": "union of (judge mismatches that survive the limit cross-check) and (pairs with a mechanically detected defect: unnamed binding cap, or a stated literal absent from the SQL)",
+      "defective_pairs": 62,
+      "point_estimate": 0.31,
+      "wilson_95": {
+        "low": 0.25,
+        "high": 0.3772
+      },
+      "from_judge_only": 51,
+      "from_mechanics_only": 11
+    },
+    "sensitivity_unclear_counted_as_mismatch": {
+      "point_estimate": 0.295,
+      "wilson_95": {
+        "low": 0.2361,
+        "high": 0.3616
+      }
+    },
+    "match_rate": 0.705
+  },
+  "defect_breakdown": [
+    {
+      "defect": "unstated_filter",
+      "count": 28,
+      "share_of_judged": 0.14,
+      "wilson_95_of_judged": {
+        "low": 0.0987,
+        "high": 0.1949
+      },
+      "criteria": [
+        "G1",
+        "G5",
+        "G6"
+      ]
+    },
+    {
+      "defect": "wrong_entity",
+      "count": 25,
+      "share_of_judged": 0.125,
+      "wilson_95_of_judged": {
+        "low": 0.0861,
+        "high": 0.178
+      },
+      "criteria": [
+        "G3",
+        "G4"
+      ]
+    },
+    {
+      "defect": "wrong_aggregate",
+      "count": 4,
+      "share_of_judged": 0.02,
+      "wilson_95_of_judged": {
+        "low": 0.0078,
+        "high": 0.0503
+      },
+      "criteria": [
+        "G2"
+      ]
+    },
+    {
+      "defect": "ambiguous",
+      "count": 2,
+      "share_of_judged": 0.01,
+      "wilson_95_of_judged": {
+        "low": 0.0027,
+        "high": 0.0357
+      },
+      "criteria": [
+        "G8"
+      ]
+    }
+  ],
+  "unclear": {
+    "count": 0,
+    "pairs": []
+  },
+  "by_db": [
+    {
+      "db_id": "address",
+      "sampled": 15,
+      "mismatch": 4
+    },
+    {
+      "db_id": "hockey",
+      "sampled": 10,
+      "mismatch": 3
+    },
+    {
+      "db_id": "mondial_geo",
+      "sampled": 9,
+      "mismatch": 3
+    },
+    {
+      "db_id": "movie_3",
+      "sampled": 5,
+      "mismatch": 3
+    },
+    {
+      "db_id": "professional_basketball",
+      "sampled": 3,
+      "mismatch": 3
+    },
+    {
+      "db_id": "public_review_platform",
+      "sampled": 7,
+      "mismatch": 3
+    },
+    {
+      "db_id": "soccer_2016",
+      "sampled": 7,
+      "mismatch": 3
+    },
+    {
+      "db_id": "superstore",
+      "sampled": 8,
+      "mismatch": 3
+    },
+    {
+      "db_id": "synthea",
+      "sampled": 7,
+      "mismatch": 3
+    },
+    {
+      "db_id": "app_store",
+      "sampled": 4,
+      "mismatch": 2
+    },
+    {
+      "db_id": "authors",
+      "sampled": 11,
+      "mismatch": 2
+    },
+    {
+      "db_id": "beer_factory",
+      "sampled": 6,
+      "mismatch": 2
+    }
+  ],
+  "by_shape": [
+    {
+      "shape": "top_k_order_by",
+      "sampled": 45,
+      "mismatch": 21
+    },
+    {
+      "shape": "projection_where",
+      "sampled": 25,
+      "mismatch": 12
+    },
+    {
+      "shape": "count_two_conditions",
+      "sampled": 25,
+      "mismatch": 9
+    },
+    {
+      "shape": "count_where",
+      "sampled": 38,
+      "mismatch": 5
+    },
+    {
+      "shape": "in_subquery",
+      "sampled": 9,
+      "mismatch": 4
+    },
+    {
+      "shape": "distinct_count",
+      "sampled": 25,
+      "mismatch": 3
+    },
+    {
+      "shape": "group_count_having",
+      "sampled": 3,
+      "mismatch": 3
+    },
+    {
+      "shape": "aggregate_avg",
+      "sampled": 8,
+      "mismatch": 1
+    },
+    {
+      "shape": "aggregate_min",
+      "sampled": 12,
+      "mismatch": 1
+    },
+    {
+      "shape": "aggregate_max",
+      "sampled": 8,
+      "mismatch": 0
+    },
+    {
+      "shape": "aggregate_sum",
+      "sampled": 2,
+      "mismatch": 0
+    }
+  ],
+  "mechanical_cross_checks": {
+    "limit_claim_audit": {
+      "claims_total": 10,
+      "provably_no_op": 8,
+      "cap_bound": 2,
+      "named_in_question": 0,
+      "no_limit_in_sql": 0,
+      "details": [
+        {
+          "sample_id": "synth-00006",
+          "limit": 20,
+          "rows_returned": 4,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00036",
+          "limit": 20,
+          "rows_returned": 1,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00044",
+          "limit": 20,
+          "rows_returned": 9,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00061",
+          "limit": 20,
+          "rows_returned": 20,
+          "number_named_in_question": false,
+          "class": "cap_bound",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00245",
+          "limit": 20,
+          "rows_returned": 3,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00368",
+          "limit": 20,
+          "rows_returned": 20,
+          "number_named_in_question": false,
+          "class": "cap_bound",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00422",
+          "limit": 20,
+          "rows_returned": 2,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "SQL adds LIMIT 20 not in question"
+        },
+        {
+          "sample_id": "synth-00812",
+          "limit": 20,
+          "rows_returned": 2,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "Unstated LIMIT 20 caps results"
+        },
+        {
+          "sample_id": "synth-01523",
+          "limit": 20,
+          "rows_returned": 2,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "SQL adds LIMIT 20 not requested by question"
+        },
+        {
+          "sample_id": "synth-01153",
+          "limit": 20,
+          "rows_returned": 4,
+          "number_named_in_question": false,
+          "class": "provably_no_op",
+          "judge_reason": "Unstated LIMIT 20 caps results"
+        }
+      ],
+      "provably_no_op_share_of_claims": 0.8,
+      "cap_bound_share_of_claims": 0.2,
+      "named_in_question_share_of_claims": 0.0,
+      "no_limit_in_sql_share_of_claims": 0.0,
+      "discounted_mismatches": [
+        "synth-00006",
+        "synth-00036",
+        "synth-00044",
+        "synth-00245",
+        "synth-00422",
+        "synth-00812",
+        "synth-01523",
+        "synth-01153"
+      ]
+    },
+    "unnamed_cap_audit": {
+      "pairs_with_limit": 82,
+      "limit_named_in_question": 42,
+      "limit_could_not_bind": 29,
+      "limit_bound_but_unnamed": 11,
+      "flagged_by_judge": 9,
+      "passed_by_judge": 2,
+      "passed_by_judge_ids": [
+        "synth-01126",
+        "synth-01413"
+      ],
+      "unnamed_binding_cap_rate": 0.055,
+      "unnamed_binding_cap_wilson_95": {
+        "low": 0.031,
+        "high": 0.0958
+      }
+    },
+    "question_literal_audit": {
+      "pairs_with_stated_literal_absent_from_sql": 17,
+      "among_judge_match": 8,
+      "among_judge_mismatch": 9,
+      "ids": [
+        "synth-00027",
+        "synth-00152",
+        "synth-00303",
+        "synth-00344",
+        "synth-00384",
+        "synth-00422",
+        "synth-00500",
+        "synth-00505",
+        "synth-00508",
+        "synth-00646",
+        "synth-00711",
+        "synth-01564",
+        "synth-01027",
+        "synth-01121",
+        "synth-01171",
+        "synth-01282",
+        "synth-01401"
+      ],
+      "ids_among_judge_match": [
+        "synth-00152",
+        "synth-00303",
+        "synth-00384",
+        "synth-00500",
+        "synth-00505",
+        "synth-00508",
+        "synth-01121",
+        "synth-01282"
+      ],
+      "examples_judge_match": [
+        {
+          "sample_id": "synth-00152",
+          "missing_literals": [
+            "may 13, 2005"
+          ],
+          "defect": null,
+          "question": "How many orders are there with an order number greater than 10402 and a required date of May 13, 2005?"
+        },
+        {
+          "sample_id": "synth-00303",
+          "missing_literals": [
+            "my students need 1 a place for everyone classroom carpet for 30."
+          ],
+          "defect": null,
+          "question": "How many essays have the need statement 'My students need 1 A Place for Everyone Classroom Carpet for 30. '%?"
+        },
+        {
+          "sample_id": "synth-00384",
+          "missing_literals": [
+            "01"
+          ],
+          "defect": null,
+          "question": "How many different awards has player yzermst01 won?"
+        },
+        {
+          "sample_id": "synth-00500",
+          "missing_literals": [
+            "0629398"
+          ],
+          "defect": null,
+          "question": "How many votes with more than 22 votes were given for episode tt0629398?"
+        },
+        {
+          "sample_id": "synth-00505",
+          "missing_literals": [
+            "00031128"
+          ],
+          "defect": null,
+          "question": "How many legislators have an OpenSecrets ID of N00031128?"
+        },
+        {
+          "sample_id": "synth-00508",
+          "missing_literals": [
+            "000266"
+          ],
+          "defect": null,
+          "question": "How many terms has the legislator with bioguide ID 'C000266' had?"
+        },
+        {
+          "sample_id": "synth-01121",
+          "missing_literals": [
+            "20"
+          ],
+          "defect": null,
+          "question": "How many credits did Bill Higley have for episode S20-E7?"
+        },
+        {
+          "sample_id": "synth-01282",
+          "missing_literals": [
+            "53"
+          ],
+          "defect": null,
+          "question": "Is 'student53' on the enlistment list?"
+        }
+      ],
+      "examples_judge_mismatch": [
+        {
+          "sample_id": "synth-00027",
+          "missing_literals": [
+            "88000",
+            "2020"
+          ],
+          "defect": "wrong_entity",
+          "question": "How many zip codes in Oregon have a population of less than 88,000 in 2020?"
+        },
+        {
+          "sample_id": "synth-00344",
+          "missing_literals": [
+            "triple a services, inc."
+          ],
+          "defect": "wrong_entity",
+          "question": "How many inspections are there for 'TRIPLE A SERVICES, INC.' with a risk level greater than 1?"
+        },
+        {
+          "sample_id": "synth-00422",
+          "missing_literals": [
+            "01"
+          ],
+          "defect": "unstated_filter",
+          "question": "Which years did player 'ledyagr01' score points in?"
+        },
+        {
+          "sample_id": "synth-00646",
+          "missing_literals": [
+            "599"
+          ],
+          "defect": "unstated_filter",
+          "question": "What is the last payment made by customer 599?"
+        },
+        {
+          "sample_id": "synth-00711",
+          "missing_literals": [
+            "1000"
+          ],
+          "defect": "unstated_filter",
+          "question": "Which age groups have more than 1,000 users and how many users are in each group?"
+        },
+        {
+          "sample_id": "synth-01564",
+          "missing_literals": [
+            "10"
+          ],
+          "defect": "unstated_filter",
+          "question": "Which cities have more than 10 customers?"
+        },
+        {
+          "sample_id": "synth-01027",
+          "missing_literals": [
+            "2012",
+            "january 1, 2012"
+          ],
+          "defect": "unstated_filter",
+          "question": "What are the top three items sold on January 1, 2012?"
+        },
+        {
+          "sample_id": "synth-01171",
+          "missing_literals": [
+            "11"
+          ],
+          "defect": "unstated_filter",
+          "question": "What were the last three matches played involving team 11?"
+        }
+      ]
+    },
+    "note": "the shipped gate only checks literals SQL -> question; question_literal_audit checks the mirror direction, so its 'match' hits are candidate judge misses and its 'mismatch' hits confirm the judge. unnamed_cap_audit is judge-free."
+  },
+  "format_compliance": {
+    "verdicts_file_lines": 200,
+    "verdicts_file_keys": [
+      "sample_id",
+      "variant",
+      "verdict",
+      "defect",
+      "reason"
+    ],
+    "reasons_over_12_words_fixed_at_report_time": [],
+    "raw_model_wording_kept_in": "cluster/judge/raw/ (one file per request)"
+  },
+  "manual_spot_check": {
+    "reviewer": "synthesizer agent reading the record text (not the model)",
+    "items": [
+      {
+        "sample_id": "synth-00027",
+        "assessment": "confirmed",
+        "note": "question says population less than 88,000; SQL threshold is 88 (1000x off)"
+      },
+      {
+        "sample_id": "synth-00711",
+        "assessment": "confirmed",
+        "note": "question says more than 1,000 users; SQL is HAVING COUNT(*) > 1"
+      },
+      {
+        "sample_id": "synth-01564",
+        "assessment": "confirmed",
+        "note": "question says more than 10 customers; SQL is HAVING COUNT(*) > 1"
+      },
+      {
+        "sample_id": "synth-00646",
+        "assessment": "confirmed",
+        "note": "question names customer 599; SQL has no customer filter at all"
+      },
+      {
+        "sample_id": "synth-01171",
+        "assessment": "confirmed",
+        "note": "question says 'involving team 11'; SQL has no team filter"
+      },
+      {
+        "sample_id": "synth-01027",
+        "assessment": "confirmed",
+        "note": "question says 'on January 1, 2012'; SQL has no date filter"
+      },
+      {
+        "sample_id": "synth-00226",
+        "assessment": "confirmed",
+        "note": "'west of -87.624794' must be long_x < value; SQL uses >="
+      },
+      {
+        "sample_id": "synth-00371",
+        "assessment": "confirmed",
+        "note": "COUNT(*) over the abbrev row for a division counts 1 row, not teams"
+      },
+      {
+        "sample_id": "synth-00834",
+        "assessment": "confirmed",
+        "note": "COUNT(DISTINCT assists) is not 'how many players'"
+      },
+      {
+        "sample_id": "synth-01316",
+        "assessment": "confirmed",
+        "note": "'how many different customers' answered as a list of Customer IDs"
+      },
+      {
+        "sample_id": "synth-01414",
+        "assessment": "confirmed",
+        "note": "question asks birthdates; SQL projects deathdate, and 'oldest' is ordered DESC"
+      },
+      {
+        "sample_id": "synth-00170",
+        "assessment": "over-strict",
+        "note": "the question itself says 'ordered by country and ID', which is what the SQL does"
+      },
+      {
+        "sample_id": "synth-00100",
+        "assessment": "over-strict",
+        "note": "objection is only to an unstated tie-breaker column; conventional in BIRD gold SQL"
+      },
+      {
+        "sample_id": "synth-01098",
+        "assessment": "over-strict",
+        "note": "race = 'B' is the stored code for Black; the pair lacks the evidence gloss, the SQL is right"
+      },
+      {
+        "sample_id": "synth-00006",
+        "assessment": "over-strict",
+        "note": "LIMIT 20 with 4 rows returned could not cut anything (G5 no-op)"
+      },
+      {
+        "sample_id": "synth-01153",
+        "assessment": "over-strict",
+        "note": "LIMIT 20 with 4 rows returned could not cut anything (G5 no-op)"
+      }
+    ]
+  },
+  "quoted_mismatches": [
+    {
+      "sample_id": "synth-00027",
+      "variant": 1,
+      "db_id": "address",
+      "verdict": "mismatch",
+      "defect": "wrong_entity",
+      "question": "How many zip codes in Oregon have a population of less than 88,000 in 2020?",
+      "evidence": "",
+      "sql": "SELECT COUNT(*) FROM \"zip_data\" WHERE \"state\" = 'OR' AND \"population_2020\" < 88",
+      "shape": "count_two_conditions",
+      "rows": 1,
+      "mechanically_confirmed": true,
+      "judge_reason": "SQL uses 88 instead of 88000"
+    },
+    {
+      "sample_id": "synth-00061",
+      "variant": 1,
+      "db_id": "authors",
+      "verdict": "mismatch",
+      "defect": "unstated_filter",
+      "question": "What are the titles and keywords of papers presented at conference ID 2821?",
+      "evidence": "",
+      "sql": "SELECT DISTINCT \"title\", \"journalid\", \"keyword\" FROM \"paper\" WHERE \"conferenceid\" = 2821 ORDER BY \"title\" LIMIT 20",
+      "shape": "projection_where",
+      "rows": 20,
+      "mechanically_confirmed": true,
+      "judge_reason": "SQL adds LIMIT 20 not in question"
+    },
+    {
+      "sample_id": "synth-01316",
+      "variant": 1,
+      "db_id": "superstore",
+      "verdict": "mismatch",
+      "defect": "wrong_aggregate",
+      "question": "How many different customers have used the 'Same Day' shipping mode?",
+      "evidence": "",
+      "sql": "SELECT DISTINCT \"Customer ID\" FROM \"people\" WHERE \"Customer ID\" IN (SELECT \"Customer ID\" FROM \"south_superstore\" WHERE \"Ship Mode\" = 'Same Day') ORDER BY \"Customer ID\" LIMIT 20",
+      "shape": "in_subquery",
+      "rows": 20,
+      "mechanically_confirmed": true,
+      "judge_reason": "Question asks how many but SQL lists IDs"
+    },
+    {
+      "sample_id": "synth-00455",
+      "variant": 1,
+      "db_id": "image_and_language",
+      "verdict": "mismatch",
+      "defect": "ambiguous",
+      "question": "What is the image ID, object class ID, and x-coordinate of the last image in the database?",
+      "evidence": "",
+      "sql": "SELECT \"img_id\", \"obj_class_id\", \"x\" FROM \"img_obj\" ORDER BY \"obj_sample_id\" DESC, \"img_id\" LIMIT 1",
+      "shape": "top_k_order_by",
+      "rows": 1,
+      "mechanically_confirmed": false,
+      "judge_reason": "Last image undefined without explicit ordering column"
+    },
+    {
+      "sample_id": "synth-00344",
+      "variant": 1,
+      "db_id": "food_inspection_2",
+      "verdict": "mismatch",
+      "defect": "wrong_entity",
+      "question": "How many inspections are there for 'TRIPLE A SERVICES, INC.' with a risk level greater than 1?",
+      "evidence": "",
+      "sql": "SELECT COUNT(*) FROM \"establishment\" WHERE \"risk_level\" > 1 AND \"dba_name\" = 'TRIPLE A SERVICES, INC.'",
+      "shape": "count_two_conditions",
+      "rows": 1,
+      "mechanically_confirmed": true,
+      "judge_reason": "Question asks inspections but table is establishment"
+    },
+    {
+      "sample_id": "synth-00368",
+      "variant": 1,
+      "db_id": "genes",
+      "verdict": "mismatch",
+      "defect": "unstated_filter",
+      "question": "What are the unique pairs of genes involved in 'Genetic-Physical' interactions and their expression correlation?",
+      "evidence": "",
+      "sql": "SELECT DISTINCT \"geneid2\", \"geneid1\", \"expression_corr\" FROM \"interactions\" WHERE \"type\" = 'Genetic-Physical' ORDER BY \"geneid2\" LIMIT 20",
+      "shape": "projection_where",
+      "rows": 20,
+      "mechanically_confirmed": true,
+      "judge_reason": "SQL adds LIMIT 20 not in question"
+    },
+    {
+      "sample_id": "synth-00834",
+      "variant": 1,
+      "db_id": "professional_basketball",
+      "verdict": "mismatch",
+      "defect": "wrong_aggregate",
+      "question": "How many players have exactly 5 blocks in a season?",
+      "evidence": "",
+      "sql": "SELECT COUNT(DISTINCT \"assists\") FROM \"player_allstar\" WHERE \"blocks\" = 5",
+      "shape": "distinct_count",
+      "rows": 1,
+      "mechanically_confirmed": false,
+      "judge_reason": "Counts distinct assists instead of players"
+    },
+    {
+      "sample_id": "synth-00948",
+      "variant": 1,
+      "db_id": "retail_complains",
+      "verdict": "mismatch",
+      "defect": "ambiguous",
+      "question": "What are the top 10 most recent reviews with the highest star ratings?",
+      "evidence": "",
+      "sql": "SELECT \"date\", \"reviews\", \"product\" FROM \"reviews\" ORDER BY \"stars\" DESC, \"date\" LIMIT 10",
+      "shape": "top_k_order_by",
+      "rows": 10,
+      "mechanically_confirmed": false,
+      "judge_reason": "Question ambiguous on sorting priority stars or date"
+    },
+    {
+      "sample_id": "synth-01401",
+      "variant": 1,
+      "db_id": "synthea",
+      "verdict": "mismatch",
+      "defect": "wrong_entity",
+      "question": "Which patients had claims for encounter f0438525-1d1c-4e55-81c5-ab5b8d15e7e8?",
+      "evidence": "",
+      "sql": "SELECT DISTINCT \"patient\" FROM \"medications\" WHERE \"patient\" IN (SELECT \"patient\" FROM \"claims\" WHERE \"encounter\" = 'f0438525-1d1c-4e55-81c5-ab5b8d15e7e8') ORDER BY \"patient\" LIMIT 20",
+      "shape": "in_subquery",
+      "rows": 1,
+      "mechanically_confirmed": true,
+      "judge_reason": "Selects from medications not claims"
+    },
+    {
+      "sample_id": "synth-00646",
+      "variant": 1,
+      "db_id": "movie_3",
+      "verdict": "mismatch",
+      "defect": "unstated_filter",
+      "question": "What is the last payment made by customer 599?",
+      "evidence": "",
+      "sql": "SELECT \"customer_id\", \"staff_id\", \"rental_id\" FROM \"payment\" ORDER BY \"payment_id\" DESC, \"customer_id\" LIMIT 3",
+      "shape": "top_k_order_by",
+      "rows": 3,
+      "mechanically_confirmed": true,
+      "judge_reason": "Question asks last payment by customer 599 but SQL lacks customer filter"
+    }
+  ],
+  "controls": {
+    "purpose": "pairs the pipeline itself already recorded as question-side defective (dropped_truncated.jsonl audit_reason 'LIMIT N reached and not named in the question'); used to test whether the judge flags real caps",
+    "no_op_rule_prompt": {
+      "file": "control.jsonl",
+      "n": 23,
+      "g5_rule_in_prompt": "LIMIT >= executed row count is not a defect",
+      "verdict_counts": {
+        "match": 23,
+        "mismatch": 0,
+        "unclear": 0
+      },
+      "detected_rate": 0.0,
+      "wilson_95": {
+        "low": 0.0,
+        "high": 0.1431
+      },
+      "defect_counts": {}
+    },
+    "strict_rule_prompt": {
+      "file": "control_strict.jsonl",
+      "n": 23,
+      "g5_rule_in_prompt": "LIMIT <= executed row count IS a defect",
+      "verdict_counts": {
+        "match": 22,
+        "mismatch": 1,
+        "unclear": 0
+      },
+      "detected_rate": 0.0435,
+      "wilson_95": {
+        "low": 0.0077,
+        "high": 0.2099
+      },
+      "defect_counts": {
+        "wrong_entity": 1
+      }
+    }
+  },
+  "caveats": [
+    "The Wilson interval covers sampling error of the 200-pair draw only; it does not correct for judge error.",
+    "One judge pass at temperature 0 with a quantised local model: no inter-run variance estimate.",
+    "Mismatch means 'the question does not faithfully describe this SQL'; the SQL itself was executed and result-checked by the pipeline.",
+    "Limit reasoning is the weakest axis: the raw rate contains provably no-op cap claims (see mechanical_cross_checks.limit_claim_audit) and the control shows the prompt's no-op rule, not the judge, decided those cases.",
+    "question_literal_audit finds stated filters absent from the SQL among judge-passed pairs too, so the true defect rate is not lower than the point estimate."
+  ]
+}

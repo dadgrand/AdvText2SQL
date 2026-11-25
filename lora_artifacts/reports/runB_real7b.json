@@ -1,0 +1,876 @@
+{
+  "run": "B",
+  "arm": "7B + LoRA on native-PG train_main only (adapter effect)",
+  "status": "complete",
+  "model": {
+    "name": "Qwen2.5-Coder-7B-Instruct",
+    "local_path": "/home/dadgrand/models/Qwen2.5-Coder-7B-Instruct",
+    "config_sha256": "c0242402ad6a13b331ea320feea8c7e3776ffb7a4eff0757b9cd667e116d9a28",
+    "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+  },
+  "precision": "bfloat16 (no 4-bit)",
+  "adapter": {
+    "path": "/home/dadgrand/runs/arms/cands/step200",
+    "sha256": "d9dca06edeeda3d49e379004e7715914c8291e95c2bf88196b46d6bc297d83f7",
+    "step": 200,
+    "selected_by": "highest dev-217 EX (gold-executable denominator) among the saved checkpoints; ties go to the earlier/cheaper checkpoint"
+  },
+  "targets": "all-linear (q,k,v,o,gate,up,down) over all 28 layers",
+  "r_alpha_scaling": "r=16, alpha=32, scaling=2.0",
+  "lr": 0.00015,
+  "recipe": {
+    "r": 16,
+    "alpha": 32,
+    "lora_scaling": 2.0,
+    "lora_dropout": 0.05,
+    "bias": "none",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "loss": "completion-only",
+    "lr": 0.00015,
+    "scheduler": "cosine",
+    "warmup_steps": 12,
+    "warmup_ratio": 0.03,
+    "grad_clip": 1.0,
+    "batch": 1,
+    "accum": 16,
+    "effective_batch": 16,
+    "max_len": 2048,
+    "packing": false,
+    "epochs": 1.0,
+    "seed": 42,
+    "optimizer": "AdamW"
+  },
+  "supervised_tokens": 352421,
+  "optimizer_steps": 407,
+  "dev_metric": {
+    "correct": 104,
+    "n": 216,
+    "percent": 48.148148148148145,
+    "wilson95": [
+      0.4157554324248798,
+      0.547854707169765
+    ],
+    "denominator": "gold_executable"
+  },
+  "ood_metric": {
+    "correct": 638,
+    "n": 811,
+    "percent": 78.66831072749692,
+    "wilson95": [
+      0.757172083866418,
+      0.8134910738948513
+    ],
+    "denominator": "gold_executable"
+  },
+  "critical_errors": {
+    "note": "no training divergences: loss/gnorm logged per step; generation errors per id are in the harness reports",
+    "nan_or_inf_losses": 0
+  },
+  "gpu_hours": 0.5851,
+  "peak_vram_gb": 25.65,
+  "wall_time_to_best_checkpoint_s": 661.07,
+  "corpus": {
+    "path": "/home/dadgrand/lora_fullrun/data/train_main.jsonl",
+    "sha256": "60f3a104c66d32d084b5517fdae810128a5650e2418be73b2f16c333fc04a167",
+    "rows": 6499,
+    "splits": {
+      "train": 6499
+    },
+    "banned_db_rows": 0,
+    "banned_family_rows": 0,
+    "n_banned_db_ids": 28,
+    "n_banned_families": 27,
+    "evidence_rows": 4202,
+    "evidence_share": 0.6466,
+    "long_schema_bucket_rows": 408,
+    "long_schema_bucket_note": "over-budget rows (answer room < 679 tokens) excluded from the main arms",
+    "verdict": "pass"
+  },
+  "instrumentation": {
+    "adapted_modules": {
+      "by_type": {
+        "q_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        },
+        "k_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        },
+        "v_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        },
+        "o_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        },
+        "gate_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        },
+        "up_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        },
+        "down_proj": {
+          "layers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "n_layers": 28
+        }
+      },
+      "module_types": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "layers_covered": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "n_module_types": 7,
+      "n_adapted_modules": 196,
+      "trainable_parameters": 40370176,
+      "trainable_dtypes": [
+        "torch.float32"
+      ],
+      "all_parameters": 7655986688,
+      "trainable_share": 0.005273,
+      "lora_tensors": 392
+    },
+    "initial_logit_parity": {
+      "max_abs_diff": 0.0,
+      "mean_abs_diff": 0.0,
+      "tolerance": 1e-06,
+      "verdict": "pass"
+    },
+    "backward_gradient_check": {
+      "note": "standard init has lora_B=0, so dL/dA is zero on the first backward while dL/dB is not; both must be finite and the base must receive no gradients",
+      "lora_A": {
+        "n": 196,
+        "all_finite": true,
+        "max_norm": 0.0,
+        "n_nonzero": 0
+      },
+      "lora_B": {
+        "n": 196,
+        "all_finite": true,
+        "max_norm": 0.1791249812,
+        "n_nonzero": 196
+      },
+      "base_parameters": 339,
+      "base_parameters_with_grad": 0,
+      "targets": 196,
+      "verdict": "pass"
+    },
+    "optimizer_step_check": {
+      "adapter_tensors": 392,
+      "adapter_total_abs_change": 3309.63890818,
+      "base_frozen_requires_grad_false": true,
+      "verdict": "pass",
+      "adapter_restored_to_pristine_init": true
+    }
+  },
+  "training": {
+    "steps": 407,
+    "steps_total": 407,
+    "micro_per_epoch": 6499,
+    "rows": 6499,
+    "micro_total": 6499,
+    "warmup_steps": 12,
+    "train_seconds": 1333.92,
+    "s_per_step": 3.277,
+    "peak_vram_gb": 25.65,
+    "peak_vram_reserved_gb": 26.84,
+    "supervised_tokens_total": 352421,
+    "input_tokens_total": 4034763,
+    "supervised_tokens_per_s": 264.2,
+    "input_tokens_per_s": 3024.7,
+    "metrics_jsonl": "/home/dadgrand/runs/arms/raw/runB_metrics.jsonl"
+  },
+  "checkpoints": [
+    {
+      "step": 100,
+      "path": "/home/dadgrand/runs/arms/cands/step100",
+      "training_seconds_at_save": 332.71,
+      "supervised_tokens_at_save": 87373,
+      "peak_vram_gb": 25.65,
+      "retention": "kept until generation eval finishes",
+      "adapter_sha256": "2a6c835ac2b53bc2865144a3647dc065b36f964f261618db3b4e4c52a4ca5110",
+      "adapter_bytes": 161533192
+    },
+    {
+      "step": 200,
+      "path": "/home/dadgrand/runs/arms/cands/step200",
+      "training_seconds_at_save": 661.07,
+      "supervised_tokens_at_save": 174144,
+      "peak_vram_gb": 25.65,
+      "retention": "kept until generation eval finishes",
+      "adapter_sha256": "d9dca06edeeda3d49e379004e7715914c8291e95c2bf88196b46d6bc297d83f7",
+      "adapter_bytes": 161533192
+    },
+    {
+      "step": 300,
+      "path": "/home/dadgrand/runs/arms/cands/step300",
+      "training_seconds_at_save": 988.49,
+      "supervised_tokens_at_save": 260983,
+      "peak_vram_gb": 25.65,
+      "retention": "kept until generation eval finishes",
+      "adapter_sha256": "d2eff7bd497041ac74c211447fb779d08cb03ffac142e846c4b9715a6f1cf1da",
+      "adapter_bytes": 161533192
+    },
+    {
+      "step": 400,
+      "path": "/home/dadgrand/runs/arms/cands/step400",
+      "training_seconds_at_save": 1312.78,
+      "supervised_tokens_at_save": 346944,
+      "peak_vram_gb": 25.65,
+      "retention": "kept until generation eval finishes",
+      "adapter_sha256": "17b6873f9c73dc8cba404deee351990619bffd4962a8e5b95ecdeb2018d8ebac",
+      "adapter_bytes": 161533192
+    },
+    {
+      "step": 407,
+      "path": "/home/dadgrand/runs/arms/cands/step407",
+      "training_seconds_at_save": 1333.3,
+      "supervised_tokens_at_save": 352421,
+      "peak_vram_gb": 25.65,
+      "retention": "kept until generation eval finishes",
+      "adapter_sha256": "672e1dc64d48955b91ff3f360a2371cda5e6b1840fd7bc12ddaa600ff195461c",
+      "adapter_bytes": 161533192
+    }
+  ],
+  "selection": {
+    "rule": "highest dev-217 EX (gold-executable denominator) among the saved checkpoints; ties go to the earlier/cheaper checkpoint",
+    "candidates": [
+      {
+        "step": 100,
+        "adapter": "/home/dadgrand/runs/arms/cands/step100",
+        "adapter_sha256": "2a6c835ac2b53bc2865144a3647dc065b36f964f261618db3b4e4c52a4ca5110",
+        "training_seconds_at_save": 332.71,
+        "supervised_tokens_at_save": 87373,
+        "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand100_dev217.json",
+        "dev217": {
+          "correct": 92,
+          "n": 216,
+          "percent": 42.592592592592595,
+          "wilson95": [
+            0.3618426102593388,
+            0.49259794811924046
+          ],
+          "denominator": "gold_executable"
+        },
+        "dev217_ex_all": {
+          "correct": 92,
+          "n": 216,
+          "percent": 42.592592592592595,
+          "denominator": "shard_size"
+        }
+      },
+      {
+        "step": 200,
+        "adapter": "/home/dadgrand/runs/arms/cands/step200",
+        "adapter_sha256": "d9dca06edeeda3d49e379004e7715914c8291e95c2bf88196b46d6bc297d83f7",
+        "training_seconds_at_save": 661.07,
+        "supervised_tokens_at_save": 174144,
+        "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand200_dev217.json",
+        "dev217": {
+          "correct": 104,
+          "n": 216,
+          "percent": 48.148148148148145,
+          "wilson95": [
+            0.4157554324248798,
+            0.547854707169765
+          ],
+          "denominator": "gold_executable"
+        },
+        "dev217_ex_all": {
+          "correct": 104,
+          "n": 216,
+          "percent": 48.148148148148145,
+          "denominator": "shard_size"
+        }
+      },
+      {
+        "step": 300,
+        "adapter": "/home/dadgrand/runs/arms/cands/step300",
+        "adapter_sha256": "d2eff7bd497041ac74c211447fb779d08cb03ffac142e846c4b9715a6f1cf1da",
+        "training_seconds_at_save": 988.49,
+        "supervised_tokens_at_save": 260983,
+        "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand300_dev217.json",
+        "dev217": {
+          "correct": 99,
+          "n": 216,
+          "percent": 45.833333333333336,
+          "wilson95": [
+            0.3931930842281458,
+            0.524929729859805
+          ],
+          "denominator": "gold_executable"
+        },
+        "dev217_ex_all": {
+          "correct": 99,
+          "n": 216,
+          "percent": 45.833333333333336,
+          "denominator": "shard_size"
+        }
+      },
+      {
+        "step": 400,
+        "adapter": "/home/dadgrand/runs/arms/cands/step400",
+        "adapter_sha256": "17b6873f9c73dc8cba404deee351990619bffd4962a8e5b95ecdeb2018d8ebac",
+        "training_seconds_at_save": 1312.78,
+        "supervised_tokens_at_save": 346944,
+        "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand400_dev217.json",
+        "dev217": {
+          "correct": 100,
+          "n": 216,
+          "percent": 46.2962962962963,
+          "wilson95": [
+            0.39769434788607333,
+            0.5295259313032163
+          ],
+          "denominator": "gold_executable"
+        },
+        "dev217_ex_all": {
+          "correct": 100,
+          "n": 216,
+          "percent": 46.2962962962963,
+          "denominator": "shard_size"
+        }
+      },
+      {
+        "step": 407,
+        "adapter": "/home/dadgrand/runs/arms/cands/step407",
+        "adapter_sha256": "672e1dc64d48955b91ff3f360a2371cda5e6b1840fd7bc12ddaa600ff195461c",
+        "training_seconds_at_save": 1333.3,
+        "supervised_tokens_at_save": 352421,
+        "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand407_dev217.json",
+        "dev217": {
+          "correct": 100,
+          "n": 216,
+          "percent": 46.2962962962963,
+          "wilson95": [
+            0.39769434788607333,
+            0.5295259313032163
+          ],
+          "denominator": "gold_executable"
+        },
+        "dev217_ex_all": {
+          "correct": 100,
+          "n": 216,
+          "percent": 46.2962962962963,
+          "denominator": "shard_size"
+        }
+      }
+    ],
+    "best_step": 200,
+    "best_adapter": "/home/dadgrand/runs/arms/cands/step200",
+    "best_adapter_sha256": "d9dca06edeeda3d49e379004e7715914c8291e95c2bf88196b46d6bc297d83f7",
+    "best_dev217": {
+      "correct": 104,
+      "n": 216,
+      "percent": 48.148148148148145,
+      "wilson95": [
+        0.4157554324248798,
+        0.547854707169765
+      ],
+      "denominator": "gold_executable"
+    },
+    "wall_time_to_best_checkpoint_s": 661.07,
+    "supervised_tokens_at_best_checkpoint": 174144,
+    "generated_at_utc": "2026-11-25T04:01:06Z"
+  },
+  "decoding": {
+    "do_sample": false,
+    "num_beams": 1,
+    "temperature": null,
+    "top_p": null,
+    "repetition_penalty": 1.0,
+    "max_new_tokens": 256,
+    "stop": "<|im_end|>",
+    "batch_size": 8,
+    "padding_side": "left",
+    "prompt_max_len": null,
+    "repair": "none: the assistant turn is kept verbatim (only the <|im_end|> stop token and surrounding whitespace are removed); no SQL repair, no fence stripping"
+  },
+  "prompt_source": "datasets/native_pg/renderer.py serve mode",
+  "predictions": {
+    "dev217": {
+      "path": "cluster/runs/predictions/runB_dev217.json",
+      "sha256": "3131ebe84b7f763cabf990cd58707cacb356449d6912fc16fcf8d697a34798be",
+      "rows": 217
+    },
+    "ood876": {
+      "path": "cluster/runs/predictions/runB_ood876.json",
+      "sha256": "bcdf4c9ebec75a47d9762bf139b37ac2349359fd799bcebb16421e5b2bedef90",
+      "rows": 876
+    }
+  },
+  "metrics": {
+    "dev217": {
+      "shard": "dev217",
+      "ex_gold_executable": {
+        "correct": 104,
+        "n": 216,
+        "percent": 48.148148148148145,
+        "wilson95": [
+          0.4157554324248798,
+          0.547854707169765
+        ],
+        "denominator": "gold_executable"
+      },
+      "ex_all": {
+        "correct": 104,
+        "n": 216,
+        "percent": 48.148148148148145,
+        "denominator": "shard_size"
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 216,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 216,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 216,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 0,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 216,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 185,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 31,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "shard_size": {
+        "n_cases": 216,
+        "file_rows": 217,
+        "excluded_cases": 1,
+        "pre_policy_size": 217,
+        "n_databases": 8,
+        "expected_size": 216,
+        "size_matches_expected": true
+      },
+      "notes": [
+        "Reviewed dev answers; gold is native PostgreSQL (pg_gold_sql) and is executed verbatim.",
+        "Denominator after the native-gold drift policy: 216 (question 309 is excluded, see the drift policy section); 217 appears only as the pre-policy size. 7 of the 216 rows are reviewed corrections.",
+        "Do not compare a percentage here with EX/241: different gold and a different denominator."
+      ],
+      "paired": {
+        "n_paired": null,
+        "b": null,
+        "c": null,
+        "delta_ex": null,
+        "bootstrap95": null,
+        "mcnemar_exact_p": null,
+        "denominator": null,
+        "denominator_definition": null,
+        "delta_pp": null,
+        "bootstrap95_pp": null
+      },
+      "paired_vs_A": {
+        "n_paired": 216,
+        "b": 32,
+        "c": 15,
+        "delta_ex": 0.0787037037037037,
+        "bootstrap95": [
+          0.018518518518518517,
+          0.14351851851851852
+        ],
+        "mcnemar_exact_p": 0.01862383661500644,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "delta_pp": 7.87,
+        "bootstrap95_pp": [
+          1.852,
+          14.352
+        ]
+      }
+    },
+    "ood876": {
+      "shard": "ood876",
+      "ex_gold_executable": {
+        "correct": 638,
+        "n": 811,
+        "percent": 78.66831072749692,
+        "wilson95": [
+          0.757172083866418,
+          0.8134910738948513
+        ],
+        "denominator": "gold_executable"
+      },
+      "ex_all": {
+        "correct": 638,
+        "n": 876,
+        "percent": 72.8310502283105,
+        "denominator": "shard_size"
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 876,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 876,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 811,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 65,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 811,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 755,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 56,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "shard_size": {
+        "n_cases": 876,
+        "file_rows": 876,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 10,
+        "expected_size": 876,
+        "size_matches_expected": true
+      },
+      "notes": [
+        "PostgreSQL gold is executed verbatim: no sqlglot transpile, no repo_rewrite, no regex. The old OOD report re-transpiled this gold with the SQLite rewrite; this harness measures what that rewrite would change instead of assuming it (see the rewrite audit and the frozen-ledger check).",
+        "Question ids are normalised by numeric suffix (ood:disney:0000 == ood:disney:0) so a run recorded with padded ids still pairs.",
+        "A usable OOD number must come from a model trained on the clean split (t14 run B onwards) and must be scored with --contamination ood876=clean --split-manifest <manifest>; the manifest hash is then printed in the report. Pre-dedupe-fix runs are labelled contaminated_run, not a result."
+      ],
+      "paired": {
+        "n_paired": null,
+        "b": null,
+        "c": null,
+        "delta_ex": null,
+        "bootstrap95": null,
+        "mcnemar_exact_p": null,
+        "denominator": null,
+        "denominator_definition": null,
+        "delta_pp": null,
+        "bootstrap95_pp": null
+      },
+      "paired_vs_A": {
+        "n_paired": 811,
+        "b": 101,
+        "c": 40,
+        "delta_ex": 0.0752157829839704,
+        "bootstrap95": [
+          0.0468557336621455,
+          0.10480887792848335
+        ],
+        "mcnemar_exact_p": 2.8749799610187777e-07,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "delta_pp": 7.522,
+        "bootstrap95_pp": [
+          4.686,
+          10.481
+        ]
+      }
+    }
+  },
+  "generated_at_utc": "2026-11-25T03:58:48Z",
+  "harness_reports": {
+    "dev217": "cluster/eval_reports/arms/runB_dev217/report.json",
+    "ood876": "cluster/eval_reports/arms/runB_ood876/report.json",
+    "paired_dev217": "cluster/eval_reports/arms/paired_dev217/report.json",
+    "paired_ood876": "cluster/eval_reports/arms/paired_ood876/report.json",
+    "selection": {
+      "cand100": "cluster/eval_reports/arms/cand100_dev217/report.json",
+      "cand200": "cluster/eval_reports/arms/cand200_dev217/report.json",
+      "cand300": "cluster/eval_reports/arms/cand300_dev217/report.json",
+      "cand400": "cluster/eval_reports/arms/cand400_dev217/report.json",
+      "cand407": "cluster/eval_reports/arms/cand407_dev217/report.json"
+    }
+  }
+}

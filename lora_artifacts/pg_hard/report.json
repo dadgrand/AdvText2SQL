@@ -1,0 +1,447 @@
+{
+  "summary": {
+    "schemas": 12,
+    "questions": 96,
+    "tables": 63,
+    "rows": 452,
+    "per_skill": {
+      "asof_state": 12,
+      "compositional": 12,
+      "grain_fanout_antijoin": 12,
+      "hierarchies": 11,
+      "jsonb_arrays": 12,
+      "periods_timezones": 12,
+      "topn_ties": 12,
+      "window_frames_cohorts": 13
+    },
+    "comparison": {
+      "bag": 73,
+      "ordered": 23
+    },
+    "ordered_share": 0.2396,
+    "difficulty": {
+      "challenging": 75,
+      "moderate": 21
+    }
+  },
+  "feature_usage": {
+    "with_cte": 21,
+    "recursive_cte": 11,
+    "window_over": 12,
+    "aggregate_filter": 13,
+    "lateral_join": 10,
+    "distinct_on": 2,
+    "jsonb_access": 12,
+    "array_or_jsonb_containment": 11,
+    "array_literal": 12,
+    "at_time_zone": 12,
+    "range_frame": 9,
+    "rows_frame": 2,
+    "row_number": 1,
+    "exists_subquery": 20,
+    "recursive_union_all": 10
+  },
+  "execution": {
+    "attempted": 96,
+    "executed": 96,
+    "executable_share": 1.0,
+    "deterministic_share": 1.0,
+    "two_run_check": "every gold SQL executed twice in a fresh transaction; bag and ordered digests compared",
+    "empty_results": 0,
+    "rows_per_question": {
+      "min": 1,
+      "max": 15
+    }
+  },
+  "per_db": [
+    {
+      "db_id": "pghard_ride_hailing",
+      "fingerprint": "de946d47ba7f1f88b32b37dd189582a5a9e4ae1fcb29b74debd6b13b7ccc3b57",
+      "tables": 6,
+      "columns": 25,
+      "rows": 56,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0769,
+        "db_id": "car_retails",
+        "table_jaccard": 0.0769,
+        "column_jaccard": 0.012
+      }
+    },
+    {
+      "db_id": "pghard_retail_orders",
+      "fingerprint": "ea278d746164fdad1c7de0ee7079127f0c983398097b63e451422981f74a7977",
+      "tables": 6,
+      "columns": 26,
+      "rows": 48,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.2727,
+        "db_id": "retail_world",
+        "table_jaccard": 0.2727,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_streaming",
+      "fingerprint": "36c74995d72baf63490914b3ed555109f9f9250d72853161465f2647f1d98257",
+      "tables": 5,
+      "columns": 25,
+      "rows": 41,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0667,
+        "db_id": "book_publishing_company",
+        "table_jaccard": 0.0667,
+        "column_jaccard": 0.0114
+      }
+    },
+    {
+      "db_id": "pghard_banking",
+      "fingerprint": "1189b23bd91279ec394bd46656180b21564e285cebc63339e2196a387456107c",
+      "tables": 5,
+      "columns": 22,
+      "rows": 43,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_logistics",
+      "fingerprint": "dd5cf0ec0942a2842d0fdb99447cfe8a77dff294f538b03963fefefdbc0a948f",
+      "tables": 5,
+      "columns": 24,
+      "rows": 40,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_healthcare",
+      "fingerprint": "ed12d377037bcc6993f662c5b4cbc5542f38a2483a66fa4660e3c902b72cc9e9",
+      "tables": 5,
+      "columns": 22,
+      "rows": 31,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.1429,
+        "db_id": "synthea",
+        "table_jaccard": 0.1429,
+        "column_jaccard": 0.0094
+      }
+    },
+    {
+      "db_id": "pghard_education",
+      "fingerprint": "b825ee322b04b633aed28a2ce71031c8b052dfcc2e2bf4918a4d2e4afe97a2c7",
+      "tables": 5,
+      "columns": 21,
+      "rows": 33,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_energy",
+      "fingerprint": "e00789ab4302b320edbeba3c70cea9b49ddb6dfd157e2352e430d7af75ea113d",
+      "tables": 4,
+      "columns": 17,
+      "rows": 28,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_airline",
+      "fingerprint": "977d57fb6660db542beed327799038cd1d8ce840de6146668f3e37782cfc9918",
+      "tables": 6,
+      "columns": 27,
+      "rows": 39,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.125,
+        "db_id": "airline",
+        "table_jaccard": 0.125,
+        "column_jaccard": 0.0172
+      }
+    },
+    {
+      "db_id": "pghard_marketplace",
+      "fingerprint": "9c20db5565e3e0f339688a45235daabfe2670dcde32ddf493b0f3e85da370aa3",
+      "tables": 6,
+      "columns": 22,
+      "rows": 32,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.1111,
+        "db_id": "music_platform_2",
+        "table_jaccard": 0.1111,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_telecom",
+      "fingerprint": "b415b297904e6ea9865279a273ad6ccf4bb0673ebac6f9e6ca2302699f17aa0a",
+      "tables": 5,
+      "columns": 20,
+      "rows": 24,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [
+        {
+          "skill": "hierarchies",
+          "reason": "the network inventory is flat: elements carry a region label and no parent relationship, so a hierarchy question would have to invent a tree that the schema does not encode",
+          "replacement": "a second window_frames_cohorts question (subscriber usage over the 30 days before each complaint)"
+        }
+      ],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_manufacturing",
+      "fingerprint": "d84cda4571d52d5d5b3a7fcc6bae68a33d101e19a74f088c16384526a5bc59dd",
+      "tables": 5,
+      "columns": 23,
+      "rows": 37,
+      "questions": 8,
+      "skills": [
+        "asof_state",
+        "compositional",
+        "grain_fanout_antijoin",
+        "hierarchies",
+        "jsonb_arrays",
+        "periods_timezones",
+        "topn_ties",
+        "window_frames_cohorts"
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    }
+  ],
+  "dropped_skills": [
+    {
+      "db_id": "pghard_telecom",
+      "skill": "hierarchies",
+      "reason": "the network inventory is flat: elements carry a region label and no parent relationship, so a hierarchy question would have to invent a tree that the schema does not encode",
+      "replacement": "a second window_frames_cohorts question (subscriber usage over the 30 days before each complaint)"
+    }
+  ],
+  "contamination": {
+    "verdict": "clean",
+    "schema": {
+      "checked": 12,
+      "manifest_families": 80,
+      "structure_jaccard_limit": 0.5,
+      "findings": []
+    },
+    "questions": {
+      "checked": 96,
+      "registry_questions": 1260,
+      "trainable_questions": 35573,
+      "question_jaccard_limit": 0.8,
+      "max_jaccard_vs_registry": 0.0,
+      "max_jaccard_vs_trainable": 0.0556,
+      "findings": [],
+      "trainable_files": [
+        {
+          "path": "datasets/native_pg/native_pg_train.jsonl",
+          "questions": 6907
+        },
+        {
+          "path": "bird_pg_unified/data/bird_train_pg.jsonl",
+          "questions": 5110
+        },
+        {
+          "path": "bird_pg_unified/data/synthetic_bird_like.jsonl",
+          "questions": 2815
+        },
+        {
+          "path": "bird_pg_unified/data/synthetic_cap_unnamed.jsonl",
+          "questions": 2494
+        },
+        {
+          "path": "bird_pg_unified/data/synthetic_single_table_extra.jsonl",
+          "questions": 2277
+        },
+        {
+          "path": "cluster/sft_all_v2.jsonl",
+          "questions": 7925
+        },
+        {
+          "path": "cluster/sft_train.jsonl",
+          "questions": 5230
+        },
+        {
+          "path": "cluster/sft_synth.jsonl",
+          "questions": 2815
+        }
+      ]
+    },
+    "tables": {
+      "note": "informational: generic table names recur across BIRD domains; the schema check above is the decisive one",
+      "shared_names": [
+        "airports",
+        "categories",
+        "encounters",
+        "orders",
+        "payments",
+        "procedures",
+        "products",
+        "regions",
+        "titles"
+      ]
+    }
+  },
+  "freeze": {
+    "version": 1,
+    "questions_sha256": "429fdaec4ea0c41c24bf79c1acce30bf513149cd7a829a640b20c8f2fe2eccc2",
+    "gold_sha256": "ed380a082b2edacc567f7a33865577cbf3ed7fc569f660f399d5a8a45cd2c23e",
+    "ddl_bundle_sha256": "4af8bfe4205cab8754066812419ec12178f9bc118b34fa0db0d3864c17672413",
+    "data_bundle_sha256": "c8ea4e128a32515e8202e6272be573f9333dadf39614cb717caf29dacfe10c03",
+    "questions_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/pg_hard/questions.jsonl",
+    "gold_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/pg_hard/gold.jsonl"
+  },
+  "built_at_utc": "2026-11-25T03:26:39+00:00"
+}

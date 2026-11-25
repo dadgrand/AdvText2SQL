@@ -1,0 +1,319 @@
+{
+  "generated_at_utc": "2026-11-25T04:16:39+00:00",
+  "sources": {
+    "gretelai": {
+      "decision": "used",
+      "source_id": "gretelai/synthetic_text_to_sql",
+      "source_url": "https://huggingface.co/datasets/gretelai/synthetic_text_to_sql",
+      "revision": "740ab236e64503fba51be1101df7a1be83bf455d",
+      "license": "Apache-2.0",
+      "role": "training",
+      "counts": {
+        "rows_in": 100000,
+        "screened": 1200,
+        "candidates_after_screen": 1044,
+        "candidates_sampled": 300,
+        "contributed": 192,
+        "execution_passed": 192,
+        "rows_after_filtering": 192
+      },
+      "rejects": {
+        "execution_context_failed": 9,
+        "execution_failed": 58,
+        "parse_or_readonly": 156,
+        "result_size": 41
+      },
+      "dialects": {
+        "postgres": 300
+      },
+      "skills": {
+        "aggregation": 55,
+        "filter": 54,
+        "join": 39,
+        "projection": 20,
+        "window": 24
+      },
+      "semantic_checks": {},
+      "execution_share": 0.64,
+      "semantic_verification": {
+        "classification": "all screened candidates parsed under PostgreSQL; 0 required SQLite/MySQL transfer",
+        "verification": "every kept row executed against the supplied INSERT data on PostgreSQL and returned 1-200 rows",
+        "sqlite_cross_checks": {}
+      }
+    },
+    "omeryentur": {
+      "decision": "used",
+      "source_id": "omeryentur/text-to-postgresql",
+      "source_url": "https://huggingface.co/datasets/omeryentur/text-to-postgresql",
+      "revision": "33cc31467640859ee20b1ce97a7fac5b2ef24858",
+      "license": "MIT",
+      "role": "training",
+      "counts": {
+        "rows_in": 58696,
+        "candidates_after_screen": 7785,
+        "candidates_sampled": 500,
+        "contributed": 339,
+        "execution_passed": 339,
+        "rows_after_filtering": 339
+      },
+      "rejects": {
+        "execution_failed": 12,
+        "no_schema": 50894,
+        "not_select": 5,
+        "result_size": 149,
+        "statement_count": 12
+      },
+      "skills": {
+        "aggregation": 121,
+        "cte": 2,
+        "filter": 34,
+        "join": 9,
+        "projection": 147,
+        "window": 26
+      },
+      "execution_share": 0.678,
+      "fixture_note": "temporary PostgreSQL tables filled with 8 generated rows per table, values seeded from the query literals; rows kept only after the query executed and returned 1-200 rows"
+    },
+    "ds_nl2sql": {
+      "decision": "used",
+      "source_id": "zhangxiang666/DS-NL2SQL",
+      "source_url": "https://huggingface.co/datasets/zhangxiang666/DS-NL2SQL",
+      "revision": "66c7008d899b9df319b9b2327dc4027f8dd6e7d9",
+      "license": "MIT",
+      "role": "diagnostic_test",
+      "counts": {
+        "rows_in": 2218,
+        "postgres_slice": 2218,
+        "supported_select": 2218,
+        "candidates_after_screen": 2139,
+        "candidates_sampled": 160,
+        "databases_needed": 115,
+        "databases_loaded": 111,
+        "contributed": 151,
+        "execution_passed": 151,
+        "rows_after_filtering": 151
+      },
+      "rejects": {
+        "db_load_failed": 8,
+        "db_too_large": 1,
+        "eval_schema": 43,
+        "train_duplicate": 36
+      },
+      "skills": {
+        "aggregation": 25,
+        "cte": 28,
+        "filter": 24,
+        "join": 28,
+        "projection": 24,
+        "window": 22
+      },
+      "execution_share": 0.9437,
+      "note": "only the PostgreSQL gold slice is used; 2,218 is the whole six-dialect benchmark, not the PostgreSQL slice",
+      "post_filter_rows": 2139,
+      "reported_not_2218": "2,218 is the whole six-dialect benchmark; the PostgreSQL slice is 2,218 rows, 2,139 survive eval/dedupe, 151 are contributed after execution"
+    },
+    "pgexercises": {
+      "decision": "partially_used",
+      "decision_reason": "only 61 read-only exercises exist at this site revision; 55 executed successfully, so the source cannot contribute 100 rows by design",
+      "source_id": "pgexercises.com",
+      "source_url": "https://pgexercises.com/",
+      "revision": "site-snapshot-2026-11-25",
+      "license": "CC-BY-SA-3.0",
+      "role": "training",
+      "counts": {
+        "rows_in": 61,
+        "candidates_after_screen": 58,
+        "candidates_sampled": 58,
+        "contributed": 55,
+        "execution_passed": 55,
+        "rows_after_filtering": 55
+      },
+      "rejects": {
+        "execution_failed": 3,
+        "not_supported_select": 3
+      },
+      "skills": {
+        "aggregation": 14,
+        "filter": 9,
+        "join": 9,
+        "projection": 15,
+        "recursion": 3,
+        "set_operation": 1,
+        "window": 4
+      },
+      "categories": {
+        "aggregates": 18,
+        "basic": 12,
+        "date": 9,
+        "joins": 6,
+        "recursive": 3,
+        "string": 7
+      },
+      "execution_share": 0.9483,
+      "window_section_available": false,
+      "note": "no dedicated window-function section exists at this site revision; recursion is covered by the recursive category and 4 kept exercises use window functions from other categories",
+      "revision_detail": {
+        "snapshot_date": "2026-11-25",
+        "clubdata_sha256": "0fe5e73a3da75c1cd77895d796923720f6475d8465d7ad8da62ae2bb5a62f847"
+      }
+    }
+  },
+  "artifacts": {
+    "gretelai": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/external/gretelai.jsonl",
+      "sha256": "01ebf515572964bf8d10e9db2d360b736e382cb47fb084e5dea1cd87ad73017b",
+      "rows": 192
+    },
+    "omeryentur": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/external/omeryentur.jsonl",
+      "sha256": "7cbb199385fa39673f1365d211824eeb5d6fa30067464388c8905f2229901c91",
+      "rows": 339
+    },
+    "ds_nl2sql": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/external/ds_nl2sql.jsonl",
+      "sha256": "e39188abc4641d81575e4a0c546970ab7c3a7b50e604d5f1cfaad59ccf8e180b",
+      "rows": 151
+    },
+    "pgexercises": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/external/pgexercises.jsonl",
+      "sha256": "031f2321450db3ecb9e3bca4ed0a169382c9540830483819caaaa383fd0f6c8b",
+      "rows": 55
+    }
+  },
+  "decision_summary": {
+    "gretelai": "used",
+    "omeryentur": "used",
+    "ds_nl2sql": "used",
+    "pgexercises": "partially_used"
+  },
+  "verification": {
+    "omeryentur": {
+      "rows": 339,
+      "missing_provenance": [],
+      "train_duplicates": [],
+      "eval_schema_hits": [],
+      "execution_out_of_range": [],
+      "min_execution_rows": 1,
+      "max_execution_rows": 8,
+      "provenance_complete": true,
+      "dedupe_clean": true,
+      "eval_clean": true,
+      "execution_clean": true,
+      "artifact_sha256": "7cbb199385fa39673f1365d211824eeb5d6fa30067464388c8905f2229901c91"
+    },
+    "gretelai": {
+      "rows": 192,
+      "missing_provenance": [],
+      "train_duplicates": [],
+      "eval_schema_hits": [],
+      "execution_out_of_range": [],
+      "min_execution_rows": 1,
+      "max_execution_rows": 12,
+      "provenance_complete": true,
+      "dedupe_clean": true,
+      "eval_clean": true,
+      "execution_clean": true,
+      "artifact_sha256": "01ebf515572964bf8d10e9db2d360b736e382cb47fb084e5dea1cd87ad73017b"
+    },
+    "ds_nl2sql": {
+      "rows": 151,
+      "missing_provenance": [],
+      "train_duplicates": [],
+      "eval_schema_hits": [],
+      "execution_out_of_range": [],
+      "min_execution_rows": 1,
+      "max_execution_rows": 20,
+      "provenance_complete": true,
+      "dedupe_clean": true,
+      "eval_clean": true,
+      "execution_clean": true,
+      "artifact_sha256": "e39188abc4641d81575e4a0c546970ab7c3a7b50e604d5f1cfaad59ccf8e180b"
+    },
+    "pgexercises": {
+      "rows": 55,
+      "missing_provenance": [],
+      "train_duplicates": [],
+      "eval_schema_hits": [],
+      "execution_out_of_range": [],
+      "min_execution_rows": 1,
+      "max_execution_rows": 46,
+      "provenance_complete": true,
+      "dedupe_clean": true,
+      "eval_clean": true,
+      "execution_clean": true,
+      "artifact_sha256": "031f2321450db3ecb9e3bca4ed0a169382c9540830483819caaaa383fd0f6c8b"
+    }
+  },
+  "totals": {
+    "rows_ingested": 737,
+    "rows_executed": 737,
+    "sources": 4,
+    "used_sources_with_100_plus_executed": [
+      "omeryentur",
+      "gretelai",
+      "ds_nl2sql"
+    ]
+  },
+  "acceptance": {
+    "every_source_has_decision": true,
+    "every_row_has_license_and_revision": true,
+    "no_train_duplicate_ge_0_8": true,
+    "no_eval_schema_row": true,
+    "all_executed_rows_return_1_200": true,
+    "at_least_100_executed_per_used_source": true,
+    "partial_sources": [
+      "pgexercises"
+    ]
+  },
+  "source_order": [
+    "omeryentur",
+    "gretelai",
+    "ds_nl2sql",
+    "pgexercises"
+  ],
+  "decision_reasons": {
+    "omeryentur": "used: 339 of 500 sampled candidates executed on PostgreSQL fixtures and returned 1-200 rows; all rows carry MIT provenance",
+    "gretelai": "used: 192 of 300 sampled contexts executed on PostgreSQL and returned 1-200 rows; every context was classified PostgreSQL-compatible, so no dialect transfer was required",
+    "ds_nl2sql": "used: PostgreSQL slice 2,218, 2,139 after eval/dedupe screen, 151 executed rows contributed",
+    "pgexercises": "only 61 read-only exercises exist at this site revision; 55 executed successfully, so the source cannot contribute 100 rows by design"
+  },
+  "reject_reason_legend": {
+    "no_schema": "schema DDL missing or unparseable",
+    "not_select": "query is not a read-only SELECT",
+    "statement_count": "more than one statement in the query field",
+    "eval_schema": "schema matches an internal_valid/ood_reserved/external_test database",
+    "train_duplicate": "5-gram Jaccard >= 0.8 against an existing train question",
+    "result_size": "query executed but returned 0 rows or more than 200 rows",
+    "execution_failed": "query did not execute on the PostgreSQL fixture",
+    "parse_or_readonly": "context/query failed dialect parsing or read-only screening",
+    "db_load_failed": "the source SQLite database could not be raised as temporary PostgreSQL tables",
+    "db_too_large": "source SQLite database exceeded the 60 MB fixture bound",
+    "db_missing": "no SQLite database in the archive for the db_id"
+  },
+  "provenance_fields": [
+    "source_id",
+    "source_row_id",
+    "source_url",
+    "revision",
+    "license",
+    "role"
+  ],
+  "source_files": {
+    "omeryentur": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/external/omeryentur__text-to-postgresql/train.parquet",
+      "sha256": "0a8879248dee9614e239ac58eb2c555c05d0e159ad56ac1c30acd6d1867bbab3"
+    },
+    "gretelai": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/external/gretelai__synthetic_text_to_sql/synthetic_text_to_sql_train.snappy.parquet",
+      "sha256": "2bee9ac07cf5057d36b5ea30fb47d948697e882f42bd1cc661185396287c0180"
+    },
+    "ds_nl2sql": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/external/zhangxiang666__DS-NL2SQL/duckdb_sqlite_databases.zip",
+      "sha256": "206cedbfc5a7da9566074ccdecacd859baf8ab109d4f05bcc8ac080f18f63c2f"
+    },
+    "pgexercises": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/external/pgexercises/clubdata.sql",
+      "sha256": "0fe5e73a3da75c1cd77895d796923720f6475d8465d7ad8da62ae2bb5a62f847"
+    }
+  }
+}

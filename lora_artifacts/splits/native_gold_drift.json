@@ -1,0 +1,4785 @@
+{
+  "generated_at_utc": "2026-11-25T03:14:03+00:00",
+  "source": "unified dev-217 (native gold) + historical dev-241 (supplementary)",
+  "comparator": {
+    "project_module": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/datasets/bird_pg_unified/tools/verify_dataset.py",
+    "canon_function": "verify_dataset.canon (numerics rounded to 6 decimals, ints unified, datetimes isoformat, strings stripped)",
+    "extension": "timestamp strings parsed and canonicalised to 'YYYY-MM-DD HH:MM:SS'",
+    "semantics": "multiset equality (bag); strict comparison vs normalised comparison recorded"
+  },
+  "coverage": {
+    "dev_rows_audited": 217,
+    "historical_dev_rows_audited": 241,
+    "train_rows_with_local_sqlite": 0,
+    "train_rows_total": 5110
+  },
+  "counts": {
+    "unified_dev_217": {
+      "rows": 217,
+      "classes": {
+        "exact_match": 197,
+        "legitimate_engine_difference": 12,
+        "translation_defect": 7,
+        "server_side_data_defect": 1,
+        "not_comparable": 0
+      },
+      "subtypes": {
+        "float_formatting": 7,
+        "reviewed_correction": 7,
+        "rounding_precision": 1,
+        "superset_volume": 1,
+        "timestamp_formatting": 4
+      },
+      "per_database": {
+        "california_schools": {
+          "rows": 23,
+          "exact_match": 20,
+          "legitimate_engine_difference": 3,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "card_games": {
+          "rows": 28,
+          "exact_match": 27,
+          "legitimate_engine_difference": 0,
+          "translation_defect": 1,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "codebase_community": {
+          "rows": 26,
+          "exact_match": 22,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 2,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "debit_card_specializing": {
+          "rows": 19,
+          "exact_match": 13,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 4,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "financial": {
+          "rows": 27,
+          "exact_match": 25,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "student_club": {
+          "rows": 30,
+          "exact_match": 28,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "superhero": {
+          "rows": 36,
+          "exact_match": 35,
+          "legitimate_engine_difference": 1,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "toxicology": {
+          "rows": 28,
+          "exact_match": 27,
+          "legitimate_engine_difference": 0,
+          "translation_defect": 0,
+          "server_side_data_defect": 1,
+          "not_comparable": 0
+        }
+      },
+      "flagged": 20,
+      "usable_as_native_gold": 216,
+      "must_not_use": 1
+    },
+    "historical_dev_241": {
+      "rows": 241,
+      "classes": {
+        "exact_match": 214,
+        "legitimate_engine_difference": 13,
+        "translation_defect": 5,
+        "server_side_data_defect": 9,
+        "not_comparable": 0
+      },
+      "subtypes": {
+        "float_formatting": 7,
+        "leading_zero_key_loss": 1,
+        "missing_rows": 1,
+        "reviewed_correction": 2,
+        "rounding_precision": 2,
+        "semantic_mismatch": 3,
+        "superset_volume": 7,
+        "timestamp_formatting": 4
+      },
+      "per_database": {
+        "california_schools": {
+          "rows": 24,
+          "exact_match": 20,
+          "legitimate_engine_difference": 3,
+          "translation_defect": 0,
+          "server_side_data_defect": 1,
+          "not_comparable": 0
+        },
+        "card_games": {
+          "rows": 31,
+          "exact_match": 31,
+          "legitimate_engine_difference": 0,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "codebase_community": {
+          "rows": 27,
+          "exact_match": 25,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "debit_card_specializing": {
+          "rows": 26,
+          "exact_match": 18,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 5,
+          "server_side_data_defect": 1,
+          "not_comparable": 0
+        },
+        "financial": {
+          "rows": 29,
+          "exact_match": 26,
+          "legitimate_engine_difference": 3,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "student_club": {
+          "rows": 33,
+          "exact_match": 31,
+          "legitimate_engine_difference": 2,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "superhero": {
+          "rows": 36,
+          "exact_match": 35,
+          "legitimate_engine_difference": 1,
+          "translation_defect": 0,
+          "server_side_data_defect": 0,
+          "not_comparable": 0
+        },
+        "toxicology": {
+          "rows": 35,
+          "exact_match": 28,
+          "legitimate_engine_difference": 0,
+          "translation_defect": 0,
+          "server_side_data_defect": 7,
+          "not_comparable": 0
+        }
+      },
+      "flagged": 27,
+      "usable_as_native_gold": 229,
+      "must_not_use": 12
+    }
+  },
+  "rows": [
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "4",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "9",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "10",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "13",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "14",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "17",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "27",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "28",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "34",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "35",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "36",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "37",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "39",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "43",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "49",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "50",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "62",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "73",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "81",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "82",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "83",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "84",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "85",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "345",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "347",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "351",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "355",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "371",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "377",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "393",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "409",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "415",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "416",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "421",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "431",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "434",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "435",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "445",
+      "db_id": "card_games",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Include the explicitly requested card type in the projection."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "450",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "453",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "469",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "477",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "487",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "494",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "498",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "506",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "509",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "510",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "513",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "517",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "528",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "549",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "558",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "563",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "571",
+      "db_id": "codebase_community",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Count posts and votes independently; avoid the user-level JOIN fan-out."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "572",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "586",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "588",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "589",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "592",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "598",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "611",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "621",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "631",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "633",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "634",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "637",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "639",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "652",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "661",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "685",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "694",
+      "db_id": "codebase_community",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Order by comment timestamp and return the comment author; preserve anonymous comments with LEFT JOIN."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "699",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "701",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "708",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "714",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "716",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1471",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1472",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1473",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1475",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1479",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1480",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1484",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1496",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Aggregate consumption by segment, not customer."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1509",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1511",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "rounding_precision",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "numeric values differ only at the 1e-6 rounding boundary"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1512",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1515",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1521",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1523",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1525",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Count distinct customers rather than transactions for a percentage of customers."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1527",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1529",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Aggregate transactions directly; January means transaction dates in January."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1531",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Choose top customer by total spending; use SUM(price)/SUM(amount) as evidence specifies."
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1533",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "89",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "91",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "95",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "102",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "103",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "113",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "116",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "119",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "122",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "135",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "136",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "137",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "145",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "149",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "150",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "153",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "157",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "158",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "163",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "169",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "173",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "175",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "176",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "178",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "179",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "180",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "181",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1323",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1328",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1339",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1340",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1342",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1349",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1359",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1365",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1377",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1385",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1394",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1399",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1401",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1420",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1426",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1428",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1429",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1431",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1436",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1437",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1439",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1447",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1448",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1449",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1451",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1457",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1460",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1462",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1464",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1468",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "720",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "722",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "723",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "724",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "726",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "736",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "737",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "743",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "744",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "745",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "747",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "760",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "772",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "773",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "775",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "780",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "781",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "785",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "790",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "792",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "794",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "797",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "798",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "801",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "803",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "814",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "816",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "818",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "819",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "825",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "827",
+      "db_id": "superhero",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "828",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "829",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "834",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "835",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "845",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "199",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "212",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "213",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "219",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "223",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "230",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "232",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "249",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "260",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "267",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "279",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "282",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "283",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "290",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "295",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "298",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "302",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "309",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume and the gold also carries a reviewed correction"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "317",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "319",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "320",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "323",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "325",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "327",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "328",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "334",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "336",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "338",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "4",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "9",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "10",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "13",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "14",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "17",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "27",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "28",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "34",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "35",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "36",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "37",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "39",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "43",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "49",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "50",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "57",
+      "db_id": "california_schools",
+      "class": "server_side_data_defect",
+      "subtype": "leading_zero_key_loss",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "join key lost its leading zero when loaded on the server"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "62",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "73",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "81",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "82",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "83",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "84",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "85",
+      "db_id": "california_schools",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "345",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "347",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "351",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "355",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "371",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "377",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "393",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "402",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "409",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "415",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "416",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "417",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "421",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "431",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "434",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "435",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "445",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "450",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "453",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "469",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "477",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "487",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "494",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "498",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "506",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "509",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "510",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "513",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "515",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "517",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "528",
+      "db_id": "card_games",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "549",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "558",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "563",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "571",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "572",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "586",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "588",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "589",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "592",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "598",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "611",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "621",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "631",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "633",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "634",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "635",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "637",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "639",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "652",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "661",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "685",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "694",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "699",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "701",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "708",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "714",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "716",
+      "db_id": "codebase_community",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1471",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1472",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1473",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1475",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1476",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "semantic_mismatch",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "result tables differ and no data-volume or reviewed-correction cause matches"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1479",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1480",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1482",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "semantic_mismatch",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "result tables differ and no data-volume or reviewed-correction cause matches"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1484",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1490",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1496",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1501",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1509",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1511",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "rounding_precision",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "numeric values differ only at the 1e-6 rounding boundary"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1512",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1515",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1521",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1523",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1524",
+      "db_id": "debit_card_specializing",
+      "class": "server_side_data_defect",
+      "subtype": "missing_rows",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "PostgreSQL returns fewer rows than the SQLite original"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1525",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1526",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "semantic_mismatch",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "result tables differ and no data-volume or reviewed-correction cause matches"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1527",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1529",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Aggregate transactions directly; January means transaction dates in January."
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1530",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1531",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Choose top customer by total spending; use SUM(price)/SUM(amount) as evidence specifies."
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1533",
+      "db_id": "debit_card_specializing",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "89",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "91",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "94",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "95",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "102",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "103",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "113",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "116",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "119",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "122",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "125",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "rounding_precision",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "numeric values differ only at the 1e-6 rounding boundary"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "135",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "136",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "137",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "145",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "149",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "150",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "153",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "157",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "158",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "163",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "169",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "173",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "175",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "176",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "178",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "179",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "180",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "181",
+      "db_id": "financial",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1323",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1328",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1339",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1340",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1342",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1349",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1359",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1365",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1377",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1385",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1388",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1394",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1399",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1401",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1420",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1426",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1428",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1429",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1431",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1436",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1437",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1439",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1447",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1448",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1449",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1451",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1453",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1456",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1457",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1460",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1462",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1464",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "1468",
+      "db_id": "student_club",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "720",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "722",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "723",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "724",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "726",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "736",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "737",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "743",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "744",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "745",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "747",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "760",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "772",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "773",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "775",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "780",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "781",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "785",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "790",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "792",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "794",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "797",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "798",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "801",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "803",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "814",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "816",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "818",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "819",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "825",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "827",
+      "db_id": "superhero",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "drift_flag": true,
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "828",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "829",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "834",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "835",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "845",
+      "db_id": "superhero",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "199",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "207",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "212",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "213",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "219",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "223",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "230",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "232",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "239",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "246",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "249",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "260",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "267",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "276",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "279",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "282",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "283",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "290",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "292",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "295",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "298",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "302",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "306",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "309",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "317",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "319",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "320",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "323",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "325",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "326",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "drift_flag": true,
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "327",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "328",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "334",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "336",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    },
+    {
+      "source_dataset": "historical_dev_241",
+      "question_id": "338",
+      "db_id": "toxicology",
+      "class": "exact_match",
+      "subtype": null,
+      "drift_flag": false,
+      "usable_native_gold": true,
+      "reason": "identical result tables under strict comparison"
+    }
+  ],
+  "must_not_use_as_native_gold": [
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "309",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume and the gold also carries a reviewed correction"
+    }
+  ]
+}

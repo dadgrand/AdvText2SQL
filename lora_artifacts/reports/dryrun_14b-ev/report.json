@@ -1,0 +1,3218 @@
+{
+  "tool": "cluster.eval_shards",
+  "version": 1,
+  "meta": {
+    "generated_at": "2026-11-25T03:30:23+00:00",
+    "predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+    "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+    "self_compare": true,
+    "run_label": null,
+    "n_boot": 10000,
+    "seed": 0,
+    "db": "tcp:127.0.0.1:5444",
+    "server_version": "15.15 (Debian 15.15-1.pgdg13+1)",
+    "server_error": null,
+    "instances": {
+      "endpoints": {
+        "default": "tcp:127.0.0.1:5444",
+        "overrides": {
+          "pghard_": "unix:/home/stonemonkey/.cache/advtext2sql/pghard_pgdata"
+        }
+      },
+      "versions": {
+        "tcp:127.0.0.1:5444": "15.15 (Debian 15.15-1.pgdg13+1)",
+        "unix:/home/stonemonkey/.cache/advtext2sql/pghard_pgdata": "16.2"
+      }
+    },
+    "offline": false,
+    "contamination": {
+      "dev217": "unknown",
+      "ex241": "unknown",
+      "ood876": "contaminated_run",
+      "pghard": "unknown"
+    },
+    "contamination_note": "Dry-run mechanics on the frozen 14b-ev file. This run predates the dedupe fix, so no row here is a clean-split result; dev217 and ex241 are continuity references only, and any OOD number from this run is contaminated. The pghard row only shows the frozen denominators (the file has no PG-hard answers).",
+    "contamination_finding": "t9: the corpus of the cancelled 14B run contained 1,018 rows from reserved OOD schemas — 857 on the ten named OOD databases plus 161 on simpson_episodes (same schema family as OOD-reserved law_episode).",
+    "split_manifest": null,
+    "cache": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_cache/exec_cache.json",
+    "workers": 8,
+    "statement_timeout": "20s",
+    "execution": {
+      "executed": 0,
+      "cache_hits": 2615,
+      "skipped_offline": 0,
+      "errors": 0
+    },
+    "ledger_check": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/scores/14b-ev.json",
+      "shard": "ex241",
+      "comparisons": [
+        {
+          "field": "ex_all.correct",
+          "expected": 130,
+          "observed": 130,
+          "match": true
+        },
+        {
+          "field": "ex_all.n",
+          "expected": 241,
+          "observed": 241,
+          "match": true
+        },
+        {
+          "field": "ex_gold_executable.correct",
+          "expected": 130,
+          "observed": 130,
+          "match": true
+        },
+        {
+          "field": "ex_gold_executable.n",
+          "expected": 209,
+          "observed": 209,
+          "match": true
+        },
+        {
+          "field": "n_gold_unexecutable",
+          "expected": 32,
+          "observed": 32,
+          "match": true
+        },
+        {
+          "field": "gold_unexecutable_ids",
+          "expected": 32,
+          "observed": 32,
+          "overlap": 32,
+          "only_in_ledger": [],
+          "only_in_run": [],
+          "match": true
+        }
+      ],
+      "id_level_match": true,
+      "match": true
+    },
+    "results_usable": [],
+    "duration_seconds": 1.8
+  },
+  "shard_order": [
+    "dev217",
+    "ex241",
+    "ood876",
+    "pghard"
+  ],
+  "shards": {
+    "dev217": {
+      "key": "dev217",
+      "title": "PG-reviewed dev-216 (native PG gold, drift-clean)",
+      "quality": "primary",
+      "criterion": "execution_ex",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/bird_pg_unified/data/bird_dev_pg.jsonl",
+        "exists": true,
+        "sha256": "b333af44f3aa124d90063671713bd5989ef7bc2855caf6480903c424765a38e4",
+        "field": "pg_gold_sql",
+        "rewrite": "none",
+        "criterion": "execution_ex",
+        "n_cases": 217,
+        "n_scored_cases": 216,
+        "n_excluded_cases": 1
+      },
+      "notes": [
+        "Reviewed dev answers; gold is native PostgreSQL (pg_gold_sql) and is executed verbatim.",
+        "Denominator after the native-gold drift policy: 216 (question 309 is excluded, see the drift policy section); 217 appears only as the pre-policy size. 7 of the 216 rows are reviewed corrections.",
+        "Do not compare a percentage here with EX/241: different gold and a different denominator."
+      ],
+      "shard": {
+        "n_cases": 216,
+        "file_rows": 217,
+        "excluded_cases": 1,
+        "pre_policy_size": 217,
+        "n_databases": 8,
+        "expected_size": 216,
+        "size_matches_expected": true
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 216,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 216,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 216,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 0,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 216,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 211,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 5,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 135,
+        "n": 216,
+        "value": 0.625,
+        "percent": 62.5,
+        "wilson95": [
+          0.5587830884333069,
+          0.6868484693028407
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)",
+        "result_usable": false
+      },
+      "ex_gold_executable": {
+        "correct": 135,
+        "n": 216,
+        "value": 0.625,
+        "percent": 62.5,
+        "wilson95": [
+          0.5587830884333069,
+          0.6868484693028407
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses",
+        "result_usable": false
+      },
+      "gold_side": {
+        "executed": 216,
+        "unexecutable": 0,
+        "executable_percent": 100.0,
+        "categories": {},
+        "unexecutable_ids": [],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 211,
+        "unexecutable": 5,
+        "missing": 0,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {
+          "undefined_column": 5
+        },
+        "unexecutable_ids": [
+          "14",
+          "17",
+          "34",
+          "598",
+          "83"
+        ],
+        "not_attempted_because_gold_failed": 0
+      },
+      "micro": {
+        "correct": 135,
+        "n": 216,
+        "value": 0.625,
+        "percent": 62.5,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)",
+        "result_usable": false
+      },
+      "macro": {
+        "mean_ex": 0.599701263331126,
+        "n_databases": 8,
+        "n_databases_in_shard": 8,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case",
+        "result_usable": false
+      },
+      "per_database": {
+        "california_schools": {
+          "n_cases": 23,
+          "gold_executable": 23,
+          "correct": 4,
+          "ex_all": 0.17391304347826086,
+          "ex_gold_executable": 0.17391304347826086,
+          "wilson95_gold_executable": [
+            0.0697865351446468,
+            0.3713764781499663
+          ],
+          "pred_unexecutable": 4,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "card_games": {
+          "n_cases": 28,
+          "gold_executable": 28,
+          "correct": 17,
+          "ex_all": 0.6071428571428571,
+          "ex_gold_executable": 0.6071428571428571,
+          "wilson95_gold_executable": [
+            0.42409044159980325,
+            0.7643431355917387
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "codebase_community": {
+          "n_cases": 26,
+          "gold_executable": 26,
+          "correct": 16,
+          "ex_all": 0.6153846153846154,
+          "ex_gold_executable": 0.6153846153846154,
+          "wilson95_gold_executable": [
+            0.42534849943440245,
+            0.775714056651308
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "debit_card_specializing": {
+          "n_cases": 19,
+          "gold_executable": 19,
+          "correct": 11,
+          "ex_all": 0.5789473684210527,
+          "ex_gold_executable": 0.5789473684210527,
+          "wilson95_gold_executable": [
+            0.362759033831258,
+            0.7685810883382846
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "financial": {
+          "n_cases": 27,
+          "gold_executable": 27,
+          "correct": 12,
+          "ex_all": 0.4444444444444444,
+          "ex_gold_executable": 0.4444444444444444,
+          "wilson95_gold_executable": [
+            0.275858580651977,
+            0.626869756177142
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "student_club": {
+          "n_cases": 30,
+          "gold_executable": 30,
+          "correct": 23,
+          "ex_all": 0.7666666666666667,
+          "ex_gold_executable": 0.7666666666666667,
+          "wilson95_gold_executable": [
+            0.5907167369328042,
+            0.8820761191944214
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "superhero": {
+          "n_cases": 36,
+          "gold_executable": 36,
+          "correct": 34,
+          "ex_all": 0.9444444444444444,
+          "ex_gold_executable": 0.9444444444444444,
+          "wilson95_gold_executable": [
+            0.8185534265532164,
+            0.9846300134744463
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "toxicology": {
+          "n_cases": 27,
+          "gold_executable": 27,
+          "correct": 18,
+          "ex_all": 0.6666666666666666,
+          "ex_gold_executable": 0.6666666666666666,
+          "wilson95_gold_executable": [
+            0.4782476036109926,
+            0.8135673859016506
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "challenging": {
+          "n_cases": 54,
+          "gold_executable": 54,
+          "correct": 32,
+          "ex_all": 0.5925925925925926,
+          "ex_gold_executable": 0.5925925925925926,
+          "wilson95_gold_executable": [
+            0.4596684924085704,
+            0.7132178799860525
+          ],
+          "pred_unexecutable": 2,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "moderate": {
+          "n_cases": 79,
+          "gold_executable": 79,
+          "correct": 43,
+          "ex_all": 0.5443037974683544,
+          "ex_gold_executable": 0.5443037974683544,
+          "wilson95_gold_executable": [
+            0.43498332849961774,
+            0.6495154248363216
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "simple": {
+          "n_cases": 83,
+          "gold_executable": 83,
+          "correct": 60,
+          "ex_all": 0.7228915662650602,
+          "ex_gold_executable": 0.7228915662650602,
+          "wilson95_gold_executable": [
+            0.6183830543537235,
+            0.8076807229784316
+          ],
+          "pred_unexecutable": 2,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "shard": "dev217",
+        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "same_source": true,
+        "n_paired": 216,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "n_common_ids": 216,
+        "n_excluded_gold_unexecutable": 0,
+        "n_excluded_missing_prediction": 0,
+        "missing_in_current": [],
+        "missing_in_baseline": [],
+        "b": 0,
+        "c": 0,
+        "discordant": 0,
+        "mcnemar_exact_p": 1.0,
+        "delta_ex": 0.0,
+        "bootstrap95": [
+          0.0,
+          0.0
+        ],
+        "n_boot": 10000,
+        "seed": 0,
+        "self_comparison": {
+          "exactly_zero_delta": true,
+          "interval_contains_zero": true,
+          "bootstrap95": [
+            0.0,
+            0.0
+          ],
+          "n_paired": 216
+        }
+      },
+      "self_comparison": {
+        "exactly_zero_delta": true,
+        "interval_contains_zero": true,
+        "bootstrap95": [
+          0.0,
+          0.0
+        ],
+        "n_paired": 216
+      },
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "applied",
+          "source": "cluster/drift_native.json",
+          "sqlite_databases_audited": 8,
+          "classes_over_217_rows": {
+            "exact_match": 197,
+            "legitimate_engine_difference": 12,
+            "translation_defect": 7,
+            "server_side_data_defect": 1,
+            "not_comparable": 0
+          },
+          "measured": {
+            "sqlite_atoms_toxicology": 9111,
+            "postgres_atoms_toxicology": 12333
+          },
+          "policy": "a row whose native gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect"
+        },
+        "excluded": [
+          {
+            "question_id": "309",
+            "db_id": "toxicology",
+            "class": "server_side_data_defect",
+            "subtype": "superset_volume",
+            "reason": "the PostgreSQL toxicology database holds 12,333 atom rows against 9,111 in the BIRD SQLite original, so any count-based answer differs from the official BIRD gold by data volume alone; the gold also carries a reviewed correction (TR346)",
+            "evidence": {
+              "sqlite_atoms": 9111,
+              "postgres_atoms": 12333,
+              "sqlite_shape": 5,
+              "postgres_shape": 8
+            },
+            "source": "cluster/drift_native.json (t15 native-gold drift audit)",
+            "pre_policy_score": 1,
+            "gold_executed": true
+          }
+        ],
+        "excluded_ids": [
+          "309"
+        ],
+        "reviewed_corrections": {
+          "n": 7,
+          "ids": [
+            "1496",
+            "1525",
+            "1529",
+            "1531",
+            "445",
+            "571",
+            "694"
+          ],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": [
+            {
+              "question_id": "445",
+              "db_id": "card_games",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 1
+            },
+            {
+              "question_id": "571",
+              "db_id": "codebase_community",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 0
+            },
+            {
+              "question_id": "694",
+              "db_id": "codebase_community",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 0
+            },
+            {
+              "question_id": "1496",
+              "db_id": "debit_card_specializing",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 1
+            },
+            {
+              "question_id": "1525",
+              "db_id": "debit_card_specializing",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 0
+            },
+            {
+              "question_id": "1529",
+              "db_id": "debit_card_specializing",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 0
+            },
+            {
+              "question_id": "1531",
+              "db_id": "debit_card_specializing",
+              "gold_origin": "reviewed_correction",
+              "translation_defect": true,
+              "pre_policy_score": 0
+            }
+          ]
+        },
+        "row_origin": {
+          "scored_rows": 216,
+          "original_rows": 209,
+          "reviewed_rows": 7,
+          "excluded_rows": 1
+        },
+        "pre_policy": {
+          "n_cases": 217,
+          "gold_executable": 217,
+          "correct": 136,
+          "value": 0.6267281105990783,
+          "percent": 62.672811059907836,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 216,
+          "correct": 135,
+          "value": 0.625,
+          "percent": 62.5,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "scored",
+      "criteria": null,
+      "per_skill": {},
+      "execution_stats": {
+        "unique_gold_queries": 217,
+        "unique_prediction_queries": 217
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 216,
+        "n_altered_by_historical_rewrite": 39,
+        "n_broken_by_historical_rewrite": 24,
+        "n_native_unparseable": 0,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "ok",
+          "n_altered": 39,
+          "n_same_result": 11,
+          "n_result_differs": 2,
+          "n_rewrite_fails": 26,
+          "n_rewrite_fails_that_native_survives": 26,
+          "new_failure_ids": [
+            "4",
+            "35",
+            "62",
+            "85",
+            "116",
+            "169",
+            "219",
+            "298",
+            "317",
+            "371",
+            "415",
+            "416",
+            "487",
+            "506",
+            "598",
+            "639",
+            "701",
+            "716",
+            "743",
+            "760",
+            "775",
+            "818",
+            "834",
+            "835",
+            "1525",
+            "1533"
+          ],
+          "result_difference_ids": [
+            "572",
+            "1473"
+          ],
+          "denominator": "gold queries altered by the historical rewrite",
+          "note": "Execution-level check: rewritten gold is run on the same database and its row digest is compared with the native result. n_rewrite_fails_that_native_survives counts gold that the old pipeline would have lost; n_result_differs counts gold whose answer the rewrite would silently change."
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/dryrun_14b-ev/per_question_dev217.jsonl",
+      "contamination": {
+        "status": "unknown",
+        "label": "not certified clean",
+        "result_usable": false,
+        "note": "Dry-run mechanics on the frozen 14b-ev file. This run predates the dedupe fix, so no row here is a clean-split result; dev217 and ex241 are continuity references only, and any OOD number from this run is contaminated. The pghard row only shows the frozen denominators (the file has no PG-hard answers).",
+        "finding": "t9: the corpus of the cancelled 14B run contained 1,018 rows from reserved OOD schemas — 857 on the ten named OOD databases plus 161 on simpson_episodes (same schema family as OOD-reserved law_episode).",
+        "split_manifest": null
+      }
+    },
+    "ex241": {
+      "key": "ex241",
+      "title": "Historical EX/241 (own evaluator, continuity only)",
+      "quality": "continuity_only",
+      "criterion": "execution_ex",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/data/bird_large.json",
+        "exists": true,
+        "sha256": "54e57841bf5bf14261f6eb886674024be950dfed5b32eff85d6936098d707567",
+        "field": "SQL",
+        "rewrite": "repo_rewrite",
+        "criterion": "execution_ex",
+        "n_cases": 241,
+        "n_scored_cases": 241,
+        "n_excluded_cases": 0
+      },
+      "notes": [
+        "Historical shard: SQLite-dialect gold scored through the repo's own repo_rewrite (sqlglot sqlite->postgres plus the shipped NULLIF regex). Continuity with the frozen ledger only; this gold pipeline is NOT used for any other shard.",
+        "Contains the 217 reviewed dev ids (216 of them scored after the drift policy) plus 24 excluded ids; the denominators differ from dev217."
+      ],
+      "shard": {
+        "n_cases": 241,
+        "file_rows": 241,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 8,
+        "expected_size": 241,
+        "size_matches_expected": true
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 241,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 241,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 209,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 32,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 209,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 204,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 5,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 130,
+        "n": 241,
+        "value": 0.5394190871369294,
+        "percent": 53.941908713692946,
+        "wilson95": [
+          0.4763634720508225,
+          0.6012377646303049
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)",
+        "result_usable": false
+      },
+      "ex_gold_executable": {
+        "correct": 130,
+        "n": 209,
+        "value": 0.6220095693779905,
+        "percent": 62.20095693779904,
+        "wilson95": [
+          0.5546286016538221,
+          0.6849863693582084
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses",
+        "result_usable": false
+      },
+      "gold_side": {
+        "executed": 209,
+        "unexecutable": 32,
+        "executable_percent": 86.72199170124482,
+        "categories": {
+          "syntax_error": 30,
+          "undefined_column": 2
+        },
+        "unexecutable_ids": [
+          "116",
+          "125",
+          "1482",
+          "1490",
+          "1525",
+          "1531",
+          "1533",
+          "169",
+          "219",
+          "298",
+          "317",
+          "35",
+          "371",
+          "4",
+          "402",
+          "415",
+          "416",
+          "417",
+          "487",
+          "506",
+          "598",
+          "62",
+          "639",
+          "701",
+          "716",
+          "743",
+          "760",
+          "775",
+          "818",
+          "834",
+          "835",
+          "85"
+        ],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 204,
+        "unexecutable": 5,
+        "missing": 0,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {
+          "undefined_column": 5
+        },
+        "unexecutable_ids": [
+          "14",
+          "17",
+          "34",
+          "83",
+          "94"
+        ],
+        "not_attempted_because_gold_failed": 32
+      },
+      "micro": {
+        "correct": 130,
+        "n": 209,
+        "value": 0.6220095693779905,
+        "percent": 62.20095693779904,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)",
+        "result_usable": false
+      },
+      "macro": {
+        "mean_ex": 0.5967089296572993,
+        "n_databases": 8,
+        "n_databases_in_shard": 8,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case",
+        "result_usable": false
+      },
+      "per_database": {
+        "california_schools": {
+          "n_cases": 24,
+          "gold_executable": 20,
+          "correct": 6,
+          "ex_all": 0.25,
+          "ex_gold_executable": 0.3,
+          "wilson95_gold_executable": [
+            0.14547724402157294,
+            0.518972820052479
+          ],
+          "pred_unexecutable": 4,
+          "gold_unexecutable": 4,
+          "gold_unexecutable_categories": {
+            "syntax_error": 2,
+            "undefined_column": 2
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "card_games": {
+          "n_cases": 31,
+          "gold_executable": 24,
+          "correct": 13,
+          "ex_all": 0.41935483870967744,
+          "ex_gold_executable": 0.5416666666666666,
+          "wilson95_gold_executable": [
+            0.35074865225073715,
+            0.7210866638699854
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 7,
+          "gold_unexecutable_categories": {
+            "syntax_error": 7
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "codebase_community": {
+          "n_cases": 27,
+          "gold_executable": 23,
+          "correct": 13,
+          "ex_all": 0.48148148148148145,
+          "ex_gold_executable": 0.5652173913043478,
+          "wilson95_gold_executable": [
+            0.3681137494517215,
+            0.7436536478893558
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 4,
+          "gold_unexecutable_categories": {
+            "syntax_error": 4
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "debit_card_specializing": {
+          "n_cases": 26,
+          "gold_executable": 21,
+          "correct": 11,
+          "ex_all": 0.4230769230769231,
+          "ex_gold_executable": 0.5238095238095238,
+          "wilson95_gold_executable": [
+            0.32369534446905174,
+            0.7165599402458462
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 5,
+          "gold_unexecutable_categories": {
+            "syntax_error": 5
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "financial": {
+          "n_cases": 29,
+          "gold_executable": 26,
+          "correct": 12,
+          "ex_all": 0.41379310344827586,
+          "ex_gold_executable": 0.46153846153846156,
+          "wilson95_gold_executable": [
+            0.2875585341413244,
+            0.6454206138301055
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 3,
+          "gold_unexecutable_categories": {
+            "syntax_error": 3
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "student_club": {
+          "n_cases": 33,
+          "gold_executable": 33,
+          "correct": 24,
+          "ex_all": 0.7272727272727273,
+          "ex_gold_executable": 0.7272727272727273,
+          "wilson95_gold_executable": [
+            0.5578244085793956,
+            0.8493255918679355
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "superhero": {
+          "n_cases": 36,
+          "gold_executable": 30,
+          "correct": 29,
+          "ex_all": 0.8055555555555556,
+          "ex_gold_executable": 0.9666666666666667,
+          "wilson95_gold_executable": [
+            0.8332960885388428,
+            0.9940914096838022
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 6,
+          "gold_unexecutable_categories": {
+            "syntax_error": 6
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "toxicology": {
+          "n_cases": 35,
+          "gold_executable": 32,
+          "correct": 22,
+          "ex_all": 0.6285714285714286,
+          "ex_gold_executable": 0.6875,
+          "wilson95_gold_executable": [
+            0.51433321561082,
+            0.8204745844774248
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 3,
+          "gold_unexecutable_categories": {
+            "syntax_error": 3
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "challenging": {
+          "n_cases": 61,
+          "gold_executable": 41,
+          "correct": 24,
+          "ex_all": 0.39344262295081966,
+          "ex_gold_executable": 0.5853658536585366,
+          "wilson95_gold_executable": [
+            0.433671030190843,
+            0.7224345063959652
+          ],
+          "pred_unexecutable": 2,
+          "gold_unexecutable": 20,
+          "gold_unexecutable_categories": {
+            "syntax_error": 20
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "moderate": {
+          "n_cases": 89,
+          "gold_executable": 78,
+          "correct": 43,
+          "ex_all": 0.48314606741573035,
+          "ex_gold_executable": 0.5512820512820513,
+          "wilson95_gold_executable": [
+            0.44109369055877745,
+            0.6566562776034877
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 11,
+          "gold_unexecutable_categories": {
+            "syntax_error": 9,
+            "undefined_column": 2
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "simple": {
+          "n_cases": 91,
+          "gold_executable": 90,
+          "correct": 63,
+          "ex_all": 0.6923076923076923,
+          "ex_gold_executable": 0.7,
+          "wilson95_gold_executable": [
+            0.5987348939180875,
+            0.7848908556084401
+          ],
+          "pred_unexecutable": 2,
+          "gold_unexecutable": 1,
+          "gold_unexecutable_categories": {
+            "syntax_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "shard": "ex241",
+        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "same_source": true,
+        "n_paired": 209,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "n_common_ids": 241,
+        "n_excluded_gold_unexecutable": 32,
+        "n_excluded_missing_prediction": 0,
+        "missing_in_current": [],
+        "missing_in_baseline": [],
+        "b": 0,
+        "c": 0,
+        "discordant": 0,
+        "mcnemar_exact_p": 1.0,
+        "delta_ex": 0.0,
+        "bootstrap95": [
+          0.0,
+          0.0
+        ],
+        "n_boot": 10000,
+        "seed": 0,
+        "self_comparison": {
+          "exactly_zero_delta": true,
+          "interval_contains_zero": true,
+          "bootstrap95": [
+            0.0,
+            0.0
+          ],
+          "n_paired": 209
+        }
+      },
+      "self_comparison": {
+        "exactly_zero_delta": true,
+        "interval_contains_zero": true,
+        "bootstrap95": [
+          0.0,
+          0.0
+        ],
+        "n_paired": 209
+      },
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "not_applied",
+          "source": "cluster/drift_native.json",
+          "reason": "historical continuity shard: it keeps the pre-policy 241 denominator so the frozen ledger stays comparable. Its drift classes are recorded by t15 (9 server-side data defects, 5 translation defects, 13 legitimate engine differences) but are not applied here; 241 is explicitly not drift-clean."
+        },
+        "excluded": [],
+        "excluded_ids": [],
+        "reviewed_corrections": {
+          "n": 0,
+          "ids": [],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": []
+        },
+        "row_origin": {
+          "scored_rows": 241,
+          "original_rows": 241,
+          "reviewed_rows": 0,
+          "excluded_rows": 0
+        },
+        "pre_policy": {
+          "n_cases": 241,
+          "gold_executable": 209,
+          "correct": 130,
+          "value": 0.6220095693779905,
+          "percent": 62.20095693779904,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 209,
+          "correct": 130,
+          "value": 0.6220095693779905,
+          "percent": 62.20095693779904,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "scored",
+      "criteria": null,
+      "per_skill": {},
+      "execution_stats": {
+        "unique_gold_queries": 241,
+        "unique_prediction_queries": 241
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 241,
+        "n_altered_by_historical_rewrite": 128,
+        "n_broken_by_historical_rewrite": 28,
+        "n_native_unparseable": 15,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "not_applicable",
+          "reason": "this shard's gold is executed through the historical rewrite itself"
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/dryrun_14b-ev/per_question_ex241.jsonl",
+      "contamination": {
+        "status": "unknown",
+        "label": "not certified clean",
+        "result_usable": false,
+        "note": "Dry-run mechanics on the frozen 14b-ev file. This run predates the dedupe fix, so no row here is a clean-split result; dev217 and ex241 are continuity references only, and any OOD number from this run is contaminated. The pghard row only shows the frozen denominators (the file has no PG-hard answers).",
+        "finding": "t9: the corpus of the cancelled 14B run contained 1,018 rows from reserved OOD schemas — 857 on the ten named OOD databases plus 161 on simpson_episodes (same schema family as OOD-reserved law_episode).",
+        "split_manifest": null
+      }
+    },
+    "ood876": {
+      "key": "ood876",
+      "title": "OOD-876 (native PG gold, no secondary transpilation)",
+      "quality": "primary",
+      "criterion": "execution_ex",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/ood/ood_heldout.json",
+        "exists": true,
+        "sha256": "32f876bc51cc313425c409a36938e2bd499b0a7727dace442b4130946c8a77c8",
+        "field": "SQL",
+        "rewrite": "none",
+        "criterion": "execution_ex",
+        "n_cases": 876,
+        "n_scored_cases": 876,
+        "n_excluded_cases": 0
+      },
+      "notes": [
+        "PostgreSQL gold is executed verbatim: no sqlglot transpile, no repo_rewrite, no regex. The old OOD report re-transpiled this gold with the SQLite rewrite; this harness measures what that rewrite would change instead of assuming it (see the rewrite audit and the frozen-ledger check).",
+        "Question ids are normalised by numeric suffix (ood:disney:0000 == ood:disney:0) so a run recorded with padded ids still pairs.",
+        "A usable OOD number must come from a model trained on the clean split (t14 run B onwards) and must be scored with --contamination ood876=clean --split-manifest <manifest>; the manifest hash is then printed in the report. Pre-dedupe-fix runs are labelled contaminated_run, not a result."
+      ],
+      "shard": {
+        "n_cases": 876,
+        "file_rows": 876,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 10,
+        "expected_size": 876,
+        "size_matches_expected": true
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 876,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 0,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 876,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 811,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 65,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 811,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 0,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 0,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 811,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 0,
+        "n": 876,
+        "value": null,
+        "percent": null,
+        "wilson95": [
+          0.0,
+          0.0043660807779851065
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)",
+        "result_usable": false
+      },
+      "ex_gold_executable": {
+        "correct": 0,
+        "n": 811,
+        "value": null,
+        "percent": null,
+        "wilson95": [
+          4.336808689942018e-19,
+          0.004714363560452578
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses",
+        "result_usable": false
+      },
+      "gold_side": {
+        "executed": 811,
+        "unexecutable": 65,
+        "executable_percent": 92.57990867579909,
+        "categories": {
+          "undefined_function": 31,
+          "undefined_column": 22,
+          "sql_error": 5,
+          "syntax_error": 5,
+          "datatype_mismatch": 1,
+          "invalid_text_representation": 1
+        },
+        "unexecutable_ids": [
+          "ood:disney:0",
+          "ood:disney:2",
+          "ood:disney:37",
+          "ood:european_football_1:103",
+          "ood:european_football_1:112",
+          "ood:menu:212",
+          "ood:movie_3:278",
+          "ood:movie_3:317",
+          "ood:movie_3:363",
+          "ood:movie_3:371",
+          "ood:movie_3:388",
+          "ood:movie_3:413",
+          "ood:movie_3:421",
+          "ood:movie_3:430",
+          "ood:movie_3:461",
+          "ood:movie_3:464",
+          "ood:movie_3:468",
+          "ood:movies_4:551",
+          "ood:movies_4:554",
+          "ood:movies_4:575",
+          "ood:movies_4:580",
+          "ood:movies_4:581",
+          "ood:sales_in_weather:643",
+          "ood:sales_in_weather:646",
+          "ood:sales_in_weather:660",
+          "ood:sales_in_weather:661",
+          "ood:sales_in_weather:662",
+          "ood:sales_in_weather:664",
+          "ood:sales_in_weather:665",
+          "ood:sales_in_weather:669",
+          "ood:sales_in_weather:671",
+          "ood:sales_in_weather:672",
+          "ood:sales_in_weather:677",
+          "ood:sales_in_weather:679",
+          "ood:sales_in_weather:687",
+          "ood:sales_in_weather:692",
+          "ood:sales_in_weather:696",
+          "ood:sales_in_weather:698",
+          "ood:social_media:707",
+          "ood:social_media:708",
+          "ood:social_media:712",
+          "ood:social_media:713",
+          "ood:social_media:714",
+          "ood:social_media:718",
+          "ood:social_media:719",
+          "ood:social_media:720",
+          "ood:social_media:726",
+          "ood:social_media:727",
+          "ood:social_media:728",
+          "ood:social_media:735",
+          "ood:social_media:736",
+          "ood:social_media:740",
+          "ood:social_media:745",
+          "ood:social_media:746",
+          "ood:social_media:749",
+          "ood:social_media:750",
+          "ood:social_media:752",
+          "ood:social_media:755",
+          "ood:social_media:759",
+          "ood:talkingdata:769",
+          "ood:talkingdata:806",
+          "ood:talkingdata:811",
+          "ood:talkingdata:815",
+          "ood:talkingdata:854",
+          "ood:talkingdata:856"
+        ],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 0,
+        "unexecutable": 0,
+        "missing": 811,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {},
+        "unexecutable_ids": [],
+        "not_attempted_because_gold_failed": 65
+      },
+      "micro": {
+        "correct": 0,
+        "n": 811,
+        "value": null,
+        "percent": null,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)",
+        "result_usable": false
+      },
+      "macro": {
+        "mean_ex": null,
+        "n_databases": 10,
+        "n_databases_in_shard": 10,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case",
+        "result_usable": false
+      },
+      "per_database": {
+        "disney": {
+          "n_cases": 77,
+          "gold_executable": 74,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.04934978013649534
+          ],
+          "pred_unexecutable": 74,
+          "gold_unexecutable": 3,
+          "gold_unexecutable_categories": {
+            "sql_error": 1,
+            "undefined_column": 1,
+            "undefined_function": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "european_football_1": {
+          "n_cases": 38,
+          "gold_executable": 36,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.09641862996887933
+          ],
+          "pred_unexecutable": 36,
+          "gold_unexecutable": 2,
+          "gold_unexecutable_categories": {
+            "datatype_mismatch": 1,
+            "undefined_column": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "law_episode": {
+          "n_cases": 89,
+          "gold_executable": 89,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.04137654586198997
+          ],
+          "pred_unexecutable": 89,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "menu": {
+          "n_cases": 69,
+          "gold_executable": 68,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.05347133731851496
+          ],
+          "pred_unexecutable": 68,
+          "gold_unexecutable": 1,
+          "gold_unexecutable_categories": {
+            "sql_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "movie_3": {
+          "n_cases": 200,
+          "gold_executable": 189,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.01992029568527906
+          ],
+          "pred_unexecutable": 189,
+          "gold_unexecutable": 11,
+          "gold_unexecutable_categories": {
+            "undefined_function": 10,
+            "syntax_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "movies_4": {
+          "n_cases": 139,
+          "gold_executable": 134,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.027868675451295993
+          ],
+          "pred_unexecutable": 134,
+          "gold_unexecutable": 5,
+          "gold_unexecutable_categories": {
+            "syntax_error": 3,
+            "sql_error": 1,
+            "undefined_function": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "music_tracker": {
+          "n_cases": 31,
+          "gold_executable": 31,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            6.938893903907228e-18,
+            0.11025539700802303
+          ],
+          "pred_unexecutable": 31,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "sales_in_weather": {
+          "n_cases": 58,
+          "gold_executable": 42,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.08379879207691124
+          ],
+          "pred_unexecutable": 42,
+          "gold_unexecutable": 16,
+          "gold_unexecutable_categories": {
+            "undefined_function": 14,
+            "invalid_text_representation": 1,
+            "syntax_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "social_media": {
+          "n_cases": 60,
+          "gold_executable": 39,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.08966685499529356
+          ],
+          "pred_unexecutable": 39,
+          "gold_unexecutable": 21,
+          "gold_unexecutable_categories": {
+            "undefined_column": 20,
+            "sql_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "talkingdata": {
+          "n_cases": 115,
+          "gold_executable": 109,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.03404297427009551
+          ],
+          "pred_unexecutable": 109,
+          "gold_unexecutable": 6,
+          "gold_unexecutable_categories": {
+            "undefined_function": 5,
+            "sql_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "unknown": {
+          "n_cases": 876,
+          "gold_executable": 811,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            4.336808689942018e-19,
+            0.004714363560452578
+          ],
+          "pred_unexecutable": 811,
+          "gold_unexecutable": 65,
+          "gold_unexecutable_categories": {
+            "undefined_function": 31,
+            "undefined_column": 22,
+            "sql_error": 5,
+            "syntax_error": 5,
+            "datatype_mismatch": 1,
+            "invalid_text_representation": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "shard": "ood876",
+        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "same_source": true,
+        "n_paired": 0,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "n_common_ids": 0,
+        "n_excluded_gold_unexecutable": 0,
+        "n_excluded_missing_prediction": 0,
+        "missing_in_current": [],
+        "missing_in_baseline": [
+          "ood:disney:0",
+          "ood:disney:1",
+          "ood:disney:10",
+          "ood:disney:11",
+          "ood:disney:12",
+          "ood:disney:13",
+          "ood:disney:14",
+          "ood:disney:15",
+          "ood:disney:16",
+          "ood:disney:17",
+          "ood:disney:18",
+          "ood:disney:19",
+          "ood:disney:2",
+          "ood:disney:20",
+          "ood:disney:21",
+          "ood:disney:22",
+          "ood:disney:23",
+          "ood:disney:24",
+          "ood:disney:25",
+          "ood:disney:26",
+          "ood:disney:27",
+          "ood:disney:28",
+          "ood:disney:29",
+          "ood:disney:3",
+          "ood:disney:30",
+          "ood:disney:31",
+          "ood:disney:32",
+          "ood:disney:33",
+          "ood:disney:34",
+          "ood:disney:35",
+          "ood:disney:36",
+          "ood:disney:37",
+          "ood:disney:38",
+          "ood:disney:39",
+          "ood:disney:4",
+          "ood:disney:40",
+          "ood:disney:41",
+          "ood:disney:42",
+          "ood:disney:43",
+          "ood:disney:44",
+          "ood:disney:45",
+          "ood:disney:46",
+          "ood:disney:47",
+          "ood:disney:48",
+          "ood:disney:49",
+          "ood:disney:5",
+          "ood:disney:50",
+          "ood:disney:51",
+          "ood:disney:52",
+          "ood:disney:53",
+          "ood:disney:54",
+          "ood:disney:55",
+          "ood:disney:56",
+          "ood:disney:57",
+          "ood:disney:58",
+          "ood:disney:59",
+          "ood:disney:6",
+          "ood:disney:60",
+          "ood:disney:61",
+          "ood:disney:62",
+          "ood:disney:63",
+          "ood:disney:64",
+          "ood:disney:65",
+          "ood:disney:66",
+          "ood:disney:67",
+          "ood:disney:68",
+          "ood:disney:69",
+          "ood:disney:7",
+          "ood:disney:70",
+          "ood:disney:71",
+          "ood:disney:72",
+          "ood:disney:73",
+          "ood:disney:74",
+          "ood:disney:75",
+          "ood:disney:76",
+          "ood:disney:8",
+          "ood:disney:9",
+          "ood:european_football_1:100",
+          "ood:european_football_1:101",
+          "ood:european_football_1:102",
+          "ood:european_football_1:103",
+          "ood:european_football_1:104",
+          "ood:european_football_1:105",
+          "ood:european_football_1:106",
+          "ood:european_football_1:107",
+          "ood:european_football_1:108",
+          "ood:european_football_1:109",
+          "ood:european_football_1:110",
+          "ood:european_football_1:111",
+          "ood:european_football_1:112",
+          "ood:european_football_1:113",
+          "ood:european_football_1:114",
+          "ood:european_football_1:77",
+          "ood:european_football_1:78",
+          "ood:european_football_1:79",
+          "ood:european_football_1:80",
+          "ood:european_football_1:81",
+          "ood:european_football_1:82",
+          "ood:european_football_1:83",
+          "ood:european_football_1:84",
+          "ood:european_football_1:85",
+          "ood:european_football_1:86",
+          "ood:european_football_1:87",
+          "ood:european_football_1:88",
+          "ood:european_football_1:89",
+          "ood:european_football_1:90",
+          "ood:european_football_1:91",
+          "ood:european_football_1:92",
+          "ood:european_football_1:93",
+          "ood:european_football_1:94",
+          "ood:european_football_1:95",
+          "ood:european_football_1:96",
+          "ood:european_football_1:97",
+          "ood:european_football_1:98",
+          "ood:european_football_1:99",
+          "ood:law_episode:115",
+          "ood:law_episode:116",
+          "ood:law_episode:117",
+          "ood:law_episode:118",
+          "ood:law_episode:119",
+          "ood:law_episode:120",
+          "ood:law_episode:121",
+          "ood:law_episode:122",
+          "ood:law_episode:123",
+          "ood:law_episode:124",
+          "ood:law_episode:125",
+          "ood:law_episode:126",
+          "ood:law_episode:127",
+          "ood:law_episode:128",
+          "ood:law_episode:129",
+          "ood:law_episode:130",
+          "ood:law_episode:131",
+          "ood:law_episode:132",
+          "ood:law_episode:133",
+          "ood:law_episode:134",
+          "ood:law_episode:135",
+          "ood:law_episode:136",
+          "ood:law_episode:137",
+          "ood:law_episode:138",
+          "ood:law_episode:139",
+          "ood:law_episode:140",
+          "ood:law_episode:141",
+          "ood:law_episode:142",
+          "ood:law_episode:143",
+          "ood:law_episode:144",
+          "ood:law_episode:145",
+          "ood:law_episode:146",
+          "ood:law_episode:147",
+          "ood:law_episode:148",
+          "ood:law_episode:149",
+          "ood:law_episode:150",
+          "ood:law_episode:151",
+          "ood:law_episode:152",
+          "ood:law_episode:153",
+          "ood:law_episode:154",
+          "ood:law_episode:155",
+          "ood:law_episode:156",
+          "ood:law_episode:157",
+          "ood:law_episode:158",
+          "ood:law_episode:159",
+          "ood:law_episode:160",
+          "ood:law_episode:161",
+          "ood:law_episode:162",
+          "ood:law_episode:163",
+          "ood:law_episode:164",
+          "ood:law_episode:165",
+          "ood:law_episode:166",
+          "ood:law_episode:167",
+          "ood:law_episode:168",
+          "ood:law_episode:169",
+          "ood:law_episode:170",
+          "ood:law_episode:171",
+          "ood:law_episode:172",
+          "ood:law_episode:173",
+          "ood:law_episode:174",
+          "ood:law_episode:175",
+          "ood:law_episode:176",
+          "ood:law_episode:177",
+          "ood:law_episode:178",
+          "ood:law_episode:179",
+          "ood:law_episode:180",
+          "ood:law_episode:181",
+          "ood:law_episode:182",
+          "ood:law_episode:183",
+          "ood:law_episode:184",
+          "ood:law_episode:185",
+          "ood:law_episode:186",
+          "ood:law_episode:187",
+          "ood:law_episode:188",
+          "ood:law_episode:189",
+          "ood:law_episode:190",
+          "ood:law_episode:191",
+          "ood:law_episode:192",
+          "ood:law_episode:193",
+          "ood:law_episode:194",
+          "ood:law_episode:195",
+          "ood:law_episode:196",
+          "ood:law_episode:197",
+          "ood:law_episode:198",
+          "ood:law_episode:199",
+          "ood:law_episode:200",
+          "ood:law_episode:201",
+          "ood:law_episode:202",
+          "ood:law_episode:203",
+          "ood:menu:204",
+          "ood:menu:205",
+          "ood:menu:206",
+          "ood:menu:207",
+          "ood:menu:208",
+          "ood:menu:209",
+          "ood:menu:210",
+          "ood:menu:211",
+          "ood:menu:212",
+          "ood:menu:213",
+          "ood:menu:214",
+          "ood:menu:215",
+          "ood:menu:216",
+          "ood:menu:217",
+          "ood:menu:218",
+          "ood:menu:219",
+          "ood:menu:220",
+          "ood:menu:221",
+          "ood:menu:222",
+          "ood:menu:223",
+          "ood:menu:224",
+          "ood:menu:225",
+          "ood:menu:226",
+          "ood:menu:227",
+          "ood:menu:228",
+          "ood:menu:229",
+          "ood:menu:230",
+          "ood:menu:231",
+          "ood:menu:232",
+          "ood:menu:233",
+          "ood:menu:234",
+          "ood:menu:235",
+          "ood:menu:236",
+          "ood:menu:237",
+          "ood:menu:238",
+          "ood:menu:239",
+          "ood:menu:240",
+          "ood:menu:241",
+          "ood:menu:242",
+          "ood:menu:243",
+          "ood:menu:244",
+          "ood:menu:245",
+          "ood:menu:246",
+          "ood:menu:247",
+          "ood:menu:248",
+          "ood:menu:249",
+          "ood:menu:250",
+          "ood:menu:251",
+          "ood:menu:252",
+          "ood:menu:253",
+          "ood:menu:254",
+          "ood:menu:255",
+          "ood:menu:256",
+          "ood:menu:257",
+          "ood:menu:258",
+          "ood:menu:259",
+          "ood:menu:260",
+          "ood:menu:261",
+          "ood:menu:262",
+          "ood:menu:263",
+          "ood:menu:264",
+          "ood:menu:265",
+          "ood:menu:266",
+          "ood:menu:267",
+          "ood:menu:268",
+          "ood:menu:269",
+          "ood:menu:270",
+          "ood:menu:271",
+          "ood:menu:272",
+          "ood:movie_3:273",
+          "ood:movie_3:274",
+          "ood:movie_3:275",
+          "ood:movie_3:276",
+          "ood:movie_3:277",
+          "ood:movie_3:278",
+          "ood:movie_3:279",
+          "ood:movie_3:280",
+          "ood:movie_3:281",
+          "ood:movie_3:282",
+          "ood:movie_3:283",
+          "ood:movie_3:284",
+          "ood:movie_3:285",
+          "ood:movie_3:286",
+          "ood:movie_3:287",
+          "ood:movie_3:288",
+          "ood:movie_3:289",
+          "ood:movie_3:290",
+          "ood:movie_3:291",
+          "ood:movie_3:292",
+          "ood:movie_3:293",
+          "ood:movie_3:294",
+          "ood:movie_3:295",
+          "ood:movie_3:296",
+          "ood:movie_3:297",
+          "ood:movie_3:298",
+          "ood:movie_3:299",
+          "ood:movie_3:300",
+          "ood:movie_3:301",
+          "ood:movie_3:302",
+          "ood:movie_3:303",
+          "ood:movie_3:304",
+          "ood:movie_3:305",
+          "ood:movie_3:306",
+          "ood:movie_3:307",
+          "ood:movie_3:308",
+          "ood:movie_3:309",
+          "ood:movie_3:310",
+          "ood:movie_3:311",
+          "ood:movie_3:312",
+          "ood:movie_3:313",
+          "ood:movie_3:314",
+          "ood:movie_3:315",
+          "ood:movie_3:316",
+          "ood:movie_3:317",
+          "ood:movie_3:318",
+          "ood:movie_3:319",
+          "ood:movie_3:320",
+          "ood:movie_3:321",
+          "ood:movie_3:322",
+          "ood:movie_3:323",
+          "ood:movie_3:324",
+          "ood:movie_3:325",
+          "ood:movie_3:326",
+          "ood:movie_3:327",
+          "ood:movie_3:328",
+          "ood:movie_3:329",
+          "ood:movie_3:330",
+          "ood:movie_3:331",
+          "ood:movie_3:332",
+          "ood:movie_3:333",
+          "ood:movie_3:334",
+          "ood:movie_3:335",
+          "ood:movie_3:336",
+          "ood:movie_3:337",
+          "ood:movie_3:338",
+          "ood:movie_3:339",
+          "ood:movie_3:340",
+          "ood:movie_3:341",
+          "ood:movie_3:342",
+          "ood:movie_3:343",
+          "ood:movie_3:344",
+          "ood:movie_3:345",
+          "ood:movie_3:346",
+          "ood:movie_3:347",
+          "ood:movie_3:348",
+          "ood:movie_3:349",
+          "ood:movie_3:350",
+          "ood:movie_3:351",
+          "ood:movie_3:352",
+          "ood:movie_3:353",
+          "ood:movie_3:354",
+          "ood:movie_3:355",
+          "ood:movie_3:356",
+          "ood:movie_3:357",
+          "ood:movie_3:358",
+          "ood:movie_3:359",
+          "ood:movie_3:360",
+          "ood:movie_3:361",
+          "ood:movie_3:362",
+          "ood:movie_3:363",
+          "ood:movie_3:364",
+          "ood:movie_3:365",
+          "ood:movie_3:366",
+          "ood:movie_3:367",
+          "ood:movie_3:368",
+          "ood:movie_3:369",
+          "ood:movie_3:370",
+          "ood:movie_3:371",
+          "ood:movie_3:372",
+          "ood:movie_3:373",
+          "ood:movie_3:374",
+          "ood:movie_3:375",
+          "ood:movie_3:376",
+          "ood:movie_3:377",
+          "ood:movie_3:378",
+          "ood:movie_3:379",
+          "ood:movie_3:380",
+          "ood:movie_3:381",
+          "ood:movie_3:382",
+          "ood:movie_3:383",
+          "ood:movie_3:384",
+          "ood:movie_3:385",
+          "ood:movie_3:386",
+          "ood:movie_3:387",
+          "ood:movie_3:388",
+          "ood:movie_3:389",
+          "ood:movie_3:390",
+          "ood:movie_3:391",
+          "ood:movie_3:392",
+          "ood:movie_3:393",
+          "ood:movie_3:394",
+          "ood:movie_3:395",
+          "ood:movie_3:396",
+          "ood:movie_3:397",
+          "ood:movie_3:398",
+          "ood:movie_3:399",
+          "ood:movie_3:400",
+          "ood:movie_3:401",
+          "ood:movie_3:402",
+          "ood:movie_3:403",
+          "ood:movie_3:404",
+          "ood:movie_3:405",
+          "ood:movie_3:406",
+          "ood:movie_3:407",
+          "ood:movie_3:408",
+          "ood:movie_3:409",
+          "ood:movie_3:410",
+          "ood:movie_3:411",
+          "ood:movie_3:412",
+          "ood:movie_3:413",
+          "ood:movie_3:414",
+          "ood:movie_3:415",
+          "ood:movie_3:416",
+          "ood:movie_3:417",
+          "ood:movie_3:418",
+          "ood:movie_3:419",
+          "ood:movie_3:420",
+          "ood:movie_3:421",
+          "ood:movie_3:422",
+          "ood:movie_3:423",
+          "ood:movie_3:424",
+          "ood:movie_3:425",
+          "ood:movie_3:426",
+          "ood:movie_3:427",
+          "ood:movie_3:428",
+          "ood:movie_3:429",
+          "ood:movie_3:430",
+          "ood:movie_3:431",
+          "ood:movie_3:432",
+          "ood:movie_3:433",
+          "ood:movie_3:434",
+          "ood:movie_3:435",
+          "ood:movie_3:436",
+          "ood:movie_3:437",
+          "ood:movie_3:438",
+          "ood:movie_3:439",
+          "ood:movie_3:440",
+          "ood:movie_3:441",
+          "ood:movie_3:442",
+          "ood:movie_3:443",
+          "ood:movie_3:444",
+          "ood:movie_3:445",
+          "ood:movie_3:446",
+          "ood:movie_3:447",
+          "ood:movie_3:448",
+          "ood:movie_3:449",
+          "ood:movie_3:450",
+          "ood:movie_3:451",
+          "ood:movie_3:452",
+          "ood:movie_3:453",
+          "ood:movie_3:454",
+          "ood:movie_3:455",
+          "ood:movie_3:456",
+          "ood:movie_3:457",
+          "ood:movie_3:458",
+          "ood:movie_3:459",
+          "ood:movie_3:460",
+          "ood:movie_3:461",
+          "ood:movie_3:462",
+          "ood:movie_3:463",
+          "ood:movie_3:464",
+          "ood:movie_3:465",
+          "ood:movie_3:466",
+          "ood:movie_3:467",
+          "ood:movie_3:468",
+          "ood:movie_3:469",
+          "ood:movie_3:470",
+          "ood:movie_3:471",
+          "ood:movie_3:472",
+          "ood:movies_4:473",
+          "ood:movies_4:474",
+          "ood:movies_4:475",
+          "ood:movies_4:476",
+          "ood:movies_4:477",
+          "ood:movies_4:478",
+          "ood:movies_4:479",
+          "ood:movies_4:480",
+          "ood:movies_4:481",
+          "ood:movies_4:482",
+          "ood:movies_4:483",
+          "ood:movies_4:484",
+          "ood:movies_4:485",
+          "ood:movies_4:486",
+          "ood:movies_4:487",
+          "ood:movies_4:488",
+          "ood:movies_4:489",
+          "ood:movies_4:490",
+          "ood:movies_4:491",
+          "ood:movies_4:492",
+          "ood:movies_4:493",
+          "ood:movies_4:494",
+          "ood:movies_4:495",
+          "ood:movies_4:496",
+          "ood:movies_4:497",
+          "ood:movies_4:498",
+          "ood:movies_4:499",
+          "ood:movies_4:500",
+          "ood:movies_4:501",
+          "ood:movies_4:502",
+          "ood:movies_4:503",
+          "ood:movies_4:504",
+          "ood:movies_4:505",
+          "ood:movies_4:506",
+          "ood:movies_4:507",
+          "ood:movies_4:508",
+          "ood:movies_4:509",
+          "ood:movies_4:510",
+          "ood:movies_4:511",
+          "ood:movies_4:512",
+          "ood:movies_4:513",
+          "ood:movies_4:514",
+          "ood:movies_4:515",
+          "ood:movies_4:516",
+          "ood:movies_4:517",
+          "ood:movies_4:518",
+          "ood:movies_4:519",
+          "ood:movies_4:520",
+          "ood:movies_4:521",
+          "ood:movies_4:522",
+          "ood:movies_4:523",
+          "ood:movies_4:524",
+          "ood:movies_4:525",
+          "ood:movies_4:526",
+          "ood:movies_4:527",
+          "ood:movies_4:528",
+          "ood:movies_4:529",
+          "ood:movies_4:530",
+          "ood:movies_4:531",
+          "ood:movies_4:532",
+          "ood:movies_4:533",
+          "ood:movies_4:534",
+          "ood:movies_4:535",
+          "ood:movies_4:536",
+          "ood:movies_4:537",
+          "ood:movies_4:538",
+          "ood:movies_4:539",
+          "ood:movies_4:540",
+          "ood:movies_4:541",
+          "ood:movies_4:542",
+          "ood:movies_4:543",
+          "ood:movies_4:544",
+          "ood:movies_4:545",
+          "ood:movies_4:546",
+          "ood:movies_4:547",
+          "ood:movies_4:548",
+          "ood:movies_4:549",
+          "ood:movies_4:550",
+          "ood:movies_4:551",
+          "ood:movies_4:552",
+          "ood:movies_4:553",
+          "ood:movies_4:554",
+          "ood:movies_4:555",
+          "ood:movies_4:556",
+          "ood:movies_4:557",
+          "ood:movies_4:558",
+          "ood:movies_4:559",
+          "ood:movies_4:560",
+          "ood:movies_4:561",
+          "ood:movies_4:562",
+          "ood:movies_4:563",
+          "ood:movies_4:564",
+          "ood:movies_4:565",
+          "ood:movies_4:566",
+          "ood:movies_4:567",
+          "ood:movies_4:568",
+          "ood:movies_4:569",
+          "ood:movies_4:570",
+          "ood:movies_4:571",
+          "ood:movies_4:572",
+          "ood:movies_4:573",
+          "ood:movies_4:574",
+          "ood:movies_4:575",
+          "ood:movies_4:576",
+          "ood:movies_4:577",
+          "ood:movies_4:578",
+          "ood:movies_4:579",
+          "ood:movies_4:580",
+          "ood:movies_4:581",
+          "ood:movies_4:582",
+          "ood:movies_4:583",
+          "ood:movies_4:584",
+          "ood:movies_4:585",
+          "ood:movies_4:586",
+          "ood:movies_4:587",
+          "ood:movies_4:588",
+          "ood:movies_4:589",
+          "ood:movies_4:590",
+          "ood:movies_4:591",
+          "ood:movies_4:592",
+          "ood:movies_4:593",
+          "ood:movies_4:594",
+          "ood:movies_4:595",
+          "ood:movies_4:596",
+          "ood:movies_4:597",
+          "ood:movies_4:598",
+          "ood:movies_4:599",
+          "ood:movies_4:600",
+          "ood:movies_4:601",
+          "ood:movies_4:602",
+          "ood:movies_4:603",
+          "ood:movies_4:604",
+          "ood:movies_4:605",
+          "ood:movies_4:606",
+          "ood:movies_4:607",
+          "ood:movies_4:608",
+          "ood:movies_4:609",
+          "ood:movies_4:610",
+          "ood:movies_4:611",
+          "ood:music_tracker:612",
+          "ood:music_tracker:613",
+          "ood:music_tracker:614",
+          "ood:music_tracker:615",
+          "ood:music_tracker:616",
+          "ood:music_tracker:617",
+          "ood:music_tracker:618",
+          "ood:music_tracker:619",
+          "ood:music_tracker:620",
+          "ood:music_tracker:621",
+          "ood:music_tracker:622",
+          "ood:music_tracker:623",
+          "ood:music_tracker:624",
+          "ood:music_tracker:625",
+          "ood:music_tracker:626",
+          "ood:music_tracker:627",
+          "ood:music_tracker:628",
+          "ood:music_tracker:629",
+          "ood:music_tracker:630",
+          "ood:music_tracker:631",
+          "ood:music_tracker:632",
+          "ood:music_tracker:633",
+          "ood:music_tracker:634",
+          "ood:music_tracker:635",
+          "ood:music_tracker:636",
+          "ood:music_tracker:637",
+          "ood:music_tracker:638",
+          "ood:music_tracker:639",
+          "ood:music_tracker:640",
+          "ood:music_tracker:641",
+          "ood:music_tracker:642",
+          "ood:sales_in_weather:643",
+          "ood:sales_in_weather:644",
+          "ood:sales_in_weather:645",
+          "ood:sales_in_weather:646",
+          "ood:sales_in_weather:647",
+          "ood:sales_in_weather:648",
+          "ood:sales_in_weather:649",
+          "ood:sales_in_weather:650",
+          "ood:sales_in_weather:651",
+          "ood:sales_in_weather:652",
+          "ood:sales_in_weather:653",
+          "ood:sales_in_weather:654",
+          "ood:sales_in_weather:655",
+          "ood:sales_in_weather:656",
+          "ood:sales_in_weather:657",
+          "ood:sales_in_weather:658",
+          "ood:sales_in_weather:659",
+          "ood:sales_in_weather:660",
+          "ood:sales_in_weather:661",
+          "ood:sales_in_weather:662",
+          "ood:sales_in_weather:663",
+          "ood:sales_in_weather:664",
+          "ood:sales_in_weather:665",
+          "ood:sales_in_weather:666",
+          "ood:sales_in_weather:667",
+          "ood:sales_in_weather:668",
+          "ood:sales_in_weather:669",
+          "ood:sales_in_weather:670",
+          "ood:sales_in_weather:671",
+          "ood:sales_in_weather:672",
+          "ood:sales_in_weather:673",
+          "ood:sales_in_weather:674",
+          "ood:sales_in_weather:675",
+          "ood:sales_in_weather:676",
+          "ood:sales_in_weather:677",
+          "ood:sales_in_weather:678",
+          "ood:sales_in_weather:679",
+          "ood:sales_in_weather:680",
+          "ood:sales_in_weather:681",
+          "ood:sales_in_weather:682",
+          "ood:sales_in_weather:683",
+          "ood:sales_in_weather:684",
+          "ood:sales_in_weather:685",
+          "ood:sales_in_weather:686",
+          "ood:sales_in_weather:687",
+          "ood:sales_in_weather:688",
+          "ood:sales_in_weather:689",
+          "ood:sales_in_weather:690",
+          "ood:sales_in_weather:691",
+          "ood:sales_in_weather:692",
+          "ood:sales_in_weather:693",
+          "ood:sales_in_weather:694",
+          "ood:sales_in_weather:695",
+          "ood:sales_in_weather:696",
+          "ood:sales_in_weather:697",
+          "ood:sales_in_weather:698",
+          "ood:sales_in_weather:699",
+          "ood:sales_in_weather:700",
+          "ood:social_media:701",
+          "ood:social_media:702",
+          "ood:social_media:703",
+          "ood:social_media:704",
+          "ood:social_media:705",
+          "ood:social_media:706",
+          "ood:social_media:707",
+          "ood:social_media:708",
+          "ood:social_media:709",
+          "ood:social_media:710",
+          "ood:social_media:711",
+          "ood:social_media:712",
+          "ood:social_media:713",
+          "ood:social_media:714",
+          "ood:social_media:715",
+          "ood:social_media:716",
+          "ood:social_media:717",
+          "ood:social_media:718",
+          "ood:social_media:719",
+          "ood:social_media:720",
+          "ood:social_media:721",
+          "ood:social_media:722",
+          "ood:social_media:723",
+          "ood:social_media:724",
+          "ood:social_media:725",
+          "ood:social_media:726",
+          "ood:social_media:727",
+          "ood:social_media:728",
+          "ood:social_media:729",
+          "ood:social_media:730",
+          "ood:social_media:731",
+          "ood:social_media:732",
+          "ood:social_media:733",
+          "ood:social_media:734",
+          "ood:social_media:735",
+          "ood:social_media:736",
+          "ood:social_media:737",
+          "ood:social_media:738",
+          "ood:social_media:739",
+          "ood:social_media:740",
+          "ood:social_media:741",
+          "ood:social_media:742",
+          "ood:social_media:743",
+          "ood:social_media:744",
+          "ood:social_media:745",
+          "ood:social_media:746",
+          "ood:social_media:747",
+          "ood:social_media:748",
+          "ood:social_media:749",
+          "ood:social_media:750",
+          "ood:social_media:751",
+          "ood:social_media:752",
+          "ood:social_media:753",
+          "ood:social_media:754",
+          "ood:social_media:755",
+          "ood:social_media:756",
+          "ood:social_media:757",
+          "ood:social_media:758",
+          "ood:social_media:759",
+          "ood:social_media:760",
+          "ood:talkingdata:761",
+          "ood:talkingdata:762",
+          "ood:talkingdata:763",
+          "ood:talkingdata:764",
+          "ood:talkingdata:765",
+          "ood:talkingdata:766",
+          "ood:talkingdata:767",
+          "ood:talkingdata:768",
+          "ood:talkingdata:769",
+          "ood:talkingdata:770",
+          "ood:talkingdata:771",
+          "ood:talkingdata:772",
+          "ood:talkingdata:773",
+          "ood:talkingdata:774",
+          "ood:talkingdata:775",
+          "ood:talkingdata:776",
+          "ood:talkingdata:777",
+          "ood:talkingdata:778",
+          "ood:talkingdata:779",
+          "ood:talkingdata:780",
+          "ood:talkingdata:781",
+          "ood:talkingdata:782",
+          "ood:talkingdata:783",
+          "ood:talkingdata:784",
+          "ood:talkingdata:785",
+          "ood:talkingdata:786",
+          "ood:talkingdata:787",
+          "ood:talkingdata:788",
+          "ood:talkingdata:789",
+          "ood:talkingdata:790",
+          "ood:talkingdata:791",
+          "ood:talkingdata:792",
+          "ood:talkingdata:793",
+          "ood:talkingdata:794",
+          "ood:talkingdata:795",
+          "ood:talkingdata:796",
+          "ood:talkingdata:797",
+          "ood:talkingdata:798",
+          "ood:talkingdata:799",
+          "ood:talkingdata:800",
+          "ood:talkingdata:801",
+          "ood:talkingdata:802",
+          "ood:talkingdata:803",
+          "ood:talkingdata:804",
+          "ood:talkingdata:805",
+          "ood:talkingdata:806",
+          "ood:talkingdata:807",
+          "ood:talkingdata:808",
+          "ood:talkingdata:809",
+          "ood:talkingdata:810",
+          "ood:talkingdata:811",
+          "ood:talkingdata:812",
+          "ood:talkingdata:813",
+          "ood:talkingdata:814",
+          "ood:talkingdata:815",
+          "ood:talkingdata:816",
+          "ood:talkingdata:817",
+          "ood:talkingdata:818",
+          "ood:talkingdata:819",
+          "ood:talkingdata:820",
+          "ood:talkingdata:821",
+          "ood:talkingdata:822",
+          "ood:talkingdata:823",
+          "ood:talkingdata:824",
+          "ood:talkingdata:825",
+          "ood:talkingdata:826",
+          "ood:talkingdata:827",
+          "ood:talkingdata:828",
+          "ood:talkingdata:829",
+          "ood:talkingdata:830",
+          "ood:talkingdata:831",
+          "ood:talkingdata:832",
+          "ood:talkingdata:833",
+          "ood:talkingdata:834",
+          "ood:talkingdata:835",
+          "ood:talkingdata:836",
+          "ood:talkingdata:837",
+          "ood:talkingdata:838",
+          "ood:talkingdata:839",
+          "ood:talkingdata:840",
+          "ood:talkingdata:841",
+          "ood:talkingdata:842",
+          "ood:talkingdata:843",
+          "ood:talkingdata:844",
+          "ood:talkingdata:845",
+          "ood:talkingdata:846",
+          "ood:talkingdata:847",
+          "ood:talkingdata:848",
+          "ood:talkingdata:849",
+          "ood:talkingdata:850",
+          "ood:talkingdata:851",
+          "ood:talkingdata:852",
+          "ood:talkingdata:853",
+          "ood:talkingdata:854",
+          "ood:talkingdata:855",
+          "ood:talkingdata:856",
+          "ood:talkingdata:857",
+          "ood:talkingdata:858",
+          "ood:talkingdata:859",
+          "ood:talkingdata:860",
+          "ood:talkingdata:861",
+          "ood:talkingdata:862",
+          "ood:talkingdata:863",
+          "ood:talkingdata:864",
+          "ood:talkingdata:865",
+          "ood:talkingdata:866",
+          "ood:talkingdata:867",
+          "ood:talkingdata:868",
+          "ood:talkingdata:869",
+          "ood:talkingdata:870",
+          "ood:talkingdata:871",
+          "ood:talkingdata:872",
+          "ood:talkingdata:873",
+          "ood:talkingdata:874",
+          "ood:talkingdata:875"
+        ],
+        "b": 0,
+        "c": 0,
+        "discordant": 0,
+        "mcnemar_exact_p": 1.0,
+        "delta_ex": null,
+        "bootstrap95": [
+          null,
+          null
+        ],
+        "n_boot": 10000,
+        "seed": 0,
+        "self_comparison": {
+          "status": "not_applicable",
+          "reason": "no paired cases",
+          "n_paired": 0
+        }
+      },
+      "self_comparison": {
+        "status": "not_applicable",
+        "reason": "no paired cases (no prediction for this shard in the file)",
+        "n_paired": 0
+      },
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "not_possible",
+          "reason": "the OOD-876 databases are BIRD train databases; their SQLite originals are not shipped locally (only the eight dev SQLite files are present), so a SQLite-vs-PostgreSQL drift audit cannot be run. Native PostgreSQL gold stays the reference; the 65 unexecutable gold ids are listed in this report."
+        },
+        "excluded": [],
+        "excluded_ids": [],
+        "reviewed_corrections": {
+          "n": 0,
+          "ids": [],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": []
+        },
+        "row_origin": {
+          "scored_rows": 876,
+          "original_rows": 876,
+          "reviewed_rows": 0,
+          "excluded_rows": 0
+        },
+        "pre_policy": {
+          "n_cases": 876,
+          "gold_executable": 811,
+          "correct": 0,
+          "value": 0.0,
+          "percent": 0.0,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 811,
+          "correct": 0,
+          "value": 0.0,
+          "percent": 0.0,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "no_predictions",
+      "criteria": null,
+      "per_skill": {},
+      "execution_stats": {
+        "unique_gold_queries": 876,
+        "unique_prediction_queries": 0
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 876,
+        "n_altered_by_historical_rewrite": 28,
+        "n_broken_by_historical_rewrite": 0,
+        "n_native_unparseable": 0,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "ok",
+          "n_altered": 28,
+          "n_same_result": 23,
+          "n_result_differs": 0,
+          "n_rewrite_fails": 5,
+          "n_rewrite_fails_that_native_survives": 0,
+          "new_failure_ids": [],
+          "result_difference_ids": [],
+          "denominator": "gold queries altered by the historical rewrite",
+          "note": "Execution-level check: rewritten gold is run on the same database and its row digest is compared with the native result. n_rewrite_fails_that_native_survives counts gold that the old pipeline would have lost; n_result_differs counts gold whose answer the rewrite would silently change."
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/dryrun_14b-ev/per_question_ood876.jsonl",
+      "contamination": {
+        "status": "contaminated_run",
+        "label": "contaminated_run, not a result",
+        "result_usable": false,
+        "note": "Dry-run mechanics on the frozen 14b-ev file. This run predates the dedupe fix, so no row here is a clean-split result; dev217 and ex241 are continuity references only, and any OOD number from this run is contaminated. The pghard row only shows the frozen denominators (the file has no PG-hard answers).",
+        "finding": "t9: the corpus of the cancelled 14B run contained 1,018 rows from reserved OOD schemas — 857 on the ten named OOD databases plus 161 on simpson_episodes (same schema family as OOD-reserved law_episode).",
+        "split_manifest": null
+      }
+    },
+    "pghard": {
+      "key": "pghard",
+      "title": "PG-hard (frozen hand-authored set, native PG gold on an isolated fixture instance)",
+      "quality": "primary",
+      "criterion": "all_fixtures",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/pg_hard/gold.jsonl",
+        "exists": true,
+        "sha256": "ed380a082b2edacc567f7a33865577cbf3ed7fc569f660f399d5a8a45cd2c23e",
+        "field": "gold_sql",
+        "rewrite": "none",
+        "criterion": "all_fixtures",
+        "n_cases": 96,
+        "n_scored_cases": 96,
+        "n_excluded_cases": 0
+      },
+      "notes": [
+        "Frozen set (v1): 12 hand-authored schemas, 96 questions, questions sha256 429fdaec…, gold sha256 ed380a08…. The gold file is datasets/pg_hard/gold.jsonl; it carries gold_sql, the per-question comparison mode, and fixtures[{fixture_id: default, db_id: pghard_<slug>}].",
+        "The fixtures live on a bundled PostgreSQL 16.2 instance reached through its Unix socket, not through the course tunnel: databases pghard_<slug>, datadir ~/.cache/advtext2sql/pghard_pgdata (override with --pghard-datadir). Rebuild after a reboot with datasets/pg_hard/build_pg_hard.py --ensure, or rebuild+verify with build_pg_hard.py and verify_pg_hard.py; the frozen hashes do not change.",
+        "Scoring criterion: a question scores 1 only if the prediction matches the native PG oracle on ALL fixtures whose gold executes. The frozen set currently has one fixture per question, so raw pass@1 (single default fixture) and the all-fixtures criterion coincide; the report states both.",
+        "Runs on this shard before t14 run B are smoke runs: they exercise the wiring and the denominators, not a model result."
+      ],
+      "shard": {
+        "n_cases": 96,
+        "file_rows": 96,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 12,
+        "expected_size": 96,
+        "size_matches_expected": true
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 96,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 0,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 96,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 96,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 0,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 96,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 0,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 0,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 96,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 0,
+        "n": 96,
+        "value": null,
+        "percent": null,
+        "wilson95": [
+          3.469446951953614e-18,
+          0.03847558844130279
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)",
+        "result_usable": false
+      },
+      "ex_gold_executable": {
+        "correct": 0,
+        "n": 96,
+        "value": null,
+        "percent": null,
+        "wilson95": [
+          3.469446951953614e-18,
+          0.03847558844130279
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses",
+        "result_usable": false
+      },
+      "gold_side": {
+        "executed": 96,
+        "unexecutable": 0,
+        "executable_percent": 100.0,
+        "categories": {},
+        "unexecutable_ids": [],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 0,
+        "unexecutable": 0,
+        "missing": 96,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {},
+        "unexecutable_ids": [],
+        "not_attempted_because_gold_failed": 0
+      },
+      "micro": {
+        "correct": 0,
+        "n": 96,
+        "value": null,
+        "percent": null,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)",
+        "result_usable": false
+      },
+      "macro": {
+        "mean_ex": null,
+        "n_databases": 12,
+        "n_databases_in_shard": 12,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case",
+        "result_usable": false
+      },
+      "per_database": {
+        "pghard_airline": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_banking": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_education": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_energy": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_healthcare": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_logistics": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_manufacturing": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_marketplace": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_retail_orders": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_ride_hailing": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_streaming": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "pghard_telecom": {
+          "n_cases": 8,
+          "gold_executable": 8,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.3244075683414076
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "(unlabelled)": {
+          "n_cases": 96,
+          "gold_executable": 96,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            3.469446951953614e-18,
+            0.03847558844130279
+          ],
+          "pred_unexecutable": 96,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "shard": "pghard",
+        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/t2/14b-ev/query_results.json",
+        "same_source": true,
+        "n_paired": 0,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "n_common_ids": 0,
+        "n_excluded_gold_unexecutable": 0,
+        "n_excluded_missing_prediction": 0,
+        "missing_in_current": [],
+        "missing_in_baseline": [
+          "pghard-airline-01",
+          "pghard-airline-02",
+          "pghard-airline-03",
+          "pghard-airline-04",
+          "pghard-airline-05",
+          "pghard-airline-06",
+          "pghard-airline-07",
+          "pghard-airline-08",
+          "pghard-banking-01",
+          "pghard-banking-02",
+          "pghard-banking-03",
+          "pghard-banking-04",
+          "pghard-banking-05",
+          "pghard-banking-06",
+          "pghard-banking-07",
+          "pghard-banking-08",
+          "pghard-education-01",
+          "pghard-education-02",
+          "pghard-education-03",
+          "pghard-education-04",
+          "pghard-education-05",
+          "pghard-education-06",
+          "pghard-education-07",
+          "pghard-education-08",
+          "pghard-energy-01",
+          "pghard-energy-02",
+          "pghard-energy-03",
+          "pghard-energy-04",
+          "pghard-energy-05",
+          "pghard-energy-06",
+          "pghard-energy-07",
+          "pghard-energy-08",
+          "pghard-healthcare-01",
+          "pghard-healthcare-02",
+          "pghard-healthcare-03",
+          "pghard-healthcare-04",
+          "pghard-healthcare-05",
+          "pghard-healthcare-06",
+          "pghard-healthcare-07",
+          "pghard-healthcare-08",
+          "pghard-logistics-01",
+          "pghard-logistics-02",
+          "pghard-logistics-03",
+          "pghard-logistics-04",
+          "pghard-logistics-05",
+          "pghard-logistics-06",
+          "pghard-logistics-07",
+          "pghard-logistics-08",
+          "pghard-manufacturing-01",
+          "pghard-manufacturing-02",
+          "pghard-manufacturing-03",
+          "pghard-manufacturing-04",
+          "pghard-manufacturing-05",
+          "pghard-manufacturing-06",
+          "pghard-manufacturing-07",
+          "pghard-manufacturing-08",
+          "pghard-marketplace-01",
+          "pghard-marketplace-02",
+          "pghard-marketplace-03",
+          "pghard-marketplace-04",
+          "pghard-marketplace-05",
+          "pghard-marketplace-06",
+          "pghard-marketplace-07",
+          "pghard-marketplace-08",
+          "pghard-retail_orders-01",
+          "pghard-retail_orders-02",
+          "pghard-retail_orders-03",
+          "pghard-retail_orders-04",
+          "pghard-retail_orders-05",
+          "pghard-retail_orders-06",
+          "pghard-retail_orders-07",
+          "pghard-retail_orders-08",
+          "pghard-ride_hailing-01",
+          "pghard-ride_hailing-02",
+          "pghard-ride_hailing-03",
+          "pghard-ride_hailing-04",
+          "pghard-ride_hailing-05",
+          "pghard-ride_hailing-06",
+          "pghard-ride_hailing-07",
+          "pghard-ride_hailing-08",
+          "pghard-streaming-01",
+          "pghard-streaming-02",
+          "pghard-streaming-03",
+          "pghard-streaming-04",
+          "pghard-streaming-05",
+          "pghard-streaming-06",
+          "pghard-streaming-07",
+          "pghard-streaming-08",
+          "pghard-telecom-01",
+          "pghard-telecom-02",
+          "pghard-telecom-03",
+          "pghard-telecom-04",
+          "pghard-telecom-05",
+          "pghard-telecom-06",
+          "pghard-telecom-07",
+          "pghard-telecom-08"
+        ],
+        "b": 0,
+        "c": 0,
+        "discordant": 0,
+        "mcnemar_exact_p": 1.0,
+        "delta_ex": null,
+        "bootstrap95": [
+          null,
+          null
+        ],
+        "n_boot": 10000,
+        "seed": 0,
+        "self_comparison": {
+          "status": "not_applicable",
+          "reason": "no paired cases",
+          "n_paired": 0
+        }
+      },
+      "self_comparison": {
+        "status": "not_applicable",
+        "reason": "no paired cases (no prediction for this shard in the file)",
+        "n_paired": 0
+      },
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "not_applicable",
+          "reason": "hand-authored schemas and fixtures: there is no BIRD SQLite original to compare against, so the native-gold drift policy does not apply"
+        },
+        "excluded": [],
+        "excluded_ids": [],
+        "reviewed_corrections": {
+          "n": 0,
+          "ids": [],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": []
+        },
+        "row_origin": {
+          "scored_rows": 96,
+          "original_rows": 96,
+          "reviewed_rows": 0,
+          "excluded_rows": 0
+        },
+        "pre_policy": {
+          "n_cases": 96,
+          "gold_executable": 96,
+          "correct": 0,
+          "value": 0.0,
+          "percent": 0.0,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 96,
+          "correct": 0,
+          "value": 0.0,
+          "percent": 0.0,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "no_predictions",
+      "criteria": {
+        "raw_pass_at_1": {
+          "correct": 0,
+          "n": 96,
+          "value": 0.0,
+          "definition": "the prediction executed and returned exactly the oracle rows on the single default fixture"
+        },
+        "oracle_all_fixtures": {
+          "correct": 0,
+          "n": 96,
+          "value": 0.0,
+          "definition": "the prediction matched the native PG oracle on every fixture whose gold executed"
+        },
+        "fixtures_per_question": {
+          "min": 1,
+          "max": 1,
+          "total": 96
+        },
+        "note": "the frozen set has one fixture per question, so raw pass@1 and the all-fixtures criterion coincide; they diverge only when a question carries several fixtures"
+      },
+      "per_skill": {
+        "asof_state": {
+          "n_cases": 12,
+          "gold_executable": 12,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2424940095530979
+          ],
+          "pred_unexecutable": 12,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "compositional": {
+          "n_cases": 12,
+          "gold_executable": 12,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2424940095530979
+          ],
+          "pred_unexecutable": 12,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "grain_fanout_antijoin": {
+          "n_cases": 12,
+          "gold_executable": 12,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2424940095530979
+          ],
+          "pred_unexecutable": 12,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "hierarchies": {
+          "n_cases": 11,
+          "gold_executable": 11,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2588329699944264
+          ],
+          "pred_unexecutable": 11,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "jsonb_arrays": {
+          "n_cases": 12,
+          "gold_executable": 12,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2424940095530979
+          ],
+          "pred_unexecutable": 12,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "periods_timezones": {
+          "n_cases": 12,
+          "gold_executable": 12,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2424940095530979
+          ],
+          "pred_unexecutable": 12,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "topn_ties": {
+          "n_cases": 12,
+          "gold_executable": 12,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.2424940095530979
+          ],
+          "pred_unexecutable": 12,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "window_frames_cohorts": {
+          "n_cases": 13,
+          "gold_executable": 13,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.22809537513180025
+          ],
+          "pred_unexecutable": 13,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "execution_stats": {
+        "unique_gold_queries": 96,
+        "unique_prediction_queries": 0
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 96,
+        "n_altered_by_historical_rewrite": 84,
+        "n_broken_by_historical_rewrite": 0,
+        "n_native_unparseable": 0,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "ok",
+          "n_altered": 84,
+          "n_same_result": 72,
+          "n_result_differs": 0,
+          "n_rewrite_fails": 12,
+          "n_rewrite_fails_that_native_survives": 12,
+          "new_failure_ids": [
+            "pghard-ride_hailing-04",
+            "pghard-retail_orders-04",
+            "pghard-streaming-04",
+            "pghard-banking-04",
+            "pghard-logistics-04",
+            "pghard-healthcare-04",
+            "pghard-education-04",
+            "pghard-energy-04",
+            "pghard-airline-04",
+            "pghard-marketplace-04",
+            "pghard-telecom-04",
+            "pghard-manufacturing-04"
+          ],
+          "result_difference_ids": [],
+          "denominator": "gold queries altered by the historical rewrite",
+          "note": "Execution-level check: rewritten gold is run on the same database and its row digest is compared with the native result. n_rewrite_fails_that_native_survives counts gold that the old pipeline would have lost; n_result_differs counts gold whose answer the rewrite would silently change."
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/dryrun_14b-ev/per_question_pghard.jsonl",
+      "contamination": {
+        "status": "unknown",
+        "label": "not certified clean",
+        "result_usable": false,
+        "note": "Dry-run mechanics on the frozen 14b-ev file. This run predates the dedupe fix, so no row here is a clean-split result; dev217 and ex241 are continuity references only, and any OOD number from this run is contaminated. The pghard row only shows the frozen denominators (the file has no PG-hard answers).",
+        "finding": "t9: the corpus of the cancelled 14B run contained 1,018 rows from reserved OOD schemas — 857 on the ten named OOD databases plus 161 on simpson_episodes (same schema family as OOD-reserved law_episode).",
+        "split_manifest": null
+      }
+    }
+  }
+}

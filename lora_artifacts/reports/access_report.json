@@ -1,0 +1,145 @@
+{
+  "generated_at": "2026-11-25T00:59:24+00:00",
+  "host": "slurm-login.ipavlov.mipt.ru",
+  "port": 22,
+  "user": "dadgrand",
+  "partition": "gpu",
+  "gres": "gpu:h200:1",
+  "venv": "$HOME/venvs/lora",
+  "models": {
+    "Qwen2.5-Coder-7B-Instruct": "$HOME/models/Qwen2.5-Coder-7B-Instruct",
+    "Qwen2.5-Coder-14B-Instruct": "$HOME/models/Qwen2.5-Coder-14B-Instruct"
+  },
+  "checks": [
+    {
+      "name": "vpn",
+      "status": "passed",
+      "evidence": {
+        "ip_link_tun0": "tun0             UNKNOWN        192.168.255.9/24 fe80::d408:170a:e42:b577/64",
+        "resolved_address": "10.11.1.89",
+        "route": "10.11.1.89 via 192.168.255.1 dev tun0 src 192.168.255.9 uid 1000 \n    cache",
+        "ssh_banner": "SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.20"
+      },
+      "blocker": null
+    },
+    {
+      "name": "ssh",
+      "status": "passed",
+      "evidence": {
+        "identity": "slurm-login.ipavlov.mipt.ru\ndadgrand\nLinux 6.8.0-147-generic x86_64"
+      },
+      "blocker": null
+    },
+    {
+      "name": "venv",
+      "status": "passed",
+      "evidence": {
+        "python": "Python 3.12.3",
+        "torch": "{\"torch\": \"2.14.1+cu126\", \"torch_cuda\": \"12.6\", \"cuda_available\": false, \"device_count\": 0, \"device_name\": null, \"capability\": null}",
+        "stack": "{\"transformers\": \"5.23.0\", \"peft\": \"0.21.3\", \"datasets\": \"5.2.0\", \"accelerate\": \"1.16.0\", \"huggingface_hub\": \"2.4.0\"}",
+        "torch_parsed": {
+          "torch": "2.14.1+cu126",
+          "torch_cuda": "12.6",
+          "cuda_available": false,
+          "device_count": 0,
+          "device_name": null,
+          "capability": null
+        },
+        "stack_parsed": {
+          "transformers": "5.23.0",
+          "peft": "0.21.3",
+          "datasets": "5.2.0",
+          "accelerate": "1.16.0",
+          "huggingface_hub": "2.4.0"
+        }
+      },
+      "blocker": null
+    },
+    {
+      "name": "models",
+      "status": "passed",
+      "evidence": {
+        "roots": [
+          "Qwen2.5-Coder-14B-Instruct",
+          "Qwen2.5-Coder-7B-Instruct"
+        ],
+        "models": {
+          "Qwen2.5-Coder-7B-Instruct": {
+            "path": "$HOME/models/Qwen2.5-Coder-7B-Instruct",
+            "raw": "config.json yes\ntokenizer yes\nindex yes\nshards 4\nsize 15G\nsize_bytes 15242811440\nfiles 13",
+            "exit": 0,
+            "config.json": "yes",
+            "tokenizer": "yes",
+            "index": "yes",
+            "shards": "4",
+            "size": "15G",
+            "size_bytes": "15242811440",
+            "files": "13",
+            "size_gb": 14.2,
+            "min_size_gb": 13,
+            "status": "passed"
+          },
+          "Qwen2.5-Coder-14B-Instruct": {
+            "path": "$HOME/models/Qwen2.5-Coder-14B-Instruct",
+            "raw": "config.json yes\ntokenizer yes\nindex yes\nshards 6\nsize 28G\nsize_bytes 29551694152\nfiles 15",
+            "exit": 0,
+            "config.json": "yes",
+            "tokenizer": "yes",
+            "index": "yes",
+            "shards": "6",
+            "size": "28G",
+            "size_bytes": "29551694152",
+            "files": "15",
+            "size_gb": 27.52,
+            "min_size_gb": 26,
+            "status": "passed"
+          }
+        }
+      },
+      "blocker": null
+    },
+    {
+      "name": "gpu_job",
+      "status": "passed",
+      "evidence": {
+        "sinfo": "NODELIST|PARTITION|STATE|GRES\ngpu13|gpu*|mix|gpu:h200:8(S:0,3),shard:h200:32(S:0,3)\ngpu14|gpu*|mix|gpu:h200:8(S:0-1),shard:h200:32(S:0-1)",
+        "probe_upload": "written",
+        "srun_output": "JOBID=4875 NODELIST=gpu13\n0, NVIDIA H200 NVL, 143771 MiB, 0 MiB, Disabled\nGPU 0: NVIDIA H200 NVL (UUID: GPU-46eec4d9-d3dd-f086-b946-a002a12e9c2c)\n--- torch ---\nTORCHJSON {\"torch\": \"2.14.1+cu126\", \"torch_cuda\": \"12.6\", \"cuda_available\": true, \"device_count\": 1, \"device_name\": \"NVIDIA H200 NVL\", \"capability\": [9, 0], \"total_vram_gb\": 139.8}\nMATMUL {\"dtype\": \"torch.bfloat16\", \"sum_is_finite\": true}\n--- torch done ---\nSRUN_EXIT=0",
+        "srun_exit_marker": "0",
+        "gpu_line": "0, NVIDIA H200 NVL, 143771 MiB, 0 MiB, Disabled",
+        "torch_parsed": {
+          "torch": "2.14.1+cu126",
+          "torch_cuda": "12.6",
+          "cuda_available": true,
+          "device_count": 1,
+          "device_name": "NVIDIA H200 NVL",
+          "capability": [
+            9,
+            0
+          ],
+          "total_vram_gb": 139.8
+        },
+        "matmul": "{\"dtype\": \"torch.bfloat16\", \"sum_is_finite\": true}",
+        "gpu": {
+          "name": "NVIDIA H200 NVL",
+          "memory_total": "143771 MiB",
+          "memory_total_gb": 140.4,
+          "mig_mode": "Disabled"
+        }
+      },
+      "blocker": null
+    }
+  ],
+  "environment": {
+    "cluster_workdir": "$HOME/lora_access",
+    "local_venv_tools": "/home/stonemonkey/Documents/TalentHub/.venv-tools",
+    "capacity": {
+      "home_df": "cephfs@da5127b1-9a1a-4f83-b434-16c729faa8f6.lnsigo=/   22T   20T  2.3T  90% /home",
+      "free": "2.3T",
+      "used_percent": 90,
+      "home_writable": true
+    }
+  },
+  "status": "passed",
+  "blockers": []
+}

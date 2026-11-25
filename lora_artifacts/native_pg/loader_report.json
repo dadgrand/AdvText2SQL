@@ -1,0 +1,121 @@
+{
+  "rows_in": 7925,
+  "rows_kept": 6907,
+  "rows_filtered": 1018,
+  "rows_filtered_by_split": {
+    "train": 0,
+    "internal_valid": 0,
+    "ood_reserved": 1018,
+    "external_test": 0
+  },
+  "rows_filtered_by_reason": {
+    "ood_named": 857,
+    "schema_lineage_extension": 161
+  },
+  "rows_kept_by_split": {
+    "train": 6907,
+    "internal_valid": 0,
+    "ood_reserved": 0,
+    "external_test": 0
+  },
+  "counts_by_split_and_source": {
+    "train": {
+      "real": 4216,
+      "synthetic": 2691
+    },
+    "internal_valid": {
+      "real": 0,
+      "synthetic": 0
+    },
+    "ood_reserved": {
+      "real": 894,
+      "synthetic": 124
+    },
+    "external_test": {
+      "real": 0,
+      "synthetic": 0
+    }
+  },
+  "train_rows_real": 4216,
+  "train_rows_synthetic": 2691,
+  "skills": {
+    "aggregation": 835,
+    "filter": 867,
+    "join": 5122,
+    "projection": 83
+  },
+  "split_manifest": {
+    "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
+    "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02",
+    "splits_report_sha256": "6dec4a4c80605aa0735db4ea1220790a9d66e970445e00b328db1c3097621bbd"
+  },
+  "package_manifest": {
+    "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/datasets/bird_pg_unified/MANIFEST.json",
+    "sha256": "313a1557de14456cbbb85f7ab719dbb0adb5c1a31add935efbc5d20c0f527676",
+    "created": "2026-11-17"
+  },
+  "source_files": {
+    "real": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/datasets/bird_pg_unified/data/bird_train_pg.jsonl",
+      "sha256": "d1ce567fd70d0679f86b09bc9e070714bccd420a227bbd96dacd773d4fab7dce"
+    },
+    "synthetic": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/datasets/bird_pg_unified/data/synthetic_bird_like.jsonl",
+      "sha256": "138b7dcdad6b504b7466f0de3a2a21dda772f6cd28ad4af4e01925b5597ece26"
+    }
+  },
+  "zero_non_train_rows": true,
+  "native_gold_untouched": true,
+  "service_fields_in_prompt": 0,
+  "prompt_composed_from": [
+    "schema",
+    "question",
+    "evidence"
+  ],
+  "outputs": {
+    "train": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/native_pg/native_pg_train.jsonl",
+      "sha256": "246f1ac702e99d683ceee2c5f18630bac0987d81031877e36e15b4d00cf4a0b5",
+      "rows": 6907
+    },
+    "sidecar": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/native_pg/native_pg_sidecar.jsonl",
+      "sha256": "d4e71f13b99d97cb3df642d8f22f26b1c2f40cb5a284ded99c3aff18d22127a7",
+      "rows": 6907
+    }
+  },
+  "record_fields": [
+    "completion",
+    "db_id",
+    "evidence",
+    "family_id",
+    "license",
+    "pg_gold_sql",
+    "prompt",
+    "question",
+    "sample_id",
+    "schema_family",
+    "skill",
+    "source_revision",
+    "split",
+    "target_source",
+    "verification"
+  ],
+  "sidecar_fields": [
+    "completion_sha256",
+    "db_id",
+    "family_id",
+    "license",
+    "prompt_sha256",
+    "sample_id",
+    "schema_family",
+    "skill",
+    "source_file",
+    "source_pool",
+    "source_revision",
+    "source_row_sha256",
+    "split",
+    "synthetic_shape",
+    "verification"
+  ]
+}

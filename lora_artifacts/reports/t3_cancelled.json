@@ -1,0 +1,146 @@
+{
+  "task": "t3",
+  "task_title": "Run the full 14B LoRA training (3 epochs, effective batch 16)",
+  "attempt_id": "1af0d4b7-beb2-4f0b-82ca-8939424a3faa",
+  "member": "trainer",
+  "outcome": "cancelled",
+  "cancelled_at_utc": "2026-11-25T02:42:08",
+  "recorded_at_utc": "2026-11-25T02:55:00",
+  "cancellation": {
+    "initiated_by": "captain",
+    "slurm_reason": "CANCELLED by 1600400315",
+    "stated_reasons": [
+      "Owner supplied an external training playbook (research/advtext2sql/docs/playbook/LORA_SFT_PLAYBOOK.md and POSTGRES_TEXT2SQL_LORA.md) that replaces the frozen-recipe approach of this task.",
+      "t9 found that sft_all_v2.jsonl contains 1,018 rows drawn from the reserved OOD schemas, so OOD scores from a model trained on it would be contaminated."
+    ],
+    "resume_allowed": false,
+    "note": "No adapter checkpoint was ever written, so no contaminated model artifact exists to quarantine. Nothing from this run is reusable: the recipe, the corpus and the run directory are all superseded."
+  },
+  "job": {
+    "id": "4877",
+    "name": "lora14b-full",
+    "partition": "gpu",
+    "gres": "gpu:h200:1",
+    "node": "gpu13",
+    "state": "CANCELLED",
+    "exit_code": "0:0",
+    "elapsed": "01:38:31",
+    "started_at": "2026-11-25T01:03:37",
+    "ended_at": "2026-11-25T02:42:08",
+    "squeue_after_cancellation": "empty (no jobs for dadgrand)",
+    "confirmed_by": "squeue -u $USER ; sacct -j 4877 -X -P -o JobID,JobName,State,ExitCode,Elapsed,Start,End,NodeList"
+  },
+  "recipe_attempted": {
+    "source": "$HOME/lora_fullrun/code/run_14b_full.sh -> train_lora.py",
+    "run_config_snapshot_remote": "$HOME/runs/14b-full/run_config.json",
+    "model": "$HOME/models/Qwen2.5-Coder-14B-Instruct",
+    "data": "$HOME/lora_fullrun/data/sft_all_v2.jsonl",
+    "data_sha256": "95540b346d1fcee9463e7778b290f789ab4de134cd8156592ff5ecdf69fc6941",
+    "data_rows": 7925,
+    "corpus_provenance": "t1 artifact research/advtext2sql/cluster/sft_all_v2.jsonl; same sha256 as the local file, so the run can be tied exactly to the corpus t9 flagged as OOD-contaminated",
+    "dtype": "bfloat16 (no 4-bit)",
+    "lora": {
+      "r": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+      "trainable_params": 68812800
+    },
+    "loss": "completion-only (prompt labels masked to -100)",
+    "max_len": 2048,
+    "per_device_batch": 4,
+    "grad_accum": 4,
+    "effective_batch": 16,
+    "lr": 0.00015,
+    "scheduler": "cosine with linear warmup",
+    "warmup_steps": 45,
+    "warmup_ratio": 0.03,
+    "grad_clip": 1.0,
+    "seed": 42,
+    "epochs": 3.0,
+    "steps_planned": 1487,
+    "micro_batches_planned": 5946,
+    "gpu": "NVIDIA H200 NVL (150.1 GB reported by torch)",
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "observed_before_cancellation": {
+    "optimizer_steps_completed": 1035,
+    "steps_planned": 1487,
+    "fraction_of_plan_completed": 0.696,
+    "epochs_completed": 2.0883,
+    "whole_epochs_completed": 2,
+    "samples_consumed": 16560,
+    "tokens_seen_all": 11398624,
+    "tokens_seen_definition": "attention_mask token sums over every micro-batch, i.e. prompt + completion tokens, exactly counted by the trainer",
+    "supervised_tokens_estimate": 849084,
+    "supervised_tokens_estimate_basis": "corpus-level share 0.074490 completion tokens / total tokens, measured exactly on the cluster with the 14B tokenizer over all 7,925 rows under the trainer's 2048 truncation rule (5,460,370 total vs 406,744 supervised tokens per full pass); trainer recorded only the total, so the supervised number is 11,398,624 x 0.074490 and is an estimate, not a counter",
+    "last_loss": 0.003939,
+    "last_lr": 3.35192e-05,
+    "loss_curve_digest": {
+      "points": 1035,
+      "first_step_loss": 0.13562,
+      "mean_first_10pct": 0.04904,
+      "mean_last_10pct": 0.00871,
+      "min": 0.002137,
+      "max": 0.169073,
+      "mean": 0.01753,
+      "epoch1_mean": 0.02507,
+      "epoch2_mean": 0.01107,
+      "epoch3_partial_mean": 0.00559,
+      "nan_or_inf_points": 0
+    },
+    "s_per_step": 5.626,
+    "tokens_per_second": 1957,
+    "peak_vram_gb": 50.02,
+    "peak_vram_note": "torch.cuda.max_memory_allocated, decimal GB; reserved peak was 51.58 GB in the 7B smoke",
+    "loop_wall_time_s": 5823.11,
+    "job_wall_time": "01:38:31 including ~90 s model load and startup",
+    "errors": {
+      "traceback": false,
+      "cuda_oom": false,
+      "nan_loss": false
+    }
+  },
+  "adapter_checkpoint": {
+    "written": false,
+    "expected_path": "~/runs/14b-full/adapter_model.safetensors",
+    "adapter_model_safetensors_present": false,
+    "run_dir_contents": ["run_config.json (1648 bytes, written at 01:04)"],
+    "reason": "trainer saves only at --save-every multiples (configured to 0 for the full run) and at the very end of training; the process was killed 452 steps before the end, so save_pretrained() never ran",
+    "run_summary_json_present": false
+  },
+  "evidence": {
+    "local_mirror_log": {
+      "path": "research/advtext2sql/cluster/cluster_train14b_full.log",
+      "bytes": 22092,
+      "sha256": "c8afdf42d8c97b0c67f2c26e13c67b73d487d280cce778c04cd5838cdcb5d5f3",
+      "content": "startup provenance block (job id, node, nvidia-smi, model and data sizes, torch/transformers/peft versions), trainer config line, and the printed loss line per logged step; no final summary because the job was killed"
+    },
+    "local_mirror_metrics": {
+      "path": "research/advtext2sql/cluster/cluster_train14b_full_metrics.jsonl",
+      "bytes": 158039,
+      "rows": 1035,
+      "sha256": "933b69a3ff170f95c98edcfffc7688ecce52d82084c9c5a06890e2c883994691",
+      "fields": ["step", "epoch", "loss", "lr", "tokens", "elapsed_s", "s_per_step", "peak_vram_gb"]
+    },
+    "watcher_result": {
+      "path": "research/advtext2sql/cluster/train14b_full_result.json",
+      "note": "written by watch_job.py after the job reached a terminal state; ok=false by design for a cancelled job (no summary, no adapter)"
+    },
+    "remote_paths": {
+      "log": "$HOME/lora_fullrun/logs/train14b_full.log",
+      "metrics": "$HOME/lora_fullrun/logs/train14b_full_metrics.jsonl",
+      "run_dir": "$HOME/runs/14b-full",
+      "code": ["$HOME/lora_fullrun/code/train_lora.py", "$HOME/lora_fullrun/code/run_14b_full.sh"],
+      "data": "$HOME/lora_fullrun/data/sft_all_v2.jsonl"
+    },
+    "code_paths": {
+      "trainer": "research/advtext2sql/cluster/train_lora.py",
+      "sbatch_driver": "research/advtext2sql/cluster/run_14b_full.sh",
+      "watcher": "research/advtext2sql/cluster/watch_job.py"
+    }
+  },
+  "what_was_seen": "Job 4877 was submitted at 01:02 UTC, started on gpu13 at 01:03:37 and ran a steady 5.63 s/step at ~1,957 tok/s with a 50.0 GB peak. The trainer reached step 1035 of 1487 (epoch 2.09 of 3) with the cosine schedule at lr 3.35e-05 and a step loss of 0.0039 (epoch means 0.0251 -> 0.0111 -> 0.0056, no NaN, no OOM, no traceback). The captain cancelled it at 02:42:08, 452 steps and roughly 42 minutes short of the end, before any save point: ~/runs/14b-full holds only run_config.json, so no adapter was produced. The corpus the run consumed is the exact t1 file (sha256 95540b34...), which t9 later showed to contain 1,018 rows from reserved OOD schemas; nothing from this run may be reused for OOD numbers.",
+  "next": "Superseded path per captain: wait for t10 (native-PG loader with a cleanliness assertion, expected 4,216 real + 2,691 synthetic rows, zero OOD rows) and t11 (evaluation harness), then run arms A and B exactly as t14 specifies on the clean train split only. If the loader reports counts that differ from t9, stop and report instead of training. No training will be started before that task exists."
+}

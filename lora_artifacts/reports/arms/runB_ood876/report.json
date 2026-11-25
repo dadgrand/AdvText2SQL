@@ -1,0 +1,609 @@
+{
+  "tool": "cluster.eval_shards",
+  "version": 1,
+  "meta": {
+    "generated_at": "2026-11-25T04:08:57+00:00",
+    "predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_ood876.json",
+    "baseline": null,
+    "self_compare": false,
+    "run_label": null,
+    "n_boot": 10000,
+    "seed": 0,
+    "db": "tcp:127.0.0.1:5444",
+    "server_version": "15.15 (Debian 15.15-1.pgdg13+1)",
+    "server_error": null,
+    "instances": {
+      "endpoints": {
+        "default": "tcp:127.0.0.1:5444",
+        "overrides": {}
+      },
+      "versions": {
+        "tcp:127.0.0.1:5444": "15.15 (Debian 15.15-1.pgdg13+1)"
+      }
+    },
+    "offline": false,
+    "contamination": {
+      "dev217": "clean",
+      "ex241": "unknown",
+      "ood876": "clean",
+      "pghard": "no_shard"
+    },
+    "contamination_note": "arms A and B are the first runs trained only on datasets/native_pg/train_main.jsonl (train split of the t9 manifest, 6,499 rows, 1,018 reserved-OOD rows filtered by the loader)",
+    "contamination_finding": "t9 found 1,018 reserve/OOD rows inside cluster/sft_all_v2.jsonl; train_main is that corpus with those rows removed, so a clean status is claimed against the hashed manifest",
+    "split_manifest": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
+      "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02"
+    },
+    "cache": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_cache/exec_cache.json",
+    "workers": 6,
+    "statement_timeout": "20s",
+    "execution": {
+      "executed": 0,
+      "cache_hits": 1799,
+      "skipped_offline": 0,
+      "errors": 0
+    },
+    "ledger_check": null,
+    "results_usable": [
+      "ood876"
+    ],
+    "duration_seconds": 1.4
+  },
+  "shard_order": [
+    "ood876"
+  ],
+  "shards": {
+    "ood876": {
+      "key": "ood876",
+      "title": "OOD-876 (native PG gold, no secondary transpilation)",
+      "quality": "primary",
+      "criterion": "execution_ex",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/ood/ood_heldout.json",
+        "exists": true,
+        "sha256": "32f876bc51cc313425c409a36938e2bd499b0a7727dace442b4130946c8a77c8",
+        "field": "SQL",
+        "rewrite": "none",
+        "criterion": "execution_ex",
+        "n_cases": 876,
+        "n_scored_cases": 876,
+        "n_excluded_cases": 0
+      },
+      "notes": [
+        "PostgreSQL gold is executed verbatim: no sqlglot transpile, no repo_rewrite, no regex. The old OOD report re-transpiled this gold with the SQLite rewrite; this harness measures what that rewrite would change instead of assuming it (see the rewrite audit and the frozen-ledger check).",
+        "Question ids are normalised by numeric suffix (ood:disney:0000 == ood:disney:0) so a run recorded with padded ids still pairs.",
+        "A usable OOD number must come from a model trained on the clean split (t14 run B onwards) and must be scored with --contamination ood876=clean --split-manifest <manifest>; the manifest hash is then printed in the report. Pre-dedupe-fix runs are labelled contaminated_run, not a result."
+      ],
+      "shard": {
+        "n_cases": 876,
+        "file_rows": 876,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 10,
+        "expected_size": 876,
+        "size_matches_expected": true
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 876,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 876,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 811,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 65,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 811,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 755,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 56,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 638,
+        "n": 876,
+        "value": 0.728310502283105,
+        "percent": 72.8310502283105,
+        "wilson95": [
+          0.6979040066857194,
+          0.7567233536896298
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)"
+      },
+      "ex_gold_executable": {
+        "correct": 638,
+        "n": 811,
+        "value": 0.7866831072749692,
+        "percent": 78.66831072749692,
+        "wilson95": [
+          0.757172083866418,
+          0.8134910738948513
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses"
+      },
+      "gold_side": {
+        "executed": 811,
+        "unexecutable": 65,
+        "executable_percent": 92.57990867579909,
+        "categories": {
+          "undefined_function": 31,
+          "undefined_column": 22,
+          "sql_error": 5,
+          "syntax_error": 5,
+          "datatype_mismatch": 1,
+          "invalid_text_representation": 1
+        },
+        "unexecutable_ids": [
+          "ood:disney:0",
+          "ood:disney:2",
+          "ood:disney:37",
+          "ood:european_football_1:103",
+          "ood:european_football_1:112",
+          "ood:menu:212",
+          "ood:movie_3:278",
+          "ood:movie_3:317",
+          "ood:movie_3:363",
+          "ood:movie_3:371",
+          "ood:movie_3:388",
+          "ood:movie_3:413",
+          "ood:movie_3:421",
+          "ood:movie_3:430",
+          "ood:movie_3:461",
+          "ood:movie_3:464",
+          "ood:movie_3:468",
+          "ood:movies_4:551",
+          "ood:movies_4:554",
+          "ood:movies_4:575",
+          "ood:movies_4:580",
+          "ood:movies_4:581",
+          "ood:sales_in_weather:643",
+          "ood:sales_in_weather:646",
+          "ood:sales_in_weather:660",
+          "ood:sales_in_weather:661",
+          "ood:sales_in_weather:662",
+          "ood:sales_in_weather:664",
+          "ood:sales_in_weather:665",
+          "ood:sales_in_weather:669",
+          "ood:sales_in_weather:671",
+          "ood:sales_in_weather:672",
+          "ood:sales_in_weather:677",
+          "ood:sales_in_weather:679",
+          "ood:sales_in_weather:687",
+          "ood:sales_in_weather:692",
+          "ood:sales_in_weather:696",
+          "ood:sales_in_weather:698",
+          "ood:social_media:707",
+          "ood:social_media:708",
+          "ood:social_media:712",
+          "ood:social_media:713",
+          "ood:social_media:714",
+          "ood:social_media:718",
+          "ood:social_media:719",
+          "ood:social_media:720",
+          "ood:social_media:726",
+          "ood:social_media:727",
+          "ood:social_media:728",
+          "ood:social_media:735",
+          "ood:social_media:736",
+          "ood:social_media:740",
+          "ood:social_media:745",
+          "ood:social_media:746",
+          "ood:social_media:749",
+          "ood:social_media:750",
+          "ood:social_media:752",
+          "ood:social_media:755",
+          "ood:social_media:759",
+          "ood:talkingdata:769",
+          "ood:talkingdata:806",
+          "ood:talkingdata:811",
+          "ood:talkingdata:815",
+          "ood:talkingdata:854",
+          "ood:talkingdata:856"
+        ],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 755,
+        "unexecutable": 56,
+        "missing": 0,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {
+          "undefined_column": 38,
+          "invalid_text_representation": 6,
+          "sql_error": 6,
+          "undefined_function": 2,
+          "invalid_datetime_format": 1,
+          "query_timeout": 1,
+          "syntax_error": 1,
+          "undefined_table": 1
+        },
+        "unexecutable_ids": [
+          "ood:disney:16",
+          "ood:disney:28",
+          "ood:disney:30",
+          "ood:disney:31",
+          "ood:disney:34",
+          "ood:disney:35",
+          "ood:disney:46",
+          "ood:disney:51",
+          "ood:disney:53",
+          "ood:disney:6",
+          "ood:disney:64",
+          "ood:disney:71",
+          "ood:disney:72",
+          "ood:european_football_1:111",
+          "ood:european_football_1:85",
+          "ood:law_episode:137",
+          "ood:law_episode:143",
+          "ood:law_episode:172",
+          "ood:law_episode:197",
+          "ood:menu:207",
+          "ood:menu:208",
+          "ood:menu:209",
+          "ood:menu:254",
+          "ood:menu:262",
+          "ood:movie_3:286",
+          "ood:movie_3:302",
+          "ood:movie_3:311",
+          "ood:movie_3:312",
+          "ood:movie_3:319",
+          "ood:movie_3:329",
+          "ood:movie_3:362",
+          "ood:movie_3:386",
+          "ood:movie_3:396",
+          "ood:movie_3:408",
+          "ood:movie_3:431",
+          "ood:movie_3:436",
+          "ood:movie_3:443",
+          "ood:movie_3:449",
+          "ood:movies_4:476",
+          "ood:movies_4:500",
+          "ood:movies_4:514",
+          "ood:movies_4:526",
+          "ood:movies_4:567",
+          "ood:movies_4:595",
+          "ood:sales_in_weather:650",
+          "ood:sales_in_weather:653",
+          "ood:sales_in_weather:666",
+          "ood:sales_in_weather:674",
+          "ood:sales_in_weather:688",
+          "ood:sales_in_weather:699",
+          "ood:talkingdata:772",
+          "ood:talkingdata:798",
+          "ood:talkingdata:828",
+          "ood:talkingdata:829",
+          "ood:talkingdata:834",
+          "ood:talkingdata:845"
+        ],
+        "not_attempted_because_gold_failed": 65
+      },
+      "micro": {
+        "correct": 638,
+        "n": 811,
+        "value": 0.7866831072749692,
+        "percent": 78.66831072749692,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)"
+      },
+      "macro": {
+        "mean_ex": 0.7767051222524407,
+        "n_databases": 10,
+        "n_databases_in_shard": 10,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case"
+      },
+      "per_database": {
+        "disney": {
+          "n_cases": 77,
+          "gold_executable": 74,
+          "correct": 47,
+          "ex_all": 0.6103896103896104,
+          "ex_gold_executable": 0.6351351351351351,
+          "wilson95_gold_executable": [
+            0.521318134077069,
+            0.7356143577779322
+          ],
+          "pred_unexecutable": 13,
+          "gold_unexecutable": 3,
+          "gold_unexecutable_categories": {
+            "sql_error": 1,
+            "undefined_column": 1,
+            "undefined_function": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "european_football_1": {
+          "n_cases": 38,
+          "gold_executable": 36,
+          "correct": 26,
+          "ex_all": 0.6842105263157895,
+          "ex_gold_executable": 0.7222222222222222,
+          "wilson95_gold_executable": [
+            0.560075098694387,
+            0.8415166213194445
+          ],
+          "pred_unexecutable": 2,
+          "gold_unexecutable": 2,
+          "gold_unexecutable_categories": {
+            "datatype_mismatch": 1,
+            "undefined_column": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "law_episode": {
+          "n_cases": 89,
+          "gold_executable": 89,
+          "correct": 67,
+          "ex_all": 0.7528089887640449,
+          "ex_gold_executable": 0.7528089887640449,
+          "wilson95_gold_executable": [
+            0.6539796160207458,
+            0.8307176360715063
+          ],
+          "pred_unexecutable": 4,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "menu": {
+          "n_cases": 69,
+          "gold_executable": 68,
+          "correct": 47,
+          "ex_all": 0.6811594202898551,
+          "ex_gold_executable": 0.6911764705882353,
+          "wilson95_gold_executable": [
+            0.5736318821037136,
+            0.7882761359803836
+          ],
+          "pred_unexecutable": 5,
+          "gold_unexecutable": 1,
+          "gold_unexecutable_categories": {
+            "sql_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "movie_3": {
+          "n_cases": 200,
+          "gold_executable": 189,
+          "correct": 145,
+          "ex_all": 0.725,
+          "ex_gold_executable": 0.7671957671957672,
+          "wilson95_gold_executable": [
+            0.7019880668335059,
+            0.8217582301812392
+          ],
+          "pred_unexecutable": 14,
+          "gold_unexecutable": 11,
+          "gold_unexecutable_categories": {
+            "undefined_function": 10,
+            "syntax_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "movies_4": {
+          "n_cases": 139,
+          "gold_executable": 134,
+          "correct": 114,
+          "ex_all": 0.8201438848920863,
+          "ex_gold_executable": 0.8507462686567164,
+          "wilson95_gold_executable": [
+            0.7806868619560686,
+            0.90125600750347
+          ],
+          "pred_unexecutable": 6,
+          "gold_unexecutable": 5,
+          "gold_unexecutable_categories": {
+            "syntax_error": 3,
+            "sql_error": 1,
+            "undefined_function": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "music_tracker": {
+          "n_cases": 31,
+          "gold_executable": 31,
+          "correct": 26,
+          "ex_all": 0.8387096774193549,
+          "ex_gold_executable": 0.8387096774193549,
+          "wilson95_gold_executable": [
+            0.6736564589149602,
+            0.9290737560150889
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "sales_in_weather": {
+          "n_cases": 58,
+          "gold_executable": 42,
+          "correct": 28,
+          "ex_all": 0.4827586206896552,
+          "ex_gold_executable": 0.6666666666666666,
+          "wilson95_gold_executable": [
+            0.5155250725648455,
+            0.789875330076184
+          ],
+          "pred_unexecutable": 6,
+          "gold_unexecutable": 16,
+          "gold_unexecutable_categories": {
+            "undefined_function": 14,
+            "invalid_text_representation": 1,
+            "syntax_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "social_media": {
+          "n_cases": 60,
+          "gold_executable": 39,
+          "correct": 35,
+          "ex_all": 0.5833333333333334,
+          "ex_gold_executable": 0.8974358974358975,
+          "wilson95_gold_executable": [
+            0.7642114540654643,
+            0.9593866868357126
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 21,
+          "gold_unexecutable_categories": {
+            "undefined_column": 20,
+            "sql_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "talkingdata": {
+          "n_cases": 115,
+          "gold_executable": 109,
+          "correct": 103,
+          "ex_all": 0.8956521739130435,
+          "ex_gold_executable": 0.944954128440367,
+          "wilson95_gold_executable": [
+            0.8850827252372058,
+            0.9745304077517918
+          ],
+          "pred_unexecutable": 6,
+          "gold_unexecutable": 6,
+          "gold_unexecutable_categories": {
+            "undefined_function": 5,
+            "sql_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "unknown": {
+          "n_cases": 876,
+          "gold_executable": 811,
+          "correct": 638,
+          "ex_all": 0.728310502283105,
+          "ex_gold_executable": 0.7866831072749692,
+          "wilson95_gold_executable": [
+            0.757172083866418,
+            0.8134910738948513
+          ],
+          "pred_unexecutable": 56,
+          "gold_unexecutable": 65,
+          "gold_unexecutable_categories": {
+            "undefined_function": 31,
+            "undefined_column": 22,
+            "sql_error": 5,
+            "syntax_error": 5,
+            "datatype_mismatch": 1,
+            "invalid_text_representation": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "status": "no_baseline"
+      },
+      "self_comparison": null,
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "not_possible",
+          "reason": "the OOD-876 databases are BIRD train databases; their SQLite originals are not shipped locally (only the eight dev SQLite files are present), so a SQLite-vs-PostgreSQL drift audit cannot be run. Native PostgreSQL gold stays the reference; the 65 unexecutable gold ids are listed in this report."
+        },
+        "excluded": [],
+        "excluded_ids": [],
+        "reviewed_corrections": {
+          "n": 0,
+          "ids": [],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": []
+        },
+        "row_origin": {
+          "scored_rows": 876,
+          "original_rows": 876,
+          "reviewed_rows": 0,
+          "excluded_rows": 0
+        },
+        "pre_policy": {
+          "n_cases": 876,
+          "gold_executable": 811,
+          "correct": 638,
+          "value": 0.7866831072749692,
+          "percent": 78.66831072749692,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 811,
+          "correct": 638,
+          "value": 0.7866831072749692,
+          "percent": 78.66831072749692,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "scored",
+      "criteria": null,
+      "per_skill": {},
+      "execution_stats": {
+        "unique_gold_queries": 876,
+        "unique_prediction_queries": 867
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 876,
+        "n_altered_by_historical_rewrite": 28,
+        "n_broken_by_historical_rewrite": 0,
+        "n_native_unparseable": 0,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "ok",
+          "n_altered": 28,
+          "n_same_result": 23,
+          "n_result_differs": 0,
+          "n_rewrite_fails": 5,
+          "n_rewrite_fails_that_native_survives": 0,
+          "new_failure_ids": [],
+          "result_difference_ids": [],
+          "denominator": "gold queries altered by the historical rewrite",
+          "note": "Execution-level check: rewritten gold is run on the same database and its row digest is compared with the native result. n_rewrite_fails_that_native_survives counts gold that the old pipeline would have lost; n_result_differs counts gold whose answer the rewrite would silently change."
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/arms/runB_ood876/per_question_ood876.jsonl",
+      "contamination": {
+        "status": "clean",
+        "label": "clean split",
+        "result_usable": true,
+        "note": "arms A and B are the first runs trained only on datasets/native_pg/train_main.jsonl (train split of the t9 manifest, 6,499 rows, 1,018 reserved-OOD rows filtered by the loader)",
+        "finding": "t9 found 1,018 reserve/OOD rows inside cluster/sft_all_v2.jsonl; train_main is that corpus with those rows removed, so a clean status is claimed against the hashed manifest",
+        "split_manifest": {
+          "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
+          "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{"sample_id": "synth-00493", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL selects requested columns filtered by credited true"}
+{"sample_id": "synth-01969", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL selects requested columns filtered by nlns f"}
+{"sample_id": "synth-02406", "variant": 1, "verdict": "match", "defect": null, "reason": "Top 10 by royalty matches highest royalty tiers"}
+{"sample_id": "synth-02566", "variant": 1, "verdict": "match", "defect": null, "reason": "Top 10 by sample date matches newest sample dates"}
+{"sample_id": "synth-02723", "variant": 2, "verdict": "match", "defect": null, "reason": "Top 5 by person_id matches largest person numbers"}
+{"sample_id": "synth-04409", "variant": 1, "verdict": "match", "defect": null, "reason": "Join and filter retrieve staff for Level_400 courses"}
+{"sample_id": "synth-04459", "variant": 2, "verdict": "match", "defect": null, "reason": "Join and filter retrieve dates for specific owner address"}
+{"sample_id": "synth-04564", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly filters teams with 7 losses and selects scoring years."}
+{"sample_id": "synth-04651", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly filters objects with height 96 and selects attribute classes."}
+{"sample_id": "synth-04668", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly filters images with object x=97 and selects relationship types."}
+{"sample_id": "synth-05336", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly identifies max goals teams 44 bench minors and selects SHG."}
+{"sample_id": "synth-05353", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly identifies max games teams 7 shots and selects winner league."}
+{"sample_id": "synth-05665", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly filters manufacturer with min revenue and selects shipment dates."}
+{"sample_id": "synth-05684", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly filters Ohio-born min height and selects credit categories."}
+{"sample_id": "synth-05875", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly calculates max departure time per origin airport and joins description."}
+{"sample_id": "synth-05884", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves max card number per root beer with container type."}
+{"sample_id": "synth-05969", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves ingredient name and max min_qty per ingredient."}
+{"sample_id": "synth-06100", "variant": 2, "verdict": "mismatch", "defect": "wrong_entity", "reason": "Question asks short-handed goals (shf) but SQL selects teams.shf, not goalies stats."}
+{"sample_id": "synth-06182", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves max district per state abbreviation."}
+{"sample_id": "synth-06377", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves ingredient plural and max min_qty per ingredient."}
+{"sample_id": "synth-06415", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly retrieves max optional support per project with resource type."}
+{"sample_id": "synth-06556", "variant": 2, "verdict": "match", "defect": null, "reason": "SQL correctly filters playoff records by team overtime losses and selects penalty"}
+{"sample_id": "synth-07169", "variant": 1, "verdict": "match", "defect": null, "reason": "SQL correctly joins authors and books filtered by publication date."}

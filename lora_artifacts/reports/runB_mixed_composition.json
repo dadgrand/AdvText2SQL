@@ -1,0 +1,127 @@
+{
+  "generated_at_utc": "2026-11-25T04:19:59Z",
+  "rule": "supervised tokens = completion + EOS kept after the prompt reserve, exactly what cluster/train_lora.CompletionOnlyDataset labels",
+  "max_len": 2048,
+  "train_main": {
+    "path": "/home/dadgrand/lora_fullrun/data/train_main.jsonl",
+    "sha256": "60f3a104c66d32d084b5517fdae810128a5650e2418be73b2f16c333fc04a167",
+    "rows": 6499,
+    "rows_by_source": {
+      "native_pg_gold": 4112,
+      "native_pg_synthetic": 2387
+    },
+    "supervised_tokens_by_source": {
+      "native_pg_gold": 213573,
+      "native_pg_synthetic": 138848
+    },
+    "total_tokens_by_source": {
+      "native_pg_gold": 2579128,
+      "native_pg_synthetic": 1455635
+    },
+    "supervised_token_share_by_source": {
+      "native_pg_gold": 0.606017,
+      "native_pg_synthetic": 0.393983
+    },
+    "supervised_tokens_total": 352421,
+    "supervised_tokens_per_row": {
+      "native_pg_gold": 51.94,
+      "native_pg_synthetic": 58.17
+    },
+    "evidence_rows": {
+      "real": 3804,
+      "synthetic": 398,
+      "other": 0
+    },
+    "evidence_share": {
+      "real": 0.9251,
+      "synthetic": 0.1667
+    },
+    "databases": {
+      "real": 51,
+      "synthetic": 49
+    },
+    "by_source": {
+      "native_pg_gold": {
+        "rows": 4112,
+        "supervised_tokens": 213573,
+        "total_tokens": 2579128
+      },
+      "native_pg_synthetic": {
+        "rows": 2387,
+        "supervised_tokens": 138848,
+        "total_tokens": 1455635
+      }
+    }
+  },
+  "train_long_schema": {
+    "path": "/home/dadgrand/lora_fullrun/data/train_long_schema.jsonl",
+    "sha256": "1a3ddb77eacccb034e2f85ae031f6a7b3839dc8c410fbdf4d3eefa452bfc96df",
+    "rows": 408,
+    "rows_by_source": {
+      "native_pg_gold": 104,
+      "native_pg_synthetic": 304
+    },
+    "supervised_tokens_by_source": {
+      "native_pg_gold": 832,
+      "native_pg_synthetic": 2432
+    },
+    "total_tokens_by_source": {
+      "native_pg_gold": 212992,
+      "native_pg_synthetic": 622592
+    },
+    "supervised_token_share_by_source": {
+      "native_pg_gold": 0.254902,
+      "native_pg_synthetic": 0.745098
+    },
+    "supervised_tokens_total": 3264,
+    "supervised_tokens_per_row": {
+      "native_pg_gold": 8.0,
+      "native_pg_synthetic": 8.0
+    },
+    "evidence_rows": {
+      "real": 100,
+      "synthetic": 36,
+      "other": 0
+    },
+    "evidence_share": {
+      "real": 0.9615,
+      "synthetic": 0.1184
+    },
+    "databases": {
+      "real": 1,
+      "synthetic": 1
+    },
+    "by_source": {
+      "native_pg_gold": {
+        "rows": 104,
+        "supervised_tokens": 832,
+        "total_tokens": 212992
+      },
+      "native_pg_synthetic": {
+        "rows": 304,
+        "supervised_tokens": 2432,
+        "total_tokens": 622592
+      }
+    }
+  },
+  "run_b_mixed": {
+    "corpus": "/home/dadgrand/lora_fullrun/data/train_main.jsonl",
+    "corpus_sha256": "60f3a104c66d32d084b5517fdae810128a5650e2418be73b2f16c333fc04a167",
+    "rows": 6499,
+    "rows_real": 4112,
+    "rows_synthetic": 2387,
+    "supervised_tokens_total": 352421,
+    "supervised_tokens_real": 213573,
+    "supervised_tokens_synthetic": 138848,
+    "optimizer_steps": 407,
+    "stated_budget": 352421,
+    "verdict": "mixed corpus, NOT real-only"
+  },
+  "b_real_budget": {
+    "real_rows_in_train_main": 4112,
+    "real_supervised_tokens_per_epoch": 213573,
+    "target_supervised_tokens": 352421,
+    "epochs_needed_exact": 1.6501,
+    "note": "the real-only control repeats the 4,112 real rows; the 104 over-budget real rows in train_long_schema are excluded by the same long-schema filter B_mixed used, so 4,216 is the pre-filter real count"
+  }
+}

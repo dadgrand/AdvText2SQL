@@ -1,0 +1,1100 @@
+{
+  "name": "pg_hard",
+  "version": 1,
+  "status": "frozen",
+  "frozen_at_utc": "2026-11-25T03:17:40+00:00",
+  "purpose": "pre-closed hand-authored PostgreSQL hard test set; schema families and questions did not exist before this build",
+  "playbook": "docs/playbook/POSTGRES_TEXT2SQL_LORA.md sections 3 and 6 (PG-hard: prediction must match the oracle on all fixtures)",
+  "contract": {
+    "schema_count": [
+      10,
+      15
+    ],
+    "questions_per_schema": [
+      8,
+      12
+    ],
+    "comparison_modes": [
+      "bag",
+      "ordered"
+    ],
+    "skills": {
+      "grain_fanout_antijoin": "grain, fan-out, anti-join",
+      "topn_ties": "top-N and windows with ties",
+      "asof_state": "state as of a point in time",
+      "periods_timezones": "periods, timezone, intervals",
+      "window_frames_cohorts": "window frames, cohorts",
+      "jsonb_arrays": "JSONB and arrays",
+      "compositional": "compositional analytics",
+      "hierarchies": "hierarchies"
+    },
+    "scoring": "share of questions where the prediction matches the gold result under the question's comparison mode on every fixture",
+    "student_visible_fields": [
+      "question",
+      "evidence"
+    ],
+    "evaluation_fields": [
+      "qid",
+      "db_id",
+      "skill",
+      "comparison",
+      "tie_policy"
+    ]
+  },
+  "server": {
+    "engine": "PostgreSQL 16.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 10.2.1 20210130 (Red Hat 10.2.1-11), 64-bit",
+    "datadir": "/home/stonemonkey/.cache/advtext2sql/pghard_pgdata",
+    "connection": "unix socket host=/home/stonemonkey/.cache/advtext2sql/pghard_pgdata dbname=pghard_<slug>",
+    "timezone": "UTC",
+    "statement_timeout": "20s",
+    "readonly_role": {
+      "name": "pghard_readonly",
+      "password": "pghard_readonly",
+      "grants": [
+        "pg_read_all_data",
+        "default_transaction_read_only=on"
+      ]
+    }
+  },
+  "schemas": [
+    {
+      "db_id": "pghard_ride_hailing",
+      "slug": "ride_hailing",
+      "domain": "ride-hailing marketplace: trips, split payments, refunds, as-of driver rates, city zone tree",
+      "tables": 6,
+      "columns": 25,
+      "fingerprint": "de946d47ba7f1f88b32b37dd189582a5a9e4ae1fcb29b74debd6b13b7ccc3b57",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "driver_rates",
+          [
+            "driver_id",
+            "rate_per_km",
+            "valid_from"
+          ]
+        ],
+        [
+          "drivers",
+          [
+            "driver_id",
+            "name",
+            "status",
+            "zone_id"
+          ]
+        ],
+        [
+          "payments",
+          [
+            "amount",
+            "kind",
+            "payment_id",
+            "trip_id"
+          ]
+        ],
+        [
+          "refunds",
+          [
+            "amount",
+            "refund_id",
+            "trip_id"
+          ]
+        ],
+        [
+          "trips",
+          [
+            "attrs",
+            "distance_km",
+            "driver_id",
+            "started_at",
+            "status",
+            "tags",
+            "trip_id"
+          ]
+        ],
+        [
+          "zones",
+          [
+            "city",
+            "name",
+            "parent_id",
+            "zone_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "30851e2002054223a6ab36a9e822a7ac9dd3a53567d9020ba38440985ff5089d",
+      "data_sha256": "bebb69d69e19c1bb1eb8fba17eb68c2cbb16c142134b6d3dd284a5b68ecf5a7e",
+      "rows_per_table": {
+        "zones": 9,
+        "drivers": 5,
+        "driver_rates": 8,
+        "trips": 14,
+        "payments": 15,
+        "refunds": 5
+      },
+      "notes": [
+        "Split payments with refunds make the fan-out question distinguish EXISTS from a plain join.",
+        "Rates change on 2024-03-01 / 2024-03-05 / 2024-03-10, so an as-of join and a plain max-rate join differ.",
+        "Trips at 22:30 and 23:30 UTC cross the Berlin midnight boundary for the local-day question.",
+        "Drivers 2 and 5 both net 81.00, so the top-2 tie-break (smaller driver_id) is exercised, not assumed."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0769,
+        "db_id": "car_retails",
+        "table_jaccard": 0.0769,
+        "column_jaccard": 0.012
+      }
+    },
+    {
+      "db_id": "pghard_retail_orders",
+      "slug": "retail_orders",
+      "domain": "retail orders: product category tree, list-price history, order lines, partial returns",
+      "tables": 6,
+      "columns": 26,
+      "fingerprint": "ea278d746164fdad1c7de0ee7079127f0c983398097b63e451422981f74a7977",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "categories",
+          [
+            "category_id",
+            "name",
+            "parent_id"
+          ]
+        ],
+        [
+          "order_items",
+          [
+            "order_id",
+            "product_id",
+            "quantity",
+            "unit_price"
+          ]
+        ],
+        [
+          "orders",
+          [
+            "customer_id",
+            "order_id",
+            "placed_at",
+            "promo_codes",
+            "shipping",
+            "status"
+          ]
+        ],
+        [
+          "product_prices",
+          [
+            "list_price",
+            "product_id",
+            "valid_from"
+          ]
+        ],
+        [
+          "products",
+          [
+            "attributes",
+            "category_id",
+            "name",
+            "product_id",
+            "tags"
+          ]
+        ],
+        [
+          "returns",
+          [
+            "order_id",
+            "product_id",
+            "quantity",
+            "refunded",
+            "return_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "ed6b803336d5cfd94561b6aa67f71e1a2482625681879946a73932a19b13afb5",
+      "data_sha256": "a96c398705bbaa981502edd17494a23bc24d59089f0a929336cf2aed3657c659",
+      "rows_per_table": {
+        "categories": 7,
+        "products": 6,
+        "product_prices": 8,
+        "orders": 7,
+        "order_items": 13,
+        "returns": 7
+      },
+      "notes": [
+        "Order 4 is fully returned (2 laptops plus 1 laptop), order 2 is partly returned, order 1 is partly returned.",
+        "Products 1 and 4 both net 368.00, so the top-3 tie-break (smaller product_id) is exercised at the cutoff.",
+        "The 2024-03-10 price change for product 3 separates an as-of valuation from a current-price valuation.",
+        "Orders placed at 23:30 UTC and around local Tokyo midnight exercise the week boundary."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.2727,
+        "db_id": "retail_world",
+        "table_jaccard": 0.2727,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_streaming",
+      "slug": "streaming",
+      "domain": "streaming service: genre tree, plan prices over time, subscriptions and play sessions",
+      "tables": 5,
+      "columns": 25,
+      "fingerprint": "36c74995d72baf63490914b3ed555109f9f9250d72853161465f2647f1d98257",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "genres",
+          [
+            "genre_id",
+            "name",
+            "parent_id"
+          ]
+        ],
+        [
+          "plan_prices",
+          [
+            "monthly_price",
+            "plan",
+            "valid_from"
+          ]
+        ],
+        [
+          "plays",
+          [
+            "device",
+            "play_id",
+            "played_at",
+            "seconds_watched",
+            "subscription_id",
+            "tags",
+            "title_id"
+          ]
+        ],
+        [
+          "subscriptions",
+          [
+            "cancelled_at",
+            "plan",
+            "started_at",
+            "subscription_id",
+            "user_id"
+          ]
+        ],
+        [
+          "titles",
+          [
+            "attributes",
+            "duration_seconds",
+            "genre_id",
+            "name",
+            "release_year",
+            "tags",
+            "title_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "91e3648eaf22fb7b207bd6dceccc8f1dea62a35ebfd0d46c16f0a1c8ac0e8ee1",
+      "data_sha256": "73eeac680e4dab3f0a1025f94435acfa949290a38d72cfeeee136c64b98ff785",
+      "rows_per_table": {
+        "genres": 8,
+        "titles": 8,
+        "plan_prices": 4,
+        "subscriptions": 6,
+        "plays": 15
+      },
+      "notes": [
+        "The week 4-10 March 2024 contains the US daylight-saving switch; 06:30 and 07:30 UTC both fall on 10 March locally.",
+        "Plan prices change on 2024-02-15 and 2024-03-01, and subscription 3 starts one hour before the premium change.",
+        "Title 7 has no plays at all, so it anchors the anti-join question.",
+        "Titles 1 and 6 both total 6600 seconds, so the top-3 tie-break (smaller title_id) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0667,
+        "db_id": "book_publishing_company",
+        "table_jaccard": 0.0667,
+        "column_jaccard": 0.0114
+      }
+    },
+    {
+      "db_id": "pghard_banking",
+      "slug": "banking",
+      "domain": "banking ledger: account tree, double-entry postings, chargebacks, fee-tier history",
+      "tables": 5,
+      "columns": 22,
+      "fingerprint": "1189b23bd91279ec394bd46656180b21564e285cebc63339e2196a387456107c",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "account_tiers",
+          [
+            "account_id",
+            "monthly_fee",
+            "tier",
+            "valid_from"
+          ]
+        ],
+        [
+          "accounts",
+          [
+            "account_id",
+            "currency",
+            "name",
+            "parent_account_id"
+          ]
+        ],
+        [
+          "chargebacks",
+          [
+            "amount",
+            "chargeback_id",
+            "txn_id"
+          ]
+        ],
+        [
+          "postings",
+          [
+            "amount",
+            "direction",
+            "posting_id",
+            "txn_id"
+          ]
+        ],
+        [
+          "transactions",
+          [
+            "account_id",
+            "amount",
+            "channel",
+            "posted_at",
+            "status",
+            "tags",
+            "txn_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "7aad931b2678df42a1b1b70761c7577d90671f658d56db2e737998a6f5380b36",
+      "data_sha256": "afdbd2428a42ac0c0fb61382f03f25f7ee987455c5fbfd10b804245a65348c9b",
+      "rows_per_table": {
+        "accounts": 6,
+        "account_tiers": 6,
+        "transactions": 12,
+        "postings": 15,
+        "chargebacks": 4
+      },
+      "notes": [
+        "Transaction 3 has two postings and two chargebacks, so a plain join multiplies both sides.",
+        "The 05:30 UTC offset makes the 18:20 and 18:29 UTC transactions land on different India days than in UTC.",
+        "Account 4 switches to the business tier on 2024-02-01, so the as-of answer differs from the current tier.",
+        "Accounts 3 and 6 tie at 30000.00, so the top-2 tie-break (smaller account_id) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_logistics",
+      "slug": "logistics",
+      "domain": "freight logistics: warehouse tree, carrier rate history, shipment legs, customs data",
+      "tables": 5,
+      "columns": 24,
+      "fingerprint": "dd5cf0ec0942a2842d0fdb99447cfe8a77dff294f538b03963fefefdbc0a948f",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "carrier_rates",
+          [
+            "carrier",
+            "rate_per_kg",
+            "valid_from"
+          ]
+        ],
+        [
+          "exceptions",
+          [
+            "cost",
+            "exception_id",
+            "kind",
+            "shipment_id"
+          ]
+        ],
+        [
+          "shipment_legs",
+          [
+            "distance_km",
+            "duration_hours",
+            "leg_id",
+            "leg_no",
+            "shipment_id"
+          ]
+        ],
+        [
+          "shipments",
+          [
+            "carrier",
+            "customs",
+            "origin_warehouse_id",
+            "shipment_id",
+            "shipped_at",
+            "status",
+            "tags",
+            "weight_kg"
+          ]
+        ],
+        [
+          "warehouses",
+          [
+            "name",
+            "parent_id",
+            "region",
+            "warehouse_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "ae347996c591d0a0da1d51c3fa4c2ddce21eed6626d58e14d7386bbd3b275ab6",
+      "data_sha256": "18f46e483b50732bb8a2d08d2f67a83765f3025bf464c08e87ae2d6bb7ec852e",
+      "rows_per_table": {
+        "warehouses": 6,
+        "carrier_rates": 5,
+        "shipments": 10,
+        "shipment_legs": 14,
+        "exceptions": 5
+      },
+      "notes": [
+        "Shipment 2 has two exceptions and two legs, so a plain join doubles the distance.",
+        "Carrier rate changes on 2024-02-15 and 2024-03-01 make the as-of cost differ from the current rate.",
+        "The 22:30 and 23:30 UTC departures land on different Sydney days than in UTC.",
+        "Alpine and Pacific both move 4400.00 kg, so the top-2 tie-break (carrier name) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_healthcare",
+      "slug": "healthcare",
+      "domain": "hospital operations: department tree, protocol cost history, encounters, procedures",
+      "tables": 5,
+      "columns": 22,
+      "fingerprint": "ed12d377037bcc6993f662c5b4cbc5542f38a2483a66fa4660e3c902b72cc9e9",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "departments",
+          [
+            "building",
+            "department_id",
+            "name",
+            "parent_id"
+          ]
+        ],
+        [
+          "encounters",
+          [
+            "admitted_at",
+            "department_id",
+            "discharged_at",
+            "encounter_id",
+            "protocol",
+            "status",
+            "tags",
+            "vitals"
+          ]
+        ],
+        [
+          "procedures",
+          [
+            "code",
+            "cost",
+            "encounter_id",
+            "procedure_id"
+          ]
+        ],
+        [
+          "protocol_versions",
+          [
+            "base_cost",
+            "protocol",
+            "valid_from"
+          ]
+        ],
+        [
+          "readmissions",
+          [
+            "days_to_readmit",
+            "encounter_id",
+            "readmission_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "0509d5ef1f43afde6b3a171cc5f3df90fb5e8ad32be683c19dd274d06cc93d9e",
+      "data_sha256": "90d2e9c82fa27dd9112b26c8e62146b9c5bfb8d31320eba421550587b455467c",
+      "rows_per_table": {
+        "departments": 6,
+        "protocol_versions": 5,
+        "encounters": 8,
+        "procedures": 9,
+        "readmissions": 3
+      },
+      "notes": [
+        "Encounter 2 has two readmissions and two procedures, so a plain join doubles the cost.",
+        "The chest_pain protocol cost changes on 2024-03-01, which separates an as-of answer from the current cost.",
+        "Admissions at 22:30 and 23:30 UTC fall on different Berlin days than in UTC.",
+        "Departments 2 and 3 both total 2160.00, so the top-2 tie-break (smaller department_id) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.1429,
+        "db_id": "synthea",
+        "table_jaccard": 0.1429,
+        "column_jaccard": 0.0094
+      }
+    },
+    {
+      "db_id": "pghard_education",
+      "slug": "education",
+      "domain": "university records: program tree, course prerequisite DAG, tuition history, enrollments",
+      "tables": 5,
+      "columns": 21,
+      "fingerprint": "b825ee322b04b633aed28a2ce71031c8b052dfcc2e2bf4918a4d2e4afe97a2c7",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "courses",
+          [
+            "attributes",
+            "course_id",
+            "credits",
+            "program_id",
+            "title",
+            "topics"
+          ]
+        ],
+        [
+          "enrollments",
+          [
+            "course_id",
+            "enrolled_at",
+            "enrollment_id",
+            "grade",
+            "status",
+            "student_id",
+            "submission"
+          ]
+        ],
+        [
+          "prerequisites",
+          [
+            "course_id",
+            "prerequisite_course_id"
+          ]
+        ],
+        [
+          "programs",
+          [
+            "level",
+            "name",
+            "parent_id",
+            "program_id"
+          ]
+        ],
+        [
+          "tuition_rates",
+          [
+            "rate_per_credit",
+            "valid_from"
+          ]
+        ]
+      ],
+      "ddl_sha256": "9de589d12252f6c0f7ddda941d9c098ce02b9033785d56157b3f44cbe10d210e",
+      "data_sha256": "39ccdcc99c97cfd7de3792c6cfd8d14c6bee31e973ab746ea6e55cceb8cd51e4",
+      "rows_per_table": {
+        "programs": 5,
+        "courses": 6,
+        "tuition_rates": 2,
+        "enrollments": 15,
+        "prerequisites": 5
+      },
+      "notes": [
+        "The prerequisite relation is a DAG: Databases needs Data Structures, which needs Programming Basics.",
+        "The per-credit rate changes on 2024-03-01, so enrolments before and after it differ in tuition cost.",
+        "Courses 2 and 6 both average 88.00, so the top-2 tie-break (smaller course_id) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_energy",
+      "slug": "energy",
+      "domain": "energy grid: site tree, tariff history per site, meter readings with adjustments",
+      "tables": 4,
+      "columns": 17,
+      "fingerprint": "e00789ab4302b320edbeba3c70cea9b49ddb6dfd157e2352e430d7af75ea113d",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "adjustments",
+          [
+            "adjustment_id",
+            "delta_kwh",
+            "reading_id"
+          ]
+        ],
+        [
+          "readings",
+          [
+            "device",
+            "kwh",
+            "read_at",
+            "reading_id",
+            "site_id",
+            "tags"
+          ]
+        ],
+        [
+          "sites",
+          [
+            "kind",
+            "name",
+            "parent_id",
+            "site_id"
+          ]
+        ],
+        [
+          "tariff_history",
+          [
+            "price_per_kwh",
+            "site_id",
+            "tariff",
+            "valid_from"
+          ]
+        ]
+      ],
+      "ddl_sha256": "dd6bd94dddc1ec5e12c109ffbeb2599505e4be0755b6bcbfc67337c1b976f0d3",
+      "data_sha256": "42cf0c7d3248fa3b0a0b1e0d5bbb98f129f11287db94782256c65f27e2cfde70",
+      "rows_per_table": {
+        "sites": 8,
+        "tariff_history": 5,
+        "readings": 11,
+        "adjustments": 4
+      },
+      "notes": [
+        "Reading 3 has two adjustments, so the adjusted energy needs a grouped sum rather than a join per adjustment.",
+        "The tariff changes on 2024-03-01 for site 4, so early and late readings price differently.",
+        "The hierarchy question aggregates over the whole subtree, not only the site's own readings.",
+        "Sites 4 and 8 both consume 365.00 kWh, so the top-2 tie-break (smaller site_id) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_airline",
+      "slug": "airline",
+      "domain": "airline network: region tree, route fare history, flights, bookings and disruptions",
+      "tables": 6,
+      "columns": 27,
+      "fingerprint": "977d57fb6660db542beed327799038cd1d8ce840de6146668f3e37782cfc9918",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "airports",
+          [
+            "airport_id",
+            "code",
+            "name",
+            "region_id"
+          ]
+        ],
+        [
+          "bookings",
+          [
+            "booking_id",
+            "cabin",
+            "fare",
+            "flight_id",
+            "passenger_id"
+          ]
+        ],
+        [
+          "disruptions",
+          [
+            "cost",
+            "disruption_id",
+            "flight_id",
+            "kind"
+          ]
+        ],
+        [
+          "fare_history",
+          [
+            "base_fare",
+            "route",
+            "valid_from"
+          ]
+        ],
+        [
+          "flights",
+          [
+            "attributes",
+            "departed_at",
+            "dest_airport_id",
+            "flight_id",
+            "origin_airport_id",
+            "route",
+            "status",
+            "tags"
+          ]
+        ],
+        [
+          "regions",
+          [
+            "name",
+            "parent_id",
+            "region_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "f4c5fcc0d638045beebf3e3ce5a7e0c58eda7c2ff88bfa7b97ef21c02388a051",
+      "data_sha256": "899ddd100b4b1df1ecb74bf5891e3047f0817a315cb5d9e4cae7d3a1007ab0db",
+      "rows_per_table": {
+        "regions": 5,
+        "airports": 5,
+        "fare_history": 5,
+        "flights": 8,
+        "bookings": 12,
+        "disruptions": 4
+      },
+      "notes": [
+        "Flight 4 has one disruption and two bookings; the fan-out question keeps the fare summed once.",
+        "The FRA-DXB base fare changes on 2024-03-01, separating an as-of answer from the current fare.",
+        "The 22:30 and 23:30 UTC departures fall on different Dubai days than in UTC.",
+        "BER-DXB and FRA-DXB both earn 2940.00, so the top-2 tie-break (route name) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.125,
+        "db_id": "airline",
+        "table_jaccard": 0.125,
+        "column_jaccard": 0.0172
+      }
+    },
+    {
+      "db_id": "pghard_marketplace",
+      "slug": "marketplace",
+      "domain": "online marketplace: category tree, seller rating history, listings, offers and disputes",
+      "tables": 6,
+      "columns": 22,
+      "fingerprint": "9c20db5565e3e0f339688a45235daabfe2670dcde32ddf493b0f3e85da370aa3",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "categories",
+          [
+            "category_id",
+            "name",
+            "parent_id"
+          ]
+        ],
+        [
+          "disputes",
+          [
+            "dispute_id",
+            "listing_id",
+            "reason"
+          ]
+        ],
+        [
+          "listings",
+          [
+            "attributes",
+            "category_id",
+            "created_at",
+            "listing_id",
+            "price",
+            "seller_id",
+            "tags"
+          ]
+        ],
+        [
+          "offers",
+          [
+            "amount",
+            "listing_id",
+            "offer_id",
+            "status"
+          ]
+        ],
+        [
+          "seller_ratings",
+          [
+            "rating",
+            "seller_id",
+            "valid_from"
+          ]
+        ],
+        [
+          "sellers",
+          [
+            "name",
+            "seller_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "a0e8a74f80c522cad73de9946f493cc375a77e1d599741b0cc31bea818d501ac",
+      "data_sha256": "f3fb8e6bad9974ab4d376aebef8d4872903f5469386d19f20e63311933a780ec",
+      "rows_per_table": {
+        "categories": 6,
+        "sellers": 3,
+        "seller_ratings": 4,
+        "listings": 7,
+        "offers": 9,
+        "disputes": 3
+      },
+      "notes": [
+        "Listing 1 has two disputes and two offers, so a plain join multiplies the offer count.",
+        "Seller 1's rating drops on 2024-03-01, so the as-of answer differs for listings created before and after it.",
+        "The 22:30 and 23:30 UTC listings land on different London days than in UTC.",
+        "Sellers 2 and 3 both earn 850.00, so the top-2 tie-break (smaller seller_id) is exercised at the cutoff."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.1111,
+        "db_id": "music_platform_2",
+        "table_jaccard": 0.1111,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_telecom",
+      "slug": "telecom",
+      "domain": "mobile network: flat network inventory, plan fee history, usage events, complaints",
+      "tables": 5,
+      "columns": 20,
+      "fingerprint": "b415b297904e6ea9865279a273ad6ccf4bb0673ebac6f9e6ca2302699f17aa0a",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "complaints",
+          [
+            "complaint_id",
+            "opened_at",
+            "subscriber_id"
+          ]
+        ],
+        [
+          "network_elements",
+          [
+            "element_id",
+            "name",
+            "region"
+          ]
+        ],
+        [
+          "plan_history",
+          [
+            "monthly_fee",
+            "plan",
+            "valid_from"
+          ]
+        ],
+        [
+          "subscribers",
+          [
+            "activated_at",
+            "cancelled_at",
+            "network_element_id",
+            "plan",
+            "subscriber_id"
+          ]
+        ],
+        [
+          "usage_events",
+          [
+            "event_id",
+            "mb_used",
+            "occurred_at",
+            "qos",
+            "services",
+            "subscriber_id"
+          ]
+        ]
+      ],
+      "ddl_sha256": "9acb2f938ce95bff5e37cb7656b3c7dc826b45207157697f31125e38dcb50b80",
+      "data_sha256": "195c67e077035f7fe5dc073269c2a4f6661c503ca78dbdafc36949ce6fa7e2df",
+      "rows_per_table": {
+        "network_elements": 3,
+        "plan_history": 4,
+        "subscribers": 5,
+        "usage_events": 9,
+        "complaints": 3
+      },
+      "notes": [
+        "Subscriber 1 has two complaints and three usage events, so the fan-out question must not multiply the totals.",
+        "The gold plan fee changes on 2024-02-15 and subscriber 1 activates at 23:30 UTC the day before.",
+        "Subscribers 1 and 2 both use 6900.00 MB, so the top-2 tie-break (smaller subscriber_id) is exercised at the cutoff.",
+        "The hierarchy skill is dropped here on purpose rather than weakened (see DROPPED)."
+      ],
+      "dropped": [
+        {
+          "skill": "hierarchies",
+          "reason": "the network inventory is flat: elements carry a region label and no parent relationship, so a hierarchy question would have to invent a tree that the schema does not encode",
+          "replacement": "a second window_frames_cohorts question (subscriber usage over the 30 days before each complaint)"
+        }
+      ],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    },
+    {
+      "db_id": "pghard_manufacturing",
+      "slug": "manufacturing",
+      "domain": "factory production: machine tree, spec tolerance history, work orders, operations, defects",
+      "tables": 5,
+      "columns": 23,
+      "fingerprint": "d84cda4571d52d5d5b3a7fcc6bae68a33d101e19a74f088c16384526a5bc59dd",
+      "fingerprint_scheme": "pg_hard.catalog.v1 (format_type): sha256 over tables, columns(name,type,not_null), primary keys, foreign keys",
+      "structure": [
+        [
+          "defects",
+          [
+            "code",
+            "defect_id",
+            "order_id",
+            "quantity"
+          ]
+        ],
+        [
+          "machines",
+          [
+            "machine_id",
+            "name",
+            "parent_id",
+            "plant"
+          ]
+        ],
+        [
+          "operations",
+          [
+            "duration_min",
+            "operation_id",
+            "order_id",
+            "step"
+          ]
+        ],
+        [
+          "spec_history",
+          [
+            "spec",
+            "tolerance_mm",
+            "valid_from"
+          ]
+        ],
+        [
+          "work_orders",
+          [
+            "attributes",
+            "finished_at",
+            "machine_id",
+            "order_id",
+            "spec",
+            "started_at",
+            "status",
+            "tags"
+          ]
+        ]
+      ],
+      "ddl_sha256": "0f91a6b48afbab5564b1c41ff2ef939111500302c6acbc1f77c0bb4e6a1f3c39",
+      "data_sha256": "06226f0479d8043be37ab990b30ae67fefc939f374e05e182aabf6b8e46b16b6",
+      "rows_per_table": {
+        "machines": 7,
+        "spec_history": 4,
+        "work_orders": 7,
+        "operations": 14,
+        "defects": 5
+      },
+      "notes": [
+        "Order 2 has two defects and three operations, so a plain join multiplies the minutes.",
+        "The bracket tolerance tightens on 2024-03-01, separating an as-of answer from the current tolerance.",
+        "Orders starting at 22:30 and 23:30 UTC fall on different Sao Paulo days than in UTC.",
+        "Machines 4, 5 and 6 all produce 6 defect units, so the top-2 tie-break (smaller machine_id) decides who is excluded."
+      ],
+      "dropped": [],
+      "closest_family": {
+        "jaccard": 0.0,
+        "db_id": null,
+        "table_jaccard": 0.0,
+        "column_jaccard": 0.0
+      }
+    }
+  ],
+  "questions": {
+    "n": 96,
+    "per_skill": {
+      "asof_state": 12,
+      "compositional": 12,
+      "grain_fanout_antijoin": 12,
+      "hierarchies": 11,
+      "jsonb_arrays": 12,
+      "periods_timezones": 12,
+      "topn_ties": 12,
+      "window_frames_cohorts": 13
+    },
+    "per_db": {
+      "pghard_airline": 8,
+      "pghard_banking": 8,
+      "pghard_education": 8,
+      "pghard_energy": 8,
+      "pghard_healthcare": 8,
+      "pghard_logistics": 8,
+      "pghard_manufacturing": 8,
+      "pghard_marketplace": 8,
+      "pghard_retail_orders": 8,
+      "pghard_ride_hailing": 8,
+      "pghard_streaming": 8,
+      "pghard_telecom": 8
+    },
+    "comparison": {
+      "bag": 73,
+      "ordered": 23
+    }
+  },
+  "freeze": {
+    "algorithm": "sha256",
+    "questions_sha256": "429fdaec4ea0c41c24bf79c1acce30bf513149cd7a829a640b20c8f2fe2eccc2",
+    "gold_sha256": "ed380a082b2edacc567f7a33865577cbf3ed7fc569f660f399d5a8a45cd2c23e",
+    "ddl_bundle_sha256": "4af8bfe4205cab8754066812419ec12178f9bc118b34fa0db0d3864c17672413",
+    "data_bundle_sha256": "c8ea4e128a32515e8202e6272be573f9333dadf39614cb717caf29dacfe10c03",
+    "rule": "questions.jsonl and gold.jsonl are written once. Any later change creates version+1 and appends CHANGELOG.md.",
+    "changelog": "CHANGELOG.md"
+  },
+  "artifacts": {
+    "questions": "questions.jsonl",
+    "gold": "gold.jsonl",
+    "manifest": "manifest.json",
+    "report": "report.json"
+  }
+}

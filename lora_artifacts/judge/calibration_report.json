@@ -1,0 +1,983 @@
+{
+  "generated_at": "2026-11-25T05:34:44+0300",
+  "methodology": "cluster/judge/METHODOLOGY.md (G1..G8, accept/repair/reject, unclear counts as reject)",
+  "model": {
+    "endpoint": "http://127.0.0.1:8081/v1/chat/completions",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "temperature": 0,
+    "enable_thinking": false,
+    "batch_max": 8
+  },
+  "inputs": [
+    {
+      "path": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "exists": true,
+      "lines": 982,
+      "sha256": "e259bee3a73c9746a33528046c64b34581307f6656da0ad2aedf06d68ade9c81"
+    }
+  ],
+  "verdicts_file": "cluster/judge/calibration_verdicts.jsonl",
+  "verdicts_sha256": "8c03c5eea31d74e5cc85b2352fbfc5e6fafe321c631a9d67f318a22d6f48af10",
+  "total_judged": 30,
+  "verdict_counts": {
+    "accept": 17,
+    "repair": 9,
+    "reject": 4,
+    "unclear": 0
+  },
+  "mismatch": {
+    "definition": "verdict != accept (repair + reject + unclear)",
+    "count": 13,
+    "rate": 0.433333,
+    "wilson95": {
+      "low": 0.273775,
+      "high": 0.608027
+    },
+    "accept_rate": 0.566667,
+    "accept_wilson95": [
+      0.391973,
+      0.726225
+    ]
+  },
+  "criterion_failure_counts": {
+    "G1": 11,
+    "G2": 2,
+    "G3": 3,
+    "G4": 0,
+    "G5": 0,
+    "G6": 0,
+    "G7": 0,
+    "G8": 0
+  },
+  "first_failure_counts": {
+    "G1": 11,
+    "G3": 1,
+    "G2": 1
+  },
+  "defect_counts": {
+    "unstated_filter": 4,
+    "wrong_entity": 2,
+    "wrong_aggregate": 2,
+    "other": 5
+  },
+  "per_source": {
+    "delivery/out/synth/synthetic_bird_like.jsonl": {
+      "total": 30,
+      "accept": 17,
+      "repair": 9,
+      "reject": 4,
+      "unclear": 0
+    }
+  },
+  "unclear_note": "unclear = record lacked the text needed to decide; counted as a reject for the rate, reported separately here",
+  "examples": [
+    {
+      "sample_id": "synth-00821",
+      "variant": 1,
+      "db_id": "professional_basketball",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "reject",
+      "failed": [
+        "G1",
+        "G3"
+      ],
+      "defect": "unstated_filter",
+      "reason": "SQL lacks filters for award and league.",
+      "fix_hint": null,
+      "result_shape": "10x3",
+      "question": "Who was named the Rookie of the Year in the NBL?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT \"playerid\", \"award\", \"lgid\" FROM \"awards_players\" ORDER BY \"year\" ASC, \"playerid\" LIMIT 10"
+    },
+    {
+      "sample_id": "synth-01163",
+      "variant": 1,
+      "db_id": "soccer_2016",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "reject",
+      "failed": [
+        "G1",
+        "G3"
+      ],
+      "defect": "unstated_filter",
+      "reason": "SQL lacks filter for innings 3.",
+      "fix_hint": null,
+      "result_shape": "5x3",
+      "question": "What was the first extra run and ball bowled in innings 3?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT \"match_id\", \"over_id\", \"ball_id\" FROM \"extra_runs\" ORDER BY \"extra_runs\" DESC, \"match_id\" LIMIT 5"
+    },
+    {
+      "sample_id": "synth-00881",
+      "variant": 1,
+      "db_id": "public_review_platform",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "reject",
+      "failed": [
+        "G1",
+        "G2"
+      ],
+      "defect": "wrong_aggregate",
+      "reason": "SQL does not count members per year.",
+      "fix_hint": null,
+      "result_shape": "10x1",
+      "question": "What are the top 10 years with the most elite members, ordered by the highest user ID?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT \"year_id\" FROM \"elite\" ORDER BY \"user_id\" DESC, \"year_id\" LIMIT 10"
+    },
+    {
+      "sample_id": "synth-00711",
+      "variant": 1,
+      "db_id": "movielens",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "reject",
+      "failed": [
+        "G3"
+      ],
+      "defect": "wrong_entity",
+      "reason": "SQL uses >1 instead of >1000.",
+      "fix_hint": null,
+      "result_shape": "7x2",
+      "question": "Which age groups have more than 1,000 users and how many users are in each group?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT \"age\", COUNT(*) AS n FROM \"users\" GROUP BY \"age\" HAVING COUNT(*) > 1 ORDER BY n DESC, \"age\" LIMIT 20"
+    },
+    {
+      "sample_id": "synth-00751",
+      "variant": 1,
+      "db_id": "movies_4",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "other",
+      "reason": "SQL selects language_id, question asks for movie IDs.",
+      "fix_hint": "Change question to ask for movie IDs and language IDs.",
+      "result_shape": "10x2",
+      "question": "What are the IDs of the first ten movies by language role ID in descending order?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT \"movie_id\", \"language_id\" FROM \"movie_languages\" ORDER BY \"language_role_id\" DESC, \"movie_id\" LIMIT 10"
+    },
+    {
+      "sample_id": "synth-00997",
+      "variant": 1,
+      "db_id": "retails",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "other",
+      "reason": "SQL filters only Manufacturer#4, ignoring subsequent numbers.",
+      "fix_hint": "Change question to ask for parts manufactured by Manufacturer#4.",
+      "result_shape": "1x1",
+      "question": "How many parts are manufactured by Manufacturer#4 or any subsequent manufacturer number?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT COUNT(*) FROM \"part\" WHERE \"p_mfgr\" LIKE 'Manufacturer#4%'"
+    },
+    {
+      "sample_id": "synth-01153",
+      "variant": 1,
+      "db_id": "soccer_2016",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "other",
+      "reason": "SQL queries batsman_scored, question asks about wickets.",
+      "fix_hint": "Change question to ask for matches with scores in the 3rd innings.",
+      "result_shape": "4x1",
+      "question": "What matches had wickets taken in the 3rd innings?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT DISTINCT \"match_id\" FROM \"batsman_scored\" WHERE \"match_id\" IN (SELECT \"match_id\" FROM \"wicket_taken\" WHERE \"innings_no\" = 3) ORDER BY \"match_id\" LIMIT 20"
+    },
+    {
+      "sample_id": "synth-01202",
+      "variant": 1,
+      "db_id": "social_media",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "unstated_filter",
+      "reason": "SQL adds locationid filter not in question.",
+      "fix_hint": "Remove the locationid condition from the question or SQL.",
+      "result_shape": "1x1",
+      "question": "How many locations are in Houston?",
+      "evidence": "Houston",
+      "pg_gold_sql": "SELECT COUNT(*) FROM \"location\" WHERE \"locationid\" > 3495 AND \"city\" = 'Houston'"
+    },
+    {
+      "sample_id": "synth-00475",
+      "variant": 1,
+      "db_id": "language_corpus",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "wrong_entity",
+      "reason": "SQL counts w1st, question asks for second word.",
+      "fix_hint": "Change 'second word' to 'first word' in the question.",
+      "result_shape": "1x1",
+      "question": "How many distinct words appear as the second word in pairs with the word '3075'?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT COUNT(DISTINCT \"w1st\") FROM \"biwords\" WHERE \"w2nd\" = 3075"
+    },
+    {
+      "sample_id": "synth-01356",
+      "variant": 1,
+      "db_id": "synthea",
+      "source": "delivery/out/synth/synthetic_bird_like.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G2"
+      ],
+      "defect": "wrong_aggregate",
+      "reason": "Question asks distinct care plans, SQL counts encounters.",
+      "fix_hint": "Change question to ask for distinct encounters.",
+      "result_shape": "1x1",
+      "question": "How many distinct care plans were for musculoskeletal care?",
+      "evidence": "",
+      "pg_gold_sql": "SELECT COUNT(DISTINCT \"encounter\") FROM \"careplans\" WHERE \"description\" = 'Musculoskeletal care'"
+    }
+  ],
+  "gate_agreement": {
+    "gate_labelled_pairs": 30,
+    "gate_accepted": 30,
+    "gate_rejected": 0,
+    "agreeing": 17,
+    "disagreeing": 13,
+    "agreement_rate": 0.566667,
+    "agreement_wilson95": [
+      0.391973,
+      0.726225
+    ],
+    "false_negatives_gate_accepted_but_judge_mismatch": 13,
+    "false_positives_gate_rejected_but_judge_accept": 0,
+    "per_pair": [
+      {
+        "sample_id": "synth-00265",
+        "variant": 1,
+        "db_id": "cookbook",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "How many recipes have at least 0.77 grams of iron?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"nutrition\" WHERE \"iron\" >= 0.77"
+      },
+      {
+        "sample_id": "synth-00959",
+        "variant": 1,
+        "db_id": "retail_world",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "What are the first 10 order details sorted by order detail ID?",
+        "pg_gold_sql": "SELECT \"orderid\", \"productid\", \"quantity\" FROM \"orderdetails\" ORDER BY \"orderdetailid\" ASC, \"orderid\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-00977",
+        "variant": 1,
+        "db_id": "retails",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "What is the highest nation key for a customer with the address 'hyZ7ixoWq sYNrdwYcUhXhZOoDk8qjUFR PCL'?",
+        "pg_gold_sql": "SELECT MAX(\"c_nationkey\") FROM \"customer\" WHERE \"c_address\" = 'hyZ7ixoWq sYNrdwYcUhXhZOoDk8qjUFR PCL'"
+      },
+      {
+        "sample_id": "synth-00176",
+        "variant": 1,
+        "db_id": "chicago_crime",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "How many different beats are in Community Area 34?",
+        "pg_gold_sql": "SELECT COUNT(DISTINCT \"beat\") FROM \"crime\" WHERE \"community_area_no\" = 34"
+      },
+      {
+        "sample_id": "synth-00821",
+        "variant": 1,
+        "db_id": "professional_basketball",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1",
+          "G3"
+        ],
+        "judge_reason": "SQL lacks filters for award and league.",
+        "agree": false,
+        "question": "Who was named the Rookie of the Year in the NBL?",
+        "pg_gold_sql": "SELECT \"playerid\", \"award\", \"lgid\" FROM \"awards_players\" ORDER BY \"year\" ASC, \"playerid\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-01163",
+        "variant": 1,
+        "db_id": "soccer_2016",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1",
+          "G3"
+        ],
+        "judge_reason": "SQL lacks filter for innings 3.",
+        "agree": false,
+        "question": "What was the first extra run and ball bowled in innings 3?",
+        "pg_gold_sql": "SELECT \"match_id\", \"over_id\", \"ball_id\" FROM \"extra_runs\" ORDER BY \"extra_runs\" DESC, \"match_id\" LIMIT 5"
+      },
+      {
+        "sample_id": "synth-00711",
+        "variant": 1,
+        "db_id": "movielens",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "wrong_entity",
+        "judge_failed": [
+          "G3"
+        ],
+        "judge_reason": "SQL uses >1 instead of >1000.",
+        "agree": false,
+        "question": "Which age groups have more than 1,000 users and how many users are in each group?",
+        "pg_gold_sql": "SELECT \"age\", COUNT(*) AS n FROM \"users\" GROUP BY \"age\" HAVING COUNT(*) > 1 ORDER BY n DESC, \"age\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-00881",
+        "variant": 1,
+        "db_id": "public_review_platform",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "wrong_aggregate",
+        "judge_failed": [
+          "G1",
+          "G2"
+        ],
+        "judge_reason": "SQL does not count members per year.",
+        "agree": false,
+        "question": "What are the top 10 years with the most elite members, ordered by the highest user ID?",
+        "pg_gold_sql": "SELECT \"year_id\" FROM \"elite\" ORDER BY \"user_id\" DESC, \"year_id\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-00481",
+        "variant": 1,
+        "db_id": "language_corpus",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "What is the highest revision number for pages with an ID greater than 1072586?",
+        "pg_gold_sql": "SELECT MAX(\"revision\") FROM \"pages\" WHERE \"pid\" > 1072586"
+      },
+      {
+        "sample_id": "synth-00475",
+        "variant": 1,
+        "db_id": "language_corpus",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "wrong_entity",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL counts w1st, question asks for second word.",
+        "agree": false,
+        "question": "How many distinct words appear as the second word in pairs with the word '3075'?",
+        "pg_gold_sql": "SELECT COUNT(DISTINCT \"w1st\") FROM \"biwords\" WHERE \"w2nd\" = 3075"
+      },
+      {
+        "sample_id": "synth-00079",
+        "variant": 1,
+        "db_id": "beer_factory",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "How many transactions had a purchase price greater than $1?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"transaction\" WHERE \"purchaseprice\" > 1"
+      },
+      {
+        "sample_id": "synth-01279",
+        "variant": 1,
+        "db_id": "student_loan",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL orders by month, question only mentions name.",
+        "agree": false,
+        "question": "Who was the first student absent in ascending order by name?",
+        "pg_gold_sql": "SELECT \"name\" FROM \"longest_absense_from_school\" ORDER BY \"month\" ASC, \"name\" LIMIT 1"
+      },
+      {
+        "sample_id": "synth-00376",
+        "variant": 1,
+        "db_id": "hockey",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "In 1974, which leagues did coaches win awards and what awards did they receive?",
+        "pg_gold_sql": "SELECT DISTINCT \"lgid\", \"year\", \"award\" FROM \"awardscoaches\" WHERE \"year\" = 1974 ORDER BY \"lgid\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-01014",
+        "variant": 1,
+        "db_id": "sales",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "What are the names and prices of the first 10 products sorted by product ID and name?",
+        "pg_gold_sql": "SELECT \"name\", \"price\" FROM \"products\" ORDER BY \"productid\" ASC, \"name\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-01151",
+        "variant": 1,
+        "db_id": "soccer_2016",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "How many balls scored 5 or more runs?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"batsman_scored\" WHERE \"runs_scored\" >= 5"
+      },
+      {
+        "sample_id": "synth-01428",
+        "variant": 1,
+        "db_id": "address",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question exactly.",
+        "agree": true,
+        "question": "What is the minimum zip code for the alias 'Des Moines'?",
+        "pg_gold_sql": "SELECT MIN(\"zip_code\") FROM \"alias\" WHERE \"alias\" = 'Des Moines'"
+      },
+      {
+        "sample_id": "synth-00600",
+        "variant": 1,
+        "db_id": "mondial_geo",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters, projections, limit, and ordering match question.",
+        "agree": true,
+        "question": "What are the names, source altitudes, and estuary latitudes of the first 20 rivers with a length of 440?",
+        "pg_gold_sql": "SELECT DISTINCT \"river\", \"sourcealtitude\", \"estuarylatitude\" FROM \"river\" WHERE \"length\" = 440 ORDER BY \"river\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-01023",
+        "variant": 1,
+        "db_id": "sales",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Count matches question, filter matches quantity condition.",
+        "agree": true,
+        "question": "How many sales transactions have quantities less than or equal to 108?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"sales\" WHERE \"quantity\" <= 108"
+      },
+      {
+        "sample_id": "synth-00010",
+        "variant": 1,
+        "db_id": "address",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Distinct count of zip codes matches question and filter.",
+        "agree": true,
+        "question": "How many unique zip codes have been flagged as bad aliases for 'Hon'?",
+        "pg_gold_sql": "SELECT COUNT(DISTINCT \"zip_code\") FROM \"avoid\" WHERE \"bad_alias\" = 'Hon'"
+      },
+      {
+        "sample_id": "synth-00051",
+        "variant": 1,
+        "db_id": "authors",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Min ID matches question, filter matches name.",
+        "agree": true,
+        "question": "What is the smallest ID associated with 'Michael G. Rabbat'?",
+        "pg_gold_sql": "SELECT MIN(\"id\") FROM \"author\" WHERE \"name\" = 'Michael G. Rabbat'"
+      },
+      {
+        "sample_id": "synth-01202",
+        "variant": 1,
+        "db_id": "social_media",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL adds locationid filter not in question.",
+        "agree": false,
+        "question": "How many locations are in Houston?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"location\" WHERE \"locationid\" > 3495 AND \"city\" = 'Houston'"
+      },
+      {
+        "sample_id": "synth-01356",
+        "variant": 1,
+        "db_id": "synthea",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "wrong_aggregate",
+        "judge_failed": [
+          "G2"
+        ],
+        "judge_reason": "Question asks distinct care plans, SQL counts encounters.",
+        "agree": false,
+        "question": "How many distinct care plans were for musculoskeletal care?",
+        "pg_gold_sql": "SELECT COUNT(DISTINCT \"encounter\") FROM \"careplans\" WHERE \"description\" = 'Musculoskeletal care'"
+      },
+      {
+        "sample_id": "synth-00454",
+        "variant": 1,
+        "db_id": "image_and_language",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters and aggregate match question exactly.",
+        "agree": true,
+        "question": "How many images have an object sample ID greater than 43 and an x-coordinate less than 174?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"img_obj\" WHERE \"obj_sample_id\" > 43 AND \"x\" < 174"
+      },
+      {
+        "sample_id": "synth-01009",
+        "variant": 1,
+        "db_id": "sales",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters and aggregate match question exactly.",
+        "agree": true,
+        "question": "How many customers have the last name Raje and a middle initial of W?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"customers\" WHERE \"lastname\" = 'Raje' AND \"middleinitial\" = 'W'"
+      },
+      {
+        "sample_id": "synth-01474",
+        "variant": 1,
+        "db_id": "address",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "other",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "Question asks for districts covering a zip, not zip codes.",
+        "agree": false,
+        "question": "Which districts and zip codes cover zip code 38474?",
+        "pg_gold_sql": "SELECT DISTINCT \"district\", \"zip_code\" FROM \"zip_congress\" WHERE \"zip_code\" = 38474 ORDER BY \"district\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-00751",
+        "variant": 1,
+        "db_id": "movies_4",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "other",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL selects language_id, question asks for movie IDs.",
+        "agree": false,
+        "question": "What are the IDs of the first ten movies by language role ID in descending order?",
+        "pg_gold_sql": "SELECT \"movie_id\", \"language_id\" FROM \"movie_languages\" ORDER BY \"language_role_id\" DESC, \"movie_id\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-00997",
+        "variant": 1,
+        "db_id": "retails",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "other",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL filters only Manufacturer#4, ignoring subsequent numbers.",
+        "agree": false,
+        "question": "How many parts are manufactured by Manufacturer#4 or any subsequent manufacturer number?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"part\" WHERE \"p_mfgr\" LIKE 'Manufacturer#4%'"
+      },
+      {
+        "sample_id": "synth-01153",
+        "variant": 1,
+        "db_id": "soccer_2016",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "other",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL queries batsman_scored, question asks about wickets.",
+        "agree": false,
+        "question": "What matches had wickets taken in the 3rd innings?",
+        "pg_gold_sql": "SELECT DISTINCT \"match_id\" FROM \"batsman_scored\" WHERE \"match_id\" IN (SELECT \"match_id\" FROM \"wicket_taken\" WHERE \"innings_no\" = 3) ORDER BY \"match_id\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-01302",
+        "variant": 1,
+        "db_id": "superstore",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "other",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL selects Ship Date, question asks for sales and profits.",
+        "agree": false,
+        "question": "What are the sales and profits for order 'CA-2012-132626'?",
+        "pg_gold_sql": "SELECT DISTINCT \"Ship Date\", \"sales\", \"profit\" FROM \"east_superstore\" WHERE \"Order ID\" = 'CA-2012-132626' ORDER BY \"Ship Date\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-01211",
+        "variant": 1,
+        "db_id": "social_media",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters and aggregate match question exactly.",
+        "agree": true,
+        "question": "How many tweets have a reach greater than 98 and were posted on days less than 22?",
+        "pg_gold_sql": "SELECT COUNT(*) FROM \"twitter\" WHERE \"reach\" > 98 AND \"day\" < 22"
+      }
+    ],
+    "clearest_disagreements": [
+      {
+        "sample_id": "synth-00821",
+        "variant": 1,
+        "db_id": "professional_basketball",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1",
+          "G3"
+        ],
+        "judge_reason": "SQL lacks filters for award and league.",
+        "agree": false,
+        "question": "Who was named the Rookie of the Year in the NBL?",
+        "pg_gold_sql": "SELECT \"playerid\", \"award\", \"lgid\" FROM \"awards_players\" ORDER BY \"year\" ASC, \"playerid\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-00881",
+        "variant": 1,
+        "db_id": "public_review_platform",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "wrong_aggregate",
+        "judge_failed": [
+          "G1",
+          "G2"
+        ],
+        "judge_reason": "SQL does not count members per year.",
+        "agree": false,
+        "question": "What are the top 10 years with the most elite members, ordered by the highest user ID?",
+        "pg_gold_sql": "SELECT \"year_id\" FROM \"elite\" ORDER BY \"user_id\" DESC, \"year_id\" LIMIT 10"
+      },
+      {
+        "sample_id": "synth-01163",
+        "variant": 1,
+        "db_id": "soccer_2016",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1",
+          "G3"
+        ],
+        "judge_reason": "SQL lacks filter for innings 3.",
+        "agree": false,
+        "question": "What was the first extra run and ball bowled in innings 3?",
+        "pg_gold_sql": "SELECT \"match_id\", \"over_id\", \"ball_id\" FROM \"extra_runs\" ORDER BY \"extra_runs\" DESC, \"match_id\" LIMIT 5"
+      },
+      {
+        "sample_id": "synth-00711",
+        "variant": 1,
+        "db_id": "movielens",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "reject",
+        "judge_defect": "wrong_entity",
+        "judge_failed": [
+          "G3"
+        ],
+        "judge_reason": "SQL uses >1 instead of >1000.",
+        "agree": false,
+        "question": "Which age groups have more than 1,000 users and how many users are in each group?",
+        "pg_gold_sql": "SELECT \"age\", COUNT(*) AS n FROM \"users\" GROUP BY \"age\" HAVING COUNT(*) > 1 ORDER BY n DESC, \"age\" LIMIT 20"
+      },
+      {
+        "sample_id": "synth-00475",
+        "variant": 1,
+        "db_id": "language_corpus",
+        "gate": "accept",
+        "gate_reason": null,
+        "judge_verdict": "repair",
+        "judge_defect": "wrong_entity",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL counts w1st, question asks for second word.",
+        "agree": false,
+        "question": "How many distinct words appear as the second word in pairs with the word '3075'?",
+        "pg_gold_sql": "SELECT COUNT(DISTINCT \"w1st\") FROM \"biwords\" WHERE \"w2nd\" = 3075"
+      }
+    ]
+  },
+  "hand_label_agreement": {
+    "labelled_pairs": 5,
+    "agreeing": 5,
+    "agreement_rate": 1.0,
+    "per_pair": [
+      {
+        "sample_id": "synth-00821",
+        "hand_verdict": "reject",
+        "hand_defect": "missing_filter",
+        "hand_note": "Question names an award (Rookie of the Year) and a league (NBL); the SQL filters neither and dumps 10 rows ordered by year with an unnamed LIMIT 10 that truncates. No honest question-side wording makes an unfiltered 10-row dump mean that award.",
+        "judge_verdict": "reject",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1",
+          "G3"
+        ],
+        "agree": true
+      },
+      {
+        "sample_id": "synth-01014",
+        "hand_verdict": "accept",
+        "hand_defect": null,
+        "hand_note": "'first 10 products sorted by product ID and name' names the cap and the order; projection name+price matches 'names and prices'.",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "agree": true
+      },
+      {
+        "sample_id": "synth-00010",
+        "hand_verdict": "accept",
+        "hand_defect": null,
+        "hand_note": "COUNT(DISTINCT zip_code) over avoid filtered by bad_alias='Hon' is exactly 'unique zip codes flagged as bad aliases for Hon'.",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "agree": true
+      },
+      {
+        "sample_id": "synth-00454",
+        "hand_verdict": "accept",
+        "hand_defect": null,
+        "hand_note": "COUNT(*) with obj_sample_id > 43 AND x < 174 matches both stated conditions; no extra filter, no cap.",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "agree": true
+      },
+      {
+        "sample_id": "synth-01211",
+        "hand_verdict": "accept",
+        "hand_defect": null,
+        "hand_note": "COUNT(*) with reach > 98 AND day < 22 matches the question; the v1 model reason ('Ship Date', 'sales and profits') describes a different pair and is not grounded in this SQL.",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "agree": true
+      }
+    ]
+  },
+  "repeat_run_stability": {
+    "pairs": 30,
+    "note": "the same 30 pairs, same seed, same batches, judged twice at temperature 0",
+    "verdict_agreement": 30,
+    "verdict_agreement_rate": 1.0,
+    "defect_label_agreement": 23,
+    "defect_label_agreement_rate": 0.766667,
+    "criteria_agreement": 29,
+    "criteria_agreement_rate": 0.966667,
+    "differences": [
+      {
+        "sample_id": "synth-00751",
+        "variant": 1,
+        "run_a": "repair/other",
+        "run_b": "repair/unstated_filter"
+      },
+      {
+        "sample_id": "synth-00821",
+        "variant": 1,
+        "run_a": "reject/unstated_filter",
+        "run_b": "reject/missing_filter"
+      },
+      {
+        "sample_id": "synth-00997",
+        "variant": 1,
+        "run_a": "repair/other",
+        "run_b": "repair/missing_filter"
+      },
+      {
+        "sample_id": "synth-01153",
+        "variant": 1,
+        "run_a": "repair/other",
+        "run_b": "repair/unstated_filter"
+      },
+      {
+        "sample_id": "synth-01163",
+        "variant": 1,
+        "run_a": "reject/unstated_filter",
+        "run_b": "reject/missing_filter"
+      },
+      {
+        "sample_id": "synth-01302",
+        "variant": 1,
+        "run_a": "repair/other",
+        "run_b": "repair/unstated_filter"
+      },
+      {
+        "sample_id": "synth-01474",
+        "variant": 1,
+        "run_a": "repair/other",
+        "run_b": "repair/unstated_filter"
+      }
+    ],
+    "reading": "verdicts are stable; defect labels are indicative, not reproducible"
+  },
+  "calibration_sampling_rule": {
+    "file": "delivery/out/synth/synthetic_bird_like.jsonl",
+    "pool_lines": 982,
+    "draw": "random.Random(20261125).sample(range(982), 30), indices sorted by sample_id",
+    "n": 30,
+    "sample_ids": [
+      "synth-00010",
+      "synth-00051",
+      "synth-00079",
+      "synth-00176",
+      "synth-00265",
+      "synth-00376",
+      "synth-00454",
+      "synth-00475",
+      "synth-00481",
+      "synth-00600",
+      "synth-00711",
+      "synth-00751",
+      "synth-00821",
+      "synth-00881",
+      "synth-00959",
+      "synth-00977",
+      "synth-00997",
+      "synth-01009",
+      "synth-01014",
+      "synth-01023",
+      "synth-01151",
+      "synth-01153",
+      "synth-01163",
+      "synth-01202",
+      "synth-01211",
+      "synth-01279",
+      "synth-01302",
+      "synth-01356",
+      "synth-01428",
+      "synth-01474"
+    ]
+  },
+  "hand_label_selection_rule": {
+    "rule": "every 6th sample_id of the sorted 30-pair calibration set (positions 1, 7, 13, 19, 25)",
+    "labelled_by": "judge member, reading question + SQL + schema excerpt + result shape",
+    "labels_file": "cluster/judge/hand_labels.jsonl",
+    "ids": [
+      "synth-00010",
+      "synth-00454",
+      "synth-00821",
+      "synth-01014",
+      "synth-01211"
+    ]
+  },
+  "manual_audit_notes": {
+    "method": "manual re-reading of all 13 pairs the judge flagged, plus the 5 hand-labelled pairs",
+    "confirmed_defects": 11,
+    "arguable_over_flags": [
+      {
+        "sample_id": "synth-01153",
+        "why": "SQL returns DISTINCT match_id selected through a subquery on wicket_taken for innings 3; the question's reading is satisfied, so the G1 flag is arguable"
+      },
+      {
+        "sample_id": "synth-01474",
+        "why": "question asks for 'districts and zip codes', the SQL projects exactly those two columns; the G1 flag is arguable"
+      }
+    ],
+    "hallucination_found_in_first_pass": {
+      "sample_id": "synth-01211",
+      "what": "the first prompt version returned a reason about 'Ship Date / sales and profits' for a pair whose SQL is COUNT(*) over twitter with reach > 98 AND day < 22",
+      "status": "fixed by the result-preview line and the re-run; the pair is now accept, matching the hand label"
+    },
+    "gate_caveat": "the control pool (dropped_truncated.jsonl) was dropped for an execution-side row cap; its stored pg_gold_sql contains no LIMIT clause, so its disagreements with the judge are not the same kind as the calibration disagreements"
+  }
+}

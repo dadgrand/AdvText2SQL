@@ -1,0 +1,249 @@
+{
+  "run": "A",
+  "arm": "7B base, no adapter (lower bound)",
+  "status": "complete",
+  "model": {
+    "name": "Qwen2.5-Coder-7B-Instruct",
+    "local_path": "/home/dadgrand/models/Qwen2.5-Coder-7B-Instruct",
+    "config_sha256": "c0242402ad6a13b331ea320feea8c7e3776ffb7a4eff0757b9cd667e116d9a28",
+    "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+  },
+  "precision": "bfloat16",
+  "targets": null,
+  "r_alpha_scaling": null,
+  "lr": null,
+  "supervised_tokens": 0,
+  "optimizer_steps": 0,
+  "dev_metric": {
+    "correct": 87,
+    "n": 216,
+    "percent": 40.27777777777778,
+    "wilson95": [
+      0.33962167485787187,
+      0.4693315580140134
+    ],
+    "denominator": "gold_executable"
+  },
+  "ood_metric": {
+    "correct": 577,
+    "n": 811,
+    "percent": 71.14673242909987,
+    "wilson95": [
+      0.6793453870871953,
+      0.7415953937990745
+    ],
+    "denominator": "gold_executable"
+  },
+  "critical_errors": {
+    "note": "no training; generation errors are captured per id in the harness report"
+  },
+  "gpu_hours": 0.0484,
+  "peak_vram_gb": null,
+  "decoding": {
+    "do_sample": false,
+    "num_beams": 1,
+    "temperature": null,
+    "top_p": null,
+    "repetition_penalty": 1.0,
+    "max_new_tokens": 256,
+    "stop": "<|im_end|>",
+    "batch_size": 8,
+    "padding_side": "left",
+    "prompt_max_len": null,
+    "repair": "none: the assistant turn is kept verbatim (only the <|im_end|> stop token and surrounding whitespace are removed); no SQL repair, no fence stripping"
+  },
+  "prompt_source": "datasets/native_pg/renderer.py serve mode",
+  "predictions": {
+    "dev217": {
+      "path": "cluster/runs/predictions/runA_dev217.json",
+      "sha256": "bc368f5b157376394db7d0312ea30eb157fa2b3e4d35722406631bc0ee336e0b",
+      "rows": 217
+    },
+    "ood876": {
+      "path": "cluster/runs/predictions/runA_ood876.json",
+      "sha256": "30ab966ebffe7c467564750d5013154c8f68d72f79332c073da3127b21c9b774",
+      "rows": 876
+    }
+  },
+  "metrics": {
+    "dev217": {
+      "shard": "dev217",
+      "ex_gold_executable": {
+        "correct": 87,
+        "n": 216,
+        "percent": 40.27777777777778,
+        "wilson95": [
+          0.33962167485787187,
+          0.4693315580140134
+        ],
+        "denominator": "gold_executable"
+      },
+      "ex_all": {
+        "correct": 87,
+        "n": 216,
+        "percent": 40.27777777777778,
+        "denominator": "shard_size"
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 216,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 216,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 216,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 0,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 216,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 167,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 49,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "shard_size": {
+        "n_cases": 216,
+        "file_rows": 217,
+        "excluded_cases": 1,
+        "pre_policy_size": 217,
+        "n_databases": 8,
+        "expected_size": 216,
+        "size_matches_expected": true
+      },
+      "notes": [
+        "Reviewed dev answers; gold is native PostgreSQL (pg_gold_sql) and is executed verbatim.",
+        "Denominator after the native-gold drift policy: 216 (question 309 is excluded, see the drift policy section); 217 appears only as the pre-policy size. 7 of the 216 rows are reviewed corrections.",
+        "Do not compare a percentage here with EX/241: different gold and a different denominator."
+      ],
+      "paired": {
+        "n_paired": null,
+        "b": null,
+        "c": null,
+        "delta_ex": null,
+        "bootstrap95": null,
+        "mcnemar_exact_p": null,
+        "denominator": null,
+        "denominator_definition": null,
+        "delta_pp": null,
+        "bootstrap95_pp": null
+      }
+    },
+    "ood876": {
+      "shard": "ood876",
+      "ex_gold_executable": {
+        "correct": 577,
+        "n": 811,
+        "percent": 71.14673242909987,
+        "wilson95": [
+          0.6793453870871953,
+          0.7415953937990745
+        ],
+        "denominator": "gold_executable"
+      },
+      "ex_all": {
+        "correct": 577,
+        "n": 876,
+        "percent": 65.8675799086758,
+        "denominator": "shard_size"
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 876,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 876,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 811,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 65,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 811,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 709,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 102,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "shard_size": {
+        "n_cases": 876,
+        "file_rows": 876,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 10,
+        "expected_size": 876,
+        "size_matches_expected": true
+      },
+      "notes": [
+        "PostgreSQL gold is executed verbatim: no sqlglot transpile, no repo_rewrite, no regex. The old OOD report re-transpiled this gold with the SQLite rewrite; this harness measures what that rewrite would change instead of assuming it (see the rewrite audit and the frozen-ledger check).",
+        "Question ids are normalised by numeric suffix (ood:disney:0000 == ood:disney:0) so a run recorded with padded ids still pairs.",
+        "A usable OOD number must come from a model trained on the clean split (t14 run B onwards) and must be scored with --contamination ood876=clean --split-manifest <manifest>; the manifest hash is then printed in the report. Pre-dedupe-fix runs are labelled contaminated_run, not a result."
+      ],
+      "paired": {
+        "n_paired": null,
+        "b": null,
+        "c": null,
+        "delta_ex": null,
+        "bootstrap95": null,
+        "mcnemar_exact_p": null,
+        "denominator": null,
+        "denominator_definition": null,
+        "delta_pp": null,
+        "bootstrap95_pp": null
+      }
+    }
+  },
+  "generated_at_utc": "2026-11-25T03:26:26Z",
+  "harness_reports": {
+    "dev217": "cluster/eval_reports/arms/runA_dev217/report.json",
+    "ood876": "cluster/eval_reports/arms/runA_ood876/report.json"
+  }
+}

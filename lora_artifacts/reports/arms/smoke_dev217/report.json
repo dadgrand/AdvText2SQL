@@ -1,0 +1,327 @@
+{
+  "tool": "cluster.eval_shards",
+  "version": 1,
+  "meta": {
+    "generated_at": "2026-11-25T03:26:53+00:00",
+    "predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/smoke_runA_dev217.json",
+    "baseline": null,
+    "self_compare": false,
+    "n_boot": 10000,
+    "seed": 0,
+    "db": "127.0.0.1:5444",
+    "server_version": "15.15 (Debian 15.15-1.pgdg13+1)",
+    "server_error": null,
+    "offline": false,
+    "contamination": {
+      "dev217": "clean",
+      "ex241": "unknown",
+      "ood876": "clean",
+      "pghard": "no_shard"
+    },
+    "contamination_note": "smoke test of the arm pipeline",
+    "contamination_finding": "t9 reserved-OOD finding",
+    "split_manifest": {
+      "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
+      "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02"
+    },
+    "cache": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_cache/exec_cache.json",
+    "workers": 6,
+    "statement_timeout": "20s",
+    "execution": {
+      "executed": 1,
+      "cache_hits": 8,
+      "skipped_offline": 0,
+      "errors": 1
+    },
+    "ledger_check": null,
+    "results_usable": [
+      "dev217"
+    ],
+    "duration_seconds": 0.4
+  },
+  "shard_order": [
+    "dev217"
+  ],
+  "shards": {
+    "dev217": {
+      "key": "dev217",
+      "title": "PG-reviewed dev-216 (native PG gold, drift-clean)",
+      "quality": "primary",
+      "criterion": "execution_ex",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/bird_pg_unified/data/bird_dev_pg.jsonl",
+        "exists": true,
+        "sha256": "b333af44f3aa124d90063671713bd5989ef7bc2855caf6480903c424765a38e4",
+        "field": "pg_gold_sql",
+        "rewrite": "none",
+        "criterion": "execution_ex",
+        "n_cases": 217,
+        "n_scored_cases": 216,
+        "n_excluded_cases": 1,
+        "limit": 4
+      },
+      "notes": [
+        "Reviewed dev answers; gold is native PostgreSQL (pg_gold_sql) and is executed verbatim.",
+        "Denominator after the native-gold drift policy: 216 (question 309 is excluded, see the drift policy section); 217 appears only as the pre-policy size. 7 of the 216 rows are reviewed corrections.",
+        "Do not compare a percentage here with EX/241: different gold and a different denominator."
+      ],
+      "shard": {
+        "n_cases": 4,
+        "file_rows": 4,
+        "excluded_cases": 0,
+        "pre_policy_size": 217,
+        "n_databases": 1,
+        "expected_size": 216,
+        "size_matches_expected": false
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 4,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 2,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 2,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 4,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 0,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 4,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 1,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 1,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 2,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 0,
+        "n": 4,
+        "value": 0.0,
+        "percent": 0.0,
+        "wilson95": [
+          0.0,
+          0.4898908403969213
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)"
+      },
+      "ex_gold_executable": {
+        "correct": 0,
+        "n": 4,
+        "value": 0.0,
+        "percent": 0.0,
+        "wilson95": [
+          0.0,
+          0.4898908403969213
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses"
+      },
+      "gold_side": {
+        "executed": 4,
+        "unexecutable": 0,
+        "executable_percent": 100.0,
+        "categories": {},
+        "unexecutable_ids": [],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 1,
+        "unexecutable": 1,
+        "missing": 2,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {
+          "undefined_column": 1
+        },
+        "unexecutable_ids": [
+          "10"
+        ],
+        "not_attempted_because_gold_failed": 0
+      },
+      "micro": {
+        "correct": 0,
+        "n": 4,
+        "value": 0.0,
+        "percent": 0.0,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)"
+      },
+      "macro": {
+        "mean_ex": 0.0,
+        "n_databases": 1,
+        "n_databases_in_shard": 1,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case"
+      },
+      "per_database": {
+        "california_schools": {
+          "n_cases": 4,
+          "gold_executable": 4,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.4898908403969213
+          ],
+          "pred_unexecutable": 3,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "moderate": {
+          "n_cases": 1,
+          "gold_executable": 1,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            0.0,
+            0.7934506882081973
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "simple": {
+          "n_cases": 3,
+          "gold_executable": 3,
+          "correct": 0,
+          "ex_all": 0.0,
+          "ex_gold_executable": 0.0,
+          "wilson95_gold_executable": [
+            5.551115123125783e-17,
+            0.5614970356393196
+          ],
+          "pred_unexecutable": 2,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "status": "no_baseline"
+      },
+      "self_comparison": null,
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "applied",
+          "source": "cluster/drift_native.json",
+          "sqlite_databases_audited": 8,
+          "classes_over_217_rows": {
+            "exact_match": 197,
+            "legitimate_engine_difference": 12,
+            "translation_defect": 7,
+            "server_side_data_defect": 1,
+            "not_comparable": 0
+          },
+          "measured": {
+            "sqlite_atoms_toxicology": 9111,
+            "postgres_atoms_toxicology": 12333
+          },
+          "policy": "a row whose native gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect"
+        },
+        "excluded": [],
+        "excluded_ids": [
+          "309"
+        ],
+        "reviewed_corrections": {
+          "n": 0,
+          "ids": [],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": []
+        },
+        "row_origin": {
+          "scored_rows": 4,
+          "original_rows": 4,
+          "reviewed_rows": 0,
+          "excluded_rows": 0
+        },
+        "pre_policy": {
+          "n_cases": 4,
+          "gold_executable": 4,
+          "correct": 0,
+          "value": 0.0,
+          "percent": 0.0,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 4,
+          "correct": 0,
+          "value": 0.0,
+          "percent": 0.0,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "scored",
+      "execution_stats": {
+        "unique_gold_queries": 4,
+        "unique_prediction_queries": 2
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 4,
+        "n_altered_by_historical_rewrite": 2,
+        "n_broken_by_historical_rewrite": 0,
+        "n_native_unparseable": 0,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "ok",
+          "n_altered": 2,
+          "n_same_result": 1,
+          "n_result_differs": 0,
+          "n_rewrite_fails": 1,
+          "n_rewrite_fails_that_native_survives": 1,
+          "new_failure_ids": [
+            "4"
+          ],
+          "result_difference_ids": [],
+          "denominator": "gold queries altered by the historical rewrite",
+          "note": "Execution-level check: rewritten gold is run on the same database and its row digest is compared with the native result. n_rewrite_fails_that_native_survives counts gold that the old pipeline would have lost; n_result_differs counts gold whose answer the rewrite would silently change."
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/arms/smoke_dev217/per_question_dev217.jsonl",
+      "contamination": {
+        "status": "clean",
+        "label": "clean split",
+        "result_usable": true,
+        "note": "smoke test of the arm pipeline",
+        "finding": "t9 reserved-OOD finding",
+        "split_manifest": {
+          "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
+          "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02"
+        }
+      }
+    }
+  }
+}

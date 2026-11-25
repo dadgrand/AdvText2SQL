@@ -1,0 +1,334 @@
+{
+  "generated_at_utc": "2026-11-25T03:17:20Z",
+  "host": "gpu13",
+  "torch": "2.14.1+cu126",
+  "cuda": "12.6",
+  "gpu": "NVIDIA H200 NVL",
+  "gpu_total_vram_gb": 150.1,
+  "model": "/home/dadgrand/models/Qwen2.5-Coder-7B-Instruct",
+  "model_config_sha256": "c0242402ad6a13b331ea320feea8c7e3776ffb7a4eff0757b9cd667e116d9a28",
+  "data": "/home/dadgrand/lora_fullrun/data/native_pg_train.jsonl",
+  "data_sha256": "246f1ac702e99d683ceee2c5f18630bac0987d81031877e36e15b4d00cf4a0b5",
+  "trainer_file_sha256": "2597b2ea293f704cb6a12e9b568cf850f6990f5f0cfa3520327cb14bff757057",
+  "tolerances": {
+    "grad_rel_l2_toy_fp32": 1e-06,
+    "grad_rel_l2_bf16": 0.1,
+    "logit_abs_packed": 0.05,
+    "logit_abs_unpacked": 0.05
+  },
+  "accumulation_mode": "token-weighted: sum(NLL) / total valid targets per optimizer step",
+  "checks": [
+    {
+      "id": "accumulation_equivalence_toy_fp32",
+      "title": "accumulation algebra on a tiny fp32 Qwen2+LoRA (exact reference)",
+      "verdict": "pass",
+      "measurements": {
+        "fused_targets": 180,
+        "microbatches": 3,
+        "token_weighted_vs_fused": {
+          "rel_l2": 4.56e-07,
+          "max_abs": 1.6764e-08,
+          "cosine": 0.999999954,
+          "params_compared": 28,
+          "params_missing_grad": []
+        },
+        "naive_vs_fused": {
+          "rel_l2": 0.620289243,
+          "max_abs": 0.014625120908,
+          "cosine": 0.833867147,
+          "params_compared": 28,
+          "params_missing_grad": []
+        },
+        "tolerance": 1e-06
+      },
+      "detail": "toy fp32, 3 unequal microbatches: token-weighted rel L2 4.56e-07 (naive 6.20e-01)"
+    },
+    {
+      "id": "accumulation_equivalence_bf16",
+      "title": "one fused batch vs unequal microbatches [3,1] on the real 7B in bf16",
+      "verdict": "pass",
+      "measurements": {
+        "fused_loss": 0.365486,
+        "accumulated_loss": 0.364804,
+        "abs_loss_delta": 0.000682003,
+        "fused_targets": 295,
+        "split_targets": 295,
+        "token_weighted_vs_fused": {
+          "rel_l2": 0.082048615,
+          "max_abs": 0.001646345481,
+          "cosine": 0.996634165,
+          "params_compared": 392,
+          "params_missing_grad": []
+        },
+        "split_2_2_vs_fused": {
+          "rel_l2": 0.010343493,
+          "max_abs": 0.000240028516,
+          "cosine": 0.999946549,
+          "params_compared": 392,
+          "params_missing_grad": []
+        },
+        "tolerance": 0.1,
+        "note": "bf16 GEMM/attention results depend on tensor shape, so the fused batch and the microbatches are numerically different problems; the fp32 runs carry the exact verdict while this one measures production-precision drift"
+      },
+      "detail": "7B bf16, microbatches [3,1]: rel L2 8.20e-02, cosine 0.996634, |\u0394loss| 6.82e-04; [2,2] rel L2 1.03e-02"
+    },
+    {
+      "id": "accumulation_naive_mean_of_means",
+      "title": "control: the pre-fix mean-of-means must NOT match the fused batch",
+      "verdict": "pass",
+      "measurements": {
+        "naive_vs_fused": {
+          "rel_l2": 0.605806382,
+          "max_abs": 0.018186241388,
+          "cosine": 0.891818143,
+          "params_compared": 392,
+          "params_missing_grad": []
+        },
+        "token_weighted_vs_fused": {
+          "rel_l2": 0.081954643,
+          "max_abs": 0.001631086692,
+          "cosine": 0.996641621,
+          "params_compared": 392,
+          "params_missing_grad": []
+        },
+        "tolerance": 0.1,
+        "naive_loss": 0.364804,
+        "fused_loss": 0.365486
+      },
+      "detail": "pre-fix mean-of-means deviates from the fused gradient by rel L2 6.06e-01 (token-weighted 8.20e-02); verdict passes when the naive variant is outside tolerance"
+    },
+    {
+      "id": "target_token_accounting",
+      "title": "supervised-token count equals HF's shifted label count and the loss identity",
+      "verdict": "pass",
+      "measurements": {
+        "logged_supervised": 295,
+        "manual_shifted_label_count": 295,
+        "count_without_shift": 295,
+        "model_loss": 0.365486,
+        "manual_sum_ce_over_count": 0.365486,
+        "abs_diff": 1e-08
+      },
+      "detail": "logged 295 == (labels[:,1:]!=-100).sum() 295; loss 0.365486 vs sum(CE)/count 0.365486"
+    },
+    {
+      "id": "vram_throughput_real_length",
+      "title": "forward+backward+first optimizer step at real lengths, gradient checkpointing on",
+      "verdict": "pass",
+      "measurements": {
+        "runs": [
+          {
+            "selection": "sample",
+            "batch_lengths": [
+              622,
+              397,
+              1192,
+              849
+            ],
+            "microbatch": 4,
+            "microsteps": 1,
+            "input_tokens": 3060,
+            "supervised_targets": 295,
+            "seconds": 0.595,
+            "input_tokens_per_s": 5138.7,
+            "supervised_tokens_per_s": 495.4,
+            "peak_vram_gb": 58.47,
+            "peak_vram_reserved_gb": 61.58,
+            "grad_norm_before_clip": 0.435
+          },
+          {
+            "selection": "sample",
+            "batch_lengths": [
+              622,
+              397,
+              1192,
+              849
+            ],
+            "microbatch": 1,
+            "microsteps": 4,
+            "input_tokens": 3060,
+            "supervised_targets": 295,
+            "seconds": 0.589,
+            "input_tokens_per_s": 5195.5,
+            "supervised_tokens_per_s": 500.9,
+            "peak_vram_gb": 26.53,
+            "peak_vram_reserved_gb": 28.1,
+            "grad_norm_before_clip": 0.43
+          },
+          {
+            "selection": "longest",
+            "batch_lengths": [
+              2048,
+              2048,
+              2048,
+              2048
+            ],
+            "microbatch": 4,
+            "microsteps": 1,
+            "input_tokens": 8192,
+            "supervised_targets": 32,
+            "seconds": 1.098,
+            "input_tokens_per_s": 7459.9,
+            "supervised_tokens_per_s": 29.1,
+            "peak_vram_gb": 86.09,
+            "peak_vram_reserved_gb": 90.34,
+            "grad_norm_before_clip": 2.8059
+          },
+          {
+            "selection": "longest",
+            "batch_lengths": [
+              2048,
+              2048,
+              2048,
+              2048
+            ],
+            "microbatch": 1,
+            "microsteps": 4,
+            "input_tokens": 8192,
+            "supervised_targets": 32,
+            "seconds": 1.134,
+            "input_tokens_per_s": 7221.5,
+            "supervised_tokens_per_s": 28.2,
+            "peak_vram_gb": 33.81,
+            "peak_vram_reserved_gb": 34.72,
+            "grad_norm_before_clip": 2.2325
+          }
+        ],
+        "gradient_checkpointing": true
+      },
+      "detail": "microbatch 4 sample: 0.59s peak 58.5 GB; microbatch 1 (run B): 0.59s peak 26.5 GB; worst real-length case: longest mb4 1.10s peak 86.1 GB"
+    },
+    {
+      "id": "accumulation_equivalence_fp32_7b",
+      "title": "same 7B model in fp32: the accumulation algebra must be exact",
+      "verdict": "pass",
+      "measurements": {
+        "fused_loss": 0.36647934,
+        "accumulated_loss": 0.3664794,
+        "abs_loss_delta": 6.4656e-08,
+        "fused_targets": 295,
+        "split_targets": 295,
+        "token_weighted_vs_fused": {
+          "rel_l2": 3.2512e-05,
+          "max_abs": 8.5443e-07,
+          "cosine": 0.999999989,
+          "params_compared": 392,
+          "params_missing_grad": []
+        },
+        "tolerance": 0.0001
+      },
+      "detail": "7B fp32, microbatches [3,1]: rel L2 3.25e-05, cosine 0.999999989"
+    },
+    {
+      "id": "packing_no_leak_content_change",
+      "title": "changing sequence A (same length) must not move sequence B's logits",
+      "verdict": "pass",
+      "measurements": {
+        "len_a": 622,
+        "len_b": 397,
+        "content_change_max_abs_diff": 0.0,
+        "no_isolation_control_max_abs_diff": 33.9375,
+        "global_position_ids_control_max_abs_diff": 4.21875,
+        "packed_vs_unpacked_max_abs_diff": 0.0,
+        "packed_vs_short_standalone_max_abs_diff": 2.3046875,
+        "unpacked_reference": "B left-padded to the packed length (pad masked), same position IDs",
+        "layers_probed": 28,
+        "layers_with_nonzero_position_effect": 28,
+        "per_layer_position_effect_min": 1.0,
+        "per_layer_position_effect_first3": {
+          "0": 1.023438,
+          "1": 1.0,
+          "2": 1.0
+        },
+        "expected_targets": 169,
+        "packed_targets": 169,
+        "boundary_targets_removed": 1
+      },
+      "detail": "B logits move 0.00e+00 when A's content changes (no-isolation control 3.39e+01); packed vs same-length padded reference 0.00e+00; short standalone 2.30e+00"
+    },
+    {
+      "id": "packing_matches_unpacked",
+      "title": "isolated packed B must equal the unpacked B-only forward at the same length",
+      "verdict": "pass",
+      "measurements": {
+        "packed_vs_unpacked_max_abs_diff": 0.0,
+        "tolerance": 0.05
+      },
+      "detail": "packed vs same-length padded B: 0.00e+00"
+    },
+    {
+      "id": "packing_position_ids_reach_every_block",
+      "title": "per-sequence position IDs must affect every decoder block",
+      "verdict": "pass",
+      "measurements": {
+        "layers_probed": 28,
+        "layers_with_nonzero_position_effect": 28,
+        "min_per_layer_effect": 1.0,
+        "global_position_ids_control_max_abs_diff": 4.21875,
+        "per_layer_first3": {
+          "0": 1.023438,
+          "1": 1.0,
+          "2": 1.0
+        }
+      },
+      "detail": "position IDs change 28/28 blocks (min effect 1.00e+00)"
+    },
+    {
+      "id": "packing_boundary_labels",
+      "title": "no target crosses the A/B boundary (exactly one target removed)",
+      "verdict": "pass",
+      "measurements": {
+        "packed_targets": 169,
+        "expected_targets": 169,
+        "boundary_targets_removed": 1
+      },
+      "detail": "packed targets 169 == expected 169, 1 boundary target removed"
+    }
+  ],
+  "batch": {
+    "row_indices": [
+      4875,
+      6040,
+      2115,
+      4477
+    ],
+    "token_lengths": [
+      622,
+      397,
+      1192,
+      849
+    ],
+    "microbatch_split": [
+      3,
+      1
+    ],
+    "fused_targets": 295,
+    "split_targets": 295,
+    "pad_token_id": 151643,
+    "eos_token_id": 151645
+  },
+  "longest_rows": {
+    "row_indices": [
+      2010,
+      2011,
+      1984,
+      2021
+    ],
+    "token_lengths": [
+      2048,
+      2048,
+      2048,
+      2048
+    ]
+  },
+  "oom_fallback": {
+    "required": false,
+    "note": "no OOM at microbatch 4 or 1; no context reduction was needed, so no extra target tokens were lost beyond the loader's max_len=2048 truncation (408 answers, 16,465 target tokens, per cluster/batch_report.json)"
+  },
+  "summary": {
+    "checks": 10,
+    "passed": 10,
+    "failed": [],
+    "verdict": "pass"
+  }
+}

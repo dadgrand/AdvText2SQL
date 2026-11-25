@@ -1,0 +1,141 @@
+{
+  "rule": "highest dev-217 EX (gold-executable denominator) among the saved checkpoints; ties go to the earlier/cheaper checkpoint",
+  "candidates": [
+    {
+      "step": 100,
+      "adapter": "/home/dadgrand/runs/arms/cands/step100",
+      "adapter_sha256": "2a6c835ac2b53bc2865144a3647dc065b36f964f261618db3b4e4c52a4ca5110",
+      "training_seconds_at_save": 332.71,
+      "supervised_tokens_at_save": 87373,
+      "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand100_dev217.json",
+      "dev217": {
+        "correct": 92,
+        "n": 216,
+        "percent": 42.592592592592595,
+        "wilson95": [
+          0.3618426102593388,
+          0.49259794811924046
+        ],
+        "denominator": "gold_executable"
+      },
+      "dev217_ex_all": {
+        "correct": 92,
+        "n": 216,
+        "percent": 42.592592592592595,
+        "denominator": "shard_size"
+      }
+    },
+    {
+      "step": 200,
+      "adapter": "/home/dadgrand/runs/arms/cands/step200",
+      "adapter_sha256": "d9dca06edeeda3d49e379004e7715914c8291e95c2bf88196b46d6bc297d83f7",
+      "training_seconds_at_save": 661.07,
+      "supervised_tokens_at_save": 174144,
+      "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand200_dev217.json",
+      "dev217": {
+        "correct": 104,
+        "n": 216,
+        "percent": 48.148148148148145,
+        "wilson95": [
+          0.4157554324248798,
+          0.547854707169765
+        ],
+        "denominator": "gold_executable"
+      },
+      "dev217_ex_all": {
+        "correct": 104,
+        "n": 216,
+        "percent": 48.148148148148145,
+        "denominator": "shard_size"
+      }
+    },
+    {
+      "step": 300,
+      "adapter": "/home/dadgrand/runs/arms/cands/step300",
+      "adapter_sha256": "d2eff7bd497041ac74c211447fb779d08cb03ffac142e846c4b9715a6f1cf1da",
+      "training_seconds_at_save": 988.49,
+      "supervised_tokens_at_save": 260983,
+      "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand300_dev217.json",
+      "dev217": {
+        "correct": 99,
+        "n": 216,
+        "percent": 45.833333333333336,
+        "wilson95": [
+          0.3931930842281458,
+          0.524929729859805
+        ],
+        "denominator": "gold_executable"
+      },
+      "dev217_ex_all": {
+        "correct": 99,
+        "n": 216,
+        "percent": 45.833333333333336,
+        "denominator": "shard_size"
+      }
+    },
+    {
+      "step": 400,
+      "adapter": "/home/dadgrand/runs/arms/cands/step400",
+      "adapter_sha256": "17b6873f9c73dc8cba404deee351990619bffd4962a8e5b95ecdeb2018d8ebac",
+      "training_seconds_at_save": 1312.78,
+      "supervised_tokens_at_save": 346944,
+      "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand400_dev217.json",
+      "dev217": {
+        "correct": 100,
+        "n": 216,
+        "percent": 46.2962962962963,
+        "wilson95": [
+          0.39769434788607333,
+          0.5295259313032163
+        ],
+        "denominator": "gold_executable"
+      },
+      "dev217_ex_all": {
+        "correct": 100,
+        "n": 216,
+        "percent": 46.2962962962963,
+        "denominator": "shard_size"
+      }
+    },
+    {
+      "step": 407,
+      "adapter": "/home/dadgrand/runs/arms/cands/step407",
+      "adapter_sha256": "672e1dc64d48955b91ff3f360a2371cda5e6b1840fd7bc12ddaa600ff195461c",
+      "training_seconds_at_save": 1333.3,
+      "supervised_tokens_at_save": 352421,
+      "dev217_predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand407_dev217.json",
+      "dev217": {
+        "correct": 100,
+        "n": 216,
+        "percent": 46.2962962962963,
+        "wilson95": [
+          0.39769434788607333,
+          0.5295259313032163
+        ],
+        "denominator": "gold_executable"
+      },
+      "dev217_ex_all": {
+        "correct": 100,
+        "n": 216,
+        "percent": 46.2962962962963,
+        "denominator": "shard_size"
+      }
+    }
+  ],
+  "best_step": 200,
+  "best_adapter": "/home/dadgrand/runs/arms/cands/step200",
+  "best_adapter_sha256": "d9dca06edeeda3d49e379004e7715914c8291e95c2bf88196b46d6bc297d83f7",
+  "best_dev217": {
+    "correct": 104,
+    "n": 216,
+    "percent": 48.148148148148145,
+    "wilson95": [
+      0.4157554324248798,
+      0.547854707169765
+    ],
+    "denominator": "gold_executable"
+  },
+  "wall_time_to_best_checkpoint_s": 661.07,
+  "supervised_tokens_at_best_checkpoint": 174144,
+  "generated_at_utc": "2026-11-25T04:01:06Z"
+}

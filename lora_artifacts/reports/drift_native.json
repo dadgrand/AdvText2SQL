@@ -1,0 +1,867 @@
+{
+  "generated_at_utc": "2026-11-25T03:14:03+00:00",
+  "objective": "drift audit of native PostgreSQL gold against the SQLite originals",
+  "comparator": {
+    "project_module": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/datasets/bird_pg_unified/tools/verify_dataset.py",
+    "canon_function": "verify_dataset.canon (numerics rounded to 6 decimals, ints unified, datetimes isoformat, strings stripped)",
+    "extension": "timestamp strings parsed and canonicalised to 'YYYY-MM-DD HH:MM:SS'",
+    "semantics": "multiset equality (bag); strict comparison vs normalised comparison recorded"
+  },
+  "coverage": {
+    "sqlite_databases_available": [
+      "california_schools",
+      "card_games",
+      "codebase_community",
+      "debit_card_specializing",
+      "financial",
+      "student_club",
+      "superhero",
+      "toxicology"
+    ],
+    "sqlite_files": {
+      "california_schools": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/california_schools/california_schools.sqlite",
+        "sha256": "c0903eec662e63068fd1d14403d3d6c1d473287fc10c4356333ea58f878db983"
+      },
+      "card_games": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/card_games/card_games.sqlite",
+        "sha256": "c98bdb57fe7474da798b407785544b9af0daaad5d61fd21e2a73309493bc1227"
+      },
+      "codebase_community": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/codebase_community/codebase_community.sqlite",
+        "sha256": "92101be6d2a9f6adceea59d38f6d1c556087f9eea1432432a21268cb1348036d"
+      },
+      "debit_card_specializing": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/debit_card_specializing/debit_card_specializing.sqlite",
+        "sha256": "b3d149ad05746dbbe5116e229e17e18f09c39db43cf117d9ef3441753608b691"
+      },
+      "financial": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/financial/financial.sqlite",
+        "sha256": "d15d89cdb068a202b6f2b99342af44dffc1d52545b39ceaf62efdc0ba570101e"
+      },
+      "student_club": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/student_club/student_club.sqlite",
+        "sha256": "eb89bcfe97eefa386a27904ec5aa15159811a7eac894ec659a36e48fa9f76b77"
+      },
+      "superhero": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/superhero/superhero.sqlite",
+        "sha256": "75e94a2c3236ee3bb2c01fb97a1c4b4c1c269bcefd4eab1d04be323d2d0825b1"
+      },
+      "toxicology": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/toxicology/toxicology.sqlite",
+        "sha256": "35ef27ae6bdfda530e125ed369666ac0abb8bc8c0bcc0ad09407f547ecb61a93"
+      }
+    },
+    "indexed_codebase_copy": {
+      "source": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/data_cache/dev_databases/codebase_community/codebase_community.sqlite",
+      "copy": "/tmp/codebase_indexed.sqlite",
+      "created": false,
+      "source_sha256": "92101be6d2a9f6adceea59d38f6d1c556087f9eea1432432a21268cb1348036d",
+      "copy_sha256": "332ce75478c537de446616f8dd1f250e337c7350ba13d65e826d7d4803e0e10a"
+    },
+    "train_rows_total": 5110,
+    "train_rows_with_local_sqlite": 0,
+    "dev_rows_total": 217,
+    "dev_rows_audited": 217,
+    "historical_dev_rows_total": 241,
+    "historical_dev_rows_audited": 241,
+    "not_audited_reason": "no local SQLite database exists for the 52 train schema families; the eight local databases are the dev databases"
+  },
+  "class_definitions": {
+    "exact_match": "identical result tables under strict cell comparison",
+    "legitimate_engine_difference": "float formatting/precision, timestamp formatting or ordering: equal after the project normaliser",
+    "translation_defect": "the PostgreSQL gold is not a faithful translation of the SQLite gold (includes the package's reviewed semantic corrections)",
+    "server_side_data_defect": "the server data differs: leading-zero key loss, table-volume superset, or missing rows",
+    "not_comparable": "one of the two gold queries did not execute"
+  },
+  "current_unified_dev": {
+    "rows": 217,
+    "classes": {
+      "exact_match": 197,
+      "legitimate_engine_difference": 12,
+      "translation_defect": 7,
+      "server_side_data_defect": 1,
+      "not_comparable": 0
+    },
+    "subtypes": {
+      "float_formatting": 7,
+      "reviewed_correction": 7,
+      "rounding_precision": 1,
+      "superset_volume": 1,
+      "timestamp_formatting": 4
+    },
+    "per_database": {
+      "california_schools": {
+        "rows": 23,
+        "exact_match": 20,
+        "legitimate_engine_difference": 3,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "card_games": {
+        "rows": 28,
+        "exact_match": 27,
+        "legitimate_engine_difference": 0,
+        "translation_defect": 1,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "codebase_community": {
+        "rows": 26,
+        "exact_match": 22,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 2,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "debit_card_specializing": {
+        "rows": 19,
+        "exact_match": 13,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 4,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "financial": {
+        "rows": 27,
+        "exact_match": 25,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "student_club": {
+        "rows": 30,
+        "exact_match": 28,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "superhero": {
+        "rows": 36,
+        "exact_match": 35,
+        "legitimate_engine_difference": 1,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "toxicology": {
+        "rows": 28,
+        "exact_match": 27,
+        "legitimate_engine_difference": 0,
+        "translation_defect": 0,
+        "server_side_data_defect": 1,
+        "not_comparable": 0
+      }
+    },
+    "flagged": 20,
+    "usable_as_native_gold": 216,
+    "must_not_use": 1
+  },
+  "historical_dev_241": {
+    "rows": 241,
+    "classes": {
+      "exact_match": 214,
+      "legitimate_engine_difference": 13,
+      "translation_defect": 5,
+      "server_side_data_defect": 9,
+      "not_comparable": 0
+    },
+    "subtypes": {
+      "float_formatting": 7,
+      "leading_zero_key_loss": 1,
+      "missing_rows": 1,
+      "reviewed_correction": 2,
+      "rounding_precision": 2,
+      "semantic_mismatch": 3,
+      "superset_volume": 7,
+      "timestamp_formatting": 4
+    },
+    "per_database": {
+      "california_schools": {
+        "rows": 24,
+        "exact_match": 20,
+        "legitimate_engine_difference": 3,
+        "translation_defect": 0,
+        "server_side_data_defect": 1,
+        "not_comparable": 0
+      },
+      "card_games": {
+        "rows": 31,
+        "exact_match": 31,
+        "legitimate_engine_difference": 0,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "codebase_community": {
+        "rows": 27,
+        "exact_match": 25,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "debit_card_specializing": {
+        "rows": 26,
+        "exact_match": 18,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 5,
+        "server_side_data_defect": 1,
+        "not_comparable": 0
+      },
+      "financial": {
+        "rows": 29,
+        "exact_match": 26,
+        "legitimate_engine_difference": 3,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "student_club": {
+        "rows": 33,
+        "exact_match": 31,
+        "legitimate_engine_difference": 2,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "superhero": {
+        "rows": 36,
+        "exact_match": 35,
+        "legitimate_engine_difference": 1,
+        "translation_defect": 0,
+        "server_side_data_defect": 0,
+        "not_comparable": 0
+      },
+      "toxicology": {
+        "rows": 35,
+        "exact_match": 28,
+        "legitimate_engine_difference": 0,
+        "translation_defect": 0,
+        "server_side_data_defect": 7,
+        "not_comparable": 0
+      }
+    },
+    "flagged": 27,
+    "usable_as_native_gold": 229,
+    "must_not_use": 12
+  },
+  "every_non_exact_row_flagged": true,
+  "usability_policy": {
+    "exact_match": "usable as native gold",
+    "legitimate_engine_difference": "usable: equal after numeric/timestamp normalisation; the raw formatting difference is recorded as a flag",
+    "translation_defect": "reviewed_correction -> usable as the corrected native gold but flagged; semantic_mismatch -> not usable",
+    "server_side_data_defect": "not usable as native gold until the server data is fixed"
+  },
+  "excluded_rows": [],
+  "flagged_rows": [
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "34",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "39",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "49",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting",
+      "sqlite_shape": 858,
+      "pg_shape": 858,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "445",
+      "db_id": "card_games",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Include the explicitly requested card type in the projection.",
+      "sqlite_shape": 2,
+      "pg_shape": 2,
+      "corrections": [
+        "Include the explicitly requested card type in the projection."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "571",
+      "db_id": "codebase_community",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Count posts and votes independently; avoid the user-level JOIN fan-out.",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": [
+        "Count posts and votes independently; avoid the user-level JOIN fan-out."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "694",
+      "db_id": "codebase_community",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Order by comment timestamp and return the comment author; preserve anonymous comments with LEFT JOIN.",
+      "sqlite_shape": 10,
+      "pg_shape": 10,
+      "corrections": [
+        "Order by comment timestamp and return the comment author; preserve anonymous comments with LEFT JOIN."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "699",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "708",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting",
+      "sqlite_shape": 17030,
+      "pg_shape": 17030,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1473",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1496",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Aggregate consumption by segment, not customer.",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": [
+        "Aggregate consumption by segment, not customer."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1511",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "rounding_precision",
+      "usable_native_gold": true,
+      "reason": "numeric values differ only at the 1e-6 rounding boundary",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1525",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Count distinct customers rather than transactions for a percentage of customers.",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": [
+        "Count distinct customers rather than transactions for a percentage of customers."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1529",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Aggregate transactions directly; January means transaction dates in January.",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": [
+        "Aggregate transactions directly; January means transaction dates in January."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1531",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "usable_native_gold": true,
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Choose top customer by total spending; use SUM(price)/SUM(amount) as evidence specifies.",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": [
+        "Choose top customer by total spending; use SUM(price)/SUM(amount) as evidence specifies."
+      ]
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "113",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "179",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1339",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "1349",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "827",
+      "db_id": "superhero",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "usable_native_gold": true,
+      "reason": "same rows after the project normaliser; raw difference is float formatting",
+      "sqlite_shape": 1,
+      "pg_shape": 1,
+      "corrections": []
+    },
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "309",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "usable_native_gold": false,
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume and the gold also carries a reviewed correction",
+      "sqlite_shape": 5,
+      "pg_shape": 8,
+      "corrections": [
+        "Use TR346 stated by the question; count bond types per atom, not per bond type."
+      ]
+    }
+  ],
+  "historical_flagged_rows": [
+    {
+      "question_id": "34",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "39",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "49",
+      "db_id": "california_schools",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "question_id": "57",
+      "db_id": "california_schools",
+      "class": "server_side_data_defect",
+      "subtype": "leading_zero_key_loss",
+      "reason": "join key lost its leading zero when loaded on the server"
+    },
+    {
+      "question_id": "699",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "question_id": "708",
+      "db_id": "codebase_community",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "question_id": "1473",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "1476",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "semantic_mismatch",
+      "reason": "result tables differ and no data-volume or reviewed-correction cause matches"
+    },
+    {
+      "question_id": "1482",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "semantic_mismatch",
+      "reason": "result tables differ and no data-volume or reviewed-correction cause matches"
+    },
+    {
+      "question_id": "1511",
+      "db_id": "debit_card_specializing",
+      "class": "legitimate_engine_difference",
+      "subtype": "rounding_precision",
+      "reason": "numeric values differ only at the 1e-6 rounding boundary"
+    },
+    {
+      "question_id": "1524",
+      "db_id": "debit_card_specializing",
+      "class": "server_side_data_defect",
+      "subtype": "missing_rows",
+      "reason": "PostgreSQL returns fewer rows than the SQLite original"
+    },
+    {
+      "question_id": "1526",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "semantic_mismatch",
+      "reason": "result tables differ and no data-volume or reviewed-correction cause matches"
+    },
+    {
+      "question_id": "1529",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Aggregate transactions directly; January means transaction dates in January."
+    },
+    {
+      "question_id": "1531",
+      "db_id": "debit_card_specializing",
+      "class": "translation_defect",
+      "subtype": "reviewed_correction",
+      "reason": "reviewed semantic correction adopted by the package; the native gold intentionally differs from the stale SQLite label: Choose top customer by total spending; use SUM(price)/SUM(amount) as evidence specifies."
+    },
+    {
+      "question_id": "113",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "timestamp_formatting",
+      "reason": "same rows after the project normaliser; raw difference is timestamp formatting"
+    },
+    {
+      "question_id": "125",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "rounding_precision",
+      "reason": "numeric values differ only at the 1e-6 rounding boundary"
+    },
+    {
+      "question_id": "179",
+      "db_id": "financial",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "1339",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "1349",
+      "db_id": "student_club",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "827",
+      "db_id": "superhero",
+      "class": "legitimate_engine_difference",
+      "subtype": "float_formatting",
+      "reason": "same rows after the project normaliser; raw difference is float formatting"
+    },
+    {
+      "question_id": "207",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "question_id": "239",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "question_id": "246",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "question_id": "276",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "question_id": "292",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "question_id": "306",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    },
+    {
+      "question_id": "326",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume"
+    }
+  ],
+  "must_not_use_as_native_gold": [
+    {
+      "source_dataset": "unified_dev_217",
+      "question_id": "309",
+      "db_id": "toxicology",
+      "class": "server_side_data_defect",
+      "subtype": "superset_volume",
+      "reason": "server tables hold more rows than the BIRD SQLite original; result differs by data volume and the gold also carries a reviewed correction"
+    }
+  ],
+  "known_cases": {
+    "california_schools_key_normalisation": {
+      "satscore_key_lengths_sqlite": {
+        "14": 2269
+      },
+      "satscore_key_lengths_pg": {
+        "13": 211,
+        "14": 2058
+      },
+      "lost_leading_zero": true,
+      "lost_leading_zero_rows": 211,
+      "satscore_rows": 2269,
+      "lost_share": 0.093,
+      "join_satscores_frpm": {
+        "sqlite": 1782,
+        "pg_unrepaired": 1620,
+        "pg_repaired": 1782
+      },
+      "join_satscores_schools": {
+        "sqlite": 2269,
+        "pg_unrepaired": 2058,
+        "pg_repaired": 2269
+      },
+      "dev_rows_using_satscores": 10,
+      "dev_rows_detail": [
+        {
+          "question_id": "9",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "10",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "13",
+          "verification": "sqlite_equivalence",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "17",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "27",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "36",
+          "verification": "sqlite_equivalence",
+          "has_cast_repair": false,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "37",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "39",
+          "verification": "sqlite_equivalence",
+          "has_cast_repair": true,
+          "class": "legitimate_engine_difference"
+        },
+        {
+          "question_id": "43",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        },
+        {
+          "question_id": "50",
+          "verification": "sqlite_equivalence_repaired",
+          "has_cast_repair": true,
+          "class": "exact_match"
+        }
+      ],
+      "rows_marked_repaired": 7,
+      "rows_with_cast_repair": 9,
+      "claim_from_readme": "211 of 2,269 satscores.cds entries lost the leading zero; join matches 1,620 instead of 1,782; seven dev rows repaired",
+      "verdict": "confirmed and re-measured: 211/2,269 keys lost the zero, the unrepaired satscores-frpm join returns 1,620 rows vs 1,782 on SQLite (and the satscores-schools join 2,058 vs 2,269); the package repairs 7 rows and all 10 current rows that join satscores pass SQLite equivalence. The historical eighth affected row (57) is excluded from unified dev-217."
+    },
+    "toxicology_superset": {
+      "tables": {
+        "atom": {
+          "sqlite": 9111,
+          "pg": 12333,
+          "delta": 3222
+        },
+        "bond": {
+          "sqlite": 9156,
+          "pg": 12379,
+          "delta": 3223
+        },
+        "connected": {
+          "sqlite": 18312,
+          "pg": 24758,
+          "delta": 6446
+        },
+        "molecule": {
+          "sqlite": 343,
+          "pg": 343,
+          "delta": 0
+        }
+      },
+      "tables_with_drift": [
+        "atom",
+        "bond",
+        "connected"
+      ],
+      "superset": true,
+      "total_delta": 12891,
+      "historical_diverging_rows": [
+        "207",
+        "239",
+        "246",
+        "276",
+        "292",
+        "306",
+        "326"
+      ],
+      "current_diverging_rows": [
+        "309"
+      ],
+      "claim_from_readme": "tables are a superset of the original; all seven historical divergences are explained by the larger volume",
+      "verdict": "confirmed: 7/7 historical divergences are exactly the review-excluded tox rows; current dev-217 has one remaining flagged row (309, superset + reviewed correction)"
+    }
+  },
+  "method": {
+    "steps": [
+      "load unified dev-217 and historical dev-241 rows",
+      "run sqlite_gold_sql on the local SQLite file and pg_gold_sql on the server",
+      "normalise with the project canon + timestamp canonicalisation",
+      "compare strict and normalised row multisets (bag semantics)",
+      "classify every non-exact row; flag or exclude it"
+    ],
+    "exclusions": "no row is silently kept: every non-exact row has class/subtype/reason and usable_native_gold; server-defect rows are listed in must_not_use",
+    "tunnel": "127.0.0.1:5444 -> 10.11.1.6:5444 via repo/ssh_tunnel.py"
+  }
+}

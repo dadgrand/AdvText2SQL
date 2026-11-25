@@ -1,0 +1,593 @@
+{
+  "generated_at": "2026-11-25T05:11:17+0300",
+  "methodology": "cluster/judge/METHODOLOGY.md (G1..G8, accept/repair/reject, unclear counts as reject)",
+  "model": {
+    "endpoint": "http://127.0.0.1:8081/v1/chat/completions",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "temperature": 0,
+    "enable_thinking": false,
+    "batch_max": 8
+  },
+  "inputs": [
+    {
+      "path": "delivery/out/synth/dropped_truncated.jsonl",
+      "exists": true,
+      "lines": 2494,
+      "sha256": "6abb793c1fb7aea4bb4dbf8b4a907e18d1f5d23a464ede75a41ea641864aaed9"
+    }
+  ],
+  "verdicts_file": "cluster/judge/control_gate_rejected_verdicts.jsonl",
+  "verdicts_sha256": "1301e927574f9641690248edf9646709b31f8baab87e54a35ebbd152ab4d57b8",
+  "total_judged": 24,
+  "verdict_counts": {
+    "accept": 19,
+    "repair": 4,
+    "reject": 1,
+    "unclear": 0
+  },
+  "mismatch": {
+    "definition": "verdict != accept (repair + reject + unclear)",
+    "count": 5,
+    "rate": 0.208333,
+    "wilson95": {
+      "low": 0.092448,
+      "high": 0.404705
+    },
+    "accept_rate": 0.791667,
+    "accept_wilson95": [
+      0.595295,
+      0.907552
+    ]
+  },
+  "criterion_failure_counts": {
+    "G1": 5,
+    "G2": 0,
+    "G3": 0,
+    "G4": 0,
+    "G5": 0,
+    "G6": 0,
+    "G7": 0,
+    "G8": 1
+  },
+  "first_failure_counts": {
+    "G1": 5
+  },
+  "defect_counts": {
+    "hidden_limit": 3,
+    "unstated_filter": 1,
+    "ambiguous": 1
+  },
+  "per_source": {
+    "delivery/out/synth/dropped_truncated.jsonl": {
+      "total": 24,
+      "accept": 19,
+      "repair": 4,
+      "reject": 1,
+      "unclear": 0
+    }
+  },
+  "unclear_note": "unclear = record lacked the text needed to decide; counted as a reject for the rate, reported separately here",
+  "examples": [
+    {
+      "sample_id": "synth-05353",
+      "variant": 2,
+      "db_id": "hockey",
+      "source": "delivery/out/synth/dropped_truncated.jsonl",
+      "verdict": "reject",
+      "failed": [
+        "G1",
+        "G8"
+      ],
+      "defect": "ambiguous",
+      "reason": "Question asks for champion league code with largest games, but SQL joins",
+      "fix_hint": null,
+      "result_shape": "20x2",
+      "question": null,
+      "evidence": null,
+      "pg_gold_sql": null
+    },
+    {
+      "sample_id": "synth-02406",
+      "variant": 1,
+      "db_id": "book_publishing_company",
+      "source": "delivery/out/synth/dropped_truncated.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "hidden_limit",
+      "reason": "Question asks for ten, SQL lacks explicit LIMIT 10.",
+      "fix_hint": "Add 'limit the results to ten' to the question.",
+      "result_shape": "10x3",
+      "question": null,
+      "evidence": null,
+      "pg_gold_sql": null
+    },
+    {
+      "sample_id": "synth-02566",
+      "variant": 1,
+      "db_id": "codebase_comments",
+      "source": "delivery/out/synth/dropped_truncated.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "hidden_limit",
+      "reason": "Question asks for ten, SQL lacks explicit LIMIT 10.",
+      "fix_hint": "Add 'limit the results to ten' to the question.",
+      "result_shape": "10x3",
+      "question": null,
+      "evidence": null,
+      "pg_gold_sql": null
+    },
+    {
+      "sample_id": "synth-02723",
+      "variant": 2,
+      "db_id": "movies_4",
+      "source": "delivery/out/synth/dropped_truncated.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "hidden_limit",
+      "reason": "Question asks for five, SQL lacks explicit LIMIT 5.",
+      "fix_hint": "Add 'limit the results to five' to the question.",
+      "result_shape": "5x1",
+      "question": null,
+      "evidence": null,
+      "pg_gold_sql": null
+    },
+    {
+      "sample_id": "synth-01969",
+      "variant": 2,
+      "db_id": "donor",
+      "source": "delivery/out/synth/dropped_truncated.jsonl",
+      "verdict": "repair",
+      "failed": [
+        "G1"
+      ],
+      "defect": "unstated_filter",
+      "reason": "SQL filters by school_nlns='f' which is stated in question.",
+      "fix_hint": null,
+      "result_shape": "20x3",
+      "question": null,
+      "evidence": null,
+      "pg_gold_sql": null
+    }
+  ],
+  "gate_agreement": {
+    "gate_labelled_pairs": 24,
+    "gate_accepted": 0,
+    "gate_rejected": 24,
+    "agreeing": 5,
+    "disagreeing": 19,
+    "agreement_rate": 0.208333,
+    "agreement_wilson95": [
+      0.092448,
+      0.404705
+    ],
+    "false_negatives_gate_accepted_but_judge_mismatch": 0,
+    "false_positives_gate_rejected_but_judge_accept": 19,
+    "per_pair": [
+      {
+        "sample_id": "synth-01969",
+        "variant": 1,
+        "db_id": "donor",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters, projections, and literals match question and evidence.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-02723",
+        "variant": 2,
+        "db_id": "movies_4",
+        "gate": "reject",
+        "gate_reason": "LIMIT 5 reached and not named in the question",
+        "judge_verdict": "repair",
+        "judge_defect": "hidden_limit",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "Question asks for five, SQL lacks explicit LIMIT 5.",
+        "agree": true,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05884",
+        "variant": 2,
+        "db_id": "beer_factory",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Aggregates, joins, and projections match the question.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-02566",
+        "variant": 1,
+        "db_id": "codebase_comments",
+        "gate": "reject",
+        "gate_reason": "LIMIT 10 reached and not named in the question",
+        "judge_verdict": "repair",
+        "judge_defect": "hidden_limit",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "Question asks for ten, SQL lacks explicit LIMIT 10.",
+        "agree": true,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-02406",
+        "variant": 1,
+        "db_id": "book_publishing_company",
+        "gate": "reject",
+        "gate_reason": "LIMIT 10 reached and not named in the question",
+        "judge_verdict": "repair",
+        "judge_defect": "hidden_limit",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "Question asks for ten, SQL lacks explicit LIMIT 10.",
+        "agree": true,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05684",
+        "variant": 2,
+        "db_id": "simpson_episodes",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters, joins, and subquery logic match the question.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-06100",
+        "variant": 2,
+        "db_id": "hockey",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters, joins, and aggregates match the question intent.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05665",
+        "variant": 2,
+        "db_id": "shipping",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters, joins, and projections match the question.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-01969",
+        "variant": 2,
+        "db_id": "donor",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "repair",
+        "judge_defect": "unstated_filter",
+        "judge_failed": [
+          "G1"
+        ],
+        "judge_reason": "SQL filters by school_nlns='f' which is stated in question.",
+        "agree": true,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05353",
+        "variant": 2,
+        "db_id": "hockey",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "reject",
+        "judge_defect": "ambiguous",
+        "judge_failed": [
+          "G1",
+          "G8"
+        ],
+        "judge_reason": "Question asks for champion league code with largest games, but SQL joins",
+        "agree": true,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04409",
+        "variant": 1,
+        "db_id": "computer_student",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly retrieves staff IDs for Level_400 courses.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-07169",
+        "variant": 1,
+        "db_id": "books",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly retrieves authors and titles for specific date.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-06182",
+        "variant": 2,
+        "db_id": "address",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly finds max district per state abbreviation.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04651",
+        "variant": 2,
+        "db_id": "image_and_language",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly retrieves attribute IDs for objects with height 96.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05875",
+        "variant": 2,
+        "db_id": "airline",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly finds max departure time per airport code.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05969",
+        "variant": 2,
+        "db_id": "cookbook",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly finds max min_qty per ingredient name.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-00493",
+        "variant": 1,
+        "db_id": "law_episode",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: episode, role, category for credited true.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-06556",
+        "variant": 2,
+        "db_id": "hockey",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: playoff PIM for teams with 14 OT losses.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04564",
+        "variant": 1,
+        "db_id": "hockey",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: scoring years for teams with 7 losses.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-06377",
+        "variant": 2,
+        "db_id": "cookbook",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: plural and max min_qty per ingredient.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-05336",
+        "variant": 1,
+        "db_id": "hockey",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: SHG in season with max GF for benchminor 44.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04459",
+        "variant": 2,
+        "db_id": "food_inspection",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: inspection dates for specific owner address.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04668",
+        "variant": 2,
+        "db_id": "image_and_language",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: relationship types for objects at x=97.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-06415",
+        "variant": 2,
+        "db_id": "donor",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: max optional support per project and type.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      }
+    ],
+    "clearest_disagreements": [
+      {
+        "sample_id": "synth-00493",
+        "variant": 1,
+        "db_id": "law_episode",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: episode, role, category for credited true.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-01969",
+        "variant": 1,
+        "db_id": "donor",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Filters, projections, and literals match question and evidence.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04409",
+        "variant": 1,
+        "db_id": "computer_student",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "SQL correctly retrieves staff IDs for Level_400 courses.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04459",
+        "variant": 2,
+        "db_id": "food_inspection",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: inspection dates for specific owner address.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      },
+      {
+        "sample_id": "synth-04564",
+        "variant": 1,
+        "db_id": "hockey",
+        "gate": "reject",
+        "gate_reason": "LIMIT 20 reached and not named in the question",
+        "judge_verdict": "accept",
+        "judge_defect": null,
+        "judge_failed": [],
+        "judge_reason": "Matches question: scoring years for teams with 7 losses.",
+        "agree": false,
+        "question": null,
+        "pg_gold_sql": null
+      }
+    ]
+  }
+}
