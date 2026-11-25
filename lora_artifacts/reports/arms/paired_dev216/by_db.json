@@ -1,0 +1,358 @@
+{
+ "ood876": {
+  "shard": "ood876",
+  "label": "OOD-876 (native PG gold, clean split)",
+  "scored": 811,
+  "databases": {
+   "movie_3": {
+    "n": 189,
+    "correct_a": 138,
+    "correct_b": 148,
+    "fixes": 21,
+    "regressions": 11,
+    "net": 10,
+    "net_negative": false,
+    "share_of_scored": 0.233046,
+    "ex_a": 0.730159,
+    "ex_b": 0.783069
+   },
+   "movies_4": {
+    "n": 134,
+    "correct_a": 105,
+    "correct_b": 113,
+    "fixes": 13,
+    "regressions": 5,
+    "net": 8,
+    "net_negative": false,
+    "share_of_scored": 0.165228,
+    "ex_a": 0.783582,
+    "ex_b": 0.843284
+   },
+   "talkingdata": {
+    "n": 109,
+    "correct_a": 91,
+    "correct_b": 103,
+    "fixes": 14,
+    "regressions": 2,
+    "net": 12,
+    "net_negative": false,
+    "share_of_scored": 0.134402,
+    "ex_a": 0.834862,
+    "ex_b": 0.944954
+   },
+   "law_episode": {
+    "n": 89,
+    "correct_a": 50,
+    "correct_b": 67,
+    "fixes": 19,
+    "regressions": 2,
+    "net": 17,
+    "net_negative": false,
+    "share_of_scored": 0.109741,
+    "ex_a": 0.561798,
+    "ex_b": 0.752809
+   },
+   "disney": {
+    "n": 74,
+    "correct_a": 39,
+    "correct_b": 46,
+    "fixes": 17,
+    "regressions": 10,
+    "net": 7,
+    "net_negative": false,
+    "share_of_scored": 0.091245,
+    "ex_a": 0.527027,
+    "ex_b": 0.621622
+   },
+   "menu": {
+    "n": 68,
+    "correct_a": 45,
+    "correct_b": 46,
+    "fixes": 4,
+    "regressions": 3,
+    "net": 1,
+    "net_negative": false,
+    "share_of_scored": 0.083847,
+    "ex_a": 0.661765,
+    "ex_b": 0.676471
+   },
+   "sales_in_weather": {
+    "n": 42,
+    "correct_a": 24,
+    "correct_b": 28,
+    "fixes": 6,
+    "regressions": 2,
+    "net": 4,
+    "net_negative": false,
+    "share_of_scored": 0.051788,
+    "ex_a": 0.571429,
+    "ex_b": 0.666667
+   },
+   "social_media": {
+    "n": 39,
+    "correct_a": 32,
+    "correct_b": 35,
+    "fixes": 5,
+    "regressions": 2,
+    "net": 3,
+    "net_negative": false,
+    "share_of_scored": 0.048089,
+    "ex_a": 0.820513,
+    "ex_b": 0.897436
+   },
+   "european_football_1": {
+    "n": 36,
+    "correct_a": 26,
+    "correct_b": 25,
+    "fixes": 3,
+    "regressions": 4,
+    "net": -1,
+    "net_negative": true,
+    "share_of_scored": 0.04439,
+    "ex_a": 0.722222,
+    "ex_b": 0.694444
+   },
+   "music_tracker": {
+    "n": 31,
+    "correct_a": 24,
+    "correct_b": 27,
+    "fixes": 3,
+    "regressions": 0,
+    "net": 3,
+    "net_negative": false,
+    "share_of_scored": 0.038224,
+    "ex_a": 0.774194,
+    "ex_b": 0.870968
+   }
+  },
+  "net_negative_databases": [
+   "european_football_1"
+  ],
+  "fixes": 105,
+  "regressions": 41,
+  "net": 64,
+  "share_basis": "share_of_scored is n / 811 scored (gold-executable) ids"
+ },
+ "dev216": {
+  "shard": "dev216",
+  "label": "dev-216 (drift-clean, native PG gold)",
+  "scored": 216,
+  "databases": {
+   "superhero": {
+    "n": 36,
+    "correct_a": 23,
+    "correct_b": 25,
+    "fixes": 6,
+    "regressions": 4,
+    "net": 2,
+    "net_negative": false,
+    "share_of_scored": 0.166667,
+    "ex_a": 0.638889,
+    "ex_b": 0.694444
+   },
+   "student_club": {
+    "n": 30,
+    "correct_a": 17,
+    "correct_b": 20,
+    "fixes": 4,
+    "regressions": 1,
+    "net": 3,
+    "net_negative": false,
+    "share_of_scored": 0.138889,
+    "ex_a": 0.566667,
+    "ex_b": 0.666667
+   },
+   "card_games": {
+    "n": 28,
+    "correct_a": 13,
+    "correct_b": 12,
+    "fixes": 1,
+    "regressions": 2,
+    "net": -1,
+    "net_negative": true,
+    "share_of_scored": 0.12963,
+    "ex_a": 0.464286,
+    "ex_b": 0.428571
+   },
+   "financial": {
+    "n": 27,
+    "correct_a": 2,
+    "correct_b": 9,
+    "fixes": 8,
+    "regressions": 1,
+    "net": 7,
+    "net_negative": false,
+    "share_of_scored": 0.125,
+    "ex_a": 0.074074,
+    "ex_b": 0.333333
+   },
+   "toxicology": {
+    "n": 27,
+    "correct_a": 10,
+    "correct_b": 11,
+    "fixes": 5,
+    "regressions": 4,
+    "net": 1,
+    "net_negative": false,
+    "share_of_scored": 0.125,
+    "ex_a": 0.37037,
+    "ex_b": 0.407407
+   },
+   "codebase_community": {
+    "n": 26,
+    "correct_a": 15,
+    "correct_b": 16,
+    "fixes": 3,
+    "regressions": 2,
+    "net": 1,
+    "net_negative": false,
+    "share_of_scored": 0.12037,
+    "ex_a": 0.576923,
+    "ex_b": 0.615385
+   },
+   "california_schools": {
+    "n": 23,
+    "correct_a": 3,
+    "correct_b": 2,
+    "fixes": 2,
+    "regressions": 3,
+    "net": -1,
+    "net_negative": true,
+    "share_of_scored": 0.106481,
+    "ex_a": 0.130435,
+    "ex_b": 0.086957
+   },
+   "debit_card_specializing": {
+    "n": 19,
+    "correct_a": 4,
+    "correct_b": 6,
+    "fixes": 2,
+    "regressions": 0,
+    "net": 2,
+    "net_negative": false,
+    "share_of_scored": 0.087963,
+    "ex_a": 0.210526,
+    "ex_b": 0.315789
+   }
+  },
+  "net_negative_databases": [
+   "california_schools",
+   "card_games"
+  ],
+  "fixes": 31,
+  "regressions": 17,
+  "net": 14,
+  "share_basis": "share_of_scored is n / 216 scored (gold-executable) ids"
+ },
+ "ex241": {
+  "shard": "ex241",
+  "label": "historical 241 (own evaluator, continuity only)",
+  "scored": 209,
+  "databases": {
+   "student_club": {
+    "n": 33,
+    "correct_a": 17,
+    "correct_b": 21,
+    "fixes": 5,
+    "regressions": 1,
+    "net": 4,
+    "net_negative": false,
+    "share_of_scored": 0.157895,
+    "ex_a": 0.515152,
+    "ex_b": 0.636364
+   },
+   "toxicology": {
+    "n": 32,
+    "correct_a": 12,
+    "correct_b": 13,
+    "fixes": 6,
+    "regressions": 5,
+    "net": 1,
+    "net_negative": false,
+    "share_of_scored": 0.15311,
+    "ex_a": 0.375,
+    "ex_b": 0.40625
+   },
+   "superhero": {
+    "n": 30,
+    "correct_a": 23,
+    "correct_b": 22,
+    "fixes": 3,
+    "regressions": 4,
+    "net": -1,
+    "net_negative": true,
+    "share_of_scored": 0.143541,
+    "ex_a": 0.766667,
+    "ex_b": 0.733333
+   },
+   "financial": {
+    "n": 26,
+    "correct_a": 2,
+    "correct_b": 9,
+    "fixes": 8,
+    "regressions": 1,
+    "net": 7,
+    "net_negative": false,
+    "share_of_scored": 0.124402,
+    "ex_a": 0.076923,
+    "ex_b": 0.346154
+   },
+   "card_games": {
+    "n": 24,
+    "correct_a": 12,
+    "correct_b": 11,
+    "fixes": 1,
+    "regressions": 2,
+    "net": -1,
+    "net_negative": true,
+    "share_of_scored": 0.114833,
+    "ex_a": 0.5,
+    "ex_b": 0.458333
+   },
+   "codebase_community": {
+    "n": 23,
+    "correct_a": 10,
+    "correct_b": 12,
+    "fixes": 3,
+    "regressions": 1,
+    "net": 2,
+    "net_negative": false,
+    "share_of_scored": 0.110048,
+    "ex_a": 0.434783,
+    "ex_b": 0.521739
+   },
+   "debit_card_specializing": {
+    "n": 21,
+    "correct_a": 5,
+    "correct_b": 9,
+    "fixes": 4,
+    "regressions": 0,
+    "net": 4,
+    "net_negative": false,
+    "share_of_scored": 0.100478,
+    "ex_a": 0.238095,
+    "ex_b": 0.428571
+   },
+   "california_schools": {
+    "n": 20,
+    "correct_a": 2,
+    "correct_b": 2,
+    "fixes": 2,
+    "regressions": 2,
+    "net": 0,
+    "net_negative": false,
+    "share_of_scored": 0.095694,
+    "ex_a": 0.1,
+    "ex_b": 0.1
+   }
+  },
+  "net_negative_databases": [
+   "card_games",
+   "superhero"
+  ],
+  "fixes": 32,
+  "regressions": 16,
+  "net": 16,
+  "share_basis": "share_of_scored is n / 209 scored (gold-executable) ids"
+ }
+}

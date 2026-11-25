@@ -1,0 +1,535 @@
+{
+  "tool": "cluster.eval_shards",
+  "version": 1,
+  "meta": {
+    "generated_at": "2026-11-25T05:00:35+00:00",
+    "predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ex241_B.json",
+    "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ex241_A.json",
+    "self_compare": false,
+    "run_label": null,
+    "n_boot": 10000,
+    "seed": 0,
+    "db": "tcp:127.0.0.1:5444",
+    "server_version": "15.15 (Debian 15.15-1.pgdg13+1)",
+    "server_error": null,
+    "instances": {
+      "endpoints": {
+        "default": "tcp:127.0.0.1:5444",
+        "overrides": {}
+      },
+      "versions": {
+        "tcp:127.0.0.1:5444": "15.15 (Debian 15.15-1.pgdg13+1)"
+      }
+    },
+    "offline": false,
+    "contamination": {
+      "ex241": "unknown"
+    },
+    "contamination_note": "historical continuity shard, own evaluator; batch-1 serving contract (t4); not a result.",
+    "contamination_finding": null,
+    "split_manifest": null,
+    "cache": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_cache/exec_cache.json",
+    "workers": 8,
+    "statement_timeout": "20s",
+    "execution": {
+      "executed": 0,
+      "cache_hits": 691,
+      "skipped_offline": 0,
+      "errors": 0
+    },
+    "ledger_check": null,
+    "results_usable": [],
+    "duration_seconds": 0.4
+  },
+  "shard_order": [
+    "ex241"
+  ],
+  "shards": {
+    "ex241": {
+      "key": "ex241",
+      "title": "Historical EX/241 (own evaluator, continuity only)",
+      "quality": "continuity_only",
+      "criterion": "execution_ex",
+      "gold": {
+        "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/data/bird_large.json",
+        "exists": true,
+        "sha256": "54e57841bf5bf14261f6eb886674024be950dfed5b32eff85d6936098d707567",
+        "field": "SQL",
+        "rewrite": "repo_rewrite",
+        "criterion": "execution_ex",
+        "n_cases": 241,
+        "n_scored_cases": 241,
+        "n_excluded_cases": 0
+      },
+      "notes": [
+        "Historical shard: SQLite-dialect gold scored through the repo's own repo_rewrite (sqlglot sqlite->postgres plus the shipped NULLIF regex). Continuity with the frozen ledger only; this gold pipeline is NOT used for any other shard.",
+        "Contains the 217 reviewed dev ids (216 of them scored after the drift policy) plus 24 excluded ids; the denominators differ from dev217."
+      ],
+      "shard": {
+        "n_cases": 241,
+        "file_rows": 241,
+        "excluded_cases": 0,
+        "pre_policy_size": null,
+        "n_databases": 8,
+        "expected_size": 241,
+        "size_matches_expected": true
+      },
+      "denominators": {
+        "shard_size": {
+          "n": 241,
+          "definition": "cases in the shard file; denominator of EX/all"
+        },
+        "predictions_present": {
+          "n": 241,
+          "definition": "ids in the shard that the predictions file covers (after id normalisation)"
+        },
+        "predictions_missing": {
+          "n": 0,
+          "definition": "ids in the shard with no prediction; they stay in EX/all and count as wrong"
+        },
+        "gold_executed": {
+          "n": 209,
+          "definition": "gold queries that executed on the live server; denominator of EX/gold-executable"
+        },
+        "gold_unexecutable": {
+          "n": 32,
+          "definition": "gold queries that failed to execute; removed from the EX denominator, kept in EX/all"
+        },
+        "ex_denominator": {
+          "n": 209,
+          "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
+        },
+        "prediction_executed": {
+          "n": 181,
+          "definition": "predictions that executed, among gold-executable cases"
+        },
+        "prediction_unexecutable": {
+          "n": 28,
+          "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
+        },
+        "prediction_missing_among_gold_executable": {
+          "n": 0,
+          "definition": "gold-executable cases with no prediction at all (missing from the predictions file)"
+        },
+        "not_executed": {
+          "n": 0,
+          "definition": "cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable"
+        }
+      },
+      "ex_all": {
+        "correct": 99,
+        "n": 241,
+        "value": 0.4107883817427386,
+        "percent": 41.07883817427386,
+        "wilson95": [
+          0.3505481155598452,
+          0.47382803300391885
+        ],
+        "denominator": "shard_size",
+        "denominator_definition": "EX over every case in the shard (unexecutable gold and missing predictions count as wrong)",
+        "result_usable": false
+      },
+      "ex_gold_executable": {
+        "correct": 99,
+        "n": 209,
+        "value": 0.47368421052631576,
+        "percent": 47.36842105263158,
+        "wilson95": [
+          0.4070783253584266,
+          0.5412400142272139
+        ],
+        "denominator": "gold_executable",
+        "denominator_definition": "EX over cases whose gold executed (BIRD protocol); the denominator the playbook uses",
+        "result_usable": false
+      },
+      "gold_side": {
+        "executed": 209,
+        "unexecutable": 32,
+        "executable_percent": 86.72199170124482,
+        "categories": {
+          "syntax_error": 30,
+          "undefined_column": 2
+        },
+        "unexecutable_ids": [
+          "116",
+          "125",
+          "1482",
+          "1490",
+          "1525",
+          "1531",
+          "1533",
+          "169",
+          "219",
+          "298",
+          "317",
+          "35",
+          "371",
+          "4",
+          "402",
+          "415",
+          "416",
+          "417",
+          "487",
+          "506",
+          "598",
+          "62",
+          "639",
+          "701",
+          "716",
+          "743",
+          "760",
+          "775",
+          "818",
+          "834",
+          "835",
+          "85"
+        ],
+        "denominator": "shard_size"
+      },
+      "prediction_side": {
+        "executed": 181,
+        "unexecutable": 28,
+        "missing": 0,
+        "ambiguous": 0,
+        "denominator": "gold_executable",
+        "categories": {
+          "undefined_column": 23,
+          "undefined_function": 3,
+          "syntax_error": 2
+        },
+        "unexecutable_ids": [
+          "122",
+          "1342",
+          "137",
+          "1401",
+          "1448",
+          "145",
+          "150",
+          "1529",
+          "158",
+          "17",
+          "179",
+          "180",
+          "27",
+          "28",
+          "34",
+          "393",
+          "431",
+          "434",
+          "445",
+          "633",
+          "634",
+          "708",
+          "73",
+          "81",
+          "825",
+          "89",
+          "94",
+          "95"
+        ],
+        "not_attempted_because_gold_failed": 32
+      },
+      "micro": {
+        "correct": 99,
+        "n": 209,
+        "value": 0.47368421052631576,
+        "percent": 47.36842105263158,
+        "denominator": "gold_executable",
+        "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)",
+        "result_usable": false
+      },
+      "macro": {
+        "mean_ex": 0.453843088523795,
+        "n_databases": 8,
+        "n_databases_in_shard": 8,
+        "denominator": "n_databases",
+        "denominator_definition": "unweighted mean of per-database EX over databases with at least one gold-executable case",
+        "result_usable": false
+      },
+      "per_database": {
+        "california_schools": {
+          "n_cases": 24,
+          "gold_executable": 20,
+          "correct": 2,
+          "ex_all": 0.08333333333333333,
+          "ex_gold_executable": 0.1,
+          "wilson95_gold_executable": [
+            0.02786648096169142,
+            0.3010336471864123
+          ],
+          "pred_unexecutable": 6,
+          "gold_unexecutable": 4,
+          "gold_unexecutable_categories": {
+            "syntax_error": 2,
+            "undefined_column": 2
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "card_games": {
+          "n_cases": 31,
+          "gold_executable": 24,
+          "correct": 11,
+          "ex_all": 0.3548387096774194,
+          "ex_gold_executable": 0.4583333333333333,
+          "wilson95_gold_executable": [
+            0.27891333613001446,
+            0.6492513477492627
+          ],
+          "pred_unexecutable": 4,
+          "gold_unexecutable": 7,
+          "gold_unexecutable_categories": {
+            "syntax_error": 7
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "codebase_community": {
+          "n_cases": 27,
+          "gold_executable": 23,
+          "correct": 12,
+          "ex_all": 0.4444444444444444,
+          "ex_gold_executable": 0.5217391304347826,
+          "wilson95_gold_executable": [
+            0.3296273720444183,
+            0.7076284270692741
+          ],
+          "pred_unexecutable": 3,
+          "gold_unexecutable": 4,
+          "gold_unexecutable_categories": {
+            "syntax_error": 4
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "debit_card_specializing": {
+          "n_cases": 26,
+          "gold_executable": 21,
+          "correct": 9,
+          "ex_all": 0.34615384615384615,
+          "ex_gold_executable": 0.42857142857142855,
+          "wilson95_gold_executable": [
+            0.24469968809716416,
+            0.6345344577581422
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 5,
+          "gold_unexecutable_categories": {
+            "syntax_error": 5
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "financial": {
+          "n_cases": 29,
+          "gold_executable": 26,
+          "correct": 9,
+          "ex_all": 0.3103448275862069,
+          "ex_gold_executable": 0.34615384615384615,
+          "wilson95_gold_executable": [
+            0.1941223023049913,
+            0.5377942895807281
+          ],
+          "pred_unexecutable": 10,
+          "gold_unexecutable": 3,
+          "gold_unexecutable_categories": {
+            "syntax_error": 3
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "student_club": {
+          "n_cases": 33,
+          "gold_executable": 33,
+          "correct": 21,
+          "ex_all": 0.6363636363636364,
+          "ex_gold_executable": 0.6363636363636364,
+          "wilson95_gold_executable": [
+            0.46616178171050116,
+            0.7781282185578974
+          ],
+          "pred_unexecutable": 3,
+          "gold_unexecutable": 0,
+          "gold_unexecutable_categories": {},
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "superhero": {
+          "n_cases": 36,
+          "gold_executable": 30,
+          "correct": 22,
+          "ex_all": 0.6111111111111112,
+          "ex_gold_executable": 0.7333333333333333,
+          "wilson95_gold_executable": [
+            0.5555203815871325,
+            0.8581733675241899
+          ],
+          "pred_unexecutable": 1,
+          "gold_unexecutable": 6,
+          "gold_unexecutable_categories": {
+            "syntax_error": 6
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "toxicology": {
+          "n_cases": 35,
+          "gold_executable": 32,
+          "correct": 13,
+          "ex_all": 0.37142857142857144,
+          "ex_gold_executable": 0.40625,
+          "wilson95_gold_executable": [
+            0.255196347429215,
+            0.5773997525266625
+          ],
+          "pred_unexecutable": 0,
+          "gold_unexecutable": 3,
+          "gold_unexecutable_categories": {
+            "syntax_error": 3
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "per_difficulty": {
+        "challenging": {
+          "n_cases": 61,
+          "gold_executable": 41,
+          "correct": 17,
+          "ex_all": 0.2786885245901639,
+          "ex_gold_executable": 0.4146341463414634,
+          "wilson95_gold_executable": [
+            0.27756549360403493,
+            0.5663289698091571
+          ],
+          "pred_unexecutable": 5,
+          "gold_unexecutable": 20,
+          "gold_unexecutable_categories": {
+            "syntax_error": 20
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "moderate": {
+          "n_cases": 89,
+          "gold_executable": 78,
+          "correct": 31,
+          "ex_all": 0.34831460674157305,
+          "ex_gold_executable": 0.3974358974358974,
+          "wilson95_gold_executable": [
+            0.2961186457167072,
+            0.5083814179587629
+          ],
+          "pred_unexecutable": 15,
+          "gold_unexecutable": 11,
+          "gold_unexecutable_categories": {
+            "syntax_error": 9,
+            "undefined_column": 2
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        },
+        "simple": {
+          "n_cases": 91,
+          "gold_executable": 90,
+          "correct": 51,
+          "ex_all": 0.5604395604395604,
+          "ex_gold_executable": 0.5666666666666667,
+          "wilson95_gold_executable": [
+            0.4636409744366503,
+            0.6642342754055255
+          ],
+          "pred_unexecutable": 8,
+          "gold_unexecutable": 1,
+          "gold_unexecutable_categories": {
+            "syntax_error": 1
+          },
+          "denominator": "gold_executable_cases_for_this_group"
+        }
+      },
+      "paired": {
+        "shard": "ex241",
+        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ex241_A.json",
+        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ex241_B.json",
+        "same_source": false,
+        "n_paired": 209,
+        "denominator": "paired_cases",
+        "denominator_definition": "ids present in both files whose native gold executed (one case per question id, resampled by question id)",
+        "n_common_ids": 241,
+        "n_excluded_gold_unexecutable": 32,
+        "n_excluded_missing_prediction": 0,
+        "missing_in_current": [],
+        "missing_in_baseline": [],
+        "b": 32,
+        "c": 16,
+        "discordant": 48,
+        "mcnemar_exact_p": 0.0293049467205293,
+        "delta_ex": 0.07655502392344497,
+        "bootstrap95": [
+          0.009569377990430622,
+          0.13875598086124402
+        ],
+        "n_boot": 10000,
+        "seed": 0
+      },
+      "self_comparison": null,
+      "drift": {
+        "policy": "native-gold drift policy (t15): a row whose native PG gold cannot be compared with the SQLite original is not scored; reviewed corrections stay usable but are flagged translation_defect",
+        "audit": {
+          "status": "not_applied",
+          "source": "cluster/drift_native.json",
+          "reason": "historical continuity shard: it keeps the pre-policy 241 denominator so the frozen ledger stays comparable. Its drift classes are recorded by t15 (9 server-side data defects, 5 translation defects, 13 legitimate engine differences) but are not applied here; 241 is explicitly not drift-clean."
+        },
+        "excluded": [],
+        "excluded_ids": [],
+        "reviewed_corrections": {
+          "n": 0,
+          "ids": [],
+          "definition": "reviewed semantic correction adopted by the package: usable as the corrected native gold, flagged translation_defect",
+          "rows": []
+        },
+        "row_origin": {
+          "scored_rows": 241,
+          "original_rows": 241,
+          "reviewed_rows": 0,
+          "excluded_rows": 0
+        },
+        "pre_policy": {
+          "n_cases": 241,
+          "gold_executable": 209,
+          "correct": 99,
+          "value": 0.47368421052631576,
+          "percent": 47.36842105263158,
+          "denominator": "gold_executable_before_drift_policy",
+          "note": "recomputed from this ledger by scoring the excluded row as the pre-policy harness did; it is shown only as the pre-policy number"
+        },
+        "after_policy": {
+          "n_cases": 209,
+          "correct": 99,
+          "value": 0.47368421052631576,
+          "percent": 47.36842105263158,
+          "denominator": "gold_executable_after_drift_policy"
+        }
+      },
+      "status": "scored",
+      "criteria": null,
+      "per_skill": {},
+      "execution_stats": {
+        "unique_gold_queries": 241,
+        "unique_prediction_queries": 241
+      },
+      "gold_rewrite_audit": {
+        "status": "ok",
+        "n_gold": 241,
+        "n_altered_by_historical_rewrite": 128,
+        "n_broken_by_historical_rewrite": 28,
+        "n_native_unparseable": 15,
+        "denominator": "shard_size",
+        "note": "The historical SQLite rewrite is not applied to this shard's gold; these counters show what would have changed if it were (parse-level check only, no execution).",
+        "execution": {
+          "status": "not_applicable",
+          "reason": "this shard's gold is executed through the historical rewrite itself"
+        }
+      },
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/paired_b1/ex241/per_question_ex241.jsonl",
+      "contamination": {
+        "status": "unknown",
+        "label": "not certified clean",
+        "result_usable": false,
+        "note": "historical continuity shard, own evaluator; batch-1 serving contract (t4); not a result.",
+        "finding": null,
+        "split_manifest": null
+      }
+    }
+  }
+}
