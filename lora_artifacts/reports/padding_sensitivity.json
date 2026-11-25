@@ -1,0 +1,977 @@
+{
+ "objective": "batch-1 (serving contract) versus batch-8 left-padded (historical t14) decoding on the same questions",
+ "artifacts": {
+  "batch1": "cluster/preds/{dev216,ood876}_{A,B}.json (t4, batch 1, no padding)",
+  "batch8": "cluster/runs/predictions/run{A,B}_{dev217,ood876}.json (t14, batch 8, left padding)",
+  "scored_at": "cluster/eval_reports/t4/{dev216,ood876}_{A,B} and b8_{dev216,ood876}_{A,B}"
+ },
+ "shards": {
+  "dev216": {
+   "arms": {
+    "A": {
+     "arm": "A",
+     "shard": "dev216",
+     "n_questions": 217,
+     "gold_executable": 216,
+     "scored_in_both_shapes": 216,
+     "changed_sql": 22,
+     "changed_sql_and_execution_result": 10,
+     "changed_sql_ids": [
+      "119",
+      "1342",
+      "1359",
+      "1365",
+      "1451",
+      "1473",
+      "1480",
+      "1531",
+      "157",
+      "173",
+      "328",
+      "37",
+      "393",
+      "409",
+      "450",
+      "477",
+      "494",
+      "652",
+      "81",
+      "827",
+      "84",
+      "95"
+     ],
+     "execution_status_changes": 3,
+     "execution_status_change_ids": [
+      "1531",
+      "157",
+      "328"
+     ],
+     "score_changes": 4,
+     "score_change_ids": [
+      "1365",
+      "328",
+      "409",
+      "477"
+     ],
+     "b1_correct": 87,
+     "b8_correct": 87,
+     "b1_ex": 0.402778,
+     "b8_ex": 0.402778,
+     "ex_delta_b1_minus_b8": 0.0
+    },
+    "B": {
+     "arm": "B",
+     "shard": "dev216",
+     "n_questions": 217,
+     "gold_executable": 216,
+     "scored_in_both_shapes": 216,
+     "changed_sql": 18,
+     "changed_sql_and_execution_result": 10,
+     "changed_sql_ids": [
+      "13",
+      "137",
+      "1437",
+      "145",
+      "150",
+      "1523",
+      "1529",
+      "169",
+      "232",
+      "37",
+      "421",
+      "434",
+      "528",
+      "62",
+      "708",
+      "780",
+      "798",
+      "89"
+     ],
+     "execution_status_changes": 7,
+     "execution_status_change_ids": [
+      "137",
+      "1437",
+      "1529",
+      "169",
+      "434",
+      "62",
+      "780"
+     ],
+     "score_changes": 3,
+     "score_change_ids": [
+      "421",
+      "434",
+      "528"
+     ],
+     "b1_correct": 101,
+     "b8_correct": 104,
+     "b1_ex": 0.467593,
+     "b8_ex": 0.481481,
+     "ex_delta_b1_minus_b8": -0.013889
+    }
+   },
+   "B_minus_A": {
+    "batch1": {
+     "n_paired": 216,
+     "b": 31,
+     "c": 17,
+     "delta_ex": 0.06481481481481481,
+     "bootstrap95": [
+      0.0,
+      0.12962962962962962
+     ],
+     "mcnemar_exact_p": 0.05946337525377032
+    },
+    "batch8": {
+     "n_paired": 216,
+     "b": 32,
+     "c": 15,
+     "delta_ex": 0.0787037037037037,
+     "bootstrap95": [
+      0.018518518518518517,
+      0.14351851851851852
+     ],
+     "mcnemar_exact_p": 0.01862383661500644
+    },
+    "b1_ids": 216,
+    "b8_ids": 216
+   }
+  },
+  "ood876": {
+   "arms": {
+    "A": {
+     "arm": "A",
+     "shard": "ood876",
+     "n_questions": 876,
+     "gold_executable": 811,
+     "scored_in_both_shapes": 811,
+     "changed_sql": 46,
+     "changed_sql_and_execution_result": 12,
+     "changed_sql_ids": [
+      "ood:disney:11",
+      "ood:disney:18",
+      "ood:disney:22",
+      "ood:disney:3",
+      "ood:disney:36",
+      "ood:disney:52",
+      "ood:disney:76",
+      "ood:european_football_1:105",
+      "ood:european_football_1:84",
+      "ood:european_football_1:93",
+      "ood:law_episode:145",
+      "ood:law_episode:157",
+      "ood:law_episode:173",
+      "ood:law_episode:199",
+      "ood:law_episode:200",
+      "ood:menu:228",
+      "ood:menu:233",
+      "ood:menu:254",
+      "ood:movie_3:276",
+      "ood:movie_3:280",
+      "ood:movie_3:301",
+      "ood:movie_3:333",
+      "ood:movie_3:352",
+      "ood:movie_3:353",
+      "ood:movie_3:384",
+      "ood:movie_3:385",
+      "ood:movie_3:426",
+      "ood:movie_3:427",
+      "ood:movie_3:436",
+      "ood:movies_4:498",
+      "ood:movies_4:522",
+      "ood:movies_4:536",
+      "ood:movies_4:539",
+      "ood:movies_4:549",
+      "ood:movies_4:553",
+      "ood:movies_4:564",
+      "ood:movies_4:591",
+      "ood:music_tracker:615",
+      "ood:music_tracker:617",
+      "ood:sales_in_weather:656"
+     ],
+     "execution_status_changes": 7,
+     "execution_status_change_ids": [
+      "ood:menu:233",
+      "ood:movie_3:353",
+      "ood:movie_3:436",
+      "ood:sales_in_weather:675",
+      "ood:talkingdata:766",
+      "ood:talkingdata:796",
+      "ood:talkingdata:829"
+     ],
+     "score_changes": 9,
+     "score_change_ids": [
+      "ood:disney:36",
+      "ood:european_football_1:105",
+      "ood:menu:233",
+      "ood:movie_3:353",
+      "ood:sales_in_weather:656",
+      "ood:sales_in_weather:675",
+      "ood:talkingdata:766",
+      "ood:talkingdata:796",
+      "ood:talkingdata:829"
+     ],
+     "b1_correct": 574,
+     "b8_correct": 577,
+     "b1_ex": 0.707768,
+     "b8_ex": 0.711467,
+     "ex_delta_b1_minus_b8": -0.003699
+    },
+    "B": {
+     "arm": "B",
+     "shard": "ood876",
+     "n_questions": 876,
+     "gold_executable": 811,
+     "scored_in_both_shapes": 811,
+     "changed_sql": 40,
+     "changed_sql_and_execution_result": 8,
+     "changed_sql_ids": [
+      "ood:disney:19",
+      "ood:disney:20",
+      "ood:disney:53",
+      "ood:disney:55",
+      "ood:disney:58",
+      "ood:disney:65",
+      "ood:disney:66",
+      "ood:disney:70",
+      "ood:european_football_1:100",
+      "ood:european_football_1:101",
+      "ood:european_football_1:114",
+      "ood:european_football_1:79",
+      "ood:law_episode:155",
+      "ood:law_episode:168",
+      "ood:law_episode:169",
+      "ood:law_episode:172",
+      "ood:law_episode:176",
+      "ood:law_episode:178",
+      "ood:law_episode:180",
+      "ood:law_episode:202",
+      "ood:law_episode:203",
+      "ood:menu:251",
+      "ood:menu:255",
+      "ood:movie_3:286",
+      "ood:movie_3:300",
+      "ood:movie_3:330",
+      "ood:movie_3:333",
+      "ood:movie_3:359",
+      "ood:movie_3:387",
+      "ood:movie_3:391",
+      "ood:movie_3:396",
+      "ood:movie_3:406",
+      "ood:movies_4:519",
+      "ood:movies_4:525",
+      "ood:movies_4:567",
+      "ood:movies_4:589",
+      "ood:music_tracker:614",
+      "ood:sales_in_weather:663",
+      "ood:sales_in_weather:683",
+      "ood:talkingdata:770"
+     ],
+     "execution_status_changes": 3,
+     "execution_status_change_ids": [
+      "ood:movie_3:286",
+      "ood:movie_3:396",
+      "ood:movies_4:525"
+     ],
+     "score_changes": 8,
+     "score_change_ids": [
+      "ood:disney:70",
+      "ood:european_football_1:114",
+      "ood:menu:255",
+      "ood:movie_3:286",
+      "ood:movie_3:387",
+      "ood:movie_3:396",
+      "ood:movies_4:525",
+      "ood:music_tracker:614"
+     ],
+     "b1_correct": 638,
+     "b8_correct": 638,
+     "b1_ex": 0.786683,
+     "b8_ex": 0.786683,
+     "ex_delta_b1_minus_b8": 0.0
+    }
+   },
+   "B_minus_A": {
+    "batch1": {
+     "n_paired": 811,
+     "b": 105,
+     "c": 41,
+     "delta_ex": 0.07891491985203453,
+     "bootstrap95": [
+      0.05055487053020962,
+      0.10850801479654747
+     ],
+     "mcnemar_exact_p": 1.1730437087592476e-07
+    },
+    "batch8": {
+     "n_paired": 811,
+     "b": 101,
+     "c": 40,
+     "delta_ex": 0.0752157829839704,
+     "bootstrap95": [
+      0.0468557336621455,
+      0.10480887792848335
+     ],
+     "mcnemar_exact_p": 2.8749799610187777e-07
+    },
+    "b1_ids": 811,
+    "b8_ids": 811
+   }
+  }
+ },
+ "conclusion": {
+  "changed_predictions": {
+   "dev216": {
+    "A": 22,
+    "B": 18
+   },
+   "ood876": {
+    "A": 46,
+    "B": 40
+   }
+  },
+  "ex_batch1_vs_batch8": {
+   "dev216": {
+    "A": [
+     87,
+     87
+    ],
+    "B": [
+     101,
+     104
+    ]
+   },
+   "ood876": {
+    "A": [
+     574,
+     577
+    ],
+    "B": [
+     638,
+     638
+    ]
+   }
+  },
+  "B_minus_A_by_shape": {
+   "dev216": {
+    "batch1": {
+     "delta_pp": 6.48,
+     "p": 0.05946337525377032,
+     "ci_pp": [
+      0.0,
+      12.96
+     ]
+    },
+    "batch8": {
+     "delta_pp": 7.87,
+     "p": 0.01862383661500644,
+     "ci_pp": [
+      1.85,
+      14.35
+     ]
+    }
+   },
+   "ood876": {
+    "batch1": {
+     "delta_pp": 7.89,
+     "p": 1.1730437087592476e-07,
+     "ci_pp": [
+      5.06,
+      10.85
+     ]
+    },
+    "batch8": {
+     "delta_pp": 7.52,
+     "p": 2.8749799610187777e-07,
+     "ci_pp": [
+      4.69,
+      10.48
+     ]
+    }
+   }
+  },
+  "verdict": "Yes, the main numbers must be reported in serving mode (batch 1, no padding). The batch shape changes 22 / 18 SQL strings on dev-216 and 46 / 40 on OOD-876 (base / LoRA), moves EX by up to three questions (dev B 104\u2192101, OOD A 577\u2192574) and flips the dev B-A comparison from p=0.0186 (significant) to p=0.0595 (borderline). The OOD B-A gain stays significant under both shapes (p<1e-6). The mechanism probe shows the same top-1 token at the first step but diverging token sequences in 7 of 8 sampled cases and first-step logit shifts of 0.13-0.34, with position_ids=None behaving exactly like explicit arange ids and differing from mask-derived cumsum ids."
+ },
+ "mechanism_probe": {
+  "A": {
+   "arm": "A",
+   "adapter": null,
+   "model": "/home/dadgrand/models/Qwen2.5-Coder-7B-Instruct",
+   "batch8_construction": {
+    "batch_size": 8,
+    "padding_side": "left",
+    "pad_token": "<|im_end|>",
+    "pad_token_id": 151643,
+    "padded_width": 1052,
+    "note": "t14's decoder used exactly this shape (batch 8, left padding, pad=eos); the serving contract is batch 1 with no padding"
+   },
+   "sample": {
+    "short_qids": [
+     "230",
+     "325",
+     "223",
+     "249",
+     "323",
+     "295",
+     "338",
+     "212"
+    ],
+    "long_qids": [
+     "477",
+     "431",
+     "371",
+     "528",
+     "494",
+     "506",
+     "487",
+     "513"
+    ],
+    "prompt_tokens_min": 236,
+    "prompt_tokens_median": 646,
+    "prompt_tokens_max": 1067
+   },
+   "comparison": [
+    {
+     "qid": "230",
+     "prompt_tokens": 236,
+     "batch8_pads": 816,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 236,
+     "attention_mask_sum_b8": 236,
+     "logits_max_abs_diff": 0.15625,
+     "logits_mean_abs_diff": 0.018824,
+     "logits_sha_b1": "4270d74ef17895ad",
+     "logits_sha_b8": "9bc862c546998c3e",
+     "same_top1": true,
+     "same_token_sequence": true,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.element, T4.label FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id JOIN bond AS T3 ON T2.bond_id = T3.bond_id JOIN molecule AS T4 ON T1.molecule_id = T4.molecule_id WHERE T1.molecule_id = 'TR060'",
+     "b8_sql": "SELECT T1.element, T4.label FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id JOIN bond AS T3 ON T2.bond_id = T3.bond_id JOIN molecule AS T4 ON T1.molecule_id = T4.molecule_id WHERE T1.molecule_id = 'TR060'",
+     "b1_generated_tokens": 76,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "325",
+     "prompt_tokens": 238,
+     "batch8_pads": 814,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 238,
+     "attention_mask_sum_b8": 238,
+     "logits_max_abs_diff": 0.203125,
+     "logits_mean_abs_diff": 0.016189,
+     "logits_sha_b1": "feae9421a659af3b",
+     "logits_sha_b8": "6f9c9821053583a1",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT COUNT(DISTINCT m.molecule_id) FROM molecule m JOIN atom a ON m.molecule_id = a.molecule_id WHERE a.element = 'n' AND m.label = '+'",
+     "b8_sql": "SELECT COUNT(DISTINCT m.molecule_id) FROM molecule m JOIN atom a ON m.molecule_id = a.molecule_id WHERE a.element = 'n' AND m.label = '+'",
+     "b1_generated_tokens": 39,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "223",
+     "prompt_tokens": 239,
+     "batch8_pads": 813,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 239,
+     "attention_mask_sum_b8": 239,
+     "logits_max_abs_diff": 0.34375,
+     "logits_mean_abs_diff": 0.019141,
+     "logits_sha_b1": "63a239a5c7452173",
+     "logits_sha_b8": "f433bd54ea83797a",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.atom_id, T1.atom_id2 FROM connected AS T1 JOIN bond AS T2 ON T1.bond_id = T2.bond_id WHERE T2.bond_id = 'TR000_2_5'",
+     "b8_sql": "SELECT T1.atom_id, T1.atom_id2 FROM connected AS T1 JOIN bond AS T2 ON T1.bond_id = T2.bond_id WHERE T2.bond_id = 'TR000_2_5'",
+     "b1_generated_tokens": 51,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "249",
+     "prompt_tokens": 242,
+     "batch8_pads": 810,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 242,
+     "attention_mask_sum_b8": 242,
+     "logits_max_abs_diff": 0.234375,
+     "logits_mean_abs_diff": 0.015283,
+     "logits_sha_b1": "bbd796cafccb2f21",
+     "logits_sha_b8": "a7e429e4f7110b41",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR144_8_19'",
+     "b8_sql": "SELECT T1.element FROM atom AS T1 JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR144_8_19'",
+     "b1_generated_tokens": 43,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "477",
+     "prompt_tokens": 1047,
+     "batch8_pads": 5,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1047,
+     "attention_mask_sum_b8": 1047,
+     "logits_max_abs_diff": 0.1875,
+     "logits_mean_abs_diff": 0.016973,
+     "logits_sha_b1": "fe495ac3b08fd3c0",
+     "logits_sha_b8": "271315d55259e9d9",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT artist FROM cards WHERE artist IN ('Jeremy Jarvis', 'Aaron Miller', 'Chippy') AND setcode = (SELECT code FROM sets WHERE name = 'Coldsnap')",
+     "b8_sql": "SELECT artist FROM cards WHERE artist IN ('Jeremy Jarvis', 'Aaron Miller', 'Chippy') AND setcode = (SELECT code FROM sets WHERE name = 'Coldsnap')",
+     "b1_generated_tokens": 37,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "431",
+     "prompt_tokens": 1049,
+     "batch8_pads": 3,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1049,
+     "attention_mask_sum_b8": 1049,
+     "logits_max_abs_diff": 0.125,
+     "logits_mean_abs_diff": 0.017383,
+     "logits_sha_b1": "95d4be29da0ddd42",
+     "logits_sha_b8": "3bf3d7bf170aeb0d",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT DISTINCT s.id\nFROM sets s\nJOIN foreign_data fd ON s.code = fd.setcode\nJOIN cards c ON s.code = c.setcode\nWHERE s.isForeignOnly = 1\n  AND s.isFoilOnly = 1\n  AND fd.language = 'Japanese'",
+     "b8_sql": "SELECT DISTINCT s.id\nFROM sets s\nJOIN foreign_data fd ON s.code = fd.setcode\nJOIN cards c ON s.code = c.setcode\nWHERE s.isForeignOnly = 1\n  AND s.isFoilOnly = 1\n  AND fd.language = 'Japanese'",
+     "b1_generated_tokens": 61,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "371",
+     "prompt_tokens": 1051,
+     "batch8_pads": 1,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1051,
+     "attention_mask_sum_b8": 1051,
+     "logits_max_abs_diff": 0.15625,
+     "logits_mean_abs_diff": 0.01784,
+     "logits_sha_b1": "babcb2b29b1e86b3",
+     "logits_sha_b8": "2c7e103f01031b29",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT (COUNT(CASE WHEN T2.language = 'French' THEN 1 ELSE NULL END) * 100.0 / COUNT(T1.id)) AS percentage FROM cards AS T1 JOIN foreign_data AS T2 ON T1.scryfallid = T2.multiverseid WHERE T1.isStorySpotlight = 1",
+     "b8_sql": "SELECT (COUNT(CASE WHEN T2.language = 'French' THEN 1 ELSE NULL END) * 100.0 / COUNT(T1.id)) AS percentage FROM cards AS T1 JOIN foreign_data AS T2 ON T1.scryfallid = T2.multiverseid WHERE T1.isStorySpotlight = 1",
+     "b1_generated_tokens": 69,
+     "b8_generated_tokens": 76
+    },
+    {
+     "qid": "528",
+     "prompt_tokens": 1052,
+     "batch8_pads": 0,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1052,
+     "attention_mask_sum_b8": 1052,
+     "logits_max_abs_diff": 0.125,
+     "logits_mean_abs_diff": 0.019127,
+     "logits_sha_b1": "003c136b063c7dec",
+     "logits_sha_b8": "322eae6b49d8642b",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT DISTINCT c.name, l.format FROM cards c JOIN set_translations st ON c.setcode = st.setcode JOIN sets s ON st.setcode = s.code JOIN legalities l ON c.uuid = l.uuid WHERE s.name = 'Hour of Devastation' AND l.status = 'Legal'",
+     "b8_sql": "SELECT DISTINCT c.name, l.format FROM cards c JOIN set_translations st ON c.setcode = st.setcode JOIN sets s ON st.setcode = s.code JOIN legalities l ON c.uuid = l.uuid WHERE s.name = 'Hour of Devastation' AND l.status = 'Legal'",
+     "b1_generated_tokens": 62,
+     "b8_generated_tokens": 76
+    }
+   ],
+   "summary": {
+    "cases": 8,
+    "same_top1": 8,
+    "same_token_sequence": 1,
+    "same_sql": 8,
+    "logits_max_abs_diff_max": 0.34375,
+    "logits_max_abs_diff_median": 0.171875
+   },
+   "position_ids_experiment": {
+    "method": "forward on the same left-padded batch with position_ids=None (derived from the attention mask), cumsum ids and arange ids; logits compared at each row's last real token",
+    "rows": [
+     {
+      "qid": "230",
+      "prompt_tokens": 236,
+      "pads": 816,
+      "logits_none_vs_cumsum_max_abs_diff": 0.1875,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.1875,
+      "position_ids_cumsum_last": 235,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "477",
+      "prompt_tokens": 1047,
+      "pads": 5,
+      "logits_none_vs_cumsum_max_abs_diff": 0.1875,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.1875,
+      "position_ids_cumsum_last": 1046,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "325",
+      "prompt_tokens": 238,
+      "pads": 814,
+      "logits_none_vs_cumsum_max_abs_diff": 0.1875,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.1875,
+      "position_ids_cumsum_last": 237,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "431",
+      "prompt_tokens": 1049,
+      "pads": 3,
+      "logits_none_vs_cumsum_max_abs_diff": 0.125,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.125,
+      "position_ids_cumsum_last": 1048,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "223",
+      "prompt_tokens": 239,
+      "pads": 813,
+      "logits_none_vs_cumsum_max_abs_diff": 0.21875,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.21875,
+      "position_ids_cumsum_last": 238,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "371",
+      "prompt_tokens": 1051,
+      "pads": 1,
+      "logits_none_vs_cumsum_max_abs_diff": 0.132812,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.132812,
+      "position_ids_cumsum_last": 1050,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "249",
+      "prompt_tokens": 242,
+      "pads": 810,
+      "logits_none_vs_cumsum_max_abs_diff": 0.4375,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.4375,
+      "position_ids_cumsum_last": 241,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "528",
+      "prompt_tokens": 1052,
+      "pads": 0,
+      "logits_none_vs_cumsum_max_abs_diff": 0.0,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.0,
+      "position_ids_cumsum_last": 1051,
+      "position_ids_arange_last": 1051
+     }
+    ]
+   },
+   "versions": {
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+   },
+   "seconds": 12.62
+  },
+  "B": {
+   "arm": "B",
+   "adapter": "/home/dadgrand/runs/arms/cands/step200",
+   "model": "/home/dadgrand/models/Qwen2.5-Coder-7B-Instruct",
+   "batch8_construction": {
+    "batch_size": 8,
+    "padding_side": "left",
+    "pad_token": "<|im_end|>",
+    "pad_token_id": 151643,
+    "padded_width": 1052,
+    "note": "t14's decoder used exactly this shape (batch 8, left padding, pad=eos); the serving contract is batch 1 with no padding"
+   },
+   "sample": {
+    "short_qids": [
+     "230",
+     "325",
+     "223",
+     "249",
+     "323",
+     "295",
+     "338",
+     "212"
+    ],
+    "long_qids": [
+     "477",
+     "431",
+     "371",
+     "528",
+     "494",
+     "506",
+     "487",
+     "513"
+    ],
+    "prompt_tokens_min": 236,
+    "prompt_tokens_median": 646,
+    "prompt_tokens_max": 1067
+   },
+   "comparison": [
+    {
+     "qid": "230",
+     "prompt_tokens": 236,
+     "batch8_pads": 816,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 236,
+     "attention_mask_sum_b8": 236,
+     "logits_max_abs_diff": 0.1875,
+     "logits_mean_abs_diff": 0.024785,
+     "logits_sha_b1": "4bb96641c66d12f3",
+     "logits_sha_b8": "bf5d12e765a1d0e9",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.element, T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = 'toxicology' AND T2.molecule_id = 'TR060'",
+     "b8_sql": "SELECT T1.element, T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = 'toxicology' AND T2.molecule_id = 'TR060'",
+     "b1_generated_tokens": 55,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "325",
+     "prompt_tokens": 238,
+     "batch8_pads": 814,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 238,
+     "attention_mask_sum_b8": 238,
+     "logits_max_abs_diff": 0.132812,
+     "logits_mean_abs_diff": 0.023287,
+     "logits_sha_b1": "c0fee1fa4d5ae7bf",
+     "logits_sha_b8": "f7355be0fa386dd7",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT COUNT(T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'n' AND T1.label = '+'",
+     "b8_sql": "SELECT COUNT(T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'n' AND T1.label = '+'",
+     "b1_generated_tokens": 46,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "223",
+     "prompt_tokens": 239,
+     "batch8_pads": 813,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 239,
+     "attention_mask_sum_b8": 239,
+     "logits_max_abs_diff": 0.25,
+     "logits_mean_abs_diff": 0.018051,
+     "logits_sha_b1": "d90d14427969252e",
+     "logits_sha_b8": "796dcb132ca9d0ab",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT atom_id FROM connected WHERE bond_id = 'TR000_2_5'",
+     "b8_sql": "SELECT atom_id FROM connected WHERE bond_id = 'TR000_2_5'",
+     "b1_generated_tokens": 20,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "249",
+     "prompt_tokens": 242,
+     "batch8_pads": 810,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 242,
+     "attention_mask_sum_b8": 242,
+     "logits_max_abs_diff": 0.125,
+     "logits_mean_abs_diff": 0.016532,
+     "logits_sha_b1": "a8c075f0aca2a91d",
+     "logits_sha_b8": "0aa1f7e88e20f69d",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR144_8_19'",
+     "b8_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR144_8_19'",
+     "b1_generated_tokens": 44,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "477",
+     "prompt_tokens": 1047,
+     "batch8_pads": 5,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1047,
+     "attention_mask_sum_b8": 1047,
+     "logits_max_abs_diff": 0.125,
+     "logits_mean_abs_diff": 0.018515,
+     "logits_sha_b1": "05f8c9874bcbab10",
+     "logits_sha_b8": "e8b1b0527c56847e",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": false,
+     "b1_sql": "SELECT DISTINCT T1.artist FROM cards AS T1 INNER JOIN sets AS T2 ON T1.setcode = T2.code WHERE T2.name = 'Coldsnap' AND T1.artist IN ('Jeremy Jarvis', 'Aaron Miller', 'Chippy')",
+     "b8_sql": "SELECT T1.artist FROM cards AS T1 INNER JOIN sets AS T2 ON T1.setcode = T2.code WHERE T2.name = 'Coldsnap' AND T1.artist IN ('Jeremy Jarvis', 'Aaron Miller', 'Chippy')",
+     "b1_generated_tokens": 53,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "431",
+     "prompt_tokens": 1049,
+     "batch8_pads": 3,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1049,
+     "attention_mask_sum_b8": 1049,
+     "logits_max_abs_diff": 0.125488,
+     "logits_mean_abs_diff": 0.022706,
+     "logits_sha_b1": "6e1030eeaa1baebc",
+     "logits_sha_b8": "95a108a14e294087",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.id FROM sets AS T1 INNER JOIN foreign_data AS T2 ON T1.code = T2.multiverseid WHERE T1.isForeignOnly = 1 AND T1.isFoilOnly = 1 AND T2.language = 'Japanese'",
+     "b8_sql": "SELECT T1.id FROM sets AS T1 INNER JOIN foreign_data AS T2 ON T1.code = T2.multiverseid WHERE T1.isForeignOnly = 1 AND T1.isFoilOnly = 1 AND T2.language = 'Japanese'",
+     "b1_generated_tokens": 54,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "371",
+     "prompt_tokens": 1051,
+     "batch8_pads": 1,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1051,
+     "attention_mask_sum_b8": 1051,
+     "logits_max_abs_diff": 0.15625,
+     "logits_mean_abs_diff": 0.022197,
+     "logits_sha_b1": "a80bd22ac8cbaac6",
+     "logits_sha_b8": "a8ed90044d570689",
+     "same_top1": true,
+     "same_token_sequence": true,
+     "same_sql": true,
+     "b1_sql": "SELECT CAST(SUM(CASE WHEN T1.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.language), 0) FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.multiverseid = T2.multiverseid WHERE T2.isStorySpotlight = 1",
+     "b8_sql": "SELECT CAST(SUM(CASE WHEN T1.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.language), 0) FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.multiverseid = T2.multiverseid WHERE T2.isStorySpotlight = 1",
+     "b1_generated_tokens": 77,
+     "b8_generated_tokens": 77
+    },
+    {
+     "qid": "528",
+     "prompt_tokens": 1052,
+     "batch8_pads": 0,
+     "batch8_width": 1052,
+     "attention_mask_sum_b1": 1052,
+     "attention_mask_sum_b8": 1052,
+     "logits_max_abs_diff": 0.15625,
+     "logits_mean_abs_diff": 0.020473,
+     "logits_sha_b1": "ee03615e207c01f6",
+     "logits_sha_b8": "f2152635826ca4ef",
+     "same_top1": true,
+     "same_token_sequence": false,
+     "same_sql": true,
+     "b1_sql": "SELECT T1.name, T3.format FROM cards AS T1 INNER JOIN set_translations AS T2 ON T1.setcode = T2.setcode INNER JOIN legalities AS T3 ON T1.uuid = T3.uuid WHERE T2.translation = 'Hour of Devastation' AND T3.status = 'Legal'",
+     "b8_sql": "SELECT T1.name, T3.format FROM cards AS T1 INNER JOIN set_translations AS T2 ON T1.setcode = T2.setcode INNER JOIN legalities AS T3 ON T1.uuid = T3.uuid WHERE T2.translation = 'Hour of Devastation' AND T3.status = 'Legal'",
+     "b1_generated_tokens": 67,
+     "b8_generated_tokens": 77
+    }
+   ],
+   "summary": {
+    "cases": 8,
+    "same_top1": 8,
+    "same_token_sequence": 1,
+    "same_sql": 7,
+    "logits_max_abs_diff_max": 0.25,
+    "logits_max_abs_diff_median": 0.144531
+   },
+   "position_ids_experiment": {
+    "method": "forward on the same left-padded batch with position_ids=None (derived from the attention mask), cumsum ids and arange ids; logits compared at each row's last real token",
+    "rows": [
+     {
+      "qid": "230",
+      "prompt_tokens": 236,
+      "pads": 816,
+      "logits_none_vs_cumsum_max_abs_diff": 0.125,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.125,
+      "position_ids_cumsum_last": 235,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "477",
+      "prompt_tokens": 1047,
+      "pads": 5,
+      "logits_none_vs_cumsum_max_abs_diff": 0.140625,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.140625,
+      "position_ids_cumsum_last": 1046,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "325",
+      "prompt_tokens": 238,
+      "pads": 814,
+      "logits_none_vs_cumsum_max_abs_diff": 0.125,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.125,
+      "position_ids_cumsum_last": 237,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "431",
+      "prompt_tokens": 1049,
+      "pads": 3,
+      "logits_none_vs_cumsum_max_abs_diff": 0.125,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.125,
+      "position_ids_cumsum_last": 1048,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "223",
+      "prompt_tokens": 239,
+      "pads": 813,
+      "logits_none_vs_cumsum_max_abs_diff": 0.148438,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.148438,
+      "position_ids_cumsum_last": 238,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "371",
+      "prompt_tokens": 1051,
+      "pads": 1,
+      "logits_none_vs_cumsum_max_abs_diff": 0.199219,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.199219,
+      "position_ids_cumsum_last": 1050,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "249",
+      "prompt_tokens": 242,
+      "pads": 810,
+      "logits_none_vs_cumsum_max_abs_diff": 0.15625,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.15625,
+      "position_ids_cumsum_last": 241,
+      "position_ids_arange_last": 1051
+     },
+     {
+      "qid": "528",
+      "prompt_tokens": 1052,
+      "pads": 0,
+      "logits_none_vs_cumsum_max_abs_diff": 0.0,
+      "logits_none_vs_arange_max_abs_diff": 0.0,
+      "logits_cumsum_vs_arange_max_abs_diff": 0.0,
+      "position_ids_cumsum_last": 1051,
+      "position_ids_arange_last": 1051
+     }
+    ]
+   },
+   "versions": {
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+   },
+   "seconds": 23.98
+  }
+ }
+}
