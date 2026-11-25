@@ -1,0 +1,58 @@
+{
+ "generated_at_utc": "2026-11-25T12:50:00+03:00",
+ "purpose": "numbers that must not be quoted as results; each with its source",
+ "contaminated": [
+  {
+   "value": "620/811 = 76.45 %",
+   "what": "7B scale adapter, run ood-scale7b-v2 (adapter sha256 71abcde8...), not 14B",
+   "why": "trained on the old corpus containing 1,098 reserved-OOD rows (t35)",
+   "source": "cluster/eval_reports/provenance_620.md"
+  },
+  {
+   "value": "95/120 = 79.17 %",
+   "what": "our 14B 1-epoch night run, OOD-120",
+   "why": "old corpus with OOD rows; superseded by the clean-split arms",
+   "source": "INTERIM_REPORT.md section 3.1"
+  },
+  {
+   "value": "88/120 = 73.33 % (EX/107 = 82.24 %)",
+   "what": "historical 14B QLoRA, OOD-120 paired subset",
+   "why": "same contaminated corpus",
+   "source": "cluster/eval_reports/provenance_620.md"
+  },
+  {
+   "value": "dev +7.87 pp / OOD +7.52 pp",
+   "what": "batch-8 left-padded A/B deltas",
+   "why": "not the serving contract (batch 1 required)",
+   "source": "cluster/eval_reports/padding_sensitivity.json"
+  }
+ ],
+ "not_a_result_yet": [
+  {
+   "value": "D",
+   "what": "arm D (new synthetic pool)",
+   "why": "not run; gated behind t30",
+   "source": "cluster/results/main_table.md"
+  },
+  {
+   "value": "PG-hard",
+   "what": "96 questions / 12 schemas, sealed",
+   "why": "not scored, not inspected until the recipe is frozen",
+   "source": "datasets/pg_hard/manifest.json"
+  },
+  {
+   "value": "pilot t12",
+   "what": "coverage row, 300 assignments",
+   "why": "pilot report not produced yet",
+   "source": "datasets/pilot/README.md"
+  }
+ ],
+ "historical_reference": [
+  {
+   "value": "135/216 = 62.50 %",
+   "what": "frozen 14B QLoRA on dev-216",
+   "why": "historical reference, not our recipe",
+   "source": "cluster/eval_reports/dryrun_14b-ev/report.md"
+  }
+ ]
+}
