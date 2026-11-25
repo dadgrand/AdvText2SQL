@@ -1,0 +1,3359 @@
+{
+ "generated_at_utc": "2026-11-25T08:42:13+00:00",
+ "decoding": "batch 1, no padding, no truncation, greedy, max_new_tokens=256, stop <|im_end|>, no repair for pass@1",
+ "selection": {
+  "rule": "v2: dev-216 selects, OOD-876 confirms, PG-hard closed",
+  "dev_label": "selected on this shard (optimistic by construction)",
+  "ood_label": "confirmation only"
+ },
+ "repair_budget": {
+  "definition": "one deterministic pass, applied only to predictions whose first execution failed: (1) keep the first SQL statement (drop fences/prose), collapse whitespace, drop a trailing semicolon; (2) qualify a bare column that exactly one table in the query can resolve, using that table's alias. No model calls, no retries, no semantic edits.",
+  "implementation": "cluster/repair_pass.py",
+  "runs": "cluster/eval_reports/main_table/*_repair"
+ },
+ "arms": {
+  "A": {
+   "label": "A — base Qwen2.5-Coder-7B-Instruct, no adapter",
+   "dev216": {
+    "shard": "dev216",
+    "n": 216,
+    "raw_correct": 87,
+    "raw_percent": 40.27777777777778,
+    "raw_wilson": [
+     0.33962167485787187,
+     0.4693315580140134
+    ],
+    "repaired_correct": 87,
+    "repaired_percent": 40.27777777777778,
+    "repaired_wilson": [
+     0.33962167485787187,
+     0.4693315580140134
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 216,
+    "shard_size": 216,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_A_dev217_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/A_dev216_repair/report.json"
+   },
+   "ood876": {
+    "shard": "ood876",
+    "n": 811,
+    "raw_correct": 574,
+    "raw_percent": 70.77681874229347,
+    "raw_wilson": [
+     0.675547014610529,
+     0.7380303706917243
+    ],
+    "repaired_correct": 576,
+    "repaired_percent": 71.02342786683107,
+    "repaired_wilson": [
+     0.678078985477452,
+     0.7404073302141454
+    ],
+    "repaired_delta_pp": 0.2466091245376079,
+    "gold_executable": 811,
+    "shard_size": 876,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_A_ood876_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/A_ood876_repair/report.json"
+   },
+   "ex241": {
+    "n": 209,
+    "correct": 83,
+    "percent": 39.71291866028708,
+    "wilson": [
+     0.3332244267903609,
+     0.46474726431714297
+    ],
+    "report": "cluster/eval_reports/t4/ex241_A/report.json",
+    "label": "continuity only; own evaluator"
+   }
+  },
+  "B_mixed": {
+   "label": "B_mixed — LoRA on train_main (4,112 real + 2,387 synthetic, synthetic = 39.4 % of target tokens)",
+   "dev216": {
+    "shard": "dev216",
+    "n": 216,
+    "raw_correct": 101,
+    "raw_percent": 46.75925925925926,
+    "raw_wilson": [
+     0.4022012244900757,
+     0.5341165198005529
+    ],
+    "repaired_correct": 101,
+    "repaired_percent": 46.75925925925926,
+    "repaired_wilson": [
+     0.4022012244900757,
+     0.5341165198005529
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 216,
+    "shard_size": 216,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_B_mixed_dev217_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/Bm_dev216_repair/report.json"
+   },
+   "ood876": {
+    "shard": "ood876",
+    "n": 811,
+    "raw_correct": 638,
+    "raw_percent": 78.66831072749692,
+    "raw_wilson": [
+     0.757172083866418,
+     0.8134910738948513
+    ],
+    "repaired_correct": 638,
+    "repaired_percent": 78.66831072749692,
+    "repaired_wilson": [
+     0.757172083866418,
+     0.8134910738948513
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 811,
+    "shard_size": 876,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_B_mixed_ood876_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/Bm_ood876_repair/report.json"
+   },
+   "ex241": {
+    "n": 209,
+    "correct": 99,
+    "percent": 47.36842105263158,
+    "wilson": [
+     0.4070783253584266,
+     0.5412400142272139
+    ],
+    "report": "cluster/eval_reports/t4/ex241_B/report.json",
+    "label": "continuity only; own evaluator"
+   }
+  },
+  "B_real": {
+   "label": "B_real — LoRA on 4,112 real rows only, matched supervised-token budget",
+   "dev216": {
+    "shard": "dev216",
+    "n": 216,
+    "raw_correct": 103,
+    "raw_percent": 47.68518518518518,
+    "raw_wilson": [
+     0.41123177526821747,
+     0.5432808992250887
+    ],
+    "repaired_correct": 103,
+    "repaired_percent": 47.68518518518518,
+    "repaired_wilson": [
+     0.41123177526821747,
+     0.5432808992250887
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 216,
+    "shard_size": 216,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_B_real_dev217_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/Br_dev216_repair/report.json"
+   },
+   "ood876": {
+    "shard": "ood876",
+    "n": 811,
+    "raw_correct": 649,
+    "raw_percent": 80.02466091245375,
+    "raw_wilson": [
+     0.7713428875983704,
+     0.8263193873042923
+    ],
+    "repaired_correct": 649,
+    "repaired_percent": 80.02466091245375,
+    "repaired_wilson": [
+     0.7713428875983704,
+     0.8263193873042923
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 811,
+    "shard_size": 876,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_B_real_ood876_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/Br_ood876_repair/report.json"
+   },
+   "ex241": null
+  },
+  "C": {
+   "label": "C — LoRA on real + old clean synthetic at a documented 13.77 % synthetic share",
+   "dev216": {
+    "shard": "dev216",
+    "n": 216,
+    "raw_correct": 102,
+    "raw_percent": 47.22222222222222,
+    "raw_wilson": [
+     0.4067137033602938,
+     0.5387015060316734
+    ],
+    "repaired_correct": 102,
+    "repaired_percent": 47.22222222222222,
+    "repaired_wilson": [
+     0.4067137033602938,
+     0.5387015060316734
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 216,
+    "shard_size": 216,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_C_dev217_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/C_dev216_repair/report.json"
+   },
+   "ood876": {
+    "shard": "ood876",
+    "n": 811,
+    "raw_correct": 655,
+    "raw_percent": 80.76448828606658,
+    "raw_wilson": [
+     0.7790928411580499,
+     0.8332962249126455
+    ],
+    "repaired_correct": 655,
+    "repaired_percent": 80.76448828606658,
+    "repaired_wilson": [
+     0.7790928411580499,
+     0.8332962249126455
+    ],
+    "repaired_delta_pp": 0.0,
+    "gold_executable": 811,
+    "shard_size": 876,
+    "decoding": "batch 1",
+    "contamination": "clean",
+    "report": "cluster/eval_reports/arms/t47_C_ood876_b1/report.json",
+    "repair_report": "cluster/eval_reports/main_table/C_ood876_repair/report.json"
+   },
+   "ex241": null
+  },
+  "D": {
+   "label": "D — LoRA on real + the new synthetic pool (not run)",
+   "dev216": null,
+   "ood876": null,
+   "ex241": null,
+   "pending_reason": "arm D (real + the new synthetic pool) has not run: it is gated behind t30, which needs the verified new-synthetic mix (t21/t37) and the frozen selection rule; no D training job was submitted and no D number exists on disk. It is listed as pending here rather than omitted."
+  }
+ },
+ "pairs": {
+  "B_real vs A": {
+   "dev216": {
+    "comparison": "B_real vs A",
+    "shard": "dev216",
+    "delta_pp": 7.4074074074074066,
+    "ci_pp": [
+     0.9259259259259258,
+     13.88888888888889
+    ],
+    "b": 35,
+    "c": 19,
+    "p": 0.0402235640957167,
+    "n": 216,
+    "label": "selected on this shard",
+    "report": "cluster/eval_reports/arms/t36_paired_real_vs_A_dev217/report.json"
+   },
+   "ood876": {
+    "comparison": "B_real vs A",
+    "shard": "ood876",
+    "delta_pp": 9.247842170160297,
+    "ci_pp": [
+     6.411837237977805,
+     12.20715166461159
+    ],
+    "b": 112,
+    "c": 37,
+    "p": 5.794051283240927e-10,
+    "n": 811,
+    "label": "confirmation only",
+    "report": "cluster/eval_reports/arms/t36_paired_real_vs_A_ood876/report.json"
+   }
+  },
+  "B_mixed vs A": {
+   "dev216": {
+    "comparison": "B_mixed vs A",
+    "shard": "dev216",
+    "delta_pp": 6.481481481481481,
+    "ci_pp": [
+     0.0,
+     12.962962962962962
+    ],
+    "b": 31,
+    "c": 17,
+    "p": 0.05946337525377032,
+    "n": 216,
+    "label": "selected on this shard",
+    "report": "cluster/eval_reports/arms/t36_paired_mixed_vs_A_dev217/report.json"
+   },
+   "ood876": {
+    "comparison": "B_mixed vs A",
+    "shard": "ood876",
+    "delta_pp": 7.891491985203452,
+    "ci_pp": [
+     5.055487053020962,
+     10.850801479654747
+    ],
+    "b": 105,
+    "c": 41,
+    "p": 1.1730437087592476e-07,
+    "n": 811,
+    "label": "confirmation only",
+    "report": "cluster/eval_reports/arms/t36_paired_mixed_vs_A_ood876/report.json"
+   }
+  },
+  "C vs B_real": {
+   "dev216": {
+    "comparison": "C vs B_real",
+    "shard": "dev216",
+    "delta_pp": -0.4629629629629629,
+    "ci_pp": [
+     -6.018518518518518,
+     5.092592592592593
+    ],
+    "b": 19,
+    "c": 20,
+    "p": 1.0,
+    "n": 216,
+    "label": "selected on this shard",
+    "report": "cluster/eval_reports/arms/t47_paired_C_vs_B_real_dev217/report.json"
+   },
+   "ood876": {
+    "comparison": "C vs B_real",
+    "shard": "ood876",
+    "delta_pp": 0.7398273736128237,
+    "ci_pp": [
+     -1.1097410604192355,
+     2.5893958076448826
+    ],
+    "b": 32,
+    "c": 26,
+    "p": 0.5118423084381689,
+    "n": 811,
+    "label": "confirmation only",
+    "report": "cluster/eval_reports/arms/t47_paired_C_vs_B_real_ood876/report.json"
+   }
+  },
+  "C vs B_mixed": {
+   "dev216": {
+    "comparison": "C vs B_mixed",
+    "shard": "dev216",
+    "delta_pp": 0.4629629629629629,
+    "ci_pp": [
+     -5.092592592592593,
+     6.018518518518518
+    ],
+    "b": 18,
+    "c": 17,
+    "p": 1.0,
+    "n": 216,
+    "label": "selected on this shard",
+    "report": "cluster/eval_reports/arms/t47_paired_C_vs_B_mixed_dev217/report.json"
+   },
+   "ood876": {
+    "comparison": "C vs B_mixed",
+    "shard": "ood876",
+    "delta_pp": 2.096177558569667,
+    "ci_pp": [
+     0.0,
+     4.315659679408138
+    ],
+    "b": 47,
+    "c": 30,
+    "p": 0.06754925145902678,
+    "n": 811,
+    "label": "confirmation only",
+    "report": "cluster/eval_reports/arms/t47_paired_C_vs_B_mixed_ood876/report.json"
+   }
+  },
+  "C vs A": {
+   "dev216": {
+    "comparison": "C vs A",
+    "shard": "dev216",
+    "delta_pp": 6.944444444444445,
+    "ci_pp": [
+     0.9259259259259258,
+     12.962962962962962
+    ],
+    "b": 30,
+    "c": 15,
+    "p": 0.035697803555194696,
+    "n": 216,
+    "label": "selected on this shard",
+    "report": "cluster/eval_reports/arms/t47_paired_C_vs_A_dev217/report.json"
+   },
+   "ood876": {
+    "comparison": "C vs A",
+    "shard": "ood876",
+    "delta_pp": 9.98766954377312,
+    "ci_pp": [
+     7.151664611590629,
+     12.82367447595561
+    ],
+    "b": 114,
+    "c": 33,
+    "p": 1.2222071031097547e-11,
+    "n": 811,
+    "label": "confirmation only",
+    "report": "cluster/eval_reports/arms/t47_paired_C_vs_A_ood876/report.json"
+   }
+  }
+ },
+ "d_pending": "arm D (real + the new synthetic pool) has not run: it is gated behind t30, which needs the verified new-synthetic mix (t21/t37) and the frozen selection rule; no D training job was submitted and no D number exists on disk. It is listed as pending here rather than omitted.",
+ "error_classes": {
+  "A/dev216": {
+   "syntax": 4,
+   "identifier": 37,
+   "other": 42,
+   "aggregate": 28,
+   "grain_fanout": 12,
+   "period": 6
+  },
+  "A/ood876": {
+   "identifier": 69,
+   "other": 74,
+   "syntax": 18,
+   "grain_fanout": 24,
+   "aggregate": 43,
+   "period": 7,
+   "tie_ordering": 2
+  },
+  "B_mixed/dev216": {
+   "other": 44,
+   "identifier": 26,
+   "aggregate": 23,
+   "grain_fanout": 17,
+   "syntax": 3,
+   "period": 2
+  },
+  "B_mixed/ood876": {
+   "other": 72,
+   "grain_fanout": 16,
+   "identifier": 38,
+   "aggregate": 37,
+   "tie_ordering": 4,
+   "syntax": 1,
+   "period": 5
+  },
+  "B_real/dev216": {
+   "other": 46,
+   "identifier": 30,
+   "period": 4,
+   "aggregate": 17,
+   "grain_fanout": 15,
+   "syntax": 1
+  },
+  "B_real/ood876": {
+   "other": 70,
+   "grain_fanout": 14,
+   "identifier": 34,
+   "aggregate": 38,
+   "period": 4,
+   "tie_ordering": 2
+  },
+  "C/dev216": {
+   "other": 40,
+   "identifier": 28,
+   "aggregate": 22,
+   "period": 4,
+   "grain_fanout": 19,
+   "syntax": 1
+  },
+  "C/ood876": {
+   "syntax": 1,
+   "other": 63,
+   "identifier": 29,
+   "aggregate": 40,
+   "grain_fanout": 15,
+   "period": 5,
+   "tie_ordering": 3
+  }
+ },
+ "per_schema": [
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "california_schools",
+   "scored": 23,
+   "wrong": 20,
+   "wrong_share": 0.8696,
+   "classes": {
+    "syntax": 3,
+    "identifier": 7,
+    "other": 6,
+    "aggregate": 3,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "4",
+     "class": "syntax",
+     "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+     "gold_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.\"Charter Funding Type\" = 'Directly funded' AND T1.\"Charter School (Y/N)\" = 1 AND T2.OpenDate > '2000-01-01'",
+     "predicted_sql": "SELECT T1.phone FROM schools AS T1 JOIN frpm AS T2 ON T1.cdscode = T2.cdscode WHERE T2.`Charter School (Y/N)` = 1 AND T1.opendate > '2000-01-01'",
+     "error_category": "syntax_error"
+    },
+    {
+     "question_id": "10",
+     "class": "identifier",
+     "question": "For the school with the highest average score in Reading in the SAT test, what is its FRPM count for students aged 5-17?",
+     "gold_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) ORDER BY T1.AvgScrRead DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT frpm.\"FRPM Count (Ages 5-17)\" FROM frpm JOIN satscores ON frpm.\"CDSCode\" = satscores.cds WHERE satscores.rtype = 'Reading' ORDER BY satscores.avgscrread DESC LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "13",
+     "class": "other",
+     "question": "Please list the phone numbers of the schools with the top 3 SAT excellence rate.",
+     "gold_sql": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY CAST(T2.NumGE1500 AS REAL) / NULLIF(T2.NumTstTakr, 0) DESC NULLS LAST LIMIT 3",
+     "predicted_sql": "SELECT T1.phone FROM schools AS T1 JOIN satscores AS T2 ON T1.cdscode = T2.cds WHERE T2.rtype = 'excellence' ORDER BY T2.numge1500 / NULLIF(T2.numtsttakr, 0) DESC LIMIT 3",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "card_games",
+   "scored": 28,
+   "wrong": 15,
+   "wrong_share": 0.5357,
+   "classes": {
+    "other": 10,
+    "aggregate": 1,
+    "identifier": 2,
+    "grain_fanout": 2
+   },
+   "examples": [
+    {
+     "question_id": "347",
+     "class": "other",
+     "question": "Find all cards illustrated by Stephen Daniel and describe the text of the ruling of these cards. State if these cards have missing or degraded properties and values.",
+     "gold_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniele'",
+     "predicted_sql": "SELECT c.id, r.text, c.hascontentwarning FROM cards c JOIN rulings r ON c.uuid = r.uuid WHERE c.artist = 'Stephen Daniel' AND c.hascontentwarning = 1",
+     "error_category": null
+    },
+    {
+     "question_id": "351",
+     "class": "other",
+     "question": "Name all the cards which have alternative language in Japanese.",
+     "gold_sql": "SELECT T1.name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.language = 'Japanese'",
+     "predicted_sql": "SELECT T1.name FROM cards AS T1 JOIN foreign_data AS T2 ON T1.scryfallid = T2.multiverseid WHERE T2.language = 'Japanese'",
+     "error_category": "undefined_function"
+    },
+    {
+     "question_id": "371",
+     "class": "aggregate",
+     "question": "What is the percentage of cards whose language is French among the Story Spotlight cards?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.isStorySpotlight = 1",
+     "predicted_sql": "SELECT (COUNT(CASE WHEN T2.language = 'French' THEN 1 ELSE NULL END) * 100.0 / COUNT(T1.id)) AS percentage FROM cards AS T1 JOIN foreign_data AS T2 ON T1.scryfallid = T2.multiverseid WHERE T1.isStorySpotlight = 1",
+     "error_category": "undefined_function"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "codebase_community",
+   "scored": 26,
+   "wrong": 11,
+   "wrong_share": 0.4231,
+   "classes": {
+    "other": 5,
+    "aggregate": 1,
+    "grain_fanout": 1,
+    "identifier": 3,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "571",
+     "class": "other",
+     "question": "For the user No.24, how many times is the number of his/her posts compared to his/her votes?",
+     "gold_sql": "SELECT CAST(COUNT(*) AS REAL) / NULLIF((SELECT COUNT(*) FROM votes WHERE UserId = 24), 0) FROM posts WHERE OwnerUserId = 24",
+     "predicted_sql": "SELECT COUNT(posts.id) / NULLIF(COUNT(votes.id), 0) AS post_to_vote_ratio FROM posts JOIN votes ON posts.id = votes.postid WHERE posts.owneruserid = 24",
+     "error_category": null
+    },
+    {
+     "question_id": "586",
+     "class": "other",
+     "question": "Which user added a bounty amount of 50 to the post title mentioning variance?",
+     "gold_sql": "SELECT T3.DisplayName, T1.Title FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId INNER JOIN users AS T3 ON T3.Id = T2.UserId WHERE T2.BountyAmount = 50 AND T1.Title LIKE '%variance%'",
+     "predicted_sql": "SELECT u.displayname FROM users u JOIN votes v ON u.id = v.userid JOIN posts p ON v.postid = p.id WHERE v.bountyamount = 50 AND p.title LIKE '%variance%'",
+     "error_category": null
+    },
+    {
+     "question_id": "592",
+     "class": "other",
+     "question": "How many users are awarded with more than 5 badges?",
+     "gold_sql": "SELECT COUNT(UserId) FROM (SELECT UserId, COUNT(Name) AS num FROM badges GROUP BY UserId) AS T WHERE T.num > 5",
+     "predicted_sql": "SELECT COUNT(UserId) FROM badges GROUP BY UserId HAVING COUNT(Name) > 5",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "debit_card_specializing",
+   "scored": 19,
+   "wrong": 15,
+   "wrong_share": 0.7895,
+   "classes": {
+    "aggregate": 8,
+    "identifier": 3,
+    "period": 3,
+    "other": 1
+   },
+   "examples": [
+    {
+     "question_id": "1471",
+     "class": "aggregate",
+     "question": "What is the ratio of customers who pay in EUR against customers who pay in CZK?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN Currency = 'CZK' THEN 1 ELSE 0 END), 0) AS ratio FROM customers",
+     "predicted_sql": "SELECT count(CASE WHEN currency = 'EUR' THEN 1 ELSE NULL END) / NULLIF(count(CASE WHEN currency = 'CZK' THEN 1 ELSE NULL END), 0) AS ratio FROM customers",
+     "error_category": null
+    },
+    {
+     "question_id": "1472",
+     "class": "identifier",
+     "question": "In 2012, who had the least consumption in LAM?",
+     "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT T1.customerid FROM yearmonth AS T1 WHERE T1.date BETWEEN '201201' AND '201212' AND T1.segment = 'LAM' ORDER BY T1.consumption ASC LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "1473",
+     "class": "period",
+     "question": "What was the average monthly consumption of customers in SME for the year 2013?",
+     "gold_sql": "SELECT AVG(T2.Consumption) / NULLIF(12, 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME'",
+     "predicted_sql": "SELECT AVG(consumption) / 12 AS avg_monthly_consumption FROM yearmonth WHERE customerid IN ( SELECT customerid FROM customers WHERE segment = 'SME' ) AND date BETWEEN '201301' AND '201312'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "financial",
+   "scored": 27,
+   "wrong": 25,
+   "wrong_share": 0.9259,
+   "classes": {
+    "grain_fanout": 5,
+    "aggregate": 5,
+    "identifier": 9,
+    "other": 4,
+    "syntax": 1,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "89",
+     "class": "grain_fanout",
+     "question": "How many accounts who choose issuance after transaction are staying in East Bohemia region?",
+     "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'east Bohemia' AND T2.frequency = 'POPLATEK PO OBRATU'",
+     "predicted_sql": "SELECT COUNT(DISTINCT a.account_id) FROM account a JOIN disp d ON a.account_id = d.account_id JOIN card c ON d.disp_id = c.disp_id JOIN district dt ON a.district_id = dt.district_id WHERE c.type = 'POPLATEK PO OBRATU' AND dt.a3 = 'East Bohemia'",
+     "error_category": null
+    },
+    {
+     "question_id": "91",
+     "class": "aggregate",
+     "question": "The average unemployment ratio of 1995 and 1996, which one has higher percentage?",
+     "gold_sql": "SELECT DISTINCT CASE WHEN AVG(A13) > AVG(A12) THEN '1996' ELSE '1995' END FROM district",
+     "predicted_sql": "SELECT a12 AS \"1995\", a13 AS \"1996\", CASE WHEN a12 > a13 THEN '1995' ELSE '1996' END AS \"Higher\" FROM district WHERE a8 BETWEEN 1995 AND 1996",
+     "error_category": null
+    },
+    {
+     "question_id": "95",
+     "class": "identifier",
+     "question": "List out the account numbers of clients who are youngest and have highest average salary?",
+     "gold_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 ON T4.district_id = T1.district_id WHERE T2.client_id = (SELECT client_id FROM client ORDER BY birth_date DESC NULLS LAST LIMIT 1) GROUP BY T4.A11, T1.account_id",
+     "predicted_sql": "SELECT a.account_id FROM account a JOIN disp d ON a.account_id = d.account_id JOIN client c ON d.client_id = c.client_id GROUP BY a.account_id, c.birth_date ORDER BY c.birth_date DESC, AVG(c.a11) DESC LIMIT 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "student_club",
+   "scored": 30,
+   "wrong": 13,
+   "wrong_share": 0.4333,
+   "classes": {
+    "other": 5,
+    "identifier": 6,
+    "aggregate": 1,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "1323",
+     "class": "other",
+     "question": "List all the names of events that had an attendance of over 20 students but were not fundraisers.",
+     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1 WHERE T1.type = 'Fundraiser'",
+     "predicted_sql": "SELECT event_name FROM event WHERE event_id IN (SELECT link_to_event FROM attendance GROUP BY link_to_event HAVING COUNT(event_id) > 20) AND type != 'fundraiser'",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "1339",
+     "class": "other",
+     "question": "Calculate the total average cost that Elijah Allen spent in the events on September and October.",
+     "gold_sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.last_name = 'Allen' AND T1.first_name = 'Elijah' AND (SUBSTRING(T2.expense_date FROM 6 FOR 2) = '09' OR SUBSTRING(T2.expense_date FROM 6 FOR 2) = '10')",
+     "predicted_sql": "SELECT AVG(cost) FROM expense WHERE link_to_member IN (SELECT member_id FROM member WHERE first_name = 'Elijah' AND last_name = 'Allen') AND expense_date LIKE '%/%/09%' OR expense_date LIKE '%/%/10%'",
+     "error_category": null
+    },
+    {
+     "question_id": "1340",
+     "class": "identifier",
+     "question": "Calculate the difference of the total amount spent in all events by the Student_Club in year 2019 and 2020.",
+     "gold_sql": "SELECT SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+     "predicted_sql": "SELECT (SUM(CASE WHEN EXTRACT(YEAR FROM event_date) = 2019 THEN spent ELSE 0 END) - SUM(CASE WHEN EXTRACT(YEAR FROM event_date) = 2020 THEN spent ELSE 0 END)) AS difference FROM budget WHERE event_status = 'Student_Club'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "superhero",
+   "scored": 36,
+   "wrong": 13,
+   "wrong_share": 0.3611,
+   "classes": {
+    "aggregate": 5,
+    "other": 4,
+    "identifier": 4
+   },
+   "examples": [
+    {
+     "question_id": "726",
+     "class": "aggregate",
+     "question": "Rank heroes published by Marvel Comics by their height in descending order.",
+     "gold_sql": "SELECT superhero_name, height_cm, RANK() OVER (ORDER BY height_cm DESC NULLS LAST) AS HeightRank FROM superhero INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics'",
+     "predicted_sql": "SELECT superhero_name FROM superhero AS T1 JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' ORDER BY height_cm DESC",
+     "error_category": null
+    },
+    {
+     "question_id": "736",
+     "class": "other",
+     "question": "Who is the dumbest superhero?",
+     "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Intelligence' ORDER BY T2.attribute_value NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT s.superhero_name, s.full_name\nFROM superhero s\nJOIN hero_attribute ha ON s.id = ha.hero_id\nJOIN attribute a ON ha.attribute_id = a.id\nWHERE a.attribute_name = 'Intelligence'\nORDER BY ha.attribute_value ASC\nLIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "743",
+     "class": "identifier",
+     "question": "What is the percentage of superheroes who act in their own self-interest or make decisions based on their own moral code? Indicate how many of the said superheroes were published by Marvel Comics.",
+     "gold_sql": "SELECT (CAST(COUNT(*) AS REAL) * 100 / NULLIF((SELECT COUNT(*) FROM superhero), 0)), CAST(SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) AS REAL) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN alignment AS T3 ON T3.id = T1.alignment_id WHERE T3.alignment = 'Bad'",
+     "predicted_sql": "SELECT \n  (SUM(CASE WHEN T1.alignment = 'Bad' THEN 1 ELSE 0 END) * 100.0 / COUNT(T1.id)) AS percentage,\n  COUNT(CASE WHEN T1.publisher_id = (SELECT id FROM publisher WHERE publisher_name = 'Marvel Comics') THEN 1 ELSE NULL END) AS marvel_count\nFROM \n  alignment AS T1\nJOIN \n  superhero AS T2 ON T1.id = T2.alignment_id;",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "dev216",
+   "db_id": "toxicology",
+   "scored": 27,
+   "wrong": 17,
+   "wrong_share": 0.6296,
+   "classes": {
+    "grain_fanout": 3,
+    "aggregate": 4,
+    "other": 7,
+    "identifier": 3
+   },
+   "examples": [
+    {
+     "question_id": "199",
+     "class": "grain_fanout",
+     "question": "In the molecule containing sodium atoms, how many are non-carcinogenic?",
+     "gold_sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+     "predicted_sql": "SELECT COUNT(*) FROM atom a JOIN molecule m ON a.molecule_id = m.molecule_id WHERE a.element = 'na' AND m.label = '-'",
+     "error_category": null
+    },
+    {
+     "question_id": "212",
+     "class": "aggregate",
+     "question": "Which element is the least numerous in non-carcinogenic molecules?",
+     "gold_sql": "SELECT T.element FROM (SELECT T1.element, COUNT(DISTINCT T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '-' GROUP BY T1.element ORDER BY COUNT(DISTINCT T1.molecule_id) ASC NULLS FIRST LIMIT 1) AS t",
+     "predicted_sql": "SELECT element FROM atom WHERE molecule_id IN (SELECT molecule_id FROM molecule WHERE label = '-') GROUP BY element ORDER BY COUNT(element) ASC LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "219",
+     "class": "aggregate",
+     "question": "What is the percentage of carcinogenic molecules in triple type bonds?",
+     "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(DISTINCT T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.bond_type = '#' THEN 1 ELSE 0 END) AS FLOAT) * 100 / COUNT(T2.bond_id) AS percent FROM molecule AS T1 JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "disney",
+   "scored": 74,
+   "wrong": 35,
+   "wrong_share": 0.473,
+   "classes": {
+    "identifier": 14,
+    "other": 6,
+    "syntax": 13,
+    "grain_fanout": 1,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:disney:1",
+     "class": "identifier",
+     "question": "The song \"Once Upon a Dream\" is associated with the movie directed by whom?",
+     "gold_sql": "SELECT T2.director FROM characters AS T1 INNER JOIN director AS T2 ON T1.movie_title = T2.name WHERE T1.song = 'Once Upon a Dream'",
+     "predicted_sql": "SELECT T2.director FROM characters AS T1 JOIN director AS T2 ON T1.movie_title = T2.movie WHERE T1.song = 'Once Upon a Dream'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:disney:3",
+     "class": "identifier",
+     "question": "Please list the movies directed by Wolfgang Reitherman that can be watched by the general audience.",
+     "gold_sql": "SELECT T1.movie_title FROM \"movies_total_gross\" AS T1 INNER JOIN director AS T2 ON T1.movie_title = T2.name WHERE T1.MPAA_rating = 'G' AND T2.director = 'Wolfgang Reitherman'",
+     "predicted_sql": "SELECT characters.movie_title FROM characters JOIN director ON characters.movie_title = director.movie WHERE director.director = 'Wolfgang Reitherman' AND movies_total_gross.MPAA_rating = 'G'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:disney:6",
+     "class": "other",
+     "question": "Which song is associated with the most popular Disney movie in 1970s?",
+     "gold_sql": "SELECT T2.song FROM movies_total_gross AS T1 INNER JOIN characters AS T2 ON T1.movie_title = T2.movie_title WHERE CAST(SUBSTRING(T1.release_date FROM POSITION(', ' IN T1.release_date) + 1) AS INT) BETWEEN 1970 AND 1979 ORDER BY CAST(REPLACE(SUBSTRING(T1.total_gross FROM 2), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT song FROM characters WHERE movie_title = (SELECT movie_title FROM movies_total_gross WHERE CAST(SUBSTR(release_date, INSTR(release_date, ', ') + 1) AS int) BETWEEN 1970 AND 1979 ORDER BY CAST(REPLACE(trim(total_gross, '$'), ',', '') AS REAL) DESC LIMIT 1)",
+     "error_category": "undefined_function"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "european_football_1",
+   "scored": 36,
+   "wrong": 10,
+   "wrong_share": 0.2778,
+   "classes": {
+    "aggregate": 4,
+    "grain_fanout": 2,
+    "period": 1,
+    "other": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:european_football_1:77",
+     "class": "aggregate",
+     "question": "What is the most consecutive games tied by Ebbsfleet as an away team in the 2008 season?",
+     "gold_sql": "SELECT COUNT(*) FROM matchs WHERE season = 2008 AND AwayTeam = 'Ebbsfleet' AND FTR = 'D'",
+     "predicted_sql": "SELECT MAX(consecutive_games) FROM ( SELECT COUNT(*) AS consecutive_games FROM matchs WHERE season = 2008 AND awayteam = 'Ebbsfleet' AND ftr = 'D' GROUP BY date ORDER BY date ) AS subquery",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:european_football_1:78",
+     "class": "aggregate",
+     "question": "Of all the teams that played as a team away against Caen in the 2010 season, which one has the highest winning percentage?",
+     "gold_sql": "SELECT AwayTeam FROM matchs WHERE HomeTeam = 'Caen' AND season = 2010 AND FTR = 'A' GROUP BY AwayTeam ORDER BY COUNT(AwayTeam) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT awayteam, MAX(CAST(COUNT(CASE WHEN ftr = 'A' THEN 1 ELSE NULL END) AS FLOAT) / COUNT(*)) AS percentage FROM matchs WHERE season = '2010' AND homeTeam = 'Caen' GROUP BY awayteam",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "ood:european_football_1:79",
+     "class": "grain_fanout",
+     "question": "What is the name of all the teams that played in the EFL League One division?",
+     "gold_sql": "SELECT T1.HomeTeam, T1.AwayTeam FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.Div = T2.division WHERE T2.name = 'EFL League One' AND T1.Div = 'E2'",
+     "predicted_sql": "SELECT DISTINCT hometeam AS team FROM matchs WHERE div = 'E2' UNION SELECT DISTINCT awayteam AS team FROM matchs WHERE div = 'E2'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "law_episode",
+   "scored": 89,
+   "wrong": 39,
+   "wrong_share": 0.4382,
+   "classes": {
+    "identifier": 7,
+    "other": 18,
+    "aggregate": 4,
+    "grain_fanout": 9,
+    "tie_ordering": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:law_episode:118",
+     "class": "identifier",
+     "question": "How many votes did the episode titled \"Cherished\" get in total?",
+     "gold_sql": "SELECT SUM(T2.votes) FROM Episode AS T1 INNER JOIN Vote AS T2 ON T1.episode_id = T2.episode_id WHERE T1.title = 'Cherished'",
+     "predicted_sql": "SELECT SUM(votes) FROM episode AS e JOIN vote AS v ON e.episode_id = v.episode_id WHERE e.title = 'Cherished'",
+     "error_category": "ambiguous_column"
+    },
+    {
+     "question_id": "ood:law_episode:129",
+     "class": "other",
+     "question": "How many awards has Rene Balcer been nominated for?",
+     "gold_sql": "SELECT COUNT(T2.award_id) FROM Person AS T1 INNER JOIN Award AS T2 ON T1.person_id = T2.person_id WHERE T1.name = 'Rene Balcer'",
+     "predicted_sql": "SELECT COUNT(*) FROM award AS T1 JOIN person AS T2 ON T1.person_id = T2.person_id WHERE T2.name = 'Rene Balcer' AND T1.result = 'Nominated';",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:132",
+     "class": "aggregate",
+     "question": "Display the number of 9-star votes the episode Sideshow received.",
+     "gold_sql": "SELECT T2.votes FROM Episode AS T1 INNER JOIN Vote AS T2 ON T1.episode_id = T2.episode_id WHERE T2.stars = 9 AND T1.title = 'Sideshow'",
+     "predicted_sql": "SELECT COUNT(*) FROM vote AS T1 JOIN episode AS T2 ON T1.episode_id = T2.episode_id WHERE T2.title = 'Sideshow' AND T1.stars = 9",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "menu",
+   "scored": 68,
+   "wrong": 23,
+   "wrong_share": 0.3382,
+   "classes": {
+    "aggregate": 4,
+    "other": 10,
+    "identifier": 9
+   },
+   "examples": [
+    {
+     "question_id": "ood:menu:206",
+     "class": "aggregate",
+     "question": "Among the menus in which the dish \"Clear green turtle\" had appeared, how many of them did not support taking out or booking in advance?",
+     "gold_sql": "SELECT SUM(CASE WHEN T4.name = 'Clear green turtle' THEN 1 ELSE 0 END) FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.call_number IS NULL",
+     "predicted_sql": "SELECT COUNT(DISTINCT m.id) FROM dish d JOIN menuitem mi ON d.id = mi.dish_id JOIN menu m ON mi.menu_page_id = m.id WHERE d.name = 'Clear green turtle' AND m.call_number IS NULL",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:menu:208",
+     "class": "other",
+     "question": "Which dish has the highest price on the menu \"Zentral Theater Terrace\"? Please give its name.",
+     "gold_sql": "SELECT T4.name FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.name = 'Zentral Theater Terrace' ORDER BY T1.price DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT d.name FROM dish d JOIN menuitem mi ON d.id = mi.dish_id JOIN menupage mp ON mi.menu_page_id = mp.id JOIN menu m ON mp.menu_id = m.id WHERE m.name = 'Zentral Theater Terrace' ORDER BY mi.price DESC LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:menu:209",
+     "class": "identifier",
+     "question": "Please list the IDs of the menus that are DIYs of the restaurant and have the dish \"Clear green turtle\".",
+     "gold_sql": "SELECT T2.menu_id FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T4.name = 'Clear green turtle' AND T3.sponsor IS NULL",
+     "predicted_sql": "SELECT menu_id FROM menuitem AS T1 JOIN dish AS T2 ON T1.dish_id = T2.id JOIN menu AS T3 ON T1.menu_page_id = T3.id WHERE T2.name = 'Clear green turtle' AND T3.sponsor IS NULL",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "movie_3",
+   "scored": 189,
+   "wrong": 51,
+   "wrong_share": 0.2698,
+   "classes": {
+    "aggregate": 10,
+    "identifier": 11,
+    "other": 26,
+    "grain_fanout": 3,
+    "tie_ordering": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:movie_3:279",
+     "class": "aggregate",
+     "question": "Please give the title of the film starring PENELOPE GUINESS and has the highest replacement cost.",
+     "gold_sql": "SELECT T3.title FROM actor AS T1 INNER JOIN film_actor AS T2 ON T1.actor_id = T2.actor_id INNER JOIN film AS T3 ON T2.film_id = T3.film_id WHERE T1.first_name = 'PENELOPE' AND T1.last_name = 'GUINESS' ORDER BY T3.replacement_cost DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T3.title FROM actor AS T1 JOIN film_actor AS T2 ON T1.actor_id = T2.actor_id JOIN film AS T3 ON T2.film_id = T3.film_id WHERE T1.first_name = 'PENELOPE' AND T1.last_name = 'GUINESS' AND T3.replacement_cost = (SELECT MAX(replacement_cost) FROM film)",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movie_3:289",
+     "class": "identifier",
+     "question": "Which film is rented for the most times by the customers? Please give its title.",
+     "gold_sql": "SELECT T.title FROM (SELECT T1.title, COUNT(T3.rental_id) AS num FROM film AS T1 INNER JOIN inventory AS T2 ON T1.film_id = T2.film_id INNER JOIN rental AS T3 ON T2.inventory_id = T3.inventory_id GROUP BY T1.title) AS T ORDER BY T.num DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T.title FROM ( SELECT T2.title, COUNT(T1.rental_id) AS num FROM rental AS T1 JOIN film AS T2 ON T1.film_id = T2.film_id GROUP BY T2.title ) AS T ORDER BY T.num DESC LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movie_3:297",
+     "class": "other",
+     "question": "Give the address location of Heather Morris.",
+     "gold_sql": "SELECT T1.address FROM address AS T1 INNER JOIN customer AS T2 ON T1.address_id = T2.address_id WHERE T2.first_name = 'HEATHER' AND T2.last_name = 'MORRIS'",
+     "predicted_sql": "SELECT T2.address FROM customer AS T1 JOIN address AS T2 ON T1.address_id = T2.address_id WHERE T1.first_name = 'Heather' AND T1.last_name = 'Morris'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "movies_4",
+   "scored": 134,
+   "wrong": 29,
+   "wrong_share": 0.2164,
+   "classes": {
+    "identifier": 5,
+    "aggregate": 7,
+    "grain_fanout": 5,
+    "period": 5,
+    "other": 6,
+    "syntax": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:movies_4:473",
+     "class": "identifier",
+     "question": "Please list the names of the production company of the movie \"Four Rooms\".",
+     "gold_sql": "SELECT T1.company_name FROM production_company AS T1 INNER JOIN movie_company AS T2 ON T1.company_id = T2.company_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T3.title = 'Four Rooms'",
+     "predicted_sql": "SELECT T2.company_name FROM movie AS T1 JOIN production_company AS T2 ON T1.movie_id = T2.movie_id WHERE T1.title = 'Four Rooms'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movies_4:482",
+     "class": "aggregate",
+     "question": "When was the release date of the latest movie in which Dariusz Wolski worked as a crew member?",
+     "gold_sql": "SELECT T1.release_date FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' ORDER BY T1.release_date DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT MAX(T1.release_date) FROM movie AS T1 JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Crew Member'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movies_4:483",
+     "class": "aggregate",
+     "question": "What is the average revenue of the movie in which Dariusz Wolski works as the director of photography?",
+     "gold_sql": "SELECT CAST(SUM(T1.revenue) AS REAL) / NULLIF(COUNT(T1.movie_id), 0) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "predicted_sql": "SELECT AVG(revenue) FROM movie AS T1 JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "music_tracker",
+   "scored": 31,
+   "wrong": 7,
+   "wrong_share": 0.2258,
+   "classes": {
+    "aggregate": 4,
+    "other": 2,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:music_tracker:614",
+     "class": "aggregate",
+     "question": "What is the tag and the artist of the most downloaded single?",
+     "gold_sql": "SELECT T2.tag, T1.artist FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T1.releaseType = 'single' ORDER BY T1.totalSnatched DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.tag, T1.artist FROM torrents AS T1 JOIN tags AS T2 ON T1.id = T2.id WHERE T1.releasetype = 'single' AND T1.totalsnatched = (SELECT MAX(totalsnatched) FROM torrents WHERE releasetype = 'single')",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:617",
+     "class": "aggregate",
+     "question": "How many albums and Single-Tables were released by the artist named '50 cent' between 2010 and 2015?",
+     "gold_sql": "SELECT COUNT(id), (SELECT COUNT(id) FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'album') FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'Single'",
+     "predicted_sql": "SELECT COUNT(*) FROM torrents WHERE artist = '50 cent' AND groupyear BETWEEN 2010 AND 2015 AND releasetype IN ('album', 'single')",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:630",
+     "class": "aggregate",
+     "question": "What are the average download times for the a release tagged \"1980s\"?",
+     "gold_sql": "SELECT CAST(SUM(T1.totalSnatched) AS REAL) / NULLIF(COUNT(T2.tag), 0) FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag = '1980s'",
+     "predicted_sql": "SELECT AVG(totalsnatched) FROM torrents WHERE id IN (SELECT id FROM tags WHERE tag = '1980s')",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "sales_in_weather",
+   "scored": 42,
+   "wrong": 18,
+   "wrong_share": 0.4286,
+   "classes": {
+    "aggregate": 6,
+    "grain_fanout": 1,
+    "identifier": 10,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:sales_in_weather:647",
+     "class": "aggregate",
+     "question": "How many units of item no.5 were sold in store no.3 on average on the days when the max temperature exceeded 90?",
+     "gold_sql": "SELECT CAST(SUM(T1.units) AS REAL) / NULLIF(COUNT(T1.\"date\"), 0) FROM sales_in_weather AS T1 INNER JOIN relation AS T2 ON T1.store_nbr = T2.store_nbr INNER JOIN weather AS T3 ON T2.station_nbr = T3.station_nbr WHERE T1.store_nbr = 3 AND T1.item_nbr = 5 AND T3.tmax > 90",
+     "predicted_sql": "SELECT AVG(s.units) FROM sales_in_weather s JOIN weather w ON s.store_nbr = w.station_nbr AND s.date = w.date WHERE s.store_nbr = 3 AND s.item_nbr = 5 AND w.tmax > 90",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:sales_in_weather:650",
+     "class": "grain_fanout",
+     "question": "Give the number of stores which opened on the weather station that recorded the fastest average wind speed.",
+     "gold_sql": "SELECT COUNT(T.store_nbr) FROM (SELECT DISTINCT store_nbr FROM relation WHERE station_nbr = (SELECT station_nbr FROM weather ORDER BY avgspeed DESC NULLS LAST LIMIT 1)) AS T",
+     "predicted_sql": "SELECT COUNT(store_nbr) FROM relation WHERE station_nbr = (SELECT station_nbr FROM weather ORDER BY avgspeed DESC LIMIT 1)",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:sales_in_weather:653",
+     "class": "identifier",
+     "question": "State the number of stores that belongs to the weather station which recorded the deepest snowfall.",
+     "gold_sql": "SELECT T2.store_nbr FROM weather AS T1 INNER JOIN relation AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY snowfall DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT COUNT(DISTINCT store_nbr) FROM weather WHERE snowfall = (SELECT MAX(snowfall) FROM weather)",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "social_media",
+   "scored": 39,
+   "wrong": 7,
+   "wrong_share": 0.1795,
+   "classes": {
+    "aggregate": 2,
+    "other": 3,
+    "identifier": 1,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:social_media:701",
+     "class": "aggregate",
+     "question": "What is the text of the tweet that got the most `likes`?",
+     "gold_sql": "SELECT text FROM twitter WHERE Likes = (SELECT MAX(Likes) FROM twitter)",
+     "predicted_sql": "SELECT text FROM twitter ORDER BY likes DESC LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:702",
+     "class": "other",
+     "question": "Please list all the cities in Argentina.",
+     "gold_sql": "SELECT City FROM location WHERE NOT City IS NULL AND Country = 'Argentina'",
+     "predicted_sql": "SELECT city FROM location WHERE country = 'Argentina'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:704",
+     "class": "identifier",
+     "question": "Among all the tweets that are reshared, how many of them are posted by a user in Buenos Aires?",
+     "gold_sql": "SELECT COUNT(T1.TweetID) FROM twitter AS T1 INNER JOIN location AS T2 ON T2.LocationID = T1.LocationID WHERE T2.City = 'Buenos Aires' AND T1.IsReshare = 'TRUE'",
+     "predicted_sql": "SELECT COUNT(*) FROM twitter AS T1 JOIN location AS T2 ON T1.locationid = T2.locationid JOIN user AS T3 ON T1.userid = T3.userid WHERE T1.isreshare = 'TRUE' AND T2.city = 'Buenos Aires'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "A",
+   "shard": "ood876",
+   "db_id": "talkingdata",
+   "scored": 109,
+   "wrong": 18,
+   "wrong_share": 0.1651,
+   "classes": {
+    "identifier": 12,
+    "grain_fanout": 1,
+    "syntax": 4,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:talkingdata:764",
+     "class": "identifier",
+     "question": "How many users are there in the Home Decoration category?",
+     "gold_sql": "SELECT COUNT(T1.app_id) FROM app_labels AS T1 INNER JOIN label_categories AS T2 ON T2.label_id = T1.label_id WHERE T2.category = 'Home Decoration'",
+     "predicted_sql": "SELECT COUNT(DISTINCT T1.device_id) FROM gender_age AS T1 INNER JOIN app_labels AS T2 ON T1.device_id = T2.device_id INNER JOIN label_categories AS T3 ON T2.label_id = T3.label_id WHERE T3.category = 'Home Decoration'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:talkingdata:766",
+     "class": "identifier",
+     "question": "What are the categories of the top 2 oldest events?",
+     "gold_sql": "SELECT T4.category FROM events_relevant AS T1 INNER JOIN app_events_relevant AS T2 ON T1.event_id = T2.event_id INNER JOIN app_labels AS T3 ON T3.app_id = T2.app_id INNER JOIN label_categories AS T4 ON T3.label_id = T4.label_id ORDER BY T1.timestamp NULLS FIRST LIMIT 2",
+     "predicted_sql": "SELECT T3.category FROM events AS T1 JOIN events_relevant AS T2 ON T1.event_id = T2.event_id JOIN label_categories AS T3 ON T2.label_id = T3.label_id ORDER BY T1.timestamp ASC LIMIT 2",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:talkingdata:767",
+     "class": "identifier",
+     "question": "How many users belong to the MOBA category?",
+     "gold_sql": "SELECT COUNT(T2.app_id) FROM label_categories AS T1 INNER JOIN app_labels AS T2 ON T2.label_id = T1.label_id WHERE T1.category = 'MOBA'",
+     "predicted_sql": "SELECT COUNT(DISTINCT T1.device_id) FROM gender_age AS T1 JOIN app_labels AS T2 ON T1.device_id = T2.device_id JOIN label_categories AS T3 ON T2.label_id = T3.label_id WHERE T3.category = 'MOBA'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "california_schools",
+   "scored": 23,
+   "wrong": 21,
+   "wrong_share": 0.913,
+   "classes": {
+    "other": 8,
+    "identifier": 7,
+    "aggregate": 3,
+    "grain_fanout": 2,
+    "syntax": 1
+   },
+   "examples": [
+    {
+     "question_id": "4",
+     "class": "other",
+     "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+     "gold_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.\"Charter Funding Type\" = 'Directly funded' AND T1.\"Charter School (Y/N)\" = 1 AND T2.OpenDate > '2000-01-01'",
+     "predicted_sql": "SELECT T1.Phone FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.OpenDate > '2000-01-01' AND T2.\"Charter School (Y/N)\" = 1",
+     "error_category": null
+    },
+    {
+     "question_id": "9",
+     "class": "other",
+     "question": "Among the schools with the average score in Math over 560 in the SAT test, how many schools are directly charter-funded?",
+     "gold_sql": "SELECT COUNT(T2.\"School Code\") FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) WHERE T1.AvgScrMath > 560 AND T2.\"Charter Funding Type\" = 'Directly funded'",
+     "predicted_sql": "SELECT COUNT(*) FROM \"schools\" JOIN \"satscores\" ON \"schools\".\"cdscode\" = \"satscores\".\"cds\" WHERE \"satscores\".\"avgscrmath\" > 560 AND \"schools\".\"fundingtype\" = 'Direct Charter'",
+     "error_category": null
+    },
+    {
+     "question_id": "10",
+     "class": "other",
+     "question": "For the school with the highest average score in Reading in the SAT test, what is its FRPM count for students aged 5-17?",
+     "gold_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) ORDER BY T1.AvgScrRead DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON T2.\"School Name\" = T1.sname WHERE T1.rtype = 'Reading' ORDER BY T1.avgscrread DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "card_games",
+   "scored": 28,
+   "wrong": 16,
+   "wrong_share": 0.5714,
+   "classes": {
+    "other": 10,
+    "identifier": 2,
+    "grain_fanout": 4
+   },
+   "examples": [
+    {
+     "question_id": "347",
+     "class": "other",
+     "question": "Find all cards illustrated by Stephen Daniel and describe the text of the ruling of these cards. State if these cards have missing or degraded properties and values.",
+     "gold_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniele'",
+     "predicted_sql": "SELECT T1.id, T2.text FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniel' AND T1.hasContentWarning = 1",
+     "error_category": null
+    },
+    {
+     "question_id": "351",
+     "class": "other",
+     "question": "Name all the cards which have alternative language in Japanese.",
+     "gold_sql": "SELECT T1.name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.language = 'Japanese'",
+     "predicted_sql": "SELECT T1.Name FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.UUID = T2.SCRYFALLID WHERE T1.Language = 'Japanese'",
+     "error_category": null
+    },
+    {
+     "question_id": "371",
+     "class": "other",
+     "question": "What is the percentage of cards whose language is French among the Story Spotlight cards?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.isStorySpotlight = 1",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.language), 0) FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.multiverseid = T2.multiverseid WHERE T2.isStorySpotlight = 1",
+     "error_category": "undefined_function"
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "codebase_community",
+   "scored": 26,
+   "wrong": 10,
+   "wrong_share": 0.3846,
+   "classes": {
+    "other": 6,
+    "identifier": 3,
+    "syntax": 1
+   },
+   "examples": [
+    {
+     "question_id": "563",
+     "class": "other",
+     "question": "User No.3025 gave a comment at 20:29:39 on 2014/4/23 to a post, how many favorite counts did that post get?",
+     "gold_sql": "SELECT T1.FavoriteCount FROM posts AS T1 INNER JOIN comments AS T2 ON T1.Id = T2.PostId WHERE T2.CreationDate = '2014-04-23 20:29:39.0' AND T2.UserId = 3025",
+     "predicted_sql": "SELECT T2.FavoriteCount FROM PostHistory AS T1 INNER JOIN Posts AS T2 ON T1.PostId = T2.Id WHERE T1.UserId = 3025 AND T1.CreationDate = '2014-04-23 20:29:39'",
+     "error_category": null
+    },
+    {
+     "question_id": "571",
+     "class": "other",
+     "question": "For the user No.24, how many times is the number of his/her posts compared to his/her votes?",
+     "gold_sql": "SELECT CAST(COUNT(*) AS REAL) / NULLIF((SELECT COUNT(*) FROM votes WHERE UserId = 24), 0) FROM posts WHERE OwnerUserId = 24",
+     "predicted_sql": "SELECT CAST(COUNT(T1.Id) AS REAL) / NULLIF(COUNT(T2.Id), 0) FROM Posts AS T1 INNER JOIN Votes AS T2 ON T1.Id = T2.PostId WHERE T1.OwnerUserId = 24",
+     "error_category": null
+    },
+    {
+     "question_id": "586",
+     "class": "other",
+     "question": "Which user added a bounty amount of 50 to the post title mentioning variance?",
+     "gold_sql": "SELECT T3.DisplayName, T1.Title FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId INNER JOIN users AS T3 ON T3.Id = T2.UserId WHERE T2.BountyAmount = 50 AND T1.Title LIKE '%variance%'",
+     "predicted_sql": "SELECT T2.DisplayName FROM Votes AS T1 INNER JOIN Users AS T2 ON T1.UserId = T2.Id INNER JOIN Posts AS T3 ON T1.PostId = T3.Id WHERE T3.Title LIKE '%variance%' AND T1.BountyAmount = 50",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "debit_card_specializing",
+   "scored": 19,
+   "wrong": 13,
+   "wrong_share": 0.6842,
+   "classes": {
+    "aggregate": 9,
+    "other": 4
+   },
+   "examples": [
+    {
+     "question_id": "1472",
+     "class": "aggregate",
+     "question": "In 2012, who had the least consumption in LAM?",
+     "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT T1.CustomerID FROM yearmonth AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Segment = 'LAM' AND T1.Date BETWEEN '201201' AND '201212' ORDER BY T1.Consumption ASC NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "1473",
+     "class": "aggregate",
+     "question": "What was the average monthly consumption of customers in SME for the year 2013?",
+     "gold_sql": "SELECT AVG(T2.Consumption) / NULLIF(12, 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.Segment = 'SME' AND T2.Date BETWEEN '201301' AND '201312' THEN T2.Consumption ELSE 0 END) AS REAL) / NULLIF(12, 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
+     "error_category": null
+    },
+    {
+     "question_id": "1475",
+     "class": "aggregate",
+     "question": "How many customers in KAM had a consumption of less than 30,000 for the year 2012?",
+     "gold_sql": "SELECT COUNT(*) FROM (SELECT T2.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'KAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T2.CustomerID HAVING SUM(T2.Consumption) < 30000) AS t1",
+     "predicted_sql": "SELECT COUNT(*) FROM \"yearmonth\" WHERE \"customerid\" = 1 AND \"consumption\" < 30000 AND \"date\" BETWEEN '201201' AND '201212'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "financial",
+   "scored": 27,
+   "wrong": 18,
+   "wrong_share": 0.6667,
+   "classes": {
+    "identifier": 9,
+    "aggregate": 2,
+    "period": 1,
+    "other": 4,
+    "grain_fanout": 1,
+    "syntax": 1
+   },
+   "examples": [
+    {
+     "question_id": "89",
+     "class": "identifier",
+     "question": "How many accounts who choose issuance after transaction are staying in East Bohemia region?",
+     "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'east Bohemia' AND T2.frequency = 'POPLATEK PO OBRATU'",
+     "predicted_sql": "SELECT COUNT(*) FROM \"account\" JOIN \"district\" ON \"account\".\"district_id\" = \"district\".\"district_id\" JOIN \"card\" ON \"account\".\"account_id\" = \"card\".\"account_id\" WHERE \"district\".\"a3\" = 'STřEDOČESKÉ KRAJ' AND \"card\".\"type\" = 'POPLATEK PO OBRATU'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "91",
+     "class": "aggregate",
+     "question": "The average unemployment ratio of 1995 and 1996, which one has higher percentage?",
+     "gold_sql": "SELECT DISTINCT CASE WHEN AVG(A13) > AVG(A12) THEN '1996' ELSE '1995' END FROM district",
+     "predicted_sql": "SELECT CASE WHEN A12 > A13 THEN '1995' WHEN A12 < A13 THEN '1996' ELSE 'equal' END FROM district",
+     "error_category": null
+    },
+    {
+     "question_id": "95",
+     "class": "identifier",
+     "question": "List out the account numbers of clients who are youngest and have highest average salary?",
+     "gold_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 ON T4.district_id = T1.district_id WHERE T2.client_id = (SELECT client_id FROM client ORDER BY birth_date DESC NULLS LAST LIMIT 1) GROUP BY T4.A11, T1.account_id",
+     "predicted_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN client AS T2 ON T1.client_id = T2.client_id GROUP BY T1.account_id ORDER BY AVG(T2.a11) DESC, T2.birth_date NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "student_club",
+   "scored": 30,
+   "wrong": 10,
+   "wrong_share": 0.3333,
+   "classes": {
+    "other": 2,
+    "aggregate": 1,
+    "period": 1,
+    "identifier": 3,
+    "grain_fanout": 3
+   },
+   "examples": [
+    {
+     "question_id": "1323",
+     "class": "other",
+     "question": "List all the names of events that had an attendance of over 20 students but were not fundraisers.",
+     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1 WHERE T1.type = 'Fundraiser'",
+     "predicted_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_id NOT IN (SELECT event_id FROM event WHERE type = 'fundraiser') GROUP BY T1.event_name HAVING COUNT(T2.link_to_event) > 20",
+     "error_category": null
+    },
+    {
+     "question_id": "1339",
+     "class": "aggregate",
+     "question": "Calculate the total average cost that Elijah Allen spent in the events on September and October.",
+     "gold_sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.last_name = 'Allen' AND T1.first_name = 'Elijah' AND (SUBSTRING(T2.expense_date FROM 6 FOR 2) = '09' OR SUBSTRING(T2.expense_date FROM 6 FOR 2) = '10')",
+     "predicted_sql": "SELECT SUM(T2.cost) / NULLIF(COUNT(T2.expense_id), 0) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.first_name = 'Elijah' AND T1.last_name = 'Allen' AND T2.expense_date LIKE '%/%/10'",
+     "error_category": null
+    },
+    {
+     "question_id": "1340",
+     "class": "period",
+     "question": "Calculate the difference of the total amount spent in all events by the Student_Club in year 2019 and 2020.",
+     "gold_sql": "SELECT SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+     "predicted_sql": "SELECT SUM(CASE WHEN TO_CHAR(CAST(T1.event_date AS TIMESTAMP), 'YYYY') = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN TO_CHAR(CAST(T1.event_date AS TIMESTAMP), 'YYYY') = '2020' THEN T2.spent ELSE 0 END) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'Student_Club'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "superhero",
+   "scored": 36,
+   "wrong": 11,
+   "wrong_share": 0.3056,
+   "classes": {
+    "other": 6,
+    "aggregate": 3,
+    "identifier": 2
+   },
+   "examples": [
+    {
+     "question_id": "724",
+     "class": "other",
+     "question": "Please list the superhero names of all the superheroes that have blue eyes and blond hair.",
+     "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Blond'",
+     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id WHERE T2.colour = 'Blue'",
+     "error_category": null
+    },
+    {
+     "question_id": "726",
+     "class": "aggregate",
+     "question": "Rank heroes published by Marvel Comics by their height in descending order.",
+     "gold_sql": "SELECT superhero_name, height_cm, RANK() OVER (ORDER BY height_cm DESC NULLS LAST) AS HeightRank FROM superhero INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics'",
+     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' ORDER BY T1.height_cm DESC NULLS LAST",
+     "error_category": null
+    },
+    {
+     "question_id": "743",
+     "class": "aggregate",
+     "question": "What is the percentage of superheroes who act in their own self-interest or make decisions based on their own moral code? Indicate how many of the said superheroes were published by Marvel Comics.",
+     "gold_sql": "SELECT (CAST(COUNT(*) AS REAL) * 100 / NULLIF((SELECT COUNT(*) FROM superhero), 0)), CAST(SUM(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE 0 END) AS REAL) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN alignment AS T3 ON T3.id = T1.alignment_id WHERE T3.alignment = 'Bad'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.alignment = 'Bad' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.alignment), 0), SUM(CASE WHEN T1.alignment = 'Bad' THEN 1 ELSE 0 END) FROM alignment AS T1 INNER JOIN superhero AS T2 ON T1.id = T2.alignment_id INNER JOIN publisher AS T3 ON T2.publisher_id = T3.id WHERE T3.publisher_name = 'Marvel Comics'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "dev216",
+   "db_id": "toxicology",
+   "scored": 27,
+   "wrong": 16,
+   "wrong_share": 0.5926,
+   "classes": {
+    "grain_fanout": 7,
+    "aggregate": 5,
+    "other": 4
+   },
+   "examples": [
+    {
+     "question_id": "199",
+     "class": "grain_fanout",
+     "question": "In the molecule containing sodium atoms, how many are non-carcinogenic?",
+     "gold_sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+     "predicted_sql": "SELECT COUNT(T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+     "error_category": null
+    },
+    {
+     "question_id": "212",
+     "class": "aggregate",
+     "question": "Which element is the least numerous in non-carcinogenic molecules?",
+     "gold_sql": "SELECT T.element FROM (SELECT T1.element, COUNT(DISTINCT T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '-' GROUP BY T1.element ORDER BY COUNT(DISTINCT T1.molecule_id) ASC NULLS FIRST LIMIT 1) AS t",
+     "predicted_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '-' GROUP BY T1.element ORDER BY COUNT(T1.element) ASC NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "219",
+     "class": "aggregate",
+     "question": "What is the percentage of carcinogenic molecules in triple type bonds?",
+     "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(DISTINCT T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.bond_type = '#' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.bond_type), 0) FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "disney",
+   "scored": 74,
+   "wrong": 28,
+   "wrong_share": 0.3784,
+   "classes": {
+    "other": 15,
+    "grain_fanout": 4,
+    "identifier": 3,
+    "aggregate": 3,
+    "tie_ordering": 1,
+    "syntax": 1,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:disney:6",
+     "class": "other",
+     "question": "Which song is associated with the most popular Disney movie in 1970s?",
+     "gold_sql": "SELECT T2.song FROM movies_total_gross AS T1 INNER JOIN characters AS T2 ON T1.movie_title = T2.movie_title WHERE CAST(SUBSTRING(T1.release_date FROM POSITION(', ' IN T1.release_date) + 1) AS INT) BETWEEN 1970 AND 1979 ORDER BY CAST(REPLACE(SUBSTRING(T1.total_gross FROM 2), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.song FROM characters AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie_title = T2.movie_title WHERE CAST(SUBSTR(T2.release_date, INSTR(T2.release_date, ', ') + 1) AS REAL) BETWEEN 1970 AND 1979 ORDER BY CAST(REPLACE(SUBSTR(T2.total_gross, 4), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_function"
+    },
+    {
+     "question_id": "ood:disney:11",
+     "class": "grain_fanout",
+     "question": "How many movies for mature audiences or parental guidance suggested did Bill Thompson work as a voice actor?",
+     "gold_sql": "SELECT COUNT(T.movie) FROM (SELECT T1.movie FROM \"voice-actors\" AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie = T2.movie_title WHERE MPAA_rating = 'PG' AND \"voice-actor\" = 'Bill Thompson' GROUP BY T1.movie) AS T",
+     "predicted_sql": "SELECT COUNT(*) FROM \"voice-actors\" JOIN movies_total_gross ON \"voice-actors\".\"movie\" = movies_total_gross.movie_title WHERE \"voice-actors\".\"voice-actor\" = 'Bill Thompson' AND movies_total_gross.MPAA_rating = 'PG'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:disney:12",
+     "class": "other",
+     "question": "Which director did Bill Thompson work the most with?",
+     "gold_sql": "SELECT director FROM director AS T1 INNER JOIN \"voice-actors\" AS T2 ON T1.name = T2.movie WHERE T2.\"voice-actor\" = 'Bill Thompson' GROUP BY director ORDER BY COUNT(director) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.name FROM \"voice-actors\" AS T1 INNER JOIN director AS T2 ON T1.movie = T2.name WHERE T1.\"voice-actor\" = 'Bill Thompson' GROUP BY T2.name ORDER BY COUNT(T2.name) DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "european_football_1",
+   "scored": 36,
+   "wrong": 11,
+   "wrong_share": 0.3056,
+   "classes": {
+    "period": 2,
+    "grain_fanout": 2,
+    "identifier": 2,
+    "aggregate": 1,
+    "other": 4
+   },
+   "examples": [
+    {
+     "question_id": "ood:european_football_1:77",
+     "class": "period",
+     "question": "What is the most consecutive games tied by Ebbsfleet as an away team in the 2008 season?",
+     "gold_sql": "SELECT COUNT(*) FROM matchs WHERE season = 2008 AND AwayTeam = 'Ebbsfleet' AND FTR = 'D'",
+     "predicted_sql": "SELECT COUNT(T1.Date) FROM matchs AS T1 INNER JOIN matchs AS T2 ON T1.Date = T2.Date WHERE T1.Date < T2.Date AND T1.Div = 'E0' AND T1.Season = 2008 AND T1.AwayTeam = 'Ebbsfleet' AND T2.AwayTeam = 'Ebbsfleet' AND T1.FTR = 'D' AND T2.FTR = 'D'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:european_football_1:78",
+     "class": "period",
+     "question": "Of all the teams that played as a team away against Caen in the 2010 season, which one has the highest winning percentage?",
+     "gold_sql": "SELECT AwayTeam FROM matchs WHERE HomeTeam = 'Caen' AND season = 2010 AND FTR = 'A' GROUP BY AwayTeam ORDER BY COUNT(AwayTeam) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.AwayTeam FROM matchs AS T1 INNER JOIN matchs AS T2 ON T1.Div = T2.Div AND T1.Date = T2.Date WHERE T1.HomeTeam = 'Caen' AND T1.Season = '2010' AND T2.FTR = 'A' GROUP BY T2.AwayTeam ORDER BY COUNT(T2.FTR) DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:european_football_1:79",
+     "class": "grain_fanout",
+     "question": "What is the name of all the teams that played in the EFL League One division?",
+     "gold_sql": "SELECT T1.HomeTeam, T1.AwayTeam FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.Div = T2.division WHERE T2.name = 'EFL League One' AND T1.Div = 'E2'",
+     "predicted_sql": "SELECT DISTINCT T1.HomeTeam FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.DIV = T2.Division WHERE T2.Name = 'EFL League One' UNION SELECT DISTINCT T1.AwayTeam FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.DIV = T2.Division WHERE T2.Name = 'EFL League One'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "law_episode",
+   "scored": 89,
+   "wrong": 22,
+   "wrong_share": 0.2472,
+   "classes": {
+    "aggregate": 5,
+    "identifier": 4,
+    "other": 10,
+    "grain_fanout": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:law_episode:132",
+     "class": "aggregate",
+     "question": "Display the number of 9-star votes the episode Sideshow received.",
+     "gold_sql": "SELECT T2.votes FROM Episode AS T1 INNER JOIN Vote AS T2 ON T1.episode_id = T2.episode_id WHERE T2.stars = 9 AND T1.title = 'Sideshow'",
+     "predicted_sql": "SELECT COUNT(T2.votes) FROM episode AS T1 INNER JOIN vote AS T2 ON T2.episode_id = T1.episode_id WHERE T1.title = 'Sideshow' AND T2.stars = 9",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:133",
+     "class": "aggregate",
+     "question": "Calculate the average number of cast members that appeared in the credit from the 185th to the 193rd episode.",
+     "gold_sql": "SELECT CAST(COUNT(T1.episode_id) AS REAL) / NULLIF((193 - 185 + 1), 0) FROM Credit AS T1 INNER JOIN Episode AS T2 ON T1.episode_id = T2.episode_id WHERE T1.category = 'Cast' AND T1.credited = 'true' AND T2.number_in_series BETWEEN 185 AND 193",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.credited = 'TRUE' THEN 1 ELSE 0 END) AS REAL) / NULLIF(9, 0) FROM episode AS T1 INNER JOIN credit AS T2 ON T1.episode_id = T2.episode_id WHERE T1.number_in_series BETWEEN 185 AND 193 AND T2.category = 'Cast'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:137",
+     "class": "identifier",
+     "question": "How many people gave the most enjoyed episode a 10-star rating?",
+     "gold_sql": "SELECT COUNT(T1.episode_id) FROM Episode AS T1 INNER JOIN Vote AS T2 ON T1.episode_id = T2.episode_id WHERE T2.stars = 10",
+     "predicted_sql": "SELECT COUNT(T2.person_id) FROM episode AS T1 INNER JOIN vote AS T2 ON T2.episode_id = T1.episode_id WHERE T2.stars = 10 AND T1.rating = (SELECT MAX(rating) FROM episode)",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "menu",
+   "scored": 68,
+   "wrong": 22,
+   "wrong_share": 0.3235,
+   "classes": {
+    "aggregate": 5,
+    "identifier": 5,
+    "other": 12
+   },
+   "examples": [
+    {
+     "question_id": "ood:menu:206",
+     "class": "aggregate",
+     "question": "Among the menus in which the dish \"Clear green turtle\" had appeared, how many of them did not support taking out or booking in advance?",
+     "gold_sql": "SELECT SUM(CASE WHEN T4.name = 'Clear green turtle' THEN 1 ELSE 0 END) FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.call_number IS NULL",
+     "predicted_sql": "SELECT COUNT(*) FROM menu AS T1 INNER JOIN dish AS T2 ON T1.id = T2.menus_appeared WHERE T2.name = 'Clear green turtle' AND T1.call_number IS NULL",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:menu:207",
+     "class": "identifier",
+     "question": "Please list the names of all the dishes that appeared on the menu \"Zentral Theater Terrace\".",
+     "gold_sql": "SELECT T4.name FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.name = 'Zentral Theater Terrace'",
+     "predicted_sql": "SELECT T3.name FROM menu AS T1 INNER JOIN menupage AS T2 ON T1.id = T2.menu_id INNER JOIN dish AS T3 ON T3.id = T2.dish_id WHERE T1.name = 'Zentral Theater Terrace'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:menu:208",
+     "class": "identifier",
+     "question": "Which dish has the highest price on the menu \"Zentral Theater Terrace\"? Please give its name.",
+     "gold_sql": "SELECT T4.name FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.name = 'Zentral Theater Terrace' ORDER BY T1.price DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T3.Name FROM Menu AS T1 INNER JOIN MenuItem AS T2 ON T1.Id = T2.Menu_Id INNER JOIN Dish AS T3 ON T3.Id = T2.Dish_Id WHERE T1.Name = 'Zentral Theater Terrace' ORDER BY T2.Price DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "movie_3",
+   "scored": 189,
+   "wrong": 41,
+   "wrong_share": 0.2169,
+   "classes": {
+    "aggregate": 7,
+    "other": 20,
+    "identifier": 12,
+    "grain_fanout": 1,
+    "tie_ordering": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:movie_3:290",
+     "class": "aggregate",
+     "question": "Which customer has rented more movies, RUTH MARTINEZ or LINDA WILLIAMS?",
+     "gold_sql": "SELECT T.first_name, T.last_name FROM (SELECT T1.first_name, T1.last_name, COUNT(T1.customer_id) AS num FROM customer AS T1 INNER JOIN rental AS T2 ON T1.customer_id = T2.customer_id WHERE (T1.first_name = 'RUTH' AND T1.last_name = 'MARTINEZ') OR (T1.first_name = 'LINDA' AND T1.last_name = 'WILLIAMS') GROUP BY T1.first_name, T1.last_name) AS T ORDER BY T.num DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT CASE WHEN COUNT(CASE WHEN T1.first_name = 'RUTH' AND T1.last_name = 'MARTINEZ' THEN T1.customer_id END) > COUNT(CASE WHEN T1.first_name = 'LINDA' AND T1.last_name = 'WILLIAMS' THEN T1.customer_id END) THEN 'RUTH MARTINEZ' ELSE 'LINDA WILLIAMS' END AS name FROM customer AS T1 INNER JOIN rental AS T2 ON T1.customer_id = T2.customer_id",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movie_3:298",
+     "class": "other",
+     "question": "Give the email address of the person who lives in \"1411 Lillydale Drive\".",
+     "gold_sql": "SELECT T2.email FROM address AS T1 INNER JOIN staff AS T2 ON T1.address_id = T2.address_id WHERE T1.address = '1411 Lillydale Drive'",
+     "predicted_sql": "SELECT T2.email FROM address AS T1 INNER JOIN customer AS T2 ON T1.address_id = T2.address_id WHERE T1.address = '1411 Lillydale Drive'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movie_3:302",
+     "class": "identifier",
+     "question": "What are the special features for the film \"Smoochy Control\"?",
+     "gold_sql": "SELECT special_features FROM film WHERE title = 'SMOOCHY CONTROL'",
+     "predicted_sql": "SELECT T2.SPECIAL_FEATURES FROM film AS T1 INNER JOIN film_text AS T2 ON T1.FILM_ID = T2.FILM_ID WHERE T1.TITLE = 'SMOOCHY CONTROL'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "movies_4",
+   "scored": 134,
+   "wrong": 21,
+   "wrong_share": 0.1567,
+   "classes": {
+    "identifier": 7,
+    "aggregate": 5,
+    "grain_fanout": 4,
+    "other": 4,
+    "tie_ordering": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:movies_4:476",
+     "class": "identifier",
+     "question": "What is the name of the director of photography of the movie \"Pirates of the Caribbean: At World's End\"?",
+     "gold_sql": "SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End' AND T2.job = 'Director of Photography'",
+     "predicted_sql": "SELECT T2.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN department AS T3 ON T2.department_id = T3.department_id WHERE T1.title = 'Pirates of the Caribbean: At World''s End' AND T3.department_name = 'Camera' AND T2.job = 'Director of Photography'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movies_4:483",
+     "class": "aggregate",
+     "question": "What is the average revenue of the movie in which Dariusz Wolski works as the director of photography?",
+     "gold_sql": "SELECT CAST(SUM(T1.revenue) AS REAL) / NULLIF(COUNT(T1.movie_id), 0) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "predicted_sql": "SELECT AVG(T1.revenue) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movies_4:496",
+     "class": "grain_fanout",
+     "question": "Who played Captain Jack Sparrow in all of the Pirates of the Caribbean movies?",
+     "gold_sql": "SELECT DISTINCT T3.person_name FROM movie AS T1 INNER JOIN movie_cast AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T2.character_name = 'Captain Jack Sparrow' AND T1.title LIKE 'Pirates of the Caribbean%'",
+     "predicted_sql": "SELECT T1.person_name FROM person AS T1 INNER JOIN movie_cast AS T2 ON T1.person_id = T2.person_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T2.character_name = 'Captain Jack Sparrow' AND T3.title LIKE 'Pirates of the Carribbean%' GROUP BY T1.person_name",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "music_tracker",
+   "scored": 31,
+   "wrong": 4,
+   "wrong_share": 0.129,
+   "classes": {
+    "aggregate": 2,
+    "other": 2
+   },
+   "examples": [
+    {
+     "question_id": "ood:music_tracker:617",
+     "class": "aggregate",
+     "question": "How many albums and Single-Tables were released by the artist named '50 cent' between 2010 and 2015?",
+     "gold_sql": "SELECT COUNT(id), (SELECT COUNT(id) FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'album') FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'Single'",
+     "predicted_sql": "SELECT COUNT(releaseType) FROM torrents WHERE artist = '50 cent' AND groupYear BETWEEN 2010 AND 2015 AND releaseType IN ('album', 'Single')",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:630",
+     "class": "aggregate",
+     "question": "What are the average download times for the a release tagged \"1980s\"?",
+     "gold_sql": "SELECT CAST(SUM(T1.totalSnatched) AS REAL) / NULLIF(COUNT(T2.tag), 0) FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag = '1980s'",
+     "predicted_sql": "SELECT AVG(T1.totalSnatched) FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag = '1980s'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:631",
+     "class": "other",
+     "question": "An American rapper '2Pac' released his first solo album in 1991, how many years have passed until his next album was released?",
+     "gold_sql": "SELECT (SELECT groupYear FROM torrents WHERE artist LIKE '2Pac' AND releaseType LIKE 'album' ORDER BY groupYear NULLS FIRST LIMIT 1 OFFSET 1) - groupYear FROM torrents WHERE artist LIKE '2Pac' AND releaseType LIKE 'album' AND groupYear = 1991",
+     "predicted_sql": "SELECT (SELECT groupYear FROM torrents WHERE artist = '2Pac' AND releaseType = 'album' ORDER BY groupYear NULLS FIRST LIMIT 1 OFFSET 1) - 1991 AS yearsPassed",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "sales_in_weather",
+   "scored": 42,
+   "wrong": 14,
+   "wrong_share": 0.3333,
+   "classes": {
+    "grain_fanout": 1,
+    "aggregate": 8,
+    "period": 1,
+    "identifier": 1,
+    "other": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:sales_in_weather:650",
+     "class": "grain_fanout",
+     "question": "Give the number of stores which opened on the weather station that recorded the fastest average wind speed.",
+     "gold_sql": "SELECT COUNT(T.store_nbr) FROM (SELECT DISTINCT store_nbr FROM relation WHERE station_nbr = (SELECT station_nbr FROM weather ORDER BY avgspeed DESC NULLS LAST LIMIT 1)) AS T",
+     "predicted_sql": "SELECT COUNT(T1.store_nbr) FROM relation AS T1 INNER JOIN weather AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY T2.avgspeed DESC NULLS LAST LIMIT 1",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "ood:sales_in_weather:653",
+     "class": "aggregate",
+     "question": "State the number of stores that belongs to the weather station which recorded the deepest snowfall.",
+     "gold_sql": "SELECT T2.store_nbr FROM weather AS T1 INNER JOIN relation AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY snowfall DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT COUNT(T1.store_nbr) FROM relation AS T1 INNER JOIN weather AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY T2.snowfall DESC NULLS LAST LIMIT 1",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "ood:sales_in_weather:658",
+     "class": "aggregate",
+     "question": "How many stores are in weather station 12?",
+     "gold_sql": "SELECT SUM(store_nbr) FROM relation WHERE station_nbr = 12",
+     "predicted_sql": "SELECT COUNT(store_nbr) FROM relation WHERE station_nbr = 12",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "social_media",
+   "scored": 39,
+   "wrong": 4,
+   "wrong_share": 0.1026,
+   "classes": {
+    "other": 2,
+    "tie_ordering": 1,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:social_media:702",
+     "class": "other",
+     "question": "Please list all the cities in Argentina.",
+     "gold_sql": "SELECT City FROM location WHERE NOT City IS NULL AND Country = 'Argentina'",
+     "predicted_sql": "SELECT City FROM location WHERE Country = 'Argentina'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:710",
+     "class": "tie_ordering",
+     "question": "Give the location id of West Sussex State.",
+     "gold_sql": "SELECT DISTINCT LocationID FROM location WHERE State = 'West Sussex'",
+     "predicted_sql": "SELECT DISTINCT \"locationid\" FROM \"twitter\" WHERE \"locationid\" IN (SELECT \"locationid\" FROM \"location\" WHERE \"state\" = 'West Sussex') ORDER BY \"locationid\"",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:739",
+     "class": "other",
+     "question": "State the number of positive tweets from Ha Noi.",
+     "gold_sql": "SELECT COUNT(T1.TweetID) FROM twitter AS T1 INNER JOIN location AS T2 ON T2.LocationID = T1.LocationID WHERE T1.Sentiment > 0 AND T2.State = 'Ha Noi'",
+     "predicted_sql": "SELECT COUNT(T1.TweetID) FROM Twitter AS T1 INNER JOIN Location AS T2 ON T1.LocationID = T2.LocationID WHERE T2.City = 'Ha Noi' AND T1.Sentiment > 0",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_mixed",
+   "shard": "ood876",
+   "db_id": "talkingdata",
+   "scored": 109,
+   "wrong": 6,
+   "wrong_share": 0.055,
+   "classes": {
+    "identifier": 4,
+    "period": 1,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:talkingdata:772",
+     "class": "identifier",
+     "question": "List the included categories in the event ID of 155.",
+     "gold_sql": "SELECT DISTINCT T1.category FROM label_categories AS T1 INNER JOIN app_labels AS T2 ON T2.label_id = T1.label_id INNER JOIN app_events AS T3 ON T3.app_id = T2.app_id WHERE T3.event_id = 155",
+     "predicted_sql": "SELECT DISTINCT \"label_categories\".\"category\" FROM \"label_categories\" WHERE EXISTS (SELECT 1 FROM \"events_relevant\" WHERE \"events_relevant\".\"event_id\" = \"label_categories\".\"event_id\" AND \"events_relevant\".\"event_id\" = 155) ORDER BY \"label_categories\".\"category\"",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:talkingdata:798",
+     "class": "identifier",
+     "question": "How many women have apps from the game-Finding fault category installed on their device?",
+     "gold_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN events_relevant AS T2 ON T1.device_id = T2.device_id INNER JOIN app_events_relevant AS T3 ON T2.event_id = T3.event_id WHERE T1.age < 23 AND T1.gender = 'F' AND T3.is_active = 0 AND T3.is_installed = 1",
+     "predicted_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN app_labels AS T2 ON T1.device_id = T2.app_id INNER JOIN label_categories AS T3 ON T2.label_id = T3.label_id WHERE T1.gender = 'F' AND T3.category = 'game-Finding fault' AND T2.is_installed = 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:talkingdata:828",
+     "class": "identifier",
+     "question": "How many men under the age of 23 have apps installed but are not active on their devices?",
+     "gold_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN events_relevant AS T2 ON T1.device_id = T2.device_id INNER JOIN app_events_relevant AS T3 ON T2.event_id = T3.event_id WHERE T1.gender = 'M' AND T3.is_active = 0 AND T1.age < 23",
+     "predicted_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN app_events AS T2 ON T1.device_id = T2.device_id WHERE T1.age < 23 AND T1.gender = 'M' AND T2.is_active = 0 AND T2.is_installed = 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "california_schools",
+   "scored": 23,
+   "wrong": 19,
+   "wrong_share": 0.8261,
+   "classes": {
+    "other": 11,
+    "identifier": 6,
+    "period": 1,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "4",
+     "class": "other",
+     "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+     "gold_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.\"Charter Funding Type\" = 'Directly funded' AND T1.\"Charter School (Y/N)\" = 1 AND T2.OpenDate > '2000-01-01'",
+     "predicted_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.\"Charter School (Y/N)\" = 1 AND T2.OpenDate > '2000-01-01'",
+     "error_category": null
+    },
+    {
+     "question_id": "9",
+     "class": "other",
+     "question": "Among the schools with the average score in Math over 560 in the SAT test, how many schools are directly charter-funded?",
+     "gold_sql": "SELECT COUNT(T2.\"School Code\") FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) WHERE T1.AvgScrMath > 560 AND T2.\"Charter Funding Type\" = 'Directly funded'",
+     "predicted_sql": "SELECT COUNT(T1.CDSCode) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.CDS WHERE T2.avgscrmath > 560 AND T1.FundingType = 'Directly Charter-Funded'",
+     "error_category": null
+    },
+    {
+     "question_id": "10",
+     "class": "other",
+     "question": "For the school with the highest average score in Reading in the SAT test, what is its FRPM count for students aged 5-17?",
+     "gold_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) ORDER BY T1.AvgScrRead DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T1.rtype = 'S' ORDER BY T1.avgscrread DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "card_games",
+   "scored": 28,
+   "wrong": 17,
+   "wrong_share": 0.6071,
+   "classes": {
+    "other": 9,
+    "identifier": 3,
+    "aggregate": 1,
+    "grain_fanout": 4
+   },
+   "examples": [
+    {
+     "question_id": "347",
+     "class": "other",
+     "question": "Find all cards illustrated by Stephen Daniel and describe the text of the ruling of these cards. State if these cards have missing or degraded properties and values.",
+     "gold_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniele'",
+     "predicted_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniel'",
+     "error_category": null
+    },
+    {
+     "question_id": "351",
+     "class": "identifier",
+     "question": "Name all the cards which have alternative language in Japanese.",
+     "gold_sql": "SELECT T1.name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.language = 'Japanese'",
+     "predicted_sql": "SELECT T1.Name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.MtGID = T2.MultiverseID WHERE T2.Language = 'Japanese'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "371",
+     "class": "other",
+     "question": "What is the percentage of cards whose language is French among the Story Spotlight cards?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.isStorySpotlight = 1",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.scryfallid = T2.uuid WHERE T1.isStorySpotlight = 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "codebase_community",
+   "scored": 26,
+   "wrong": 11,
+   "wrong_share": 0.4231,
+   "classes": {
+    "other": 7,
+    "aggregate": 1,
+    "identifier": 3
+   },
+   "examples": [
+    {
+     "question_id": "571",
+     "class": "other",
+     "question": "For the user No.24, how many times is the number of his/her posts compared to his/her votes?",
+     "gold_sql": "SELECT CAST(COUNT(*) AS REAL) / NULLIF((SELECT COUNT(*) FROM votes WHERE UserId = 24), 0) FROM posts WHERE OwnerUserId = 24",
+     "predicted_sql": "SELECT CAST(COUNT(T1.Id) AS REAL) / NULLIF(COUNT(T2.Id), 0) FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId WHERE T1.OwnerUserId = 24",
+     "error_category": null
+    },
+    {
+     "question_id": "586",
+     "class": "other",
+     "question": "Which user added a bounty amount of 50 to the post title mentioning variance?",
+     "gold_sql": "SELECT T3.DisplayName, T1.Title FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId INNER JOIN users AS T3 ON T3.Id = T2.UserId WHERE T2.BountyAmount = 50 AND T1.Title LIKE '%variance%'",
+     "predicted_sql": "SELECT T2.DisplayName FROM Votes AS T1 INNER JOIN Users AS T2 ON T1.UserId = T2.Id INNER JOIN Posts AS T3 ON T1.PostId = T3.Id WHERE T1.BountyAmount = 50 AND T3.Title LIKE '%variance%'",
+     "error_category": null
+    },
+    {
+     "question_id": "598",
+     "class": "aggregate",
+     "question": "What is the percentage difference of student badges given during 2010 and 2011?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN TO_CHAR(CAST(Date AS TIMESTAMP), 'YYYY') = '2010' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(Id), 0) - CAST(SUM(CASE WHEN TO_CHAR(CAST(Date AS TIMESTAMP), 'YYYY') = '2011' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(Id), 0) FROM badges WHERE Name = 'Student'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN TO_CHAR(CAST(T1.Date AS TIMESTAMP), 'YYYY') = '2010' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN TO_CHAR(CAST(T1.Date AS TIMESTAMP), 'YYYY') = '2011' THEN 1 ELSE 0 END), 0) FROM badges AS T1 WHERE T1.Name = 'Student'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "debit_card_specializing",
+   "scored": 19,
+   "wrong": 14,
+   "wrong_share": 0.7368,
+   "classes": {
+    "other": 4,
+    "aggregate": 7,
+    "identifier": 1,
+    "period": 1,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "1471",
+     "class": "other",
+     "question": "What is the ratio of customers who pay in EUR against customers who pay in CZK?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN Currency = 'CZK' THEN 1 ELSE 0 END), 0) AS ratio FROM customers",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(SUM(CASE WHEN Currency = 'CZK' THEN 1 ELSE 0 END), 0) FROM Customers",
+     "error_category": null
+    },
+    {
+     "question_id": "1472",
+     "class": "aggregate",
+     "question": "In 2012, who had the least consumption in LAM?",
+     "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT T1.CustomerID FROM yearmonth AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Date BETWEEN '201201' AND '201212' AND T2.Segment = 'LAM' ORDER BY T1.Consumption ASC NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "1473",
+     "class": "aggregate",
+     "question": "What was the average monthly consumption of customers in SME for the year 2013?",
+     "gold_sql": "SELECT AVG(T2.Consumption) / NULLIF(12, 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME'",
+     "predicted_sql": "SELECT CAST(SUM(Consumption) AS REAL) / NULLIF(12, 0) FROM yearmonth WHERE CustomerID IN (SELECT CustomerID FROM customers WHERE Segment = 'SME') AND Date BETWEEN '201301' AND '201312'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "financial",
+   "scored": 27,
+   "wrong": 18,
+   "wrong_share": 0.6667,
+   "classes": {
+    "identifier": 10,
+    "period": 2,
+    "aggregate": 1,
+    "grain_fanout": 1,
+    "other": 3,
+    "syntax": 1
+   },
+   "examples": [
+    {
+     "question_id": "89",
+     "class": "identifier",
+     "question": "How many accounts who choose issuance after transaction are staying in East Bohemia region?",
+     "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'east Bohemia' AND T2.frequency = 'POPLATEK PO OBRATU'",
+     "predicted_sql": "SELECT COUNT(DISTINCT T1.account_id) FROM card AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T3.a3 = 'PLZ' AND T1.type = 'POPLATEK PO OBRATU'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "95",
+     "class": "identifier",
+     "question": "List out the account numbers of clients who are youngest and have highest average salary?",
+     "gold_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 ON T4.district_id = T1.district_id WHERE T2.client_id = (SELECT client_id FROM client ORDER BY birth_date DESC NULLS LAST LIMIT 1) GROUP BY T4.A11, T1.account_id",
+     "predicted_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN client AS T2 ON T1.client_id = T2.client_id GROUP BY T1.account_id ORDER BY AVG(T2.a11) DESC NULLS LAST, T2.birth_date DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "102",
+     "class": "period",
+     "question": "State different accounts who have account opening date before 1997 and own an amount of money greater than 3000USD",
+     "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE TO_CHAR(CAST(T2.date AS TIMESTAMP), 'YYYY') < '1997' AND T1.amount > 3000",
+     "predicted_sql": "SELECT DISTINCT T1.account_id FROM trans AS T1 INNER JOIN loan AS T2 ON T1.account_id = T2.account_id WHERE T1.date < '1997-01-01' AND T2.amount > 3000",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "student_club",
+   "scored": 30,
+   "wrong": 10,
+   "wrong_share": 0.3333,
+   "classes": {
+    "other": 4,
+    "identifier": 5,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "1323",
+     "class": "other",
+     "question": "List all the names of events that had an attendance of over 20 students but were not fundraisers.",
+     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1 WHERE T1.type = 'Fundraiser'",
+     "predicted_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.type <> 'fundraiser' GROUP BY T1.event_name HAVING COUNT(T2.link_to_event) > 20",
+     "error_category": null
+    },
+    {
+     "question_id": "1339",
+     "class": "other",
+     "question": "Calculate the total average cost that Elijah Allen spent in the events on September and October.",
+     "gold_sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.last_name = 'Allen' AND T1.first_name = 'Elijah' AND (SUBSTRING(T2.expense_date FROM 6 FOR 2) = '09' OR SUBSTRING(T2.expense_date FROM 6 FOR 2) = '10')",
+     "predicted_sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.first_name = 'Elijah' AND T1.last_name = 'Allen' AND T2.expense_date LIKE '%/%/09' OR T2.expense_date LIKE '%/%/10'",
+     "error_category": null
+    },
+    {
+     "question_id": "1342",
+     "class": "identifier",
+     "question": "What was the cost for the \"Posters\" on 2019/9/4?",
+     "gold_sql": "SELECT cost FROM expense WHERE expense_description = 'Posters' AND expense_date = '2019-09-04'",
+     "predicted_sql": "SELECT T1.cost FROM expense AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T2.event_name = 'Posters' AND T2.event_date = '2019-09-04'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "superhero",
+   "scored": 36,
+   "wrong": 7,
+   "wrong_share": 0.1944,
+   "classes": {
+    "grain_fanout": 1,
+    "other": 3,
+    "aggregate": 2,
+    "identifier": 1
+   },
+   "examples": [
+    {
+     "question_id": "720",
+     "class": "grain_fanout",
+     "question": "Please list the full names of all the superheroes with over 15 super powers.",
+     "gold_sql": "SELECT DISTINCT T1.full_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id GROUP BY T1.full_name HAVING COUNT(T2.power_id) > 15",
+     "predicted_sql": "SELECT T1.full_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id GROUP BY T1.id HAVING COUNT(T2.power_id) > 15",
+     "error_category": null
+    },
+    {
+     "question_id": "724",
+     "class": "other",
+     "question": "Please list the superhero names of all the superheroes that have blue eyes and blond hair.",
+     "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Blond'",
+     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id WHERE T2.colour = 'Blue'",
+     "error_category": null
+    },
+    {
+     "question_id": "726",
+     "class": "aggregate",
+     "question": "Rank heroes published by Marvel Comics by their height in descending order.",
+     "gold_sql": "SELECT superhero_name, height_cm, RANK() OVER (ORDER BY height_cm DESC NULLS LAST) AS HeightRank FROM superhero INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics'",
+     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' ORDER BY T1.height_cm DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "dev216",
+   "db_id": "toxicology",
+   "scored": 27,
+   "wrong": 17,
+   "wrong_share": 0.6296,
+   "classes": {
+    "grain_fanout": 7,
+    "identifier": 1,
+    "aggregate": 4,
+    "other": 5
+   },
+   "examples": [
+    {
+     "question_id": "199",
+     "class": "grain_fanout",
+     "question": "In the molecule containing sodium atoms, how many are non-carcinogenic?",
+     "gold_sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+     "predicted_sql": "SELECT COUNT(T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+     "error_category": null
+    },
+    {
+     "question_id": "212",
+     "class": "identifier",
+     "question": "Which element is the least numerous in non-carcinogenic molecules?",
+     "gold_sql": "SELECT T.element FROM (SELECT T1.element, COUNT(DISTINCT T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '-' GROUP BY T1.element ORDER BY COUNT(DISTINCT T1.molecule_id) ASC NULLS FIRST LIMIT 1) AS t",
+     "predicted_sql": "SELECT T3.element FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN connected AS T3 ON T2.atom_id = T3.atom_id WHERE T1.label = '-' GROUP BY T3.element ORDER BY COUNT(T3.element) ASC NULLS FIRST LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "219",
+     "class": "aggregate",
+     "question": "What is the percentage of carcinogenic molecules in triple type bonds?",
+     "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(DISTINCT T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.label = '+' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.bond_id), 0) FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_type = '#'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "disney",
+   "scored": 74,
+   "wrong": 27,
+   "wrong_share": 0.3649,
+   "classes": {
+    "other": 17,
+    "grain_fanout": 4,
+    "identifier": 3,
+    "aggregate": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:disney:6",
+     "class": "other",
+     "question": "Which song is associated with the most popular Disney movie in 1970s?",
+     "gold_sql": "SELECT T2.song FROM movies_total_gross AS T1 INNER JOIN characters AS T2 ON T1.movie_title = T2.movie_title WHERE CAST(SUBSTRING(T1.release_date FROM POSITION(', ' IN T1.release_date) + 1) AS INT) BETWEEN 1970 AND 1979 ORDER BY CAST(REPLACE(SUBSTRING(T1.total_gross FROM 2), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.song FROM characters AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie_title = T2.movie_title WHERE CAST(SUBSTRING(T2.release_date FROM POSITION(',' IN T2.release_date) + 1) AS REAL) BETWEEN 1970 AND 1979 ORDER BY CAST(REPLACE(SUBSTRING(T2.total_gross FROM 4), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "error_category": "invalid_text_representation"
+    },
+    {
+     "question_id": "ood:disney:11",
+     "class": "grain_fanout",
+     "question": "How many movies for mature audiences or parental guidance suggested did Bill Thompson work as a voice actor?",
+     "gold_sql": "SELECT COUNT(T.movie) FROM (SELECT T1.movie FROM \"voice-actors\" AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie = T2.movie_title WHERE MPAA_rating = 'PG' AND \"voice-actor\" = 'Bill Thompson' GROUP BY T1.movie) AS T",
+     "predicted_sql": "SELECT COUNT(T1.movie) FROM \"voice-actors\" AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie = T2.movie_title WHERE T2.MPAA_rating = 'PG' AND T1.\"voice-actor\" = 'Bill Thompson'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:disney:13",
+     "class": "other",
+     "question": "What is the most popular movie directed by Ron Clements?",
+     "gold_sql": "SELECT T2.name FROM movies_total_gross AS T1 INNER JOIN director AS T2 ON T2.name = T1.movie_title WHERE T2.director = 'Ron Clements' ORDER BY CAST(REPLACE(SUBSTRING(total_gross FROM 2), ',', '') AS INT) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.movie_title FROM movies_total_gross AS T1 INNER JOIN director AS T2 ON T1.movie_title = T2.name WHERE T2.director = 'Ron Clements' ORDER BY CAST(REPLACE(SUBSTRING(T1.total_gross FROM 4), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "european_football_1",
+   "scored": 36,
+   "wrong": 8,
+   "wrong_share": 0.2222,
+   "classes": {
+    "period": 2,
+    "identifier": 2,
+    "aggregate": 2,
+    "other": 2
+   },
+   "examples": [
+    {
+     "question_id": "ood:european_football_1:77",
+     "class": "period",
+     "question": "What is the most consecutive games tied by Ebbsfleet as an away team in the 2008 season?",
+     "gold_sql": "SELECT COUNT(*) FROM matchs WHERE season = 2008 AND AwayTeam = 'Ebbsfleet' AND FTR = 'D'",
+     "predicted_sql": "SELECT COUNT(T1.Date) FROM matchs AS T1 INNER JOIN matchs AS T2 ON T1.Div = T2.Div AND T1.Date < T2.Date WHERE T1.AwayTeam = 'Ebbsfleet' AND T1.Season = 2008 AND T1.FTR = 'D' AND T2.AwayTeam = 'Ebbsfleet' AND T2.Season = 2008 AND T2.FTR = 'D'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:european_football_1:78",
+     "class": "identifier",
+     "question": "Of all the teams that played as a team away against Caen in the 2010 season, which one has the highest winning percentage?",
+     "gold_sql": "SELECT AwayTeam FROM matchs WHERE HomeTeam = 'Caen' AND season = 2010 AND FTR = 'A' GROUP BY AwayTeam ORDER BY COUNT(AwayTeam) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.AwayTeam FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.Div = T2.Division WHERE T1.HomeTeam = 'Caen' AND T1.Season = 2010 AND T1.FTR = 'H' GROUP BY T2.AwayTeam ORDER BY COUNT(T2.AwayTeam) DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:european_football_1:90",
+     "class": "aggregate",
+     "question": "Which country had the game that Away team made the most goals?",
+     "gold_sql": "SELECT T2.country FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.Div = T2.division GROUP BY T2.country ORDER BY SUM(T1.FTAG) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.Country FROM divisions AS T1 INNER JOIN matchs AS T2 ON T1.Division = T2.Div WHERE T2.FTAG = (SELECT MAX(FTAG) FROM matchs)",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "law_episode",
+   "scored": 89,
+   "wrong": 24,
+   "wrong_share": 0.2697,
+   "classes": {
+    "other": 14,
+    "aggregate": 5,
+    "period": 1,
+    "grain_fanout": 3,
+    "identifier": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:law_episode:129",
+     "class": "other",
+     "question": "How many awards has Rene Balcer been nominated for?",
+     "gold_sql": "SELECT COUNT(T2.award_id) FROM Person AS T1 INNER JOIN Award AS T2 ON T1.person_id = T2.person_id WHERE T1.name = 'Rene Balcer'",
+     "predicted_sql": "SELECT COUNT(T1.award_id) FROM award AS T1 INNER JOIN person AS T2 ON T1.person_id = T2.person_id WHERE T2.name = 'Rene Balcer' AND T1.result = 'Nominated'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:132",
+     "class": "aggregate",
+     "question": "Display the number of 9-star votes the episode Sideshow received.",
+     "gold_sql": "SELECT T2.votes FROM Episode AS T1 INNER JOIN Vote AS T2 ON T1.episode_id = T2.episode_id WHERE T2.stars = 9 AND T1.title = 'Sideshow'",
+     "predicted_sql": "SELECT COUNT(T2.stars) FROM episode AS T1 INNER JOIN vote AS T2 ON T1.episode_id = T2.episode_id WHERE T1.title = 'Sideshow' AND T2.stars = 9",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:133",
+     "class": "other",
+     "question": "Calculate the average number of cast members that appeared in the credit from the 185th to the 193rd episode.",
+     "gold_sql": "SELECT CAST(COUNT(T1.episode_id) AS REAL) / NULLIF((193 - 185 + 1), 0) FROM Credit AS T1 INNER JOIN Episode AS T2 ON T1.episode_id = T2.episode_id WHERE T1.category = 'Cast' AND T1.credited = 'true' AND T2.number_in_series BETWEEN 185 AND 193",
+     "predicted_sql": "SELECT CAST(COUNT(T2.episode_id) AS REAL) / NULLIF(9, 0) FROM episode AS T1 INNER JOIN credit AS T2 ON T1.episode_id = T2.episode_id WHERE T1.number_in_series BETWEEN 185 AND 193 AND T2.credited = 'TRUE' AND T2.category = 'Cast'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "menu",
+   "scored": 68,
+   "wrong": 22,
+   "wrong_share": 0.3235,
+   "classes": {
+    "identifier": 9,
+    "other": 8,
+    "tie_ordering": 1,
+    "aggregate": 4
+   },
+   "examples": [
+    {
+     "question_id": "ood:menu:206",
+     "class": "identifier",
+     "question": "Among the menus in which the dish \"Clear green turtle\" had appeared, how many of them did not support taking out or booking in advance?",
+     "gold_sql": "SELECT SUM(CASE WHEN T4.name = 'Clear green turtle' THEN 1 ELSE 0 END) FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.call_number IS NULL",
+     "predicted_sql": "SELECT COUNT(DISTINCT T1.menu_id) FROM menu AS T1 INNER JOIN menupage AS T2 ON T1.id = T2.menu_id INNER JOIN menuitem AS T3 ON T2.id = T3.menu_page_id INNER JOIN dish AS T4 ON T3.dish_id = T4.id WHERE T4.name = 'Clear green turtle' AND T1.call_number IS NULL",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:menu:207",
+     "class": "identifier",
+     "question": "Please list the names of all the dishes that appeared on the menu \"Zentral Theater Terrace\".",
+     "gold_sql": "SELECT T4.name FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.name = 'Zentral Theater Terrace'",
+     "predicted_sql": "SELECT T3.name FROM menu AS T1 INNER JOIN menupage AS T2 ON T1.id = T2.menu_id INNER JOIN dish AS T3 ON T3.id = T2.dish_id WHERE T1.name = 'Zentral Theater Terrace'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:menu:208",
+     "class": "identifier",
+     "question": "Which dish has the highest price on the menu \"Zentral Theater Terrace\"? Please give its name.",
+     "gold_sql": "SELECT T4.name FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.name = 'Zentral Theater Terrace' ORDER BY T1.price DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T3.Name FROM Menu AS T1 INNER JOIN MenuPage AS T2 ON T1.id = T2.menu_id INNER JOIN MenuItem AS T3 ON T2.id = T3.menu_page_id INNER JOIN Dish AS T4 ON T3.dish_id = T4.id WHERE T1.Name = 'Zentral Theater Terrace' ORDER BY T3.Price DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "movie_3",
+   "scored": 189,
+   "wrong": 38,
+   "wrong_share": 0.2011,
+   "classes": {
+    "identifier": 13,
+    "other": 15,
+    "aggregate": 8,
+    "grain_fanout": 1,
+    "tie_ordering": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:movie_3:286",
+     "class": "identifier",
+     "question": "Among the films that the customer RUTH MARTINEZ has rented, what is the title of the one with the highest replacement cost?",
+     "gold_sql": "SELECT T4.title FROM customer AS T1 INNER JOIN rental AS T2 ON T1.customer_id = T2.customer_id INNER JOIN inventory AS T3 ON T2.inventory_id = T3.inventory_id INNER JOIN film AS T4 ON T3.film_id = T4.film_id WHERE T1.first_name = 'RUTH' AND T1.last_name = 'MARTINEZ' ORDER BY T4.replacement_cost DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T3.title FROM customer AS T1 INNER JOIN rental AS T2 ON T1.customer_id = T2.customer_id INNER JOIN inventory AS T3 ON T2.inventory_id = T3.inventory_id INNER JOIN film AS T4 ON T3.film_id = T4.film_id WHERE T1.first_name = 'RUTH' AND T1.last_name = 'MARTINEZ' ORDER BY T4.replacement_cost DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movie_3:293",
+     "class": "identifier",
+     "question": "Which continent is the mother country of Clarksville city in?",
+     "gold_sql": "SELECT T1.country FROM country AS T1 INNER JOIN city AS T2 ON T1.country_id = T2.country_id WHERE T2.city = 'Clarksville'",
+     "predicted_sql": "SELECT T4.continent FROM city AS T1 INNER JOIN country AS T2 ON T1.country_id = T2.country_id INNER JOIN country AS T3 ON T3.country_id = T2.parent_id INNER JOIN country AS T4 ON T4.country_id = T3.parent_id WHERE T1.city = 'Clarksville'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movie_3:298",
+     "class": "other",
+     "question": "Give the email address of the person who lives in \"1411 Lillydale Drive\".",
+     "gold_sql": "SELECT T2.email FROM address AS T1 INNER JOIN staff AS T2 ON T1.address_id = T2.address_id WHERE T1.address = '1411 Lillydale Drive'",
+     "predicted_sql": "SELECT T1.email FROM customer AS T1 INNER JOIN address AS T2 ON T1.address_id = T2.address_id WHERE T2.address = '1411 Lillydale Drive'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "movies_4",
+   "scored": 134,
+   "wrong": 15,
+   "wrong_share": 0.1119,
+   "classes": {
+    "identifier": 3,
+    "aggregate": 5,
+    "grain_fanout": 4,
+    "other": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:movies_4:477",
+     "class": "identifier",
+     "question": "What was the job of Dariusz Wolski in the movie \"Pirates of the Caribbean: At World's End\"?",
+     "gold_sql": "SELECT T2.job FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End' AND T3.person_name = 'Dariusz Wolski'",
+     "predicted_sql": "SELECT T3.job FROM person AS T1 INNER JOIN movie_crew AS T2 ON T1.person_id = T2.person_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T1.person_name = 'Dariusz Wolski' AND T3.title = 'Pirates of the Caribbean: At World%s End'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movies_4:483",
+     "class": "aggregate",
+     "question": "What is the average revenue of the movie in which Dariusz Wolski works as the director of photography?",
+     "gold_sql": "SELECT CAST(SUM(T1.revenue) AS REAL) / NULLIF(COUNT(T1.movie_id), 0) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "predicted_sql": "SELECT AVG(T1.revenue) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movies_4:496",
+     "class": "grain_fanout",
+     "question": "Who played Captain Jack Sparrow in all of the Pirates of the Caribbean movies?",
+     "gold_sql": "SELECT DISTINCT T3.person_name FROM movie AS T1 INNER JOIN movie_cast AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T2.character_name = 'Captain Jack Sparrow' AND T1.title LIKE 'Pirates of the Caribbean%'",
+     "predicted_sql": "SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_cast AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T3.person_id = T2.person_id WHERE T2.character_name = 'Captain Jack Sparrow' AND T1.title LIKE 'Pirates of the Carribbean%'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "music_tracker",
+   "scored": 31,
+   "wrong": 7,
+   "wrong_share": 0.2258,
+   "classes": {
+    "other": 3,
+    "aggregate": 4
+   },
+   "examples": [
+    {
+     "question_id": "ood:music_tracker:612",
+     "class": "other",
+     "question": "What is the release title of the single under the \"funk\" tag that was released the oldest?",
+     "gold_sql": "SELECT T1.groupName FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag LIKE 'funk' AND T1.releaseType = 'single' ORDER BY T1.groupYear NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT T1.groupName FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag = 'funk' AND T1.releaseType = 'album' ORDER BY T1.groupYear NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:617",
+     "class": "other",
+     "question": "How many albums and Single-Tables were released by the artist named '50 cent' between 2010 and 2015?",
+     "gold_sql": "SELECT COUNT(id), (SELECT COUNT(id) FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'album') FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'Single'",
+     "predicted_sql": "SELECT COUNT(CASE WHEN releaseType = 'album' THEN id END) AS album, COUNT(CASE WHEN releaseType = 'single' THEN id END) AS single FROM torrents WHERE artist = '50 cent' AND groupYear BETWEEN 2010 AND 2015",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:618",
+     "class": "aggregate",
+     "question": "Provide the title, release year and the tag associated with the live album that has the highest number of downloads?",
+     "gold_sql": "SELECT T1.groupName, T1.groupYear, T2.tag FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T1.releaseType = 'live album' ORDER BY T1.totalSnatched DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.groupName, T1.groupYear, T2.tag FROM torrents AS T1 INNER JOIN tags AS T2 ON T2.id = T1.id WHERE T1.releaseType = 'album' AND T1.groupYear = (SELECT MAX(groupYear) FROM torrents WHERE releaseType = 'album')",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "sales_in_weather",
+   "scored": 42,
+   "wrong": 13,
+   "wrong_share": 0.3095,
+   "classes": {
+    "other": 4,
+    "grain_fanout": 2,
+    "aggregate": 5,
+    "period": 1,
+    "identifier": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:sales_in_weather:647",
+     "class": "other",
+     "question": "How many units of item no.5 were sold in store no.3 on average on the days when the max temperature exceeded 90?",
+     "gold_sql": "SELECT CAST(SUM(T1.units) AS REAL) / NULLIF(COUNT(T1.\"date\"), 0) FROM sales_in_weather AS T1 INNER JOIN relation AS T2 ON T1.store_nbr = T2.store_nbr INNER JOIN weather AS T3 ON T2.station_nbr = T3.station_nbr WHERE T1.store_nbr = 3 AND T1.item_nbr = 5 AND T3.tmax > 90",
+     "predicted_sql": "SELECT CAST(SUM(T1.units) AS REAL) / NULLIF(COUNT(T2.date), 0) FROM sales_in_weather AS T1 INNER JOIN weather AS T2 ON T1.store_nbr = T2.station_nbr AND T1.date = T2.date WHERE T1.store_nbr = 3 AND T1.item_nbr = 5 AND T2.tmax > 90",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:sales_in_weather:650",
+     "class": "grain_fanout",
+     "question": "Give the number of stores which opened on the weather station that recorded the fastest average wind speed.",
+     "gold_sql": "SELECT COUNT(T.store_nbr) FROM (SELECT DISTINCT store_nbr FROM relation WHERE station_nbr = (SELECT station_nbr FROM weather ORDER BY avgspeed DESC NULLS LAST LIMIT 1)) AS T",
+     "predicted_sql": "SELECT COUNT(T1.store_nbr) FROM relation AS T1 INNER JOIN weather AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY T2.avgspeed DESC NULLS LAST LIMIT 1",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "ood:sales_in_weather:653",
+     "class": "aggregate",
+     "question": "State the number of stores that belongs to the weather station which recorded the deepest snowfall.",
+     "gold_sql": "SELECT T2.store_nbr FROM weather AS T1 INNER JOIN relation AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY snowfall DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT COUNT(DISTINCT T1.store_nbr) FROM relation AS T1 INNER JOIN weather AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY T2.snowfall DESC NULLS LAST LIMIT 1",
+     "error_category": "sql_error"
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "social_media",
+   "scored": 39,
+   "wrong": 4,
+   "wrong_share": 0.1026,
+   "classes": {
+    "other": 3,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:social_media:702",
+     "class": "other",
+     "question": "Please list all the cities in Argentina.",
+     "gold_sql": "SELECT City FROM location WHERE NOT City IS NULL AND Country = 'Argentina'",
+     "predicted_sql": "SELECT City FROM location WHERE Country = 'Argentina'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:717",
+     "class": "other",
+     "question": "Is 3751 the location ID for tweet with ID tw-682714048199311366?",
+     "gold_sql": "SELECT LocationID FROM twitter WHERE TweetID = 'tw-682714048199311366'",
+     "predicted_sql": "SELECT CASE WHEN locationID = 3751 THEN 'Yes' ELSE 'No' END AS \"Is 3751 the location ID for tweet with ID tw-682714048199311366?\" FROM twitter WHERE TweetID = 'tw-682714048199311366'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:739",
+     "class": "other",
+     "question": "State the number of positive tweets from Ha Noi.",
+     "gold_sql": "SELECT COUNT(T1.TweetID) FROM twitter AS T1 INNER JOIN location AS T2 ON T2.LocationID = T1.LocationID WHERE T1.Sentiment > 0 AND T2.State = 'Ha Noi'",
+     "predicted_sql": "SELECT COUNT(T1.TweetID) FROM twitter AS T1 INNER JOIN location AS T2 ON T1.LocationID = T2.LocationID WHERE T2.City = 'Ha Noi' AND T1.Sentiment > 0",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "B_real",
+   "shard": "ood876",
+   "db_id": "talkingdata",
+   "scored": 109,
+   "wrong": 4,
+   "wrong_share": 0.0367,
+   "classes": {
+    "aggregate": 1,
+    "other": 1,
+    "identifier": 2
+   },
+   "examples": [
+    {
+     "question_id": "ood:talkingdata:776",
+     "class": "aggregate",
+     "question": "Among all the times event no.2 happened when the app user was not active, when was the earliest time this situation happened?",
+     "gold_sql": "SELECT T2.timestamp FROM app_events AS T1 INNER JOIN events AS T2 ON T2.event_id = T1.event_id WHERE T1.is_active = 0 AND T2.event_id = 2 ORDER BY T2.timestamp NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT MIN(T1.timestamp) FROM events AS T1 INNER JOIN app_events AS T2 ON T1.event_id = T2.event_id WHERE T2.event_id = 2 AND T2.is_active = 0",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:talkingdata:800",
+     "class": "other",
+     "question": "Which gender owned more of the Galaxy Note 2 device model?",
+     "gold_sql": "SELECT CASE WHEN SUM(CASE WHEN T1.gender = 'M' THEN 1 ELSE 0 END) - SUM(CASE WHEN T1.gender = 'F' THEN 1 ELSE 0 END) > 0 THEN 'M' ELSE 'F' END AS gender FROM gender_age AS T1 INNER JOIN phone_brand_device_model2 AS T2 ON T1.device_id = T2.device_id WHERE T2.device_model = 'Galaxy Note 2'",
+     "predicted_sql": "SELECT SUM(CASE WHEN T1.gender = 'M' THEN 1 ELSE 0 END) - SUM(CASE WHEN T1.gender = 'F' THEN 1 ELSE 0 END) AS diff FROM gender_age AS T1 INNER JOIN phone_brand_device_model2 AS T2 ON T1.device_id = T2.device_id WHERE T2.device_model = 'Galaxy Note 2'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:talkingdata:828",
+     "class": "identifier",
+     "question": "How many men under the age of 23 have apps installed but are not active on their devices?",
+     "gold_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN events_relevant AS T2 ON T1.device_id = T2.device_id INNER JOIN app_events_relevant AS T3 ON T2.event_id = T3.event_id WHERE T1.gender = 'M' AND T3.is_active = 0 AND T1.age < 23",
+     "predicted_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN app_events AS T2 ON T1.device_id = T2.device_id WHERE T1.age < 23 AND T1.gender = 'M' AND T2.is_active = 0 AND T2.is_installed = 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "california_schools",
+   "scored": 23,
+   "wrong": 19,
+   "wrong_share": 0.8261,
+   "classes": {
+    "other": 7,
+    "identifier": 6,
+    "aggregate": 5,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "4",
+     "class": "other",
+     "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+     "gold_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.\"Charter Funding Type\" = 'Directly funded' AND T1.\"Charter School (Y/N)\" = 1 AND T2.OpenDate > '2000-01-01'",
+     "predicted_sql": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.\"Charter School (Y/N)\" = 1 AND T2.OpenDate > '2000-01-01'",
+     "error_category": null
+    },
+    {
+     "question_id": "9",
+     "class": "identifier",
+     "question": "Among the schools with the average score in Math over 560 in the SAT test, how many schools are directly charter-funded?",
+     "gold_sql": "SELECT COUNT(T2.\"School Code\") FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) WHERE T1.AvgScrMath > 560 AND T2.\"Charter Funding Type\" = 'Directly funded'",
+     "predicted_sql": "SELECT COUNT(T1.CDS) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.CDS WHERE T2.avgscrmath > 560 AND T1.FundingType = 'Directly Charter-Funded'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "10",
+     "class": "other",
+     "question": "For the school with the highest average score in Reading in the SAT test, what is its FRPM count for students aged 5-17?",
+     "gold_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON CAST(T1.cds AS BIGINT) = CAST(T2.CDSCode AS BIGINT) ORDER BY T1.AvgScrRead DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.\"FRPM Count (Ages 5-17)\" FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T1.rtype = 'Reading' ORDER BY T1.avgscrread DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "card_games",
+   "scored": 28,
+   "wrong": 18,
+   "wrong_share": 0.6429,
+   "classes": {
+    "other": 8,
+    "identifier": 3,
+    "grain_fanout": 6,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "347",
+     "class": "other",
+     "question": "Find all cards illustrated by Stephen Daniel and describe the text of the ruling of these cards. State if these cards have missing or degraded properties and values.",
+     "gold_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniele'",
+     "predicted_sql": "SELECT T1.id, T2.text, T1.hasContentWarning FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Stephen Daniel'",
+     "error_category": null
+    },
+    {
+     "question_id": "351",
+     "class": "identifier",
+     "question": "Name all the cards which have alternative language in Japanese.",
+     "gold_sql": "SELECT T1.name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.language = 'Japanese'",
+     "predicted_sql": "SELECT T1.Name FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.MtGID = T2.MtGID WHERE T2.Language = 'Japanese'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "371",
+     "class": "other",
+     "question": "What is the percentage of cards whose language is French among the Story Spotlight cards?",
+     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.id), 0) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.isStorySpotlight = 1",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.language = 'French' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.language), 0) FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.multiverseid = T2.multiverseid WHERE T2.isStorySpotlight = 1",
+     "error_category": "undefined_function"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "codebase_community",
+   "scored": 26,
+   "wrong": 12,
+   "wrong_share": 0.4615,
+   "classes": {
+    "other": 6,
+    "identifier": 5,
+    "syntax": 1
+   },
+   "examples": [
+    {
+     "question_id": "571",
+     "class": "other",
+     "question": "For the user No.24, how many times is the number of his/her posts compared to his/her votes?",
+     "gold_sql": "SELECT CAST(COUNT(*) AS REAL) / NULLIF((SELECT COUNT(*) FROM votes WHERE UserId = 24), 0) FROM posts WHERE OwnerUserId = 24",
+     "predicted_sql": "SELECT CAST(COUNT(T1.Id) AS REAL) / NULLIF(COUNT(T2.Id), 0) FROM Posts AS T1 INNER JOIN Votes AS T2 ON T1.Id = T2.PostId WHERE T1.OwnerUserId = 24",
+     "error_category": null
+    },
+    {
+     "question_id": "586",
+     "class": "other",
+     "question": "Which user added a bounty amount of 50 to the post title mentioning variance?",
+     "gold_sql": "SELECT T3.DisplayName, T1.Title FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId INNER JOIN users AS T3 ON T3.Id = T2.UserId WHERE T2.BountyAmount = 50 AND T1.Title LIKE '%variance%'",
+     "predicted_sql": "SELECT T1.DisplayName FROM Users AS T1 INNER JOIN Votes AS T2 ON T1.Id = T2.UserId INNER JOIN Posts AS T3 ON T2.PostId = T3.Id WHERE T2.BountyAmount = 50 AND T3.Title LIKE '%variance%'",
+     "error_category": null
+    },
+    {
+     "question_id": "631",
+     "class": "other",
+     "question": "How many posts were created by Daniel Vassallo?",
+     "gold_sql": "SELECT COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId WHERE T1.DisplayName = 'Daniel Vassallo'",
+     "predicted_sql": "SELECT COUNT(T1.Id) FROM Posts AS T1 INNER JOIN Users AS T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'Daniel Vassallo'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "debit_card_specializing",
+   "scored": 19,
+   "wrong": 12,
+   "wrong_share": 0.6316,
+   "classes": {
+    "aggregate": 7,
+    "other": 3,
+    "period": 1,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "1472",
+     "class": "aggregate",
+     "question": "In 2012, who had the least consumption in LAM?",
+     "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT T1.CustomerID FROM yearmonth AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Segment = 'LAM' AND T1.Date BETWEEN '201201' AND '201212' ORDER BY T1.Consumption ASC NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "1473",
+     "class": "other",
+     "question": "What was the average monthly consumption of customers in SME for the year 2013?",
+     "gold_sql": "SELECT AVG(T2.Consumption) / NULLIF(12, 0) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date FROM 1 FOR 4) = '2013' AND T1.Segment = 'SME'",
+     "predicted_sql": "SELECT AVG(CAST(Consumption AS REAL) / NULLIF(12, 0)) FROM yearmonth WHERE CustomerID IN (SELECT CustomerID FROM customers WHERE Segment = 'SME') AND Date BETWEEN '201301' AND '201312'",
+     "error_category": null
+    },
+    {
+     "question_id": "1475",
+     "class": "aggregate",
+     "question": "How many customers in KAM had a consumption of less than 30,000 for the year 2012?",
+     "gold_sql": "SELECT COUNT(*) FROM (SELECT T2.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'KAM' AND SUBSTRING(T2.Date FROM 1 FOR 4) = '2012' GROUP BY T2.CustomerID HAVING SUM(T2.Consumption) < 30000) AS t1",
+     "predicted_sql": "SELECT COUNT(DISTINCT \"customerid\") FROM \"yearmonth\" WHERE \"customerid\" IN (SELECT \"customerid\" FROM \"customers\" WHERE \"segment\" = 'KAM') AND \"date\" BETWEEN '201201' AND '201212' AND \"consumption\" < 30000",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "financial",
+   "scored": 27,
+   "wrong": 19,
+   "wrong_share": 0.7037,
+   "classes": {
+    "identifier": 7,
+    "grain_fanout": 4,
+    "other": 6,
+    "period": 1,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "89",
+     "class": "identifier",
+     "question": "How many accounts who choose issuance after transaction are staying in East Bohemia region?",
+     "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'east Bohemia' AND T2.frequency = 'POPLATEK PO OBRATU'",
+     "predicted_sql": "SELECT COUNT(DISTINCT T1.account_id) FROM card AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.a3 = 'STřední Česká republika' AND T1.type = 'POPLATEK PO OBRATU'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "91",
+     "class": "grain_fanout",
+     "question": "The average unemployment ratio of 1995 and 1996, which one has higher percentage?",
+     "gold_sql": "SELECT DISTINCT CASE WHEN AVG(A13) > AVG(A12) THEN '1996' ELSE '1995' END FROM district",
+     "predicted_sql": "SELECT CASE WHEN AVG(A12) > AVG(A13) THEN '1995' ELSE '1996' END FROM district GROUP BY A12, A13",
+     "error_category": null
+    },
+    {
+     "question_id": "95",
+     "class": "identifier",
+     "question": "List out the account numbers of clients who are youngest and have highest average salary?",
+     "gold_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 ON T4.district_id = T1.district_id WHERE T2.client_id = (SELECT client_id FROM client ORDER BY birth_date DESC NULLS LAST LIMIT 1) GROUP BY T4.A11, T1.account_id",
+     "predicted_sql": "SELECT T1.account_id FROM account AS T1 INNER JOIN client AS T2 ON T1.client_id = T2.client_id GROUP BY T1.account_id ORDER BY AVG(T2.birth_date) DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "student_club",
+   "scored": 30,
+   "wrong": 9,
+   "wrong_share": 0.3,
+   "classes": {
+    "other": 3,
+    "period": 1,
+    "identifier": 4,
+    "grain_fanout": 1
+   },
+   "examples": [
+    {
+     "question_id": "1323",
+     "class": "other",
+     "question": "List all the names of events that had an attendance of over 20 students but were not fundraisers.",
+     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1 WHERE T1.type = 'Fundraiser'",
+     "predicted_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T2.link_to_event IN (SELECT event_id FROM attendance GROUP BY event_id HAVING COUNT(event_id) > 20) AND T1.type <> 'fundraiser'",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "1340",
+     "class": "period",
+     "question": "Calculate the difference of the total amount spent in all events by the Student_Club in year 2019 and 2020.",
+     "gold_sql": "SELECT SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTRING(T1.event_date FROM 1 FOR 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+     "predicted_sql": "SELECT SUM(CASE WHEN TO_CHAR(CAST(event_date AS TIMESTAMP), 'YYYY') = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN TO_CHAR(CAST(event_date AS TIMESTAMP), 'YYYY') = '2020' THEN T2.spent ELSE 0 END) AS diff FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'Student_Club'",
+     "error_category": null
+    },
+    {
+     "question_id": "1342",
+     "class": "identifier",
+     "question": "What was the cost for the \"Posters\" on 2019/9/4?",
+     "gold_sql": "SELECT cost FROM expense WHERE expense_description = 'Posters' AND expense_date = '2019-09-04'",
+     "predicted_sql": "SELECT T2.cost FROM event AS T1 INNER JOIN expense AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_date = '2019-09-04' AND T1.event_name = 'Posters'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "superhero",
+   "scored": 36,
+   "wrong": 8,
+   "wrong_share": 0.2222,
+   "classes": {
+    "grain_fanout": 1,
+    "other": 2,
+    "aggregate": 3,
+    "identifier": 2
+   },
+   "examples": [
+    {
+     "question_id": "720",
+     "class": "grain_fanout",
+     "question": "Please list the full names of all the superheroes with over 15 super powers.",
+     "gold_sql": "SELECT DISTINCT T1.full_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id GROUP BY T1.full_name HAVING COUNT(T2.power_id) > 15",
+     "predicted_sql": "SELECT T1.full_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id GROUP BY T1.id HAVING COUNT(T2.power_id) > 15",
+     "error_category": null
+    },
+    {
+     "question_id": "724",
+     "class": "other",
+     "question": "Please list the superhero names of all the superheroes that have blue eyes and blond hair.",
+     "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id INNER JOIN colour AS T3 ON T1.hair_colour_id = T3.id WHERE T2.colour = 'Blue' AND T3.colour = 'Blond'",
+     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id WHERE T2.colour = 'Blue'",
+     "error_category": null
+    },
+    {
+     "question_id": "726",
+     "class": "aggregate",
+     "question": "Rank heroes published by Marvel Comics by their height in descending order.",
+     "gold_sql": "SELECT superhero_name, height_cm, RANK() OVER (ORDER BY height_cm DESC NULLS LAST) AS HeightRank FROM superhero INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics'",
+     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' ORDER BY T1.height_cm DESC NULLS LAST",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "dev216",
+   "db_id": "toxicology",
+   "scored": 27,
+   "wrong": 17,
+   "wrong_share": 0.6296,
+   "classes": {
+    "grain_fanout": 6,
+    "aggregate": 5,
+    "identifier": 1,
+    "other": 5
+   },
+   "examples": [
+    {
+     "question_id": "199",
+     "class": "grain_fanout",
+     "question": "In the molecule containing sodium atoms, how many are non-carcinogenic?",
+     "gold_sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+     "predicted_sql": "SELECT COUNT(T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'na' AND T1.label = '-'",
+     "error_category": null
+    },
+    {
+     "question_id": "212",
+     "class": "aggregate",
+     "question": "Which element is the least numerous in non-carcinogenic molecules?",
+     "gold_sql": "SELECT T.element FROM (SELECT T1.element, COUNT(DISTINCT T1.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '-' GROUP BY T1.element ORDER BY COUNT(DISTINCT T1.molecule_id) ASC NULLS FIRST LIMIT 1) AS t",
+     "predicted_sql": "SELECT T3.element FROM molecule AS T1 INNER JOIN atom AS T3 ON T1.molecule_id = T3.molecule_id WHERE T1.label = '-' GROUP BY T3.element ORDER BY COUNT(T3.element) ASC NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "219",
+     "class": "aggregate",
+     "question": "What is the percentage of carcinogenic molecules in triple type bonds?",
+     "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / NULLIF(COUNT(DISTINCT T2.molecule_id), 0) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#'",
+     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.label = '+' THEN 1 ELSE 0 END) AS REAL) * 100 / NULLIF(COUNT(T1.label), 0) FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '#'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "disney",
+   "scored": 74,
+   "wrong": 20,
+   "wrong_share": 0.2703,
+   "classes": {
+    "syntax": 1,
+    "other": 9,
+    "identifier": 3,
+    "aggregate": 4,
+    "grain_fanout": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:disney:11",
+     "class": "syntax",
+     "question": "How many movies for mature audiences or parental guidance suggested did Bill Thompson work as a voice actor?",
+     "gold_sql": "SELECT COUNT(T.movie) FROM (SELECT T1.movie FROM \"voice-actors\" AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie = T2.movie_title WHERE MPAA_rating = 'PG' AND \"voice-actor\" = 'Bill Thompson' GROUP BY T1.movie) AS T",
+     "predicted_sql": "SELECT COUNT(T1.movie) FROM `voice-actors` AS T1 INNER JOIN movies_total_gross AS T2 ON T1.movie = T2.movie_title WHERE T2.MPAA_rating = 'PG' AND T1.\"voice-actor\" = 'Bill Thompson'",
+     "error_category": "syntax_error"
+    },
+    {
+     "question_id": "ood:disney:13",
+     "class": "other",
+     "question": "What is the most popular movie directed by Ron Clements?",
+     "gold_sql": "SELECT T2.name FROM movies_total_gross AS T1 INNER JOIN director AS T2 ON T2.name = T1.movie_title WHERE T2.director = 'Ron Clements' ORDER BY CAST(REPLACE(SUBSTRING(total_gross FROM 2), ',', '') AS INT) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.movie_title FROM movies_total_gross AS T1 INNER JOIN director AS T2 ON T1.movie_title = T2.name WHERE T2.director = 'Ron Clements' ORDER BY CAST(REPLACE(SUBSTRING(T1.total_gross FROM 4), ',', '') AS REAL) DESC NULLS LAST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:disney:16",
+     "class": "identifier",
+     "question": "List all of Wolfgang Reitherman's movies and their voice actors.",
+     "gold_sql": "SELECT T1.name, T2.\"voice-actor\" FROM director AS T1 INNER JOIN \"voice-actors\" AS T2 ON T1.name = T2.movie WHERE T1.director = 'Wolfgang Reitherman'",
+     "predicted_sql": "SELECT T1.movie, T2.\"voice-actor\" FROM characters AS T1 INNER JOIN \"voice-actors\" AS T2 ON T1.movie_title = T2.movie INNER JOIN director AS T3 ON T3.name = T1.movie_title WHERE T3.director = 'Wolfgang Reitherman'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "european_football_1",
+   "scored": 36,
+   "wrong": 8,
+   "wrong_share": 0.2222,
+   "classes": {
+    "period": 2,
+    "identifier": 2,
+    "aggregate": 1,
+    "other": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:european_football_1:77",
+     "class": "period",
+     "question": "What is the most consecutive games tied by Ebbsfleet as an away team in the 2008 season?",
+     "gold_sql": "SELECT COUNT(*) FROM matchs WHERE season = 2008 AND AwayTeam = 'Ebbsfleet' AND FTR = 'D'",
+     "predicted_sql": "SELECT COUNT(T1.Date) FROM matchs AS T1 INNER JOIN matchs AS T2 ON T1.Div = T2.Div AND T1.Date = T2.Date WHERE T1.Date < T2.Date AND T1.Season = 2008 AND T1.AwayTeam = 'Ebbsfleet' AND T1.FTR = 'D' AND T2.FTR = 'D'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:european_football_1:78",
+     "class": "identifier",
+     "question": "Of all the teams that played as a team away against Caen in the 2010 season, which one has the highest winning percentage?",
+     "gold_sql": "SELECT AwayTeam FROM matchs WHERE HomeTeam = 'Caen' AND season = 2010 AND FTR = 'A' GROUP BY AwayTeam ORDER BY COUNT(AwayTeam) DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.AwayTeam FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.Div = T2.Division WHERE T1.HomeTeam = 'Caen' AND T1.Season = 2010 AND T1.FTR = 'H' GROUP BY T2.AwayTeam ORDER BY COUNT(T2.AwayTeam) DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:european_football_1:85",
+     "class": "identifier",
+     "question": "In which division was the match between Hibernian, the away team, and Hearts, the home team, played? To which country does this division belong?",
+     "gold_sql": "SELECT DISTINCT T2.division, T2.country FROM matchs AS T1 INNER JOIN divisions AS T2 ON T1.Div = T2.division WHERE T1.HomeTeam = 'Hearts' AND T1.AwayTeam = 'Hibernian'",
+     "predicted_sql": "SELECT T1.div, T1.country FROM divisions AS T1 INNER JOIN matchs AS T2 ON T1.div = T2.div WHERE T2.awayteam = 'Hibernian' AND T2.hometeam = 'Hearts'",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "law_episode",
+   "scored": 89,
+   "wrong": 23,
+   "wrong_share": 0.2584,
+   "classes": {
+    "other": 12,
+    "aggregate": 6,
+    "grain_fanout": 5
+   },
+   "examples": [
+    {
+     "question_id": "ood:law_episode:129",
+     "class": "other",
+     "question": "How many awards has Rene Balcer been nominated for?",
+     "gold_sql": "SELECT COUNT(T2.award_id) FROM Person AS T1 INNER JOIN Award AS T2 ON T1.person_id = T2.person_id WHERE T1.name = 'Rene Balcer'",
+     "predicted_sql": "SELECT COUNT(*) FROM \"award\" JOIN \"person\" ON \"award\".\"person_id\" = \"person\".\"person_id\" WHERE \"person\".\"name\" = 'Rene Balcer' AND \"award\".\"result\" = 'Nominated'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:132",
+     "class": "aggregate",
+     "question": "Display the number of 9-star votes the episode Sideshow received.",
+     "gold_sql": "SELECT T2.votes FROM Episode AS T1 INNER JOIN Vote AS T2 ON T1.episode_id = T2.episode_id WHERE T2.stars = 9 AND T1.title = 'Sideshow'",
+     "predicted_sql": "SELECT COUNT(T2.votes) FROM episode AS T1 INNER JOIN vote AS T2 ON T2.episode_id = T1.episode_id WHERE T1.title = 'Sideshow' AND T2.stars = 9",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:law_episode:133",
+     "class": "other",
+     "question": "Calculate the average number of cast members that appeared in the credit from the 185th to the 193rd episode.",
+     "gold_sql": "SELECT CAST(COUNT(T1.episode_id) AS REAL) / NULLIF((193 - 185 + 1), 0) FROM Credit AS T1 INNER JOIN Episode AS T2 ON T1.episode_id = T2.episode_id WHERE T1.category = 'Cast' AND T1.credited = 'true' AND T2.number_in_series BETWEEN 185 AND 193",
+     "predicted_sql": "SELECT CAST(COUNT(T2.episode_id) AS REAL) / NULLIF(9, 0) FROM episode AS T1 INNER JOIN credit AS T2 ON T1.episode_id = T2.episode_id WHERE T1.number_in_series BETWEEN 185 AND 193 AND T2.credited = 'TRUE' AND T2.category = 'Cast'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "menu",
+   "scored": 68,
+   "wrong": 23,
+   "wrong_share": 0.3382,
+   "classes": {
+    "identifier": 6,
+    "other": 10,
+    "aggregate": 5,
+    "tie_ordering": 2
+   },
+   "examples": [
+    {
+     "question_id": "ood:menu:208",
+     "class": "identifier",
+     "question": "Which dish has the highest price on the menu \"Zentral Theater Terrace\"? Please give its name.",
+     "gold_sql": "SELECT T4.name FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T3.name = 'Zentral Theater Terrace' ORDER BY T1.price DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T3.Name FROM Menu AS T1 INNER JOIN MenuPage AS T2 ON T1.id = T2.Menu_id INNER JOIN MenuItem AS T3 ON T2.id = T3.Menu_page_id WHERE T1.Name = 'Zentral Theater Terrace' ORDER BY T3.Price DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:menu:209",
+     "class": "identifier",
+     "question": "Please list the IDs of the menus that are DIYs of the restaurant and have the dish \"Clear green turtle\".",
+     "gold_sql": "SELECT T2.menu_id FROM MenuItem AS T1 INNER JOIN MenuPage AS T2 ON T1.menu_page_id = T2.id INNER JOIN Menu AS T3 ON T2.menu_id = T3.id INNER JOIN Dish AS T4 ON T1.dish_id = T4.id WHERE T4.name = 'Clear green turtle' AND T3.sponsor IS NULL",
+     "predicted_sql": "SELECT T1.menu_id FROM menu AS T1 INNER JOIN menupage AS T2 ON T1.id = T2.menu_id INNER JOIN menuitem AS T3 ON T2.id = T3.menu_page_id INNER JOIN dish AS T4 ON T3.dish_id = T4.id WHERE T1.sponsor IS NULL AND T4.name = 'Clear green turtle'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:menu:221",
+     "class": "other",
+     "question": "How many pages were there on the menu created on 17th November 1898?",
+     "gold_sql": "SELECT SUM(CASE WHEN T1.date = '1898-11-17' THEN 1 ELSE 0 END) FROM Menu AS T1 INNER JOIN MenuPage AS T2 ON T1.id = T2.menu_id",
+     "predicted_sql": "SELECT SUM(CASE WHEN date = '1898-11-17' THEN 1 ELSE 0 END) FROM menu",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "movie_3",
+   "scored": 189,
+   "wrong": 37,
+   "wrong_share": 0.1958,
+   "classes": {
+    "identifier": 9,
+    "other": 18,
+    "aggregate": 7,
+    "grain_fanout": 2,
+    "tie_ordering": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:movie_3:293",
+     "class": "identifier",
+     "question": "Which continent is the mother country of Clarksville city in?",
+     "gold_sql": "SELECT T1.country FROM country AS T1 INNER JOIN city AS T2 ON T1.country_id = T2.country_id WHERE T2.city = 'Clarksville'",
+     "predicted_sql": "SELECT T4.continent FROM city AS T1 INNER JOIN country AS T2 ON T1.country_id = T2.country_id INNER JOIN country AS T3 ON T2.continent_id = T3.continent_id INNER JOIN country AS T4 ON T3.continent_id = T4.continent_id WHERE T1.city = 'Clarksville'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movie_3:298",
+     "class": "other",
+     "question": "Give the email address of the person who lives in \"1411 Lillydale Drive\".",
+     "gold_sql": "SELECT T2.email FROM address AS T1 INNER JOIN staff AS T2 ON T1.address_id = T2.address_id WHERE T1.address = '1411 Lillydale Drive'",
+     "predicted_sql": "SELECT T1.email FROM customer AS T1 INNER JOIN address AS T2 ON T1.address_id = T2.address_id WHERE T2.address = '1411 Lillydale Drive'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movie_3:304",
+     "class": "identifier",
+     "question": "Who is the staff manager of the store with the most non-active customers?",
+     "gold_sql": "SELECT T.first_name, T.last_name FROM (SELECT T3.first_name, T3.last_name, COUNT(T1.customer_id) AS num FROM customer AS T1 INNER JOIN store AS T2 ON T1.store_id = T2.store_id INNER JOIN staff AS T3 ON T2.store_id = T3.store_id WHERE T1.active = 0 GROUP BY T3.first_name, T3.last_name) AS T ORDER BY T.num DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T2.first_name, T2.last_name FROM customer AS T1 INNER JOIN store AS T2 ON T1.store_id = T2.store_id WHERE T1.active = 0 GROUP BY T2.manager_staff_id ORDER BY COUNT(T2.manager_staff_id) DESC NULLS LAST LIMIT 1",
+     "error_category": "undefined_column"
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "movies_4",
+   "scored": 134,
+   "wrong": 14,
+   "wrong_share": 0.1045,
+   "classes": {
+    "identifier": 2,
+    "aggregate": 5,
+    "grain_fanout": 4,
+    "other": 3
+   },
+   "examples": [
+    {
+     "question_id": "ood:movies_4:478",
+     "class": "identifier",
+     "question": "Please list the names of all the crew members of the movie \"Pirates of the Caribbean: At World's End\".",
+     "gold_sql": "SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End'",
+     "predicted_sql": "SELECT T2.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title = 'Pirates of the Caribbean: At World''s End'",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:movies_4:483",
+     "class": "aggregate",
+     "question": "What is the average revenue of the movie in which Dariusz Wolski works as the director of photography?",
+     "gold_sql": "SELECT CAST(SUM(T1.revenue) AS REAL) / NULLIF(COUNT(T1.movie_id), 0) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "predicted_sql": "SELECT AVG(T1.revenue) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T3.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:movies_4:496",
+     "class": "grain_fanout",
+     "question": "Who played Captain Jack Sparrow in all of the Pirates of the Caribbean movies?",
+     "gold_sql": "SELECT DISTINCT T3.person_name FROM movie AS T1 INNER JOIN movie_cast AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T2.character_name = 'Captain Jack Sparrow' AND T1.title LIKE 'Pirates of the Caribbean%'",
+     "predicted_sql": "SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_cast AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T3.person_id = T2.person_id WHERE T2.character_name = 'Captain Jack Sparrow' AND T1.title LIKE 'Pirates of the Carribbean%'",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "music_tracker",
+   "scored": 31,
+   "wrong": 7,
+   "wrong_share": 0.2258,
+   "classes": {
+    "other": 3,
+    "aggregate": 4
+   },
+   "examples": [
+    {
+     "question_id": "ood:music_tracker:612",
+     "class": "other",
+     "question": "What is the release title of the single under the \"funk\" tag that was released the oldest?",
+     "gold_sql": "SELECT T1.groupName FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag LIKE 'funk' AND T1.releaseType = 'single' ORDER BY T1.groupYear NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT T1.groupName FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T2.tag = 'funk' AND T1.releaseType = 'album' ORDER BY T1.groupYear NULLS FIRST LIMIT 1",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:617",
+     "class": "aggregate",
+     "question": "How many albums and Single-Tables were released by the artist named '50 cent' between 2010 and 2015?",
+     "gold_sql": "SELECT COUNT(id), (SELECT COUNT(id) FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'album') FROM torrents WHERE groupYear BETWEEN 2010 AND 2015 AND artist LIKE '50 cent' AND releaseType LIKE 'Single'",
+     "predicted_sql": "SELECT COUNT(releaseType) FROM torrents WHERE artist = '50 cent' AND groupYear BETWEEN 2010 AND 2015 AND releaseType IN ('album', 'Single')",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:music_tracker:618",
+     "class": "aggregate",
+     "question": "Provide the title, release year and the tag associated with the live album that has the highest number of downloads?",
+     "gold_sql": "SELECT T1.groupName, T1.groupYear, T2.tag FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T1.releaseType = 'live album' ORDER BY T1.totalSnatched DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT T1.groupName, T1.groupYear, T2.tag FROM torrents AS T1 INNER JOIN tags AS T2 ON T1.id = T2.id WHERE T1.releasetype = 'album' AND T1.groupYear = (SELECT MAX(groupYear) FROM torrents WHERE releasetype = 'album')",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "sales_in_weather",
+   "scored": 42,
+   "wrong": 14,
+   "wrong_share": 0.3333,
+   "classes": {
+    "other": 2,
+    "grain_fanout": 1,
+    "aggregate": 6,
+    "identifier": 3,
+    "period": 2
+   },
+   "examples": [
+    {
+     "question_id": "ood:sales_in_weather:647",
+     "class": "other",
+     "question": "How many units of item no.5 were sold in store no.3 on average on the days when the max temperature exceeded 90?",
+     "gold_sql": "SELECT CAST(SUM(T1.units) AS REAL) / NULLIF(COUNT(T1.\"date\"), 0) FROM sales_in_weather AS T1 INNER JOIN relation AS T2 ON T1.store_nbr = T2.store_nbr INNER JOIN weather AS T3 ON T2.station_nbr = T3.station_nbr WHERE T1.store_nbr = 3 AND T1.item_nbr = 5 AND T3.tmax > 90",
+     "predicted_sql": "SELECT CAST(SUM(T1.units) AS REAL) / NULLIF(COUNT(T1.\"date\"), 0) FROM sales_in_weather AS T1 INNER JOIN weather AS T2 ON T1.\"date\" = T2.\"date\" WHERE T1.store_nbr = 3 AND T1.item_nbr = 5 AND T2.tmax > 90",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:sales_in_weather:650",
+     "class": "grain_fanout",
+     "question": "Give the number of stores which opened on the weather station that recorded the fastest average wind speed.",
+     "gold_sql": "SELECT COUNT(T.store_nbr) FROM (SELECT DISTINCT store_nbr FROM relation WHERE station_nbr = (SELECT station_nbr FROM weather ORDER BY avgspeed DESC NULLS LAST LIMIT 1)) AS T",
+     "predicted_sql": "SELECT COUNT(T1.store_nbr) FROM relation AS T1 INNER JOIN weather AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY T2.avgspeed DESC NULLS LAST LIMIT 1",
+     "error_category": "sql_error"
+    },
+    {
+     "question_id": "ood:sales_in_weather:653",
+     "class": "aggregate",
+     "question": "State the number of stores that belongs to the weather station which recorded the deepest snowfall.",
+     "gold_sql": "SELECT T2.store_nbr FROM weather AS T1 INNER JOIN relation AS T2 ON T1.station_nbr = T2.station_nbr ORDER BY snowfall DESC NULLS LAST LIMIT 1",
+     "predicted_sql": "SELECT COUNT(DISTINCT T2.store_nbr) FROM weather AS T1 INNER JOIN relation AS T2 ON T1.station_nbr = T2.station_nbr WHERE T1.snowfall = (SELECT MAX(snowfall) FROM weather)",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "social_media",
+   "scored": 39,
+   "wrong": 4,
+   "wrong_share": 0.1026,
+   "classes": {
+    "other": 3,
+    "aggregate": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:social_media:702",
+     "class": "other",
+     "question": "Please list all the cities in Argentina.",
+     "gold_sql": "SELECT City FROM location WHERE NOT City IS NULL AND Country = 'Argentina'",
+     "predicted_sql": "SELECT City FROM location WHERE Country = 'Argentina'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:717",
+     "class": "other",
+     "question": "Is 3751 the location ID for tweet with ID tw-682714048199311366?",
+     "gold_sql": "SELECT LocationID FROM twitter WHERE TweetID = 'tw-682714048199311366'",
+     "predicted_sql": "SELECT CASE WHEN locationid = 3751 THEN 'Yes' ELSE 'No' END AS isLocationID FROM twitter WHERE TweetID = 'tw-682714048199311366'",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:social_media:739",
+     "class": "other",
+     "question": "State the number of positive tweets from Ha Noi.",
+     "gold_sql": "SELECT COUNT(T1.TweetID) FROM twitter AS T1 INNER JOIN location AS T2 ON T2.LocationID = T1.LocationID WHERE T1.Sentiment > 0 AND T2.State = 'Ha Noi'",
+     "predicted_sql": "SELECT COUNT(T1.TweetID) FROM Twitter AS T1 INNER JOIN location AS T2 ON T1.LocationID = T2.LocationID WHERE T2.City = 'Ha Noi' AND T1.Sentiment > 0",
+     "error_category": null
+    }
+   ]
+  },
+  {
+   "arm": "C",
+   "shard": "ood876",
+   "db_id": "talkingdata",
+   "scored": 109,
+   "wrong": 6,
+   "wrong_share": 0.055,
+   "classes": {
+    "identifier": 4,
+    "aggregate": 1,
+    "period": 1
+   },
+   "examples": [
+    {
+     "question_id": "ood:talkingdata:766",
+     "class": "identifier",
+     "question": "What are the categories of the top 2 oldest events?",
+     "gold_sql": "SELECT T4.category FROM events_relevant AS T1 INNER JOIN app_events_relevant AS T2 ON T1.event_id = T2.event_id INNER JOIN app_labels AS T3 ON T3.app_id = T2.app_id INNER JOIN label_categories AS T4 ON T3.label_id = T4.label_id ORDER BY T1.timestamp NULLS FIRST LIMIT 2",
+     "predicted_sql": "SELECT T3.category FROM events AS T1 INNER JOIN app_events AS T2 ON T1.event_id = T2.event_id INNER JOIN label_categories AS T3 ON T2.label_id = T3.label_id ORDER BY T1.timestamp NULLS FIRST LIMIT 2",
+     "error_category": "undefined_column"
+    },
+    {
+     "question_id": "ood:talkingdata:776",
+     "class": "aggregate",
+     "question": "Among all the times event no.2 happened when the app user was not active, when was the earliest time this situation happened?",
+     "gold_sql": "SELECT T2.timestamp FROM app_events AS T1 INNER JOIN events AS T2 ON T2.event_id = T1.event_id WHERE T1.is_active = 0 AND T2.event_id = 2 ORDER BY T2.timestamp NULLS FIRST LIMIT 1",
+     "predicted_sql": "SELECT MIN(T1.timestamp) FROM events AS T1 INNER JOIN app_events AS T2 ON T1.event_id = T2.event_id WHERE T2.event_id = 2 AND T2.is_active = 0",
+     "error_category": null
+    },
+    {
+     "question_id": "ood:talkingdata:798",
+     "class": "identifier",
+     "question": "How many women have apps from the game-Finding fault category installed on their device?",
+     "gold_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN events_relevant AS T2 ON T1.device_id = T2.device_id INNER JOIN app_events_relevant AS T3 ON T2.event_id = T3.event_id WHERE T1.age < 23 AND T1.gender = 'F' AND T3.is_active = 0 AND T3.is_installed = 1",
+     "predicted_sql": "SELECT COUNT(T1.device_id) FROM gender_age AS T1 INNER JOIN app_events AS T2 ON T1.device_id = T2.device_id INNER JOIN app_labels AS T3 ON T2.app_id = T3.app_id INNER JOIN label_categories AS T4 ON T3.label_id = T4.label_id WHERE T1.gender = 'F' AND T2.is_installed = 1 AND T4.category = 'game-Finding fault'",
+     "error_category": "undefined_column"
+    }
+   ]
+  }
+ ]
+}
