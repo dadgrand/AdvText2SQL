@@ -1,0 +1,81 @@
+{
+ "updated_at_utc": "2026-11-25T09:18:39.842691+00:00",
+ "internal_candidates_processed": 389,
+ "internal_survivors_pending_judge": 76,
+ "internal_hard_share": 0.5938,
+ "internal_evidence_non_empty": 112,
+ "internal_evidence_non_empty_share": 0.2879,
+ "statuses": {
+  "rejected": 277,
+  "pending_judge": 76,
+  "adjudication_required": 36
+ },
+ "rejects_by_gate_step": {
+  "literals": 116,
+  "execution": 65,
+  "role_B": 4,
+  "limit": 3,
+  "parse": 7,
+  "repair_limit": 43,
+  "repair_literals": 28,
+  "repair_execution": 10,
+  "repair_parse": 1
+ },
+ "rejects_by_code": {
+  "literal_bidirectional": 144,
+  "result_size": 54,
+  "execution_failed": 17,
+  "needs_facts": 3,
+  "limit_unnamed": 46,
+  "parse_failed": 8,
+  "role_b_output": 1,
+  "unstable_result": 4
+ },
+ "by_skill": {
+  "aggregation": {
+   "candidates": 54,
+   "pending_or_accepted": 19
+  },
+  "as_of_join": {
+   "candidates": 19,
+   "pending_or_accepted": 0
+  },
+  "compositional": {
+   "candidates": 36,
+   "pending_or_accepted": 8
+  },
+  "filter": {
+   "candidates": 42,
+   "pending_or_accepted": 9
+  },
+  "hierarchies": {
+   "candidates": 20,
+   "pending_or_accepted": 0
+  },
+  "join": {
+   "candidates": 35,
+   "pending_or_accepted": 15
+  },
+  "jsonb_arrays": {
+   "candidates": 14,
+   "pending_or_accepted": 0
+  },
+  "periods_timezone": {
+   "candidates": 31,
+   "pending_or_accepted": 8
+  },
+  "projection": {
+   "candidates": 27,
+   "pending_or_accepted": 8
+  },
+  "top_n_ties": {
+   "candidates": 56,
+   "pending_or_accepted": 7
+  },
+  "window_frames": {
+   "candidates": 55,
+   "pending_or_accepted": 2
+  }
+ },
+ "survivors_per_100_candidates": 19.5
+}

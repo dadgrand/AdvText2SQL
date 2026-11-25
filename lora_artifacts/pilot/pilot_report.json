@@ -1,0 +1,717 @@
+{
+ "task": "t12 first controlled generation pilot with roles A/B/C and external screen",
+ "generated_at_utc": "2026-11-25T09:16:42.255576+00:00",
+ "playbook": "docs/playbook/POSTGRES_TEXT2SQL_LORA.md sections 3-4",
+ "gate_order": [
+  "1 mechanical LIMIT check",
+  "2 bidirectional literal check",
+  "3 single read-only PostgreSQL SELECT, executed, 1-200 rows, stable twice",
+  "4 G1-G8 semantic judge accept/repair/reject"
+ ],
+ "roles": {
+  "A": "case author: intent, public_facts, evidence, reference_sql, comparison, confounders",
+  "B": "question author: sees intent, public_facts, glossary, evidence only; returns needs_facts when a fact is missing",
+  "C": "independent solver: sees only schema, question and evidence"
+ },
+ "judge": {
+  "endpoint": "http://127.0.0.1:8081/v1",
+  "model": "qwen3.8-flash-next-iq3_xxs",
+  "temperature": 0,
+  "pairs_per_request": 8,
+  "methodology": "cluster/judge/METHODOLOGY.md G1-G8"
+ },
+ "generation": {
+  "seed": 20261125,
+  "assignments": 300,
+  "families_used": 52,
+  "pilot_local_families": [
+   "pilot_billing",
+   "pilot_staff",
+   "pilot_orders",
+   "pilot_catalog"
+  ],
+  "execution_backend": "live PostgreSQL 15.15 through the SSH tunnel; pilot-local families run on throw-away TEMP tables with seeded fixtures"
+ },
+ "totals": {
+  "candidates": 728,
+  "statuses": {
+   "accepted": 267,
+   "rejected": 413,
+   "repair_needed": 12,
+   "adjudication_required": 36
+  },
+  "accepted": 267,
+  "usable_for_arm_d_with_evidence": 67,
+  "accepted_without_evidence_text": 200,
+  "survivors_per_gate_step": {
+   "step0_candidates": 728,
+   "step1_limit_ok": 637,
+   "step2_literals_ok": 449,
+   "step3_parse_and_execution_ok": 363,
+   "step4_evidence_ok": 363,
+   "sent_to_judge": 327,
+   "judge_accept": 267,
+   "judge_repair": 12,
+   "judge_reject": 48,
+   "judge_unclear": 0,
+   "accepted_after_all_steps": 267,
+   "internal_solver_agreement_ok": 78,
+   "internal_adjudication_required": 36
+  }
+ },
+ "by_source": {
+  "omeryentur": {
+   "candidates": 339,
+   "accepted": 200,
+   "accept_rate": 0.59,
+   "accept_rate_wilson95": [
+    0.5369,
+    0.641
+   ],
+   "statuses": {
+    "accepted": 200,
+    "rejected": 129,
+    "repair_needed": 10
+   },
+   "rejects_by_gate_step": {
+    "judge": 41,
+    "limit": 41,
+    "literals": 44,
+    "execution": 3
+   },
+   "rejects_by_code": {
+    "judge_other": 3,
+    "judge_wrong_entity": 18,
+    "limit_unnamed": 41,
+    "judge_unstated_filter": 2,
+    "judge_ambiguous": 9,
+    "literal_bidirectional": 44,
+    "judge_wrong_aggregate": 4,
+    "judge_unanswerable": 2,
+    "result_size": 3,
+    "judge_missing_filter": 3
+   },
+   "adjudication_required": 0,
+   "repair_needed": 10,
+   "unjudged": 0,
+   "hard_skill_candidates": 26,
+   "hard_skill_share": 0.0767,
+   "hard_skill_accepted": 3,
+   "evidence_non_empty_candidates": 0,
+   "evidence_non_empty_share": 0.0,
+   "evidence_gap_flag": 200,
+   "evidence_missing_rejects": 0,
+   "accepted_with_evidence": 0,
+   "accepted_without_evidence_text": 200,
+   "skills": {
+    "aggregation": 121,
+    "projection": 147,
+    "filter": 34,
+    "window": 26,
+    "cte": 2,
+    "join": 9
+   },
+   "skills_accepted": {
+    "aggregation": 81,
+    "projection": 91,
+    "filter": 25,
+    "window": 3
+   }
+  },
+  "pilot_internal": {
+   "candidates": 389,
+   "accepted": 67,
+   "accept_rate": 0.1722,
+   "accept_rate_wilson95": [
+    0.138,
+    0.2129
+   ],
+   "statuses": {
+    "rejected": 284,
+    "accepted": 67,
+    "adjudication_required": 36,
+    "repair_needed": 2
+   },
+   "rejects_by_gate_step": {
+    "literals": 116,
+    "repair_literals": 28,
+    "execution": 65,
+    "repair_limit": 43,
+    "repair_execution": 10,
+    "judge": 7,
+    "role_B": 4,
+    "limit": 3,
+    "parse": 7,
+    "repair_parse": 1
+   },
+   "rejects_by_code": {
+    "literal_bidirectional": 144,
+    "result_size": 54,
+    "limit_unnamed": 46,
+    "execution_failed": 17,
+    "judge_unanswerable": 4,
+    "needs_facts": 3,
+    "judge_period_off_by_one": 1,
+    "role_b_output": 1,
+    "parse_failed": 8,
+    "judge_wrong_entity": 1,
+    "unstable_result": 4,
+    "judge_fanout_inflation": 1
+   },
+   "adjudication_required": 36,
+   "repair_needed": 2,
+   "unjudged": 0,
+   "hard_skill_candidates": 231,
+   "hard_skill_share": 0.5938,
+   "hard_skill_accepted": 21,
+   "evidence_non_empty_candidates": 385,
+   "evidence_non_empty_share": 0.9897,
+   "evidence_gap_flag": 0,
+   "evidence_missing_rejects": 0,
+   "accepted_with_evidence": 67,
+   "accepted_without_evidence_text": 0,
+   "skills": {
+    "as_of_join": 19,
+    "periods_timezone": 31,
+    "window_frames": 55,
+    "aggregation": 54,
+    "projection": 27,
+    "filter": 42,
+    "top_n_ties": 56,
+    "join": 35,
+    "hierarchies": 20,
+    "compositional": 36,
+    "jsonb_arrays": 14
+   },
+   "skills_accepted": {
+    "periods_timezone": 6,
+    "projection": 8,
+    "join": 12,
+    "aggregation": 18,
+    "filter": 8,
+    "top_n_ties": 6,
+    "compositional": 7,
+    "window_frames": 2
+   }
+  }
+ },
+ "hard_skill_definition": [
+  "as_of_join",
+  "compositional",
+  "hierarchies",
+  "jsonb_arrays",
+  "periods_timezone",
+  "top_n_ties",
+  "window_frames"
+ ],
+ "a_c_disagreements": {
+  "count": 36,
+  "note": "kept with both SQLs, never resolved silently; they are not counted as hard rejects",
+  "examples": [
+   {
+    "sample_id": "pilot-0014",
+    "db_id": "beer_factory",
+    "skill": "top_n_ties",
+    "solver_status": "ok",
+    "reference_sql": "WITH ranked AS (SELECT rb.state, rb.brandname, COUNT(rr.starrating) AS review_count, ROW_NUMBER() OVER (PARTITION BY rb.state ORDER BY COUNT(rr.starrating) DESC, rb.brandname ASC) AS rn FROM rootbeerbrand rb JOIN rootbeerreview rr ON rb.brandid = rr.brandid GROUP BY rb.state, rb.brandname) SELECT state, brandname, review_count FROM ranked WHERE rn <= 2 ORDER BY state, rn;",
+    "solver_sql": "WITH brand_reviews AS (SELECT rbbr.brandname, rbbr.state, COUNT(rbr.review) AS review_count FROM rootbeerbrand rbbr JOIN rootbeerreview rbr ON rbbr.brandid = rbr.brandid GROUP BY rbbr.brandname, rbbr.state), ranked AS (SELECT brandname, state, review_count, RANK() OVER (PARTITION BY state ORDER BY review_count DESC) AS rank FROM brand_reviews) SELECT state, brandname, review_count FROM ranked WHERE rank <= 2 ORDER BY state, rank, review_count DESC, brandname;",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 3,
+     "columns_b": 3,
+     "ran": true,
+     "solver_rows": 19
+    }
+   },
+   {
+    "sample_id": "pilot-0031",
+    "db_id": "chicago_crime",
+    "skill": "join",
+    "solver_status": "ok",
+    "reference_sql": "SELECT w.alderman_first_name, w.alderman_last_name, COUNT(c.report_no) FROM crime c JOIN ward w ON c.ward_no = w.ward_no GROUP BY w.alderman_first_name, w.alderman_last_name;",
+    "solver_sql": "SELECT c.ward_no, w.alderman_first_name, w.alderman_last_name, COUNT(c.report_no) AS crime_count FROM crime c JOIN ward w ON c.ward_no = w.ward_no WHERE c.arrest = 'TRUE' GROUP BY c.ward_no, w.alderman_first_name, w.alderman_last_name",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 3,
+     "columns_b": 4,
+     "ran": true,
+     "solver_rows": 50
+    }
+   },
+   {
+    "sample_id": "pilot-0045",
+    "db_id": "citeseer",
+    "skill": "aggregation",
+    "solver_status": "ok",
+    "reference_sql": "SELECT class_label, COUNT(*) FROM paper GROUP BY class_label",
+    "solver_sql": "SELECT class_label, COUNT(DISTINCT paper_id) FROM paper GROUP BY class_label;",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 2,
+     "columns_b": 2,
+     "ran": true,
+     "solver_rows": 6
+    }
+   },
+   {
+    "sample_id": "pilot-0056",
+    "db_id": "cars",
+    "skill": "filter",
+    "solver_status": "ok",
+    "reference_sql": "SELECT d.car_name FROM data d JOIN production p ON d.id = p.id JOIN country c ON p.country = c.origin WHERE d.cylinders = 8 AND p.model_year = 1970 AND c.country = 'USA'",
+    "solver_sql": "SELECT DISTINCT d.car_name FROM data d JOIN production p ON d.id = p.id JOIN country c ON p.country = c.origin WHERE d.cylinders = 8 AND c.country = 'USA' AND p.model_year = 1970",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 1,
+     "columns_b": 1,
+     "ran": true,
+     "solver_rows": 18
+    }
+   },
+   {
+    "sample_id": "pilot-0069",
+    "db_id": "mental_health_survey",
+    "skill": "aggregation",
+    "solver_status": "ok",
+    "reference_sql": "SELECT q.questionid, q.questiontext, COUNT(a.userid) AS answer_count FROM answer a JOIN question q ON a.questionid = q.questionid JOIN survey s ON a.surveyid = s.surveyid WHERE s.description = 'mental health survey for 2014' GROUP BY q.questionid, q.questiontext;",
+    "solver_sql": "SELECT a.questionid, COUNT(a.answerid) FROM answer a JOIN survey s ON a.surveyid = s.surveyid WHERE s.description LIKE '%2014%' GROUP BY a.questionid",
+    "agreement": {
+     "equal": null,
+     "ran": false
+    }
+   },
+   {
+    "sample_id": "pilot-0075",
+    "db_id": "app_store",
+    "skill": "compositional",
+    "solver_status": "ok",
+    "reference_sql": "SELECT p.app, AVG(p.rating) AS avg_rating, COUNT(*) AS positive_reviews FROM playstore p JOIN user_reviews u ON p.app = u.app WHERE u.sentiment = 'Positive' GROUP BY p.app ORDER BY avg_rating DESC LIMIT 5",
+    "solver_sql": "SELECT p.app, AVG(p.rating) AS avg_rating FROM playstore p JOIN user_reviews u ON p.app = u.app WHERE u.sentiment = 'Positive' GROUP BY p.app ORDER BY avg_rating DESC LIMIT 5",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 3,
+     "columns_b": 2,
+     "ran": true,
+     "solver_rows": 5
+    }
+   },
+   {
+    "sample_id": "pilot-0094",
+    "db_id": "hockey",
+    "skill": "top_n_ties",
+    "solver_status": "ok",
+    "reference_sql": "SELECT tmid, pts FROM teams WHERE year = 2000 AND lgid = 'NHL' ORDER BY pts DESC, tmid ASC LIMIT 3;",
+    "solver_sql": "SELECT name FROM teams WHERE year = 2000 AND lgid = 'NHL' ORDER BY pts DESC, name ASC LIMIT 3",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 3,
+     "rows_b": 3,
+     "columns_a": 2,
+     "columns_b": 1,
+     "ran": true,
+     "solver_rows": 3
+    }
+   },
+   {
+    "sample_id": "pilot-0097",
+    "db_id": "food_inspection_2",
+    "skill": "window_frames",
+    "solver_status": "ok",
+    "reference_sql": "SELECT e.employee_id, e.first_name, e.last_name, SUM(v.fine) AS total_fines, SUM(SUM(v.fine)) OVER (ORDER BY SUM(v.fine) DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_fines FROM employee e JOIN inspection i ON e.employee_id = i.employee_id JOIN violation v ON i.inspection_id = v.inspection_id GROUP BY e.employee_id, e.first_name, e.last_name ORDER BY total_fines DESC;",
+    "solver_sql": "SELECT e.employee_id, e.first_name, e.last_name, SUM(v.fine) AS total_fines FROM employee e JOIN inspection i ON e.employee_id = i.employee_id JOIN violation v ON i.inspection_id = v.inspection_id GROUP BY e.employee_id, e.first_name, e.last_name ORDER BY total_fines DESC",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 5,
+     "columns_b": 4,
+     "ran": true,
+     "solver_rows": 27
+    }
+   },
+   {
+    "sample_id": "pilot-0100",
+    "db_id": "cars",
+    "skill": "top_n_ties",
+    "solver_status": "ok",
+    "reference_sql": "SELECT c.country, d.car_name, p.price FROM data d JOIN production pr ON d.id = pr.id JOIN country c ON pr.country = c.origin JOIN price p ON d.id = p.id ORDER BY c.country, p.price DESC, d.car_name ASC LIMIT 3;",
+    "solver_sql": "WITH ranked AS (SELECT c.country, d.car_name, p.price, DENSE_RANK() OVER (PARTITION BY c.country ORDER BY p.price DESC) AS rnk FROM data d JOIN production pr ON d.id = pr.id JOIN country c ON pr.country = c.origin JOIN price p ON d.id = p.id) SELECT country, car_name, price FROM ranked WHERE rnk <= 3 ORDER BY country, price DESC",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 3,
+     "rows_b": 5,
+     "columns_a": 3,
+     "columns_b": 3,
+     "ran": true,
+     "solver_rows": 13
+    }
+   },
+   {
+    "sample_id": "pilot-0103",
+    "db_id": "authors",
+    "skill": "filter",
+    "solver_status": "ok",
+    "reference_sql": "SELECT COUNT(*) FROM paper WHERE year = 2009 AND keyword LIKE '%video%'",
+    "solver_sql": "SELECT COUNT(*) FROM paper WHERE year = 2009 AND keyword ILIKE '%video%';",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 1,
+     "rows_b": 1,
+     "columns_a": 1,
+     "columns_b": 1,
+     "ran": true,
+     "solver_rows": 1
+    }
+   },
+   {
+    "sample_id": "pilot-0115",
+    "db_id": "food_inspection_2",
+    "skill": "top_n_ties",
+    "solver_status": "ok",
+    "reference_sql": "SELECT e.license_no, SUM(v.fine) AS total_fines FROM establishment e JOIN inspection i ON e.license_no = i.license_no JOIN violation v ON i.inspection_id = v.inspection_id WHERE EXTRACT(YEAR FROM i.inspection_date) = 2010 GROUP BY e.license_no ORDER BY total_fines DESC, e.license_no ASC LIMIT 3;",
+    "solver_sql": "SELECT e.license_no, e.dba_name, SUM(v.fine) AS total_fines FROM establishment e JOIN inspection i ON e.license_no = i.license_no JOIN violation v ON i.inspection_id = v.inspection_id WHERE i.inspection_date >= '2010-01-01' AND i.inspection_date < '2011-01-01' GROUP BY e.license_no, e.dba_name ORDER BY total_fines DESC, e.license_no ASC LIMIT 3",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 3,
+     "rows_b": 3,
+     "columns_a": 2,
+     "columns_b": 3,
+     "ran": true,
+     "solver_rows": 3
+    }
+   },
+   {
+    "sample_id": "pilot-0119",
+    "db_id": "cs_semester",
+    "skill": "projection",
+    "solver_status": "ok",
+    "reference_sql": "SELECT f_name, l_name, gpa FROM student WHERE gpa > 3.0 ORDER BY gpa DESC;",
+    "solver_sql": "SELECT f_name || ' ' || l_name AS full_name, gpa FROM student WHERE gpa > 3.0 ORDER BY gpa DESC;",
+    "agreement": {
+     "equal": false,
+     "same_order": false,
+     "same_bag": false,
+     "rows_a": 5,
+     "rows_b": 5,
+     "columns_a": 3,
+     "columns_b": 2,
+     "ran": true,
+     "solver_rows": 21
+    }
+   }
+  ]
+ },
+ "mechanical_flags": {
+  "rows_with_limit": 252,
+  "unnamed_limit_rejects": 87,
+  "executed_rows_total": 1896386,
+  "executed_stable": 416,
+  "sql_literal_absent_from_question": 145,
+  "question_states_literal_absent_from_sql": 61
+ },
+ "judge_criteria_failures": {
+  "G1": 41,
+  "G3": 17,
+  "G8": 16,
+  "G2": 7,
+  "G7": 6,
+  "G5": 1,
+  "G4": 3,
+  "G6": 1
+ },
+ "judge_defects": {
+  "other": 3,
+  "wrong_entity": 21,
+  "unstated_filter": 4,
+  "ambiguous": 10,
+  "missing_filter": 6,
+  "wrong_aggregate": 6,
+  "unanswerable": 6,
+  "hidden_limit": 1,
+  "fanout_inflation": 2,
+  "period_off_by_one": 1
+ },
+ "quoted_rejects": [
+  {
+   "sample_id": "ext-10353",
+   "source": "omeryentur",
+   "db_id": "external_10353",
+   "skill": "projection",
+   "gate_step": "limit",
+   "code": "limit_unnamed",
+   "question": "What is the product with the longest product name?",
+   "gold_sql": "SELECT * FROM product ORDER BY LENGTH(product) DESC LIMIT 1",
+   "detail": "row cap(s) [1] are not named in the question",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-10354",
+   "source": "omeryentur",
+   "db_id": "external_10354",
+   "skill": "projection",
+   "gate_step": "limit",
+   "code": "limit_unnamed",
+   "question": "What is the product with the shortest product name?",
+   "gold_sql": "SELECT * FROM product ORDER BY LENGTH(product) ASC LIMIT 1",
+   "detail": "row cap(s) [1] are not named in the question",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-11101",
+   "source": "omeryentur",
+   "db_id": "external_11101",
+   "skill": "projection",
+   "gate_step": "limit",
+   "code": "limit_unnamed",
+   "question": "Who is the oldest pilot?",
+   "gold_sql": "SELECT name, age FROM pilot ORDER BY age DESC LIMIT 1",
+   "detail": "row cap(s) [1] are not named in the question",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-11102",
+   "source": "omeryentur",
+   "db_id": "external_11102",
+   "skill": "projection",
+   "gate_step": "limit",
+   "code": "limit_unnamed",
+   "question": "What is the youngest pilot's name?",
+   "gold_sql": "SELECT name FROM pilot ORDER BY age ASC LIMIT 1",
+   "detail": "row cap(s) [1] are not named in the question",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-124",
+   "source": "omeryentur",
+   "db_id": "external_124",
+   "skill": "aggregation",
+   "gate_step": "literals",
+   "code": "literal_bidirectional",
+   "question": "What are the top 5 most common appelation phrases?",
+   "gold_sql": "SELECT SUBSTRING(appelation FROM 1 FOR 50) AS phrase, COUNT(*) AS count FROM appellations GROUP BY phrase ORDER BY count DESC LIMIT 5",
+   "detail": "missing in question=['1', '50'] missing in sql=[]",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-130",
+   "source": "omeryentur",
+   "db_id": "external_130",
+   "skill": "aggregation",
+   "gate_step": "literals",
+   "code": "literal_bidirectional",
+   "question": "What is the total count of unique appelation phrases?",
+   "gold_sql": "SELECT COUNT(DISTINCT SUBSTRING(appelation FROM 1 FOR 50)) FROM appellations",
+   "detail": "missing in question=['1', '50'] missing in sql=[]",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-137",
+   "source": "omeryentur",
+   "db_id": "external_137",
+   "skill": "aggregation",
+   "gate_step": "literals",
+   "code": "literal_bidirectional",
+   "question": "What is the total count of unique appelation phrases for the state of California?",
+   "gold_sql": "SELECT COUNT(DISTINCT SUBSTRING(appelation FROM 1 FOR 50)) FROM appellations WHERE state = 'California'",
+   "detail": "missing in question=['1', '50'] missing in sql=[]",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-141",
+   "source": "omeryentur",
+   "db_id": "external_141",
+   "skill": "aggregation",
+   "gate_step": "literals",
+   "code": "literal_bidirectional",
+   "question": "What is the total count of unique appelation phrases for the state of Texas?",
+   "gold_sql": "SELECT COUNT(DISTINCT SUBSTRING(appelation FROM 1 FOR 50)) FROM appellations WHERE state = 'Texas'",
+   "detail": "missing in question=['1', '50'] missing in sql=[]",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0206",
+   "source": "pilot_internal",
+   "db_id": "retail_complains",
+   "skill": "aggregation",
+   "gate_step": "parse",
+   "code": "parse_failed",
+   "question": "How many complaints were filed by clients located in the South region, grouped by their district?",
+   "gold_sql": "SELECT T3.district_id, COUNT(T1.Complaint ID) FROM events AS T1 JOIN client AS T2 ON T1.client_id = T2.client_id JOIN district AS T3 ON T2.district_id = T3.district_id JOIN state AS T4 ON T3.state_abbrev = T4.statecode WHERE T4.region = 'South' GROUP BY T3.district_id",
+   "detail": "ParseError: Expecting ). Line 1, Col: 44.\n  SELECT T3.district_id, COUNT(T1.Complaint \u001b[4mID\u001b[0m) FROM events AS T1 JOIN client AS T2 ON T1.client_id = T2.client_id JOIN district AS T3 ON T2.distr",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0219",
+   "source": "pilot_internal",
+   "db_id": "legislator",
+   "skill": "window_frames",
+   "gate_step": "parse",
+   "code": "parse_failed",
+   "question": "Rank current legislators by age within their state using dense ranking, where age is calculated from their birthday.",
+   "gold_sql": "SELECT c.first_name, c.last_name, t.state, DENSE_RANK() OVER (PARTITION BY t.state ORDER BY c.birthday_bio DESC) AS age_rank FROM current c JOIN current-terms t ON c.bioguide_id = t.bioguide WHERE c.birthday_bio IS NOT NULL GROUP BY c.first_name, c.last_name, t.state, c.birthday_bio;",
+   "detail": "ParseError: Invalid expression / Unexpected token. Line 1, Col: 153.\n  K() OVER (PARTITION BY t.state ORDER BY c.birthday_bio DESC) AS age_rank FROM current c JOIN current\u001b[4m-\u001b[0mterms t ON c.bioguide_id = t.bioguide WHERE c.birthday_bio IS NOT NULL GROUP BY c.first_name, c.last",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0260",
+   "source": "pilot_internal",
+   "db_id": "airline",
+   "skill": "aggregation",
+   "gate_step": "parse",
+   "code": "parse_failed",
+   "question": "For each airline carrier, how many flights did they operate and what was the average departure delay for those flights?",
+   "gold_sql": "SELECT ac.description, COUNT(*) AS flight_count, AVG(a.dep_delay) AS avg_dep_delay FROM airlines a JOIN Air Carriers ac ON a.op_carrier_airline_id = ac.code GROUP BY ac.description;",
+   "detail": "ParseError: Invalid expression / Unexpected token. Line 1, Col: 119.\n  tion, COUNT(*) AS flight_count, AVG(a.dep_delay) AS avg_dep_delay FROM airlines a JOIN Air Carriers \u001b[4mac\u001b[0m ON a.op_carrier_airline_id = ac.code GROUP BY ac.description",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0266",
+   "source": "pilot_internal",
+   "db_id": "superstore",
+   "skill": "periods_timezone",
+   "gate_step": "parse",
+   "code": "parse_failed",
+   "question": "How many orders from the Central region were shipped between January 1, 2013, and March 31, 2013, inclusive?",
+   "gold_sql": "SELECT COUNT(*) FROM central_superstore WHERE Ship Date >= '2013-01-01'::date AND Ship Date <= '2013-03-31'::date;",
+   "detail": "ParseError: Invalid expression / Unexpected token. Line 1, Col: 55.\n  SELECT COUNT(*) FROM central_superstore WHERE Ship \u001b[4mDate\u001b[0m >= '2013-01-01'::date AND Ship Date <= '2013-03-31'::date",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-63",
+   "source": "omeryentur",
+   "db_id": "external_63",
+   "skill": "aggregation",
+   "gate_step": "execution",
+   "code": "result_size",
+   "question": "What is the id of the album with the lowest artistid and title not starting with the letter 'A'?",
+   "gold_sql": "SELECT albumid FROM album WHERE artistid = (SELECT MIN(artistid) FROM album) AND title NOT LIKE 'A%'",
+   "detail": "0 rows outside 1-200",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-74",
+   "source": "omeryentur",
+   "db_id": "external_74",
+   "skill": "aggregation",
+   "gate_step": "execution",
+   "code": "result_size",
+   "question": "What is the id of the album with the lowest id and title not starting with the letter 'A'?",
+   "gold_sql": "SELECT albumid FROM album WHERE albumid = (SELECT MIN(albumid) FROM album) AND title NOT LIKE 'A%'",
+   "detail": "0 rows outside 1-200",
+   "judge": null
+  },
+  {
+   "sample_id": "ext-82",
+   "source": "omeryentur",
+   "db_id": "external_82",
+   "skill": "aggregation",
+   "gate_step": "execution",
+   "code": "result_size",
+   "question": "What is the title of the album with the lowest id and title not starting with the letter 'T'?",
+   "gold_sql": "SELECT title FROM album WHERE albumid = (SELECT MIN(albumid) FROM album) AND title NOT LIKE 'T%'",
+   "detail": "0 rows outside 1-200",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0004",
+   "source": "pilot_internal",
+   "db_id": "cookbook",
+   "skill": "window_frames",
+   "gate_step": "execution",
+   "code": "result_size",
+   "question": "Rank recipes by their total calorie count within each ingredient category, ordering from highest to lowest calories.",
+   "gold_sql": "SELECT i.category, r.title, n.calories, RANK() OVER (PARTITION BY i.category ORDER BY n.calories DESC) AS rank FROM recipe r JOIN quantity q ON r.recipe_id = q.recipe_id JOIN ingredient i ON q.ingredient_id = i.ingredient_id JOIN nutrition n ON r.recipe_id = n.recipe_id WHERE i.category IS NOT NULL;",
+   "detail": "5092 rows outside 1-200",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0006",
+   "source": "pilot_internal",
+   "db_id": "cars",
+   "skill": "window_frames",
+   "gate_step": "execution",
+   "code": "execution_failed",
+   "question": "Rank cars by fuel efficiency within each country of production, using dense ranking to handle ties.",
+   "gold_sql": "SELECT car_name, mpg, country, dense_rank() OVER (PARTITION BY country ORDER BY mpg DESC) AS rank FROM data JOIN production ON data.id = production.id JOIN country ON production.country = country.origin",
+   "detail": "AmbiguousColumn: column reference \"country\" is ambiguous\nLINE 1: SELECT car_name, mpg, country, dense_rank() OVER (PARTITION ...\n                              ^",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0013",
+   "source": "pilot_internal",
+   "db_id": "regional_sales",
+   "skill": "top_n_ties",
+   "gate_step": "execution",
+   "code": "execution_failed",
+   "question": "List the top 3 products by total quantity sold in each region. If quantities tie, list the tied products together.",
+   "gold_sql": "WITH ranked AS (SELECT r.region, p.\"Product Name\", SUM(o.\"Order Quantity\") AS total_qty, ROW_NUMBER() OVER (PARTITION BY r.region ORDER BY SUM(o.\"Order Quantity\") DESC, p.\"Product Name\" ASC) AS rn FROM \"Sales Orders\" o JOIN regions r ON o._storeid IN (SELECT storeid FROM \"Store Locations\" sl WHERE sl.statecode = r.statecode) JOIN products p ON o._productid = p.productid GROUP BY r.region, p.\"Product Name\") SELECT region, \"Product Name\", total_qty FROM ranked WHERE rn <= 3 ORDER BY region, rn;",
+   "detail": "QueryCanceled: canceling statement due to statement timeout",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0019",
+   "source": "pilot_internal",
+   "db_id": "college_completion",
+   "skill": "aggregation",
+   "gate_step": "execution",
+   "code": "execution_failed",
+   "question": "What is the average graduation rate for public 4-year institutions in each state?",
+   "gold_sql": "SELECT state, AVG(CAST(grad_100_rate AS REAL)) FROM institution_grads JOIN institution_details ON institution_grads.unitid = institution_details.unitid WHERE control = 'Public' AND level = '4-year' GROUP BY state;",
+   "detail": "InvalidTextRepresentation: invalid input syntax for type real: \"NULL\"",
+   "judge": null
+  },
+  {
+   "sample_id": "pilot-0027",
+   "source": "pilot_internal",
+   "db_id": "language_corpus",
+   "skill": "window_frames",
+   "gate_step": "execution",
+   "code": "execution_failed",
+   "question": "Rank web pages by their word count within each language, assigning the same rank to pages with identical word counts.",
+   "gold_sql": "SELECT lid, pid, words, DENSE_RANK() OVER (PARTITION BY lid ORDER BY words DESC) AS rank FROM pages;",
+   "detail": "QueryCanceled: canceling statement due to statement timeout",
+   "judge": null
+  }
+ ],
+ "acceptance_rule_check": {
+  "accepted_rows": 267,
+  "rows_violating_the_rule": [],
+  "licence_source_fields_on_every_row": true
+ },
+ "caveats": [
+  "the local judge is a single temperature-0 pass of a quantized model; verdicts are a screening signal, not a substitute for the fixture-and-mutant validator (t13)",
+  "row caps are policed mechanically because the same model failed to detect them on control pairs in the t6 audit",
+  "pilot-local families are project-authored PostgreSQL-native schemas; they exist only because the train schemas are SQLite-translated and carry no timestamptz, JSONB or array columns",
+  "external rows carry no evidence text, so an evidence-gap flag is reported instead of a reject for them"
+ ]
+}
