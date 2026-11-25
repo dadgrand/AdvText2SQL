@@ -1,3 +1,5 @@
+> **Historical decoding note.** This report was produced with **batch 8, left padding** (t14). It is superseded by the batch-1 serving ledger in `../paired_ood876` (dev: `../paired_dev216`) and must not be quoted as a serving number.
+
 # Four-shard evaluation report
 
 - Predictions: `/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_cand200_dev217.json`

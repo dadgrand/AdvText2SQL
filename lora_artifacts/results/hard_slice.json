@@ -1,0 +1,543 @@
+{
+ "generated_at_utc": null,
+ "definition": {
+  "error": "B_real prediction whose execution result differs from the native gold (score 0), over the gold-executable ids",
+  "features": "extracted from the GOLD SQL with sqlglot (postgres dialect); a question can belong to several classes",
+  "correlated_subquery": "heuristic: an inner column qualified with an alias defined in the outer query and not redefined inside",
+  "decoding": "batch 1, no padding, greedy, max_new_tokens 256, stop <|im_end|>, no repair"
+ },
+ "shards": {
+  "ood876": {
+   "total": {
+    "n": 811,
+    "wrong": 162
+   },
+   "classes": {
+    "joins_any": {
+     "n": 609,
+     "wrong": 128
+    },
+    "joins_2plus": {
+     "n": 214,
+     "wrong": 61
+    },
+    "joins_3plus": {
+     "n": 30,
+     "wrong": 17
+    },
+    "group_by": {
+     "n": 72,
+     "wrong": 21
+    },
+    "having": {
+     "n": 2,
+     "wrong": 1
+    },
+    "subquery": {
+     "n": 57,
+     "wrong": 21
+    },
+    "cte": {
+     "n": 0,
+     "wrong": 0
+    },
+    "correlated_subquery": {
+     "n": 0,
+     "wrong": 0
+    },
+    "window": {
+     "n": 0,
+     "wrong": 0
+    },
+    "filter_clause": {
+     "n": 0,
+     "wrong": 0
+    },
+    "lateral": {
+     "n": 0,
+     "wrong": 0
+    },
+    "distinct_on": {
+     "n": 0,
+     "wrong": 0
+    },
+    "jsonb": {
+     "n": 0,
+     "wrong": 0
+    },
+    "set_ops": {
+     "n": 0,
+     "wrong": 0
+    }
+   },
+   "join_buckets": {
+    "0": {
+     "n": 202,
+     "wrong": 34
+    },
+    "1": {
+     "n": 395,
+     "wrong": 67
+    },
+    "2": {
+     "n": 184,
+     "wrong": 44
+    },
+    "3+": {
+     "n": 30,
+     "wrong": 17
+    }
+   }
+  },
+  "dev216": {
+   "total": {
+    "n": 216,
+    "wrong": 113
+   },
+   "classes": {
+    "joins_any": {
+     "n": 179,
+     "wrong": 96
+    },
+    "joins_2plus": {
+     "n": 61,
+     "wrong": 33
+    },
+    "joins_3plus": {
+     "n": 12,
+     "wrong": 6
+    },
+    "group_by": {
+     "n": 24,
+     "wrong": 17
+    },
+    "having": {
+     "n": 5,
+     "wrong": 5
+    },
+    "subquery": {
+     "n": 21,
+     "wrong": 11
+    },
+    "cte": {
+     "n": 2,
+     "wrong": 1
+    },
+    "correlated_subquery": {
+     "n": 0,
+     "wrong": 0
+    },
+    "window": {
+     "n": 2,
+     "wrong": 2
+    },
+    "filter_clause": {
+     "n": 0,
+     "wrong": 0
+    },
+    "lateral": {
+     "n": 0,
+     "wrong": 0
+    },
+    "distinct_on": {
+     "n": 0,
+     "wrong": 0
+    },
+    "jsonb": {
+     "n": 0,
+     "wrong": 0
+    },
+    "set_ops": {
+     "n": 1,
+     "wrong": 1
+    }
+   },
+   "join_buckets": {
+    "0": {
+     "n": 37,
+     "wrong": 17
+    },
+    "1": {
+     "n": 118,
+     "wrong": 63
+    },
+    "2": {
+     "n": 49,
+     "wrong": 27
+    },
+    "3+": {
+     "n": 12,
+     "wrong": 6
+    }
+   }
+  }
+ },
+ "training": {
+  "file": "datasets/native_pg/train_main.jsonl",
+  "rows": 6499,
+  "budget_tokens": 352421,
+  "avg_supervised_tokens_per_row": 54.23,
+  "coverage": {
+   "joins_any": {
+    "n": 4858,
+    "share": 0.7475
+   },
+   "joins_2plus": {
+    "n": 1613,
+    "share": 0.248192
+   },
+   "joins_3plus": {
+    "n": 332,
+    "share": 0.051085
+   },
+   "group_by": {
+    "n": 438,
+    "share": 0.067395
+   },
+   "having": {
+    "n": 102,
+    "share": 0.015695
+   },
+   "subquery": {
+    "n": 766,
+    "share": 0.117864
+   },
+   "cte": {
+    "n": 0,
+    "share": 0.0
+   },
+   "correlated_subquery": {
+    "n": 0,
+    "share": 0.0
+   },
+   "window": {
+    "n": 0,
+    "share": 0.0
+   },
+   "filter_clause": {
+    "n": 0,
+    "share": 0.0
+   },
+   "lateral": {
+    "n": 0,
+    "share": 0.0
+   },
+   "distinct_on": {
+    "n": 0,
+    "share": 0.0
+   },
+   "jsonb": {
+    "n": 0,
+    "share": 0.0
+   },
+   "set_ops": {
+    "n": 1,
+    "share": 0.000154
+   }
+  }
+ },
+ "classes": [
+  {
+   "class": "joins_any",
+   "ood876": {
+    "denominator": 609,
+    "wrong": 128,
+    "error_rate": 0.210181,
+    "overall_error_rate": 0.199753,
+    "lift": 1.0522
+   },
+   "dev216": {
+    "denominator": 179,
+    "wrong": 96,
+    "error_rate": 0.536313,
+    "overall_error_rate": 0.523148,
+    "lift": 1.0252
+   },
+   "train_rows": 4858,
+   "train_share": 0.7475,
+   "risk_ratio": 0.281
+  },
+  {
+   "class": "joins_2plus",
+   "ood876": {
+    "denominator": 214,
+    "wrong": 61,
+    "error_rate": 0.285047,
+    "overall_error_rate": 0.199753,
+    "lift": 1.427
+   },
+   "dev216": {
+    "denominator": 61,
+    "wrong": 33,
+    "error_rate": 0.540984,
+    "overall_error_rate": 0.523148,
+    "lift": 1.0341
+   },
+   "train_rows": 1613,
+   "train_share": 0.248192,
+   "risk_ratio": 1.148
+  },
+  {
+   "class": "joins_3plus",
+   "ood876": {
+    "denominator": 30,
+    "wrong": 17,
+    "error_rate": 0.566667,
+    "overall_error_rate": 0.199753,
+    "lift": 2.8368
+   },
+   "dev216": {
+    "denominator": 12,
+    "wrong": 6,
+    "error_rate": 0.5,
+    "overall_error_rate": 0.523148,
+    "lift": 0.9558
+   },
+   "train_rows": 332,
+   "train_share": 0.051085,
+   "risk_ratio": 11.093
+  },
+  {
+   "class": "group_by",
+   "ood876": {
+    "denominator": 72,
+    "wrong": 21,
+    "error_rate": 0.291667,
+    "overall_error_rate": 0.199753,
+    "lift": 1.4601
+   },
+   "dev216": {
+    "denominator": 24,
+    "wrong": 17,
+    "error_rate": 0.708333,
+    "overall_error_rate": 0.523148,
+    "lift": 1.354
+   },
+   "train_rows": 438,
+   "train_share": 0.067395,
+   "risk_ratio": 4.328
+  },
+  {
+   "class": "having",
+   "ood876": {
+    "denominator": 2,
+    "wrong": 1,
+    "error_rate": 0.5,
+    "overall_error_rate": 0.199753,
+    "lift": 2.5031
+   },
+   "dev216": {
+    "denominator": 5,
+    "wrong": 5,
+    "error_rate": 1.0,
+    "overall_error_rate": 0.523148,
+    "lift": 1.9115
+   },
+   "train_rows": 102,
+   "train_share": 0.015695,
+   "risk_ratio": 31.857
+  },
+  {
+   "class": "subquery",
+   "ood876": {
+    "denominator": 57,
+    "wrong": 21,
+    "error_rate": 0.368421,
+    "overall_error_rate": 0.199753,
+    "lift": 1.8444
+   },
+   "dev216": {
+    "denominator": 21,
+    "wrong": 11,
+    "error_rate": 0.52381,
+    "overall_error_rate": 0.523148,
+    "lift": 1.0013
+   },
+   "train_rows": 766,
+   "train_share": 0.117864,
+   "risk_ratio": 3.126
+  },
+  {
+   "class": "cte",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 2,
+    "wrong": 1,
+    "error_rate": 0.5,
+    "overall_error_rate": 0.523148,
+    "lift": 0.9558
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "correlated_subquery",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.523148,
+    "lift": null
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "window",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 2,
+    "wrong": 2,
+    "error_rate": 1.0,
+    "overall_error_rate": 0.523148,
+    "lift": 1.9115
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "filter_clause",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.523148,
+    "lift": null
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "lateral",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.523148,
+    "lift": null
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "distinct_on",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.523148,
+    "lift": null
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "jsonb",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.523148,
+    "lift": null
+   },
+   "train_rows": 0,
+   "train_share": 0.0,
+   "risk_ratio": null
+  },
+  {
+   "class": "set_ops",
+   "ood876": {
+    "denominator": 0,
+    "wrong": 0,
+    "error_rate": null,
+    "overall_error_rate": 0.199753,
+    "lift": null
+   },
+   "dev216": {
+    "denominator": 1,
+    "wrong": 1,
+    "error_rate": 1.0,
+    "overall_error_rate": 0.523148,
+    "lift": 1.9115
+   },
+   "train_rows": 1,
+   "train_share": 0.000154,
+   "risk_ratio": null
+  }
+ ],
+ "overall": {
+  "ood876": {
+   "n": 811,
+   "wrong": 162,
+   "error_rate": 0.199753
+  },
+  "dev216": {
+   "n": 216,
+   "wrong": 113,
+   "error_rate": 0.523148
+  }
+ },
+ "d_decision": {
+  "candidates": [
+   "joins_3plus",
+   "group_by"
+  ],
+  "justified": true,
+  "rows_for_5pct_budget": 325,
+  "rows_for_10pct_budget": 650,
+  "note": "D has a target: joins_3plus, group_by (high error lift and thin training coverage)."
+ }
+}

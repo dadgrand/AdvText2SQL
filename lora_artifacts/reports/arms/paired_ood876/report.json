@@ -2,9 +2,9 @@
   "tool": "cluster.eval_shards",
   "version": 1,
   "meta": {
-    "generated_at": "2026-11-25T04:08:59+00:00",
-    "predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_ood876.json",
-    "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runA_ood876.json",
+    "generated_at": "2026-11-25T05:00:33+00:00",
+    "predictions": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ood876_B.json",
+    "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ood876_A.json",
     "self_compare": false,
     "run_label": null,
     "n_boot": 10000,
@@ -23,23 +23,20 @@
     },
     "offline": false,
     "contamination": {
-      "dev217": "clean",
-      "ex241": "unknown",
-      "ood876": "clean",
-      "pghard": "no_shard"
+      "ood876": "clean"
     },
-    "contamination_note": "arms A and B are the first runs trained only on datasets/native_pg/train_main.jsonl (train split of the t9 manifest, 6,499 rows, 1,018 reserved-OOD rows filtered by the loader)",
-    "contamination_finding": "t9 found 1,018 reserve/OOD rows inside cluster/sft_all_v2.jsonl; train_main is that corpus with those rows removed, so a clean status is claimed against the hashed manifest",
+    "contamination_note": "batch-1 serving contract (t4): arms A/B were trained on the t9 clean split (train_main), so this is a clean-split comparison.",
+    "contamination_finding": null,
     "split_manifest": {
       "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
       "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02"
     },
     "cache": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_cache/exec_cache.json",
-    "workers": 6,
+    "workers": 8,
     "statement_timeout": "20s",
     "execution": {
       "executed": 0,
-      "cache_hits": 2606,
+      "cache_hits": 2605,
       "skipped_offline": 0,
       "errors": 0
     },
@@ -47,7 +44,7 @@
     "results_usable": [
       "ood876"
     ],
-    "duration_seconds": 1.9
+    "duration_seconds": 1.1
   },
   "shard_order": [
     "ood876"
@@ -109,11 +106,11 @@
           "definition": "EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here"
         },
         "prediction_executed": {
-          "n": 755,
+          "n": 756,
           "definition": "predictions that executed, among gold-executable cases"
         },
         "prediction_unexecutable": {
-          "n": 56,
+          "n": 55,
           "definition": "predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong"
         },
         "prediction_missing_among_gold_executable": {
@@ -231,13 +228,13 @@
         "denominator": "shard_size"
       },
       "prediction_side": {
-        "executed": 755,
-        "unexecutable": 56,
+        "executed": 756,
+        "unexecutable": 55,
         "missing": 0,
         "ambiguous": 0,
         "denominator": "gold_executable",
         "categories": {
-          "undefined_column": 38,
+          "undefined_column": 37,
           "invalid_text_representation": 6,
           "sql_error": 6,
           "undefined_function": 2,
@@ -271,7 +268,6 @@
           "ood:menu:209",
           "ood:menu:254",
           "ood:menu:262",
-          "ood:movie_3:286",
           "ood:movie_3:302",
           "ood:movie_3:311",
           "ood:movie_3:312",
@@ -279,7 +275,6 @@
           "ood:movie_3:329",
           "ood:movie_3:362",
           "ood:movie_3:386",
-          "ood:movie_3:396",
           "ood:movie_3:408",
           "ood:movie_3:431",
           "ood:movie_3:436",
@@ -288,6 +283,7 @@
           "ood:movies_4:476",
           "ood:movies_4:500",
           "ood:movies_4:514",
+          "ood:movies_4:525",
           "ood:movies_4:526",
           "ood:movies_4:567",
           "ood:movies_4:595",
@@ -315,7 +311,7 @@
         "denominator_definition": "pooled over all databases: sum(correct) / sum(gold-executable cases)"
       },
       "macro": {
-        "mean_ex": 0.7767051222524407,
+        "mean_ex": 0.7751722442702155,
         "n_databases": 10,
         "n_databases_in_shard": 10,
         "denominator": "n_databases",
@@ -325,12 +321,12 @@
         "disney": {
           "n_cases": 77,
           "gold_executable": 74,
-          "correct": 47,
-          "ex_all": 0.6103896103896104,
-          "ex_gold_executable": 0.6351351351351351,
+          "correct": 46,
+          "ex_all": 0.5974025974025974,
+          "ex_gold_executable": 0.6216216216216216,
           "wilson95_gold_executable": [
-            0.521318134077069,
-            0.7356143577779322
+            0.5077145888584812,
+            0.7235246538110199
           ],
           "pred_unexecutable": 13,
           "gold_unexecutable": 3,
@@ -344,12 +340,12 @@
         "european_football_1": {
           "n_cases": 38,
           "gold_executable": 36,
-          "correct": 26,
-          "ex_all": 0.6842105263157895,
-          "ex_gold_executable": 0.7222222222222222,
+          "correct": 25,
+          "ex_all": 0.6578947368421053,
+          "ex_gold_executable": 0.6944444444444444,
           "wilson95_gold_executable": [
-            0.560075098694387,
-            0.8415166213194445
+            0.5314372701821003,
+            0.819955484830002
           ],
           "pred_unexecutable": 2,
           "gold_unexecutable": 2,
@@ -377,12 +373,12 @@
         "menu": {
           "n_cases": 69,
           "gold_executable": 68,
-          "correct": 47,
-          "ex_all": 0.6811594202898551,
-          "ex_gold_executable": 0.6911764705882353,
+          "correct": 46,
+          "ex_all": 0.6666666666666666,
+          "ex_gold_executable": 0.6764705882352942,
           "wilson95_gold_executable": [
-            0.5736318821037136,
-            0.7882761359803836
+            0.558444980047276,
+            0.7756239597226599
           ],
           "pred_unexecutable": 5,
           "gold_unexecutable": 1,
@@ -394,14 +390,14 @@
         "movie_3": {
           "n_cases": 200,
           "gold_executable": 189,
-          "correct": 145,
-          "ex_all": 0.725,
-          "ex_gold_executable": 0.7671957671957672,
+          "correct": 148,
+          "ex_all": 0.74,
+          "ex_gold_executable": 0.783068783068783,
           "wilson95_gold_executable": [
-            0.7019880668335059,
-            0.8217582301812392
+            0.7189859963281227,
+            0.8358739420934389
           ],
-          "pred_unexecutable": 14,
+          "pred_unexecutable": 12,
           "gold_unexecutable": 11,
           "gold_unexecutable_categories": {
             "undefined_function": 10,
@@ -412,14 +408,14 @@
         "movies_4": {
           "n_cases": 139,
           "gold_executable": 134,
-          "correct": 114,
-          "ex_all": 0.8201438848920863,
-          "ex_gold_executable": 0.8507462686567164,
+          "correct": 113,
+          "ex_all": 0.8129496402877698,
+          "ex_gold_executable": 0.8432835820895522,
           "wilson95_gold_executable": [
-            0.7806868619560686,
-            0.90125600750347
+            0.7722793722350668,
+            0.8951540744700136
           ],
-          "pred_unexecutable": 6,
+          "pred_unexecutable": 7,
           "gold_unexecutable": 5,
           "gold_unexecutable_categories": {
             "syntax_error": 3,
@@ -431,12 +427,12 @@
         "music_tracker": {
           "n_cases": 31,
           "gold_executable": 31,
-          "correct": 26,
-          "ex_all": 0.8387096774193549,
-          "ex_gold_executable": 0.8387096774193549,
+          "correct": 27,
+          "ex_all": 0.8709677419354839,
+          "ex_gold_executable": 0.8709677419354839,
           "wilson95_gold_executable": [
-            0.6736564589149602,
-            0.9290737560150889
+            0.7114759359315365,
+            0.948657156610898
           ],
           "pred_unexecutable": 0,
           "gold_unexecutable": 0,
@@ -510,7 +506,7 @@
             0.757172083866418,
             0.8134910738948513
           ],
-          "pred_unexecutable": 56,
+          "pred_unexecutable": 55,
           "gold_unexecutable": 65,
           "gold_unexecutable_categories": {
             "undefined_function": 31,
@@ -525,8 +521,8 @@
       },
       "paired": {
         "shard": "ood876",
-        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runA_ood876.json",
-        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_ood876.json",
+        "baseline": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ood876_A.json",
+        "current": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/preds/ood876_B.json",
         "same_source": false,
         "n_paired": 811,
         "denominator": "paired_cases",
@@ -536,14 +532,14 @@
         "n_excluded_missing_prediction": 0,
         "missing_in_current": [],
         "missing_in_baseline": [],
-        "b": 101,
-        "c": 40,
-        "discordant": 141,
-        "mcnemar_exact_p": 2.8749799610187777e-07,
-        "delta_ex": 0.0752157829839704,
+        "b": 105,
+        "c": 41,
+        "discordant": 146,
+        "mcnemar_exact_p": 1.1730437087592476e-07,
+        "delta_ex": 0.07891491985203453,
         "bootstrap95": [
-          0.0468557336621455,
-          0.10480887792848335
+          0.05055487053020962,
+          0.10850801479654747
         ],
         "n_boot": 10000,
         "seed": 0
@@ -591,7 +587,7 @@
       "per_skill": {},
       "execution_stats": {
         "unique_gold_queries": 876,
-        "unique_prediction_queries": 867
+        "unique_prediction_queries": 866
       },
       "gold_rewrite_audit": {
         "status": "ok",
@@ -614,13 +610,13 @@
           "note": "Execution-level check: rewritten gold is run on the same database and its row digest is compared with the native result. n_rewrite_fails_that_native_survives counts gold that the old pipeline would have lost; n_result_differs counts gold whose answer the rewrite would silently change."
         }
       },
-      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/arms/paired_ood876/per_question_ood876.jsonl",
+      "per_question_file": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/paired_b1/ood876/per_question_ood876.jsonl",
       "contamination": {
         "status": "clean",
         "label": "clean split",
         "result_usable": true,
-        "note": "arms A and B are the first runs trained only on datasets/native_pg/train_main.jsonl (train split of the t9 manifest, 6,499 rows, 1,018 reserved-OOD rows filtered by the loader)",
-        "finding": "t9 found 1,018 reserve/OOD rows inside cluster/sft_all_v2.jsonl; train_main is that corpus with those rows removed, so a clean status is claimed against the hashed manifest",
+        "note": "batch-1 serving contract (t4): arms A/B were trained on the t9 clean split (train_main), so this is a clean-split comparison.",
+        "finding": null,
         "split_manifest": {
           "path": "/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json",
           "sha256": "65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02"

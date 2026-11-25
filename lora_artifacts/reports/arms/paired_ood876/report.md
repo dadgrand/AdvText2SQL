@@ -1,143 +1,123 @@
-# Four-shard evaluation report
+# Batch-1 paired ledger: fixes and regressions by id
 
-- Predictions: `/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runB_ood876.json`
-- Baseline: `/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/runs/preds/runA_ood876.json`
-- Generated: 2026-11-25T04:08:59+00:00
-- Server: 15.15 (Debian 15.15-1.pgdg13+1) · host `tcp:127.0.0.1:5444`
-- Paired bootstrap: 10000 resamples, seed 0
-- Native-gold drift policy (t15, applied here): `cluster/eval_reports/drift_policy.md`
-- Execution: 0 live queries, 2606 cache hits, 0 execution errors, 0 skipped (offline)
+> **Spread note:** the +1.36 pp of B_real over B_mixed is **concentrated, not general** — 6 of the net 11 sit in `movies_4`, offset by `law_episode` −2 and `music_tracker` −3 (`by_db_breal.json`).
 
-## Summary (each percentage carries its denominator)
+Serving contract: batch size 1, no padding, no truncation, greedy, `max_new_tokens=256`, stop `<|im_end|>`, the training renderer in serve mode, no repair. Arm A = base Qwen2.5-Coder-7B-Instruct; arm B = 7B + LoRA (adapter sha256 `d9dca06e…`, step 200). Predictions: `cluster/preds/{shard}_{A,B}.json`.
 
-| shard | quality | contamination | cases | predictions present | gold executed | gold unexec. | EX/gold-exec | EX/all | micro | macro (dbs) | paired Δ (n) |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| `ood876` | primary | clean split | 876 | 876 | 811 | 65 | 638/811 = 78.67 % [75.7–81.3, Wilson] | 638/876 = 72.83 % | 638/811 = 78.67 % | 0.7767 (10) | +7.52 % (811) |
+This report supersedes the earlier batch-8 paired report. Batch-8 decoding was left-padded and shape-sensitive (t38); those files stay in `cluster/eval_reports/t4/b8_*` for the record and are not a serving number. Only the batch-1 numbers below may be quoted.
 
-EX/gold-executable is the headline; EX/all is shown only so the two denominators are never confused. A missing or non-executing prediction stays in EX/gold-executable as a wrong answer. A row whose contamination status is not `clean` is not a result, whatever its EX.
+## Headline
 
-## Native-gold drift policy (t15)
+| shard | scored ids | EX A | EX B | Δ | 95 % CI | fixes | regressions | net | McNemar p |
+|---|---:|---:|---:|---:|---|---:|---:|---:|---:|
+| `ood876` | 811 | 574/811 | 638/811 | +7.89 pp | [5.06, 10.85] | 105 | 41 | +64 | 1.17e-07 |
+| `dev216` | 216 | 87/216 | 101/216 | +6.48 pp | [0.00, 12.96] | 31 | 17 | +14 | 0.0595 |
+| `ex241` | 209 | 83/209 | 99/209 | +7.66 pp | [0.96, 13.88] | 32 | 16 | +16 | 0.0293 |
 
-Policy: a row whose native PostgreSQL gold cannot be compared with its BIRD SQLite original is **not scored** (the SQLite data is the official reference for dev); a reviewed correction stays usable as the corrected native gold but is flagged `translation_defect`. A shard where the SQLite originals are not available locally gets no drift audit, and says so instead of implying one.
+## Arithmetic check (from the per-id ledger, not from the aggregate)
 
-| shard | denominator | before the policy | excluded | reviewed corrections | drift audit |
-|---|---|---|---|---|---|
-| `ood876` | 876 | 876 rows | 0 | 0 | **not possible** (no SQLite originals) |
+| shard | fixes − regressions | net (= EX B − EX A) | equal | ledger ids = pair n | b/c match harness |
+|---|---:|---:|---|---|---|
+| `ood876` | 105 − 41 = 64 | 638 − 574 = 64 | yes | yes | yes |
+| `dev216` | 31 − 17 = 14 | 101 − 87 = 14 | yes | yes | yes |
+| `ex241` | 32 − 16 = 16 | 99 − 83 = 16 | yes | yes | yes |
 
-The denominator column is the shard size after the policy (216 drift-clean, 241 historical, 876 OOD-876). EX is computed on the executable-gold denominator where it differs: `ex241` 209 of 241, `ood876` 811 of 876.
+- OOD-876: fixes − regressions **105 − 41 = 64**; EX B − EX A **638 − 574 = 64**.
+- dev-216: fixes − regressions **31 − 17 = 14**; EX B − EX A **101 − 87 = 14**.
+- historical 241: fixes − regressions **32 − 16 = 16**; EX B − EX A **99 − 83 = 16**.
 
-## `ood876` — OOD-876 (native PG gold, no secondary transpilation)
+Every scored id appears in the matching `paired_*.jsonl` with its question, db_id, gold SQL and both predictions; the fix and regression lists below are generated from those files. To check a number by hand: `jq -r 'select(.change=="fix") | .question_id' paired_ood876.jsonl | wc -l` (105), the same with `regression` (41), and `wc -l` (811).
 
-- PostgreSQL gold is executed verbatim: no sqlglot transpile, no repo_rewrite, no regex. The old OOD report re-transpiled this gold with the SQLite rewrite; this harness measures what that rewrite would change instead of assuming it (see the rewrite audit and the frozen-ledger check).
-- Question ids are normalised by numeric suffix (ood:disney:0000 == ood:disney:0) so a run recorded with padded ids still pairs.
-- A usable OOD number must come from a model trained on the clean split (t14 run B onwards) and must be scored with --contamination ood876=clean --split-manifest <manifest>; the manifest hash is then printed in the report. Pre-dedupe-fix runs are labelled contaminated_run, not a result.
+## By database — OOD-876
 
-**Contamination status: `clean` — clean split.** Result usable: **True**.
+| database | scored | share | fixes | regressions | net | EX A | EX B |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `movie_3` | 189 | 23.3 % | 21 | 11 | +10 | 73.0 % | 78.3 % |
+| `movies_4` | 134 | 16.5 % | 13 | 5 | +8 | 78.4 % | 84.3 % |
+| `talkingdata` | 109 | 13.4 % | 14 | 2 | +12 | 83.5 % | 94.5 % |
+| `law_episode` | 89 | 11.0 % | 19 | 2 | +17 | 56.2 % | 75.3 % |
+| `disney` | 74 | 9.1 % | 17 | 10 | +7 | 52.7 % | 62.2 % |
+| `menu` | 68 | 8.4 % | 4 | 3 | +1 | 66.2 % | 67.6 % |
+| `sales_in_weather` | 42 | 5.2 % | 6 | 2 | +4 | 57.1 % | 66.7 % |
+| `social_media` | 39 | 4.8 % | 5 | 2 | +3 | 82.1 % | 89.7 % |
+| `european_football_1` ⚠ | 36 | 4.4 % | 3 | 4 | -1 | 72.2 % | 69.4 % |
+| `music_tracker` | 31 | 3.8 % | 3 | 0 | +3 | 77.4 % | 87.1 % |
 
-> arms A and B are the first runs trained only on datasets/native_pg/train_main.jsonl (train split of the t9 manifest, 6,499 rows, 1,018 reserved-OOD rows filtered by the loader)
+**Net negative databases:** `european_football_1` — the adapter loses more there than it fixes.
 
-> Finding on record: t9 found 1,018 reserve/OOD rows inside cluster/sft_all_v2.jsonl; train_main is that corpus with those rows removed, so a clean status is claimed against the hashed manifest
+## By database — dev-216
 
-> Split manifest: `/home/stonemonkey/Documents/TalentHub/research/advtext2sql/datasets/splits/schema_family_split.json`, sha256 `65e6ca1c47060b5c08d7fb7999ff88ee4d848d659e24dafa08f7c7ad2a6cbb02`.
+| database | scored | share | fixes | regressions | net | EX A | EX B |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `superhero` | 36 | 16.7 % | 6 | 4 | +2 | 63.9 % | 69.4 % |
+| `student_club` | 30 | 13.9 % | 4 | 1 | +3 | 56.7 % | 66.7 % |
+| `card_games` ⚠ | 28 | 13.0 % | 1 | 2 | -1 | 46.4 % | 42.9 % |
+| `financial` | 27 | 12.5 % | 8 | 1 | +7 | 7.4 % | 33.3 % |
+| `toxicology` | 27 | 12.5 % | 5 | 4 | +1 | 37.0 % | 40.7 % |
+| `codebase_community` | 26 | 12.0 % | 3 | 2 | +1 | 57.7 % | 61.5 % |
+| `california_schools` ⚠ | 23 | 10.6 % | 2 | 3 | -1 | 13.0 % | 8.7 % |
+| `debit_card_specializing` | 19 | 8.8 % | 2 | 0 | +2 | 21.1 % | 31.6 % |
 
-Gold: `/home/stonemonkey/Documents/TalentHub/research/advtext2sql/repo/runs/ood/ood_heldout.json` field `SQL`, rewrite `none`, sha256 `32f876bc51cc3134…`, criterion `execution_ex`.
+**Net negative databases:** `california_schools`, `card_games` — the adapter loses more there than it fixes.
 
-### Native-gold drift policy
+## By database — historical 241
 
-- **Drift audit: not possible on this shard.** The OOD-876 databases are BIRD train databases; their SQLite originals are not shipped locally (only the eight dev SQLite files are present), so a SQLite-vs-PostgreSQL drift audit cannot be run. Native PostgreSQL gold stays the reference; the 65 unexecutable gold ids are listed in this report.
-- The 65 unexecutable gold ids stay listed (they leave the EX denominator, they are not silently dropped):
+| database | scored | share | fixes | regressions | net | EX A | EX B |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `student_club` | 33 | 15.8 % | 5 | 1 | +4 | 51.5 % | 63.6 % |
+| `toxicology` | 32 | 15.3 % | 6 | 5 | +1 | 37.5 % | 40.6 % |
+| `superhero` ⚠ | 30 | 14.4 % | 3 | 4 | -1 | 76.7 % | 73.3 % |
+| `financial` | 26 | 12.4 % | 8 | 1 | +7 | 7.7 % | 34.6 % |
+| `card_games` ⚠ | 24 | 11.5 % | 1 | 2 | -1 | 50.0 % | 45.8 % |
+| `codebase_community` | 23 | 11.0 % | 3 | 1 | +2 | 43.5 % | 52.2 % |
+| `debit_card_specializing` | 21 | 10.0 % | 4 | 0 | +4 | 23.8 % | 42.9 % |
+| `california_schools` | 20 | 9.6 % | 2 | 2 | +0 | 10.0 % | 10.0 % |
 
-  ```
-  ood:disney:0, ood:disney:2, ood:disney:37, ood:european_football_1:103, ood:european_football_1:112, ood:menu:212, ood:movie_3:278, ood:movie_3:317
-  ood:movie_3:363, ood:movie_3:371, ood:movie_3:388, ood:movie_3:413, ood:movie_3:421, ood:movie_3:430, ood:movie_3:461, ood:movie_3:464
-  ood:movie_3:468, ood:movies_4:551, ood:movies_4:554, ood:movies_4:575, ood:movies_4:580, ood:movies_4:581, ood:sales_in_weather:643, ood:sales_in_weather:646
-  ood:sales_in_weather:660, ood:sales_in_weather:661, ood:sales_in_weather:662, ood:sales_in_weather:664, ood:sales_in_weather:665, ood:sales_in_weather:669, ood:sales_in_weather:671, ood:sales_in_weather:672
-  ood:sales_in_weather:677, ood:sales_in_weather:679, ood:sales_in_weather:687, ood:sales_in_weather:692, ood:sales_in_weather:696, ood:sales_in_weather:698, ood:social_media:707, ood:social_media:708
-  ood:social_media:712, ood:social_media:713, ood:social_media:714, ood:social_media:718, ood:social_media:719, ood:social_media:720, ood:social_media:726, ood:social_media:727
-  ood:social_media:728, ood:social_media:735, ood:social_media:736, ood:social_media:740, ood:social_media:745, ood:social_media:746, ood:social_media:749, ood:social_media:750
-  ood:social_media:752, ood:social_media:755, ood:social_media:759, ood:talkingdata:769, ood:talkingdata:806, ood:talkingdata:811, ood:talkingdata:815, ood:talkingdata:854
-  ood:talkingdata:856
-  ```
+**Net negative databases:** `card_games`, `superhero` — the adapter loses more there than it fixes.
 
-### Denominators
+## Examples
 
-| name | n | definition |
-|---|---|---|
-| `shard_size` | 876 | cases in the shard file; denominator of EX/all |
-| `predictions_present` | 876 | ids in the shard that the predictions file covers (after id normalisation) |
-| `predictions_missing` | 0 | ids in the shard with no prediction; they stay in EX/all and count as wrong |
-| `gold_executed` | 811 | gold queries that executed on the live server; denominator of EX/gold-executable |
-| `gold_unexecutable` | 65 | gold queries that failed to execute; removed from the EX denominator, kept in EX/all |
-| `ex_denominator` | 811 | EX/gold-executable denominator (== gold_executed); a prediction that is missing or fails to run scores 0 here |
-| `prediction_executed` | 755 | predictions that executed, among gold-executable cases |
-| `prediction_unexecutable` | 56 | predictions that were attempted and failed to execute, among gold-executable cases; counted as wrong |
-| `prediction_missing_among_gold_executable` | 0 | gold-executable cases with no prediction at all (missing from the predictions file) |
-| `not_executed` | 0 | cases whose execution was skipped (offline replay without a cache entry); never counted as gold-executable |
+### OOD-876 fixes (first rows of the ledger)
 
-### Gold executability (measured, native gold)
+- `ood:disney:1` (disney): A `SELECT T2.director FROM characters AS T1 JOIN director AS T2 ON T1.movie_title = T2.movie WHERE T1.song = 'Once Upon a Dream'` → B `SELECT T1.director FROM director AS T1 INNER JOIN characters AS T2 ON T1.name = T2.movie_title WHERE T2.song = 'Once Upon a Dream'`
+- `ood:european_football_1:101` (european_football_1): A `SELECT hometeam FROM matchs WHERE season = 2021 AND div = 'Bundesliga' AND (hometeam = 'Augsburg' OR hometeam = 'Mainz') AND ftr = 'H' GROUP` → B `SELECT CASE WHEN SUM(CASE WHEN T2.HomeTeam = 'Augsburg' THEN 1 ELSE 0 END) > SUM(CASE WHEN T2.HomeTeam = 'Mainz 05' THEN 1 ELSE 0 END) THEN `
+- `ood:law_episode:118` (law_episode): A `SELECT SUM(votes) FROM episode AS e JOIN vote AS v ON e.episode_id = v.episode_id WHERE e.title = 'Cherished'` → B `SELECT SUM(T2.votes) FROM episode AS T1 INNER JOIN vote AS T2 ON T2.episode_id = T1.episode_id WHERE T1.title = 'Cherished'`
+- `ood:menu:215` (menu): A `SELECT CASE WHEN SUM(CASE WHEN menu.name = 'Zentral Theater Terrace' THEN menupage.full_width ELSE 0 END) > SUM(CASE WHEN menu.name = 'Young` → B `SELECT CASE WHEN SUM(CASE WHEN T2.name = 'Zentral Theater Terrace' THEN T1.full_width ELSE 0 END) > SUM(CASE WHEN T2.name = 'Young''s Hotel'`
 
-Executed **811** of **876** gold queries (92.58 %); **65** unexecutable, removed from the EX denominator.
+### OOD-876 regressions
 
-| gold error category | n |
-|---|---|
-| `undefined_function` | 31 |
-| `undefined_column` | 22 |
-| `sql_error` | 5 |
-| `syntax_error` | 5 |
-| `datatype_mismatch` | 1 |
-| `invalid_text_representation` | 1 |
+- `ood:disney:23` (disney): A `SELECT T1.movie_title FROM movies_total_gross AS T1 JOIN director AS T2 ON T1.movie_title = T2.name WHERE T2.director = 'Ron Clements' ORDER` → B `SELECT T1.movie_title FROM movies_total_gross AS T1 INNER JOIN director AS T2 ON T1.movie_title = T2.name WHERE T2.director = 'Ron Clements'`
+- `ood:european_football_1:107` (european_football_1): A `SELECT T1.awayteam FROM matchs AS T1 JOIN divisions AS T2 ON T1.div = T2.division WHERE T2.name = 'Ligue 2' AND T1.ftr = 'A' ORDER BY T1.fth` → B `SELECT T2.HOMEteam FROM divisions AS T1 INNER JOIN matchs AS T2 ON T1.division = T2.DIV WHERE T1.Name = 'Ligue 2' ORDER BY T2.FTHG + T2.FTAG`
+- `ood:law_episode:143` (law_episode): A `SELECT T1.name FROM person AS T1 JOIN credit AS T2 ON T1.person_id = T2.person_id JOIN episode AS T3 ON T2.episode_id = T3.episode_id WHERE ` → B `SELECT T2.name FROM episode AS T1 INNER JOIN credit AS T2 ON T1.episode_id = T2.episode_id INNER JOIN person AS T3 ON T3.person_id = T2.pers`
+- `ood:menu:207` (menu): A `SELECT dish.name FROM dish JOIN menuitem ON dish.id = menuitem.dish_id JOIN menupage ON menuitem.menu_page_id = menupage.id JOIN menu ON men` → B `SELECT T3.name FROM menu AS T1 INNER JOIN menupage AS T2 ON T1.id = T2.menu_id INNER JOIN dish AS T3 ON T3.id = T2.dish_id WHERE T1.name = '`
 
-Historical SQLite rewrite applied to this native gold (offline check, no execution): it would alter **28** of 876 queries and break **0** of them at the PostgreSQL parse level — which is exactly why this shard's gold is executed verbatim.
+### dev-216 fixes
 
-Execution-level check on those 28 altered queries: **23** return exactly the native rows, **0** would change the answer, **0** would fail although native gold runs (denominator `gold queries altered by the historical rewrite`).
+- `35` (california_schools): A `SELECT T1.admemail1 FROM schools AS T1 JOIN frpm AS T2 ON T1.cdscode = T2.cdscode WHERE T2.`Charter School (Y/N)` = 1 ORDER BY T2.`Enrollmen` → B `SELECT T2.admemail1 FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1."Charter School (Y/N)" = 1 ORDER BY T1."Enr`
+- `498` (card_games): A `SELECT T2.translation FROM cards AS T1 JOIN set_translations AS T2 ON T1.setcode = T2.setcode WHERE T2.language = 'French' AND T2.translatio` → B `SELECT T1.Translation FROM set_translations AS T1 INNER JOIN cards AS T2 ON T1.setcode = T2.setcode WHERE T2.name = 'Tendo Ice Bridge' AND T`
+- `592` (codebase_community): A `SELECT COUNT(UserId) FROM badges GROUP BY UserId HAVING COUNT(Name) > 5` → B `SELECT COUNT(UserId) FROM (SELECT UserId FROM Badges GROUP BY UserId HAVING COUNT(Name) > 5) AS T1`
+- `1471` (debit_card_specializing): A `SELECT count(CASE WHEN currency = 'EUR' THEN 1 ELSE NULL END) / NULLIF(count(CASE WHEN currency = 'CZK' THEN 1 ELSE NULL END), 0) AS ratio F` → B `SELECT CAST(SUM(CASE WHEN Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN Currency = 'CZK' THEN 1 ELSE 0 END), 0) FROM C`
 
-Predictions: **755** executed, **56** failed to execute, **0** missing, **0** returned the ambiguity marker (denominator: gold_executable = 811); 65 not attempted because the gold failed.
+### dev-216 regressions
 
-| prediction error category | n |
-|---|---|
-| `undefined_column` | 38 |
-| `invalid_text_representation` | 6 |
-| `sql_error` | 6 |
-| `undefined_function` | 2 |
-| `invalid_datetime_format` | 1 |
-| `query_timeout` | 1 |
-| `syntax_error` | 1 |
-| `undefined_table` | 1 |
+- `36` (california_schools): A `SELECT T1.admfname1, T1.admlname1, T1.admfname2, T1.admlname2, T1.admfname3, T1.admlname3 FROM schools AS T1 JOIN satscores AS T2 ON T1.cdsc` → B `SELECT T1.admfname1, T1.admlname1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.cdscode = T2.cds WHERE T2.NumGE1500 = (SELECT MAX(NumG`
+- `409` (card_games): A `SELECT COUNT(*) FROM cards c JOIN legalities l ON c.uuid = l.uuid JOIN rulings r ON c.uuid = r.uuid WHERE l.format = 'premodern' AND r.text ` → B `SELECT COUNT(*) FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T2.format = 'premodern' AND T1.text = 'This is a tri`
+- `563` (codebase_community): A `SELECT T2.favoritecount FROM comments AS T1 INNER JOIN posts AS T2 ON T1.postid = T2.id WHERE T1.userid = '3025' AND T1.creationdate = '2014` → B `SELECT T2.FavoriteCount FROM PostHistory AS T1 INNER JOIN Posts AS T2 ON T1.PostId = T2.Id WHERE T1.UserId = 3025 AND T1.CreationDate = '201`
+- `179` (financial): A `SELECT SUM(amount) FROM trans WHERE account_id IN (SELECT account_id FROM disp WHERE client_id = 617) AND date BETWEEN '1998-01-01' AND '199` → B `SELECT SUM(T1.amount) FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE T2.client_id = 617 AND TO_CHAR(CAST(T`
 
-### By database (micro and macro)
+### historical 241 fixes
 
-| database | cases | gold executed | correct | EX/gold-exec | EX/all | pred. unexec. |
-|---|---|---|---|---|---|---|
-| `disney` | 77 | 74 | 47 | 63.51 % | 61.04 % | 13 |
-| `european_football_1` | 38 | 36 | 26 | 72.22 % | 68.42 % | 2 |
-| `law_episode` | 89 | 89 | 67 | 75.28 % | 75.28 % | 4 |
-| `menu` | 69 | 68 | 47 | 69.12 % | 68.12 % | 5 |
-| `movie_3` | 200 | 189 | 145 | 76.72 % | 72.50 % | 14 |
-| `movies_4` | 139 | 134 | 114 | 85.07 % | 82.01 % | 6 |
-| `music_tracker` | 31 | 31 | 26 | 83.87 % | 83.87 % | 0 |
-| `sales_in_weather` | 58 | 42 | 28 | 66.67 % | 48.28 % | 6 |
-| `social_media` | 60 | 39 | 35 | 89.74 % | 58.33 % | 0 |
-| `talkingdata` | 115 | 109 | 103 | 94.50 % | 89.57 % | 6 |
+- `50` (california_schools): A `SELECT T2.street, T2.school FROM satscores AS T1 JOIN schools AS T2 ON T1.cds = T2.cdscode ORDER BY T1.avgscrmath DESC LIMIT 1 OFFSET 6` → B `SELECT T2.Street, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.CDS = T2.CDSCode ORDER BY T1.AvgScrMath DESC NULLS LAST LIMI`
+- `498` (card_games): A `SELECT T2.translation FROM cards AS T1 JOIN set_translations AS T2 ON T1.setcode = T2.setcode WHERE T2.language = 'French' AND T2.translatio` → B `SELECT T1.Translation FROM set_translations AS T1 INNER JOIN cards AS T2 ON T1.setcode = T2.setcode WHERE T2.name = 'Tendo Ice Bridge' AND T`
+- `592` (codebase_community): A `SELECT COUNT(UserId) FROM badges GROUP BY UserId HAVING COUNT(Name) > 5` → B `SELECT COUNT(UserId) FROM (SELECT UserId FROM Badges GROUP BY UserId HAVING COUNT(Name) > 5) AS T1`
+- `1471` (debit_card_specializing): A `SELECT count(CASE WHEN currency = 'EUR' THEN 1 ELSE NULL END) / NULLIF(count(CASE WHEN currency = 'CZK' THEN 1 ELSE NULL END), 0) AS ratio F` → B `SELECT CAST(SUM(CASE WHEN Currency = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN Currency = 'CZK' THEN 1 ELSE 0 END), 0) FROM C`
 
-Micro: 638/811 = 78.67 % (denominator `gold_executable`). Macro: 0.7767 over 10 of 10 databases (denominator `n_databases`).
+### historical 241 regressions
 
-### By difficulty
-
-| difficulty | cases | gold executed | correct | EX/gold-exec |
-|---|---|---|---|---|
-| unknown | 876 | 811 | 638 | 78.67 % |
-
-### Paired difference vs baseline
-
-Paired on **811** independent cases (denominator `paired_cases`: ids present in both files whose native gold executed (one case per question id, resampled by question id)).
-
-- ΔEX = 7.52 % (95 % paired-bootstrap CI 4.69 % … 10.48 %; 10000 resamples, seed 0)
-- Discordant: b = 101 (current right / baseline wrong), c = 40; exact McNemar p = 2.875e-07
-- Excluded: 65 common ids with unexecutable gold, 0 with a missing prediction
-- Missing ids: 0 in baseline, 0 in current
-
-Per-question ledger: `/home/stonemonkey/Documents/TalentHub/research/advtext2sql/cluster/eval_reports/arms/paired_ood876/per_question_ood876.jsonl`
-
+- `36` (california_schools): A `SELECT T1.admfname1, T1.admlname1, T1.admfname2, T1.admlname2, T1.admfname3, T1.admlname3 FROM schools AS T1 JOIN satscores AS T2 ON T1.cdsc` → B `SELECT T1.admfname1, T1.admlname1 FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.cdscode = T2.cds WHERE T2.NumGE1500 = (SELECT MAX(NumG`
+- `409` (card_games): A `SELECT COUNT(*) FROM cards c JOIN legalities l ON c.uuid = l.uuid JOIN rulings r ON c.uuid = r.uuid WHERE l.format = 'premodern' AND r.text ` → B `SELECT COUNT(*) FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T2.format = 'premodern' AND T1.text = 'This is a tri`
+- `563` (codebase_community): A `SELECT T2.favoritecount FROM comments AS T1 INNER JOIN posts AS T2 ON T1.postid = T2.id WHERE T1.userid = '3025' AND T1.creationdate = '2014` → B `SELECT T2.FavoriteCount FROM PostHistory AS T1 INNER JOIN Posts AS T2 ON T1.PostId = T2.Id WHERE T1.UserId = 3025 AND T1.CreationDate = '201`
+- `179` (financial): A `SELECT SUM(amount) FROM trans WHERE account_id IN (SELECT account_id FROM disp WHERE client_id = 617) AND date BETWEEN '1998-01-01' AND '199` → B `SELECT SUM(T1.amount) FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE T2.client_id = 617 AND TO_CHAR(CAST(T`
 
 <!-- breal-section:start -->
 ## B_real comparisons (batch 1)
@@ -160,4 +140,10 @@ Reading rules: dev-216 is the selection shard (all dev numbers are optimistic by
 
 <!-- breal-section:end -->
 
+## Provenance
+
+- Predictions: `cluster/preds/{shard}_{A,B}.json` (batch-1 contract, sidecars with model/adapter hashes).
+- Execution ledgers: `cluster/eval_reports/t4/{shard}_{A,B}/per_question_*.jsonl`.
+- Pairing and intervals: `cluster/eval_reports/paired_b1/{shard}/report.json` (harness, 10 000 bootstrap resamples, seed 0).
+- This ledger: `cluster/build_paired_ledger.py`; every row is checksummed by the arithmetic block above.
 

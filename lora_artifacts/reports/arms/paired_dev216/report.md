@@ -1,5 +1,7 @@
 # Batch-1 paired ledger: fixes and regressions by id
 
+> **Spread note:** the +1.36 pp of B_real over B_mixed is **concentrated, not general** — 6 of the net 11 sit in `movies_4`, offset by `law_episode` −2 and `music_tracker` −3 (`by_db_breal.json`).
+
 Serving contract: batch size 1, no padding, no truncation, greedy, `max_new_tokens=256`, stop `<|im_end|>`, the training renderer in serve mode, no repair. Arm A = base Qwen2.5-Coder-7B-Instruct; arm B = 7B + LoRA (adapter sha256 `d9dca06e…`, step 200). Predictions: `cluster/preds/{shard}_{A,B}.json`.
 
 This report supersedes the earlier batch-8 paired report. Batch-8 decoding was left-padded and shape-sensitive (t38); those files stay in `cluster/eval_reports/t4/b8_*` for the record and are not a serving number. Only the batch-1 numbers below may be quoted.
@@ -137,8 +139,6 @@ Per database (net of fixes − regressions): `movie_3` +3; `menu` +0; `movies_4`
 Reading rules: dev-216 is the selection shard (all dev numbers are optimistic by construction); OOD-876 is confirmation only; every number is batch-1 decoding; the historical 241 shard was not run for B_real or B_mixed, so no 241 cell exists here (not a zero).
 
 <!-- breal-section:end -->
-
-
 
 ## Provenance
 
